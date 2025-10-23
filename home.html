@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>W.K.Jasdka Welcomes you!</title>
+  <link rel="icon" href="/wkjasdka/index/echo logo.png" type="image/x-icon">
+  <!-- 引入Font Awesome用于图标 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* 基础样式 */
+    * {
+      box-sizing: border-box;
+    }
+    
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
+    
+    body {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+    
+    /* 导航栏样式 - 手机优化 */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background-color: #d7d7d7;
+      padding: 0.8rem 0;
+      z-index: 9000;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      transition: transform 0.4s ease-out;
+      height: 60px;
+    }
+    
+    .navbar.hidden {
+      transform: translateY(-100%);
+    }
+    
+    .navbar-container {
+      width: 100%;
+      margin: 0 auto;
+      padding: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 100%;
+    }
+
+    /* 菜单按钮样式 - 手机优化 */
+    .menu-btn {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 26px;
+      height: 20px;
+      cursor: pointer;
+      z-index: 9001;
+    }
+    
+    .menu-btn .line {
+      position: absolute;
+      width: 100%;
+      height: 2.5px;
+      background-color: #333;
+      border-radius: 2px;
+      transform-origin: right center;
+    }
+    
+    .menu-btn:not(.rotated) {
+      transition: transform 0.35s ease-out;
+    }
+    
+    .menu-btn:not(.rotated) .line {
+      transition: all 0.35s ease-out;
+    }
+    
+    .menu-btn.rotated {
+      transition: transform 0.25s cubic-bezier(0.215, 0.61, 0.355, 1);
+    }
+    
+    .menu-btn.rotated .line {
+      transition: all 0.25s cubic-bezier(0.215, 0.61, 0.355, 1);
+    }
+    
+    .menu-btn .line1 { top: 0; transition-delay: 0.02s; }
+    .menu-btn .line2 { top: 50%; transform: translateY(-50%); transition-delay: 0.04s; }
+    .menu-btn .line3 { bottom: 0; transition-delay: 0.06s; }
+    
+    .menu-btn.rotated {
+      transform: translateY(-50%) rotate(90deg) scale(1.1);
+    }
+    
+    .menu-btn.rotated .line {
+      transform-origin: center;
+    }
+    
+    .navbar-logo {
+      font-size: 1.2rem;
+      font-weight: bold;
+      text-decoration: none;
+      color: #333;
+      margin: 0;
+      padding: 0;
+      margin-left: 60px;
+      cursor: pointer;
+      transition: color 0.3s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      display: inline-block;
+      transform-style: preserve-3d;
+      perspective: 1200px;
+      position: relative;
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+    }
+    
+    /* 180度立体反转状态 */
+    .navbar-logo.flip-180 {
+      transform: rotateY(180deg);
+      text-shadow: -1px 1px 3px rgba(0,0,0,0.2);
+    }
+    
+    .navbar-logo:hover {
+      color: #666;
+    }
+    
+    .navbar-menu {
+      display: flex;
+      list-style: none;
+      margin: 0;
+      padding: 0 1rem;
+    }
+    
+    .navbar-item {
+      margin-left: 1.5rem;
+    }
+    
+    .navbar-link {
+      color: #333;
+      text-decoration: none;
+      transition: color 0.3s, transform 0.3s;
+      font-weight: 500;
+      font-size: 0.9rem;
+    }
+    
+    .navbar-link:hover {
+      color: #666;
+      transform: translateY(-2px);
+    }
+
+    /* 侧边栏样式 - 手机优化 */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 75%;
+      height: 100vh;
+      background-color: #f5f5f5;
+      z-index: 8999;
+      transform: translateX(-100%);
+      transition: transform 0.3s ease-out;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+      padding-top: 60px;
+      box-sizing: border-box;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+    
+    /* 优化滚动条样式 */
+    .sidebar::-webkit-scrollbar {
+      width: 0px;
+    }
+    
+    .sidebar.open {
+      transform: translateX(0);
+    }
+    
+    .sidebar-menu {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    
+    .sidebar-item {
+      margin: 0;
+      border-bottom: 1px solid #e0e0e0;
+      overflow: hidden;
+    }
+    
+    /* 二级子菜单样式 - 添加展开动画 */
+    .sidebar-submenu {
+      background-color: #e9e9e9;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.15s ease-out;
+    }
+    
+    .sidebar-submenu.open {
+      max-height: 500px;
+    }
+    
+    /* 社交平台子菜单样式修改 - 瞬间放大动画 */
+    .sidebar-submenu .sidebar-link {
+      padding-left: 50px;
+      font-size: 1rem;
+      transform: scale(0);
+      opacity: 1;
+      transition: transform 0s ease, padding 0s ease;
+      transition-delay: 0s;
+    }
+    
+    /* 当子菜单打开时，所有链接同时瞬间放大到正常大小 */
+    .sidebar-submenu.open .sidebar-link {
+      transform: scale(1);
+      transition-delay: 0s !important;
+    }
+    
+    .sidebar-link {
+      display: block;
+      padding: 15px 20px;
+      color: #333;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      font-size: 1.1rem;
+      position: relative;
+    }
+
+    /* 在现有样式中添加按钮点击内凹效果 */
+    .menu-btn:active {
+      transform: translateY(-50%) scale(0.9);
+    }
+
+    .navbar-logo:active {
+      transform: scale(0.95);
+    }
+
+    .navbar-link:active {
+      transform: translateY(1px);
+    }
+
+    /* 保留并增强点击内凹效果 */
+    .sidebar-link:active {
+      transform: scale(0.96) !important;
+      background-color: #d0d0d0;
+      transition: transform 0.1s ease;
+    }
+
+    .card:active {
+      transform: scale(0.98) !important;
+    }
+    
+    /* 社交平台按钮的特殊箭头样式 */
+    .social-platform-link::after {
+      content: "\f078" !important;
+    }
+
+    .has-submenu.open .social-platform-link::after {
+      transform: rotate(180deg) !important;
+    }
+
+    /* 为有子菜单的项添加箭头动画 - 将小三角改为箭头 */
+    .has-submenu .sidebar-link::after {
+      content: "\f062";
+      font-family: "Font Awesome 6 Free";
+      font-weight: 900;
+      position: absolute;
+      right: 20px;
+      transition: transform 0.3s ease;
+      font-size: 0.9rem;
+    }
+    
+    .has-submenu.open .sidebar-link::after {
+      transform: rotate(90deg);
+    }
+    
+    .sidebar-link:hover {
+      background-color: #e0e0e0;
+      padding-left: 30px;
+    }
+    
+    .sidebar-link i {
+      margin-right: 10px;
+      width: 20px;
+      text-align: center;
+    }
+    
+    /* 半透明遮罩 */
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+      z-index: 8998;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.4s ease-out, visibility 0.4s ease-out;
+    }
+    
+    .overlay.open {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    /* 加载层样式 */
+    .loading-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      opacity: 1;
+      visibility: visible;
+    }
+    .loading-logo {
+      width: 140px; 
+      height: auto;
+    }
+    .loading-text-container {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      text-align: center;
+      padding: 0;
+    }
+    .loading-text {
+      color: #6a6a6a;
+      font-size: 14px;
+      margin: 5px 0;
+    }
+    
+    .content {
+      flex: 1;
+      min-height: calc(100vh - 60px);
+      margin-top: 60px;
+      padding: 1.5rem 1rem;
+      text-align: center;
+      box-sizing: border-box;
+    }
+    
+    .content h1 {
+      font-size: 1.8rem;
+      margin: 1.5rem 0;
+      line-height: 1.3;
+    }
+
+    /* 卡片容器布局 - 手机优化 */
+    .cards-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 1.5rem auto;
+      max-width: 100%;
+      gap: 1.5rem;
+    }
+
+    /* 卡片样式 - 手机优化 */
+    .card-container {
+      perspective: 1000px;
+      width: 100%;
+      max-width: 300px;
+      height: 180px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .card {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.4s ease-out;
+      transform-style: preserve-3d;
+      cursor: pointer;
+      box-shadow: 6px 6px 15px 3px rgba(0, 0, 0, 0.15);
+      border-radius: 10px;
+    }
+
+    .card:hover {
+      transform: scale(1.05);
+    }
+
+    .card.flipped {
+      transform: rotateY(180deg) scale(1.05);
+    }
+
+    .card-front, .card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 1.2rem;
+      box-sizing: border-box;
+      border-radius: 10px;
+      font-size: 1.1rem;
+    }
+
+    .card-front {
+      background-color: #f8f9fa;
+    }
+
+    .card-back {
+      background-color: #e3f2fd;
+      transform: rotateY(180deg);
+    }
+
+    /* 鼠标跟随文字样式 */
+    .card-tooltip {
+      position: absolute;
+      background-color: #333;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+      z-index: 10;
+    }
+
+    .card-container:hover .card-tooltip {
+      opacity: 1;
+    }
+
+    /* 精准移除"关于"按钮下方的横线 */
+    .sidebar-item:has(.fa-info-circle) {
+      border-bottom: none !important;
+    }
+  
+    /* 页脚样式 */
+    footer {
+      background-color: #f5f5f5;
+      border-top: 1px solid #e0e0e0;
+      padding: 10px 0;
+      text-align: center;
+      margin-top: auto;
+    }
+
+    footer p {
+      margin: 4px 0;
+      color: #666;
+      font-size: 0.9rem;
+      font-weight: 550;
+    }
+
+    /* 中间横线样式 */
+    .middle-line {
+      width: 80%;
+      margin: 2.5rem auto;
+      border: none;
+      border-top: 3px solid #ddd;
+    } 
+
+    /* 项目展示区域样式 - 手机优化 */
+    .projects-section {
+      max-width: 100%;
+      margin: 3rem auto 0;
+      padding: 0;
+    }
+
+    .projects-section h2 {
+      font-size: 1.6rem;
+      margin-bottom: 1.5rem;
+      color: #333;
+      text-align: center;
+    }
+
+    .projects-container {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+      margin: 0 auto 2rem;
+      padding: 0;
+      max-width: 100%;
+      box-sizing: border-box;
+      width: 100%;
+    }
+
+    .project-card {
+      background-image: url('https://minecraft.net/content/dam/minecraftnet/games/minecraft/logos/Global-Header_MCCB-Logo_300x51.svg');
+      background-size: 60%;
+      background-position: center;
+      background-repeat: no-repeat;
+      position: relative;
+      border-radius: 10px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      transform-style: preserve-3d;
+      perspective: 1500px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.2rem;
+    }
+
+    .project-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(248, 249, 250, 0.85);
+      backdrop-filter: blur(8px);
+      border-radius: 10px;
+      z-index: 0;
+    }
+
+    .project-card h3,
+    .project-card p,
+    .project-card .project-link,
+    .project-card .project-image-container {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* 卡片悬停效果 - 整体抬起 */
+    .project-card:hover {
+      transform: translateZ(10px) translateY(-5px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    }
+
+    /* 卡片内所有元素的抬起效果 */
+    .project-card:hover * {
+      transform: translateZ(5px);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    /* 项目图片容器 - 手机优化 */
+    .project-image-container {
+      width: 120px;
+      height: 120px;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    /* 增强图片抬起效果 */
+    .project-card:hover .project-image-container {
+      transform: translateZ(10px);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+    }
+
+    /* 项目卡片图片样式 */
+    .project-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+
+    .project-card:hover .project-image {
+      transform: scale(1.08);
+    }
+
+    /* 项目内容区域 - 手机优化 */
+    .project-content {
+      text-align: center;
+      width: 100%;
+    }
+
+    /* 增强标题抬起效果 */
+    .project-card:hover h3 {
+      transform: translateZ(8px);
+      text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .project-card h3 {
+      color: #333;
+      margin-top: 0;
+      margin-bottom: 0.8rem;
+      font-size: 1.3rem;
+    }
+
+    /* 增强文字抬起效果 */
+    .project-card:hover p {
+      transform: translateZ(6px);
+    }
+
+    .project-card p {
+      color: #666;
+      line-height: 1.6;
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+    }
+
+    /* 增强链接抬起效果 */
+    .project-card:hover .project-link {
+      transform: translateZ(7px);
+    }
+
+    .project-link {
+      display: inline-flex;
+      align-items: center;
+      color: #2196f3;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.3s ease;
+      font-size: 0.95rem;
+    }
+
+    .project-link:hover {
+      color: #0b7dda;
+    }
+
+    .project-link i {
+      margin-left: 8px;
+      transition: transform 0.3s ease;
+    }
+
+    .project-link:hover i {
+      transform: translateX(3px);
+    }
+
+    /* 平板设备 (768px - 1024px) */
+    @media (min-width: 768px) {
+      .navbar {
+        padding: 1rem 0;
+        height: 70px;
+      }
+      
+      .content {
+        margin-top: 70px;
+        padding: 2rem;
+      }
+      
+      .navbar-logo {
+        font-size: 1.4rem;
+        margin-left: 70px;
+      }
+      
+      .menu-btn {
+        left: 20px;
+        width: 28px;
+        height: 22px;
+      }
+      
+      .cards-wrapper {
+        flex-direction: row;
+        justify-content: center;
+        gap: 2rem;
+      }
+      
+      .card-container {
+        width: 280px;
+        height: 190px;
+      }
+      
+      .projects-container {
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        padding: 0 1rem;
+      }
+      
+      .project-card {
+        flex-direction: row;
+        align-items: flex-start;
+        text-align: left;
+        padding: 2rem;
+      }
+      
+      .project-content {
+        text-align: left;
+      }
+      
+      .content h1 {
+        font-size: 2.2rem;
+      }
+      
+      .projects-section h2 {
+        font-size: 1.8rem;
+      }
+      
+      footer p {
+        font-size: 1rem;
+      }
+    }
+
+    /* 桌面设备 (>= 1024px) */
+    @media (min-width: 1024px) {
+      .navbar {
+        padding: 1.2rem 0;
+        height: 80px;
+      }
+      
+      .content {
+        margin-top: 80px;
+      }
+      
+      .navbar-logo {
+        font-size: 1.5rem;
+        margin-left: 80px;
+      }
+      
+      .menu-btn {
+        width: 30px;
+        height: 24px;
+      }
+      
+      .sidebar {
+        width: 500px;
+      }
+      
+      .cards-wrapper {
+        max-width: 1200px;
+      }
+      
+      .card-container {
+        width: 300px;
+        height: 200px;
+      }
+      
+      .card-front, .card-back {
+        font-size: 1.2rem;
+      }
+      
+      .content h1 {
+        font-size: 2.5rem;
+        margin: 2rem 0;
+      }
+      
+      .middle-line {
+        width: 60%;
+        margin: 4rem auto;
+      }
+      
+      .projects-section {
+        margin: 4rem auto 0;
+      }
+      
+      .projects-section h2 {
+        font-size: 2rem;
+        margin-bottom: 2.5rem;
+      }
+      
+      .projects-container {
+        max-width: 1200px;
+      }
+    }
+
+    /* 超大屏幕适配 */
+    @media (min-width: 1440px) {
+      .projects-container {
+        max-width: 1400px;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      }
+      
+      .content h1 {
+        font-size: 3rem;
+      }
+      
+      .projects-section h2 {
+        font-size: 2.3rem;
+      }
+    }
+
+    /* 超高屏幕适配 */
+    @media (min-height: 800px) {
+      .content {
+        padding: 3rem 2rem;
+      }
+      
+      .projects-container {
+        margin-bottom: 4rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 导航栏 -->
+  <nav class="navbar" id="navbar">
+    <!-- 菜单按钮 -->
+    <div class="menu-btn" id="menuBtn">
+      <div class="line line1"></div>
+      <div class="line line2"></div>
+      <div class="line line3"></div>
+    </div>
+    
+    <div class="navbar-container">
+      <!-- Logo -->
+      <div class="navbar-logo" id="logo">W.K.Jasdka</div>
+      
+      <ul class="navbar-menu">
+        <li class="navbar-item"><a href="specialgo.html" class="navbar-link">登录</a></li>
+      </ul>
+    </div>
+  </nav>
+  
+  <!-- 侧边栏菜单（二级菜单） -->
+  <div class="sidebar" id="sidebar">
+    <ul class="sidebar-menu">
+      <div class="sidebar-menu-main">
+        <li class="sidebar-item">
+        <a href="#javascript:void(0)" class="sidebar-link" id="sidebarHomeBtn"><i class="fas fa-home"></i> 首页</a>
+        </li>
+        <li class="sidebar-item has-submenu">
+          <a href="#" class="sidebar-link social-platform-link"><i class="fas fa-comment"></i> 社交平台</a>
+          <ul class="sidebar-submenu">
+            <li class="sidebar-item"><a href="https://space.bilibili.com/3493283156200346" class="sidebar-link"><i class="fab fa-bilibili"></i> Bilibili</a></li>
+            <li class="sidebar-item"><a href="https://bsky.app/profile/wkjasdka.bsky.social" class="sidebar-link"><i class="fa-bluesky"></i> Bluesky</a></li>
+            <li class="sidebar-item"><a href="https://discord.gg/QQQVS5fJPD" class="sidebar-link"><i class="fab fa-discord"></i> Discord</a></li>
+            <li class="sidebar-item"><a href="https://www.pinterest.com/Wkjasdka" class="sidebar-link"><i class="fab fa-pinterest"></i> Pinterest</a></li>
+            <li class="sidebar-item"><a href="https://open.spotify.com/user/31fp6b7aq3ch2jzdt5up5welfdhq?si=4vDMBCqPRJSPB4a2rxM7eg" class="sidebar-link"><i class="fab fa-spotify"></i> Spotify</a></li>
+            <li class="sidebar-item"><a href="https://tiktok.com/@wkjasdkaqwq" class="sidebar-link"><i class="fab fa-tiktok"></i> TikTok</a></li>
+            <li class="sidebar-item"><a href="https://twitch.tv/wkjasdkaqwq" class="sidebar-link"><i class="fab fa-twitch"></i> Twitch</a></li>
+            <li class="sidebar-item"><a href="https://x.com/Wkjasdka" class="sidebar-link"><i class="fab fa-twitter"></i> Twitter</a></li>
+            <li class="sidebar-item"><a href="https://www.youtube.com/@wkjasdkaverynb" class="sidebar-link"><i class="fab fa-youtube"></i> YouTube</a></li>
+          </ul>
+        </li>
+        <li class="sidebar-item">
+          <a id="contactBtn" href="mailto:wkjasdkayeah@yeah.net" class="sidebar-link"><i class="fas fa-envelope"></i> 联系</a>
+        </li>
+
+      </div>
+<!-- 修复后的关于按钮链接 -->
+<li class="sidebar-item">
+  <!-- 确保href路径正确 -->
+  <a href="about.html" class="sidebar-link" id="about-link">
+    <i class="fas fa-info-circle"></i> 关于
+  </a>
+</li>
+    </ul>
+  </div>
+  
+  <!-- 遮罩层 -->
+  <div class="overlay" id="overlay"></div>
+  
+  <div class="loading-screen" id="loadingScreen">
+    <img src="/wkjasdka/index/logo3.png" alt="加载Logo" class="loading-logo">
+    <div class="loading-text-container">
+      <div class="loading-text">from</div>
+      <div class="loading-text">- Wkjasdka -</div>
+    </div>
+  </div>
+  
+  <div class="content" id="mainContent">
+    <h1>欢迎来到 Liuyanlin.Wkjasdka.NET</h1>
+    
+    <!-- 卡片容器包裹两个卡片 -->
+    <div class="cards-wrapper">
+      <div class="card-container" id="cardContainer1">
+        <div class="card-tooltip" id="cardTooltip1">什么是 Liuyanlin.Wkjasdka.NET ?</div>
+        
+             <div class="card" id="infoCard1">
+          <div class="card-front">
+            这是什么？
+          </div>
+          <div class="card-back">
+            这是 W.K.Jasdka 的官方网站。
+          </div>
+        </div>
+      </div>
+      
+      <!-- 右侧卡片 -->
+      <div class="card-container" id="cardContainer2">
+        <div class="card-tooltip" id="cardTooltip2">Liuyanlin.Wkjasdka.NET 是来干什么的?</div>
+        
+        <div class="card" id="infoCard2">
+          <div class="card-front">
+            有什么用?
+          </div>
+          <div class="card-back">
+            这是用来获取 W.K.Jasdka 已完成开发项目
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 新增的横线 -->
+    <hr class="middle-line">
+    
+    <!-- 项目展示区域 -->
+    <section class="projects-section">
+      <h2>Project</h2>
+      <div class="projects-container">
+        <div class="project-card">
+          <!-- 图片容器移至左侧并设置为正方形 -->
+          <div class="project-image-container">
+            <img src="/wkjasdka/index/untitled.png" alt="项目图片" class="project-image">
+          </div>
+          
+          <!-- 项目内容区域 -->
+          <div class="project-content">
+            <h3>Semi-rounded Corner</h3>
+            <p>内容</p>
+            <a href="community.html" class="project-link">查看详情 <i class="fas fa-arrow-right"></i></a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  <!-- 页脚版权信息 -->
+  <footer>
+    <p>2025 Copyright (&copy;) W.K.Jasdka . All rights reserved</p>
+  </footer>
+
+  <script>
+    // 卡片翻转功能
+    const card1 = document.getElementById('infoCard1');
+    card1.addEventListener('click', function() {
+      this.classList.toggle('flipped');
+    });
+
+    const card2 = document.getElementById('infoCard2');
+    card2.addEventListener('click', function() {
+      this.classList.toggle('flipped');
+    });
+
+    // 改进鼠标跟随文字功能 - 完善边界检查
+    const cardContainer1 = document.getElementById('cardContainer1');
+    const tooltip1 = document.getElementById('cardTooltip1');
+    cardContainer1.addEventListener('mousemove', function(e) {
+      const rect = cardContainer1.getBoundingClientRect();
+      const tooltipWidth = tooltip1.offsetWidth;
+      const tooltipHeight = tooltip1.offsetHeight;
+      const viewportWidth = window.innerWidth;
+      const viewportHeight = window.innerHeight;
+      
+      // 计算初始位置（相对于容器）
+      let left = e.clientX - rect.left + 12;
+      let top = e.clientY - rect.top - 27;
+      
+      // 计算相对于视口的绝对位置
+      const absoluteLeft = rect.left + left;
+      const absoluteTop = rect.top + top;
+      
+      // 检查右侧边界
+      if (absoluteLeft + tooltipWidth > viewportWidth) {
+        left = e.clientX - rect.left - tooltipWidth - 12;
+      }
+      
+      // 检查左侧边界
+      if (absoluteLeft < 0) {
+        left = 12; // 距离容器左侧12px
+      }
+      
+      // 检查顶部边界
+      if (absoluteTop < 0) {
+        top = e.clientY - rect.top + 12;
+      }
+      
+      // 检查底部边界
+      if (absoluteTop + tooltipHeight > viewportHeight) {
+        top = e.clientY - rect.top - tooltipHeight - 12;
+      }
+      
+      tooltip1.style.left = left + 'px';
+      tooltip1.style.top = top + 'px';
+    });
+
+    const cardContainer2 = document.getElementById('cardContainer2');
+    const tooltip2 = document.getElementById('cardTooltip2');
+    cardContainer2.addEventListener('mousemove', function(e) {
+      const rect = cardContainer2.getBoundingClientRect();
+      const tooltipWidth = tooltip2.offsetWidth;
+      const tooltipHeight = tooltip2.offsetHeight;
+      const viewportWidth = window.innerWidth;
+      const viewportHeight = window.innerHeight;
+      
+      // 计算初始位置（相对于容器）
+      let left = e.clientX - rect.left + 12;
+      let top = e.clientY - rect.top - 27;
+      
+      // 计算相对于视口的绝对位置
+      const absoluteLeft = rect.left + left;
+      const absoluteTop = rect.top + top;
+      
+      // 检查右侧边界
+      if (absoluteLeft + tooltipWidth > viewportWidth) {
+        left = e.clientX - rect.left - tooltipWidth - 12;
+      }
+      
+      // 检查左侧边界
+      if (absoluteLeft < 0) {
+        left = 12; // 距离容器左侧12px
+      }
+      
+      // 检查顶部边界
+      if (absoluteTop < 0) {
+        top = e.clientY - rect.top + 12;
+      }
+      
+      // 检查底部边界
+      if (absoluteTop + tooltipHeight > viewportHeight) {
+        top = e.clientY - rect.top - tooltipHeight - 12;
+      }
+      
+      tooltip2.style.left = left + 'px';
+      tooltip2.style.top = top + 'px';
+    });
+
+    // 导航栏滚动显示/隐藏功能
+    const navbar = document.getElementById('navbar');
+    let lastScrollTop = 0;
+    window.addEventListener('scroll', function() {
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      if (scrollTop > lastScrollTop && scrollTop > 50) {
+        navbar.classList.add('hidden');
+      } else {
+        navbar.classList.remove('hidden');
+      }
+      lastScrollTop = scrollTop;
+    });
+
+    // 侧边栏相关功能
+    const menuBtn = document.getElementById('menuBtn');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+    
+    // 打开侧边栏
+    function openSidebar() {
+      sidebar.classList.add('open');
+      overlay.classList.add('open');
+      menuBtn.classList.add('rotated');
+      // 防止背景滚动
+      document.body.style.overflow = 'hidden';
+    }
+    
+    // 关闭侧边栏
+    function closeSidebar() {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('open');
+      menuBtn.classList.remove('rotated');
+      // 恢复背景滚动
+      document.body.style.overflow = '';
+      // 关闭所有子菜单
+      document.querySelectorAll('.sidebar-submenu').forEach(submenu => {
+        submenu.classList.remove('open');
+      });
+      document.querySelectorAll('.sidebar-item.has-submenu').forEach(item => {
+        item.classList.remove('open');
+      });
+    }
+    
+    // 菜单按钮点击事件 - 更快的动画速度
+    menuBtn.addEventListener('click', function() {
+      // 移除类并触发重绘，确保每次点击都有完整动画
+      this.classList.remove('rotated');
+      void this.offsetWidth;
+      
+      if (sidebar.classList.contains('open')) {
+        closeSidebar();
+      } else {
+        this.classList.add('rotated');
+        sidebar.classList.add('open');
+        overlay.classList.add('open');
+        document.body.style.overflow = 'hidden';
+      }
+    });
+    
+    // 点击遮罩层关闭侧边栏
+    overlay.addEventListener('click', closeSidebar);
+    
+    // 二级菜单展开/折叠功能
+    document.querySelectorAll('.sidebar-item.has-submenu').forEach(item => {
+      const link = item.querySelector('.sidebar-link');
+      const submenu = item.querySelector('.sidebar-submenu');
+      
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        // 切换当前子菜单的显示状态
+        submenu.classList.toggle('open');
+        item.classList.toggle('open');
+      });
+    });
+    
+    // 点击侧边栏链接关闭侧边栏
+    document.querySelectorAll('.sidebar-link:not(.has-submenu .sidebar-link)').forEach(link => {
+      link.addEventListener('click', function(e) {
+        if (!this.getAttribute('href').includes('specialgo.html')) {
+          e.preventDefault();
+        }
+        closeSidebar();
+      });
+    });
+
+    // 自定义平滑滚动函数（可选）
+    function scrollToTop() {
+      const scrollDuration = 500; // 滚动持续时间（毫秒）
+      const startScrollTop = window.pageYOffset;
+      const startTime = performance.now();
+      
+      function animateScroll(currentTime) {
+        const elapsedTime = currentTime - startTime;
+        const progress = Math.min(elapsedTime / scrollDuration, 1);
+        // 使用缓动函数使滚动更自然
+        const easeProgress = progress < 0.5 
+          ? 4 * progress * progress * progress 
+          : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+        
+        window.scrollTo(0, startScrollTop * (1 - easeProgress));
+        
+        if (progress < 1) {
+          requestAnimationFrame(animateScroll);
+        }
+      }
+      
+      requestAnimationFrame(animateScroll);
+    }
+
+    // 首页按钮点击事件
+    document.getElementById('sidebarHomeBtn').addEventListener('click', function(e) {
+      e.preventDefault();
+      closeSidebar();
+      scrollToTop();
+    });
+
+    // 页面加载完成后隐藏加载层
+    window.addEventListener('load', function() {
+      setTimeout(function() {
+        document.getElementById('loadingScreen').style.opacity = '0';
+        document.getElementById('loadingScreen').style.visibility = 'hidden';
+      }, 500);
+    });
+
+    // 如果页面已经加载完成，直接隐藏加载层
+    if (document.readyState === 'complete') {
+      setTimeout(function() {
+        document.getElementById('loadingScreen').style.opacity = '0';
+        document.getElementById('loadingScreen').style.visibility = 'hidden';
+      }, 500);
+    }
+
+    // Logo 180度立体反转效果
+    const logo = document.getElementById('logo');
+    logo.setAttribute('data-text', logo.textContent);
+    
+    logo.addEventListener('click', function() {
+      this.classList.toggle('flip-180');
+    });
+  </script>
+</body>
+</html>
