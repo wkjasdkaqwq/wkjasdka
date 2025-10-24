@@ -324,68 +324,66 @@
     }
 
     /* Loading 层样式（页面进入 logo） */
-/* === 修复 loading 层在移动端显示文字的问题 === */
-/* 给 loading 层加安全区 padding 兜底（iPhone刘海/下栏） */
-.loading-screen {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: #fff;
-  z-index: 99999;
-  transition: opacity 0.25s ease, visibility 0.25s ease;
-  opacity: 1;
-  visibility: visible;
-  /* 兜底：确保底部安全区不会遮挡内部绝对定位元素 */
-  padding-bottom: env(safe-area-inset-bottom);
-}
+    /* === 移除 loading 层的所有动画/过渡 === */
+    .loading-screen {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #fff;
+      z-index: 99999;
+      /* 去除所有 CSS 过渡和动画，显示/隐藏瞬间发生 */
+      opacity: 1;
+      visibility: visible;
+      /* 兜底：确保底部安全区不会遮挡内部绝对定位元素 */
+      padding-bottom: env(safe-area-inset-bottom);
+      /* 不使用过渡 */
+      transition: none !important;
+    }
 
-/* logo 保持在文本之下 */
-.loading-logo {
-  width: 140px;
-  height: auto;
-  will-change: transform, opacity;
-  animation: logoPop 160ms ease;
-  z-index: 1; /* 放在文字下方 */
-  max-width: 70vw; /* 在非常窄的屏幕上限制 logo 宽度，避免把文本挤到屏幕外 */
-}
+    /* logo 保持在文本之下（不使用动画） */
+    .loading-logo {
+      width: 140px;
+      height: auto;
+      will-change: auto;
+      z-index: 1; /* 放在文字下方 */
+      max-width: 70vw; /* 在非常窄的屏幕上限制 logo 宽度，避免把文本挤到屏幕外 */
+      /* 去掉任何 animation */
+      animation: none !important;
+    }
 
-/* 文本容器使用安全区并提升到 logo 之上 */
-.loading-text-container {
-  position: absolute;
-  left: 0;
-  width: 100%;
-  /* 把 bottom 与安全区结合，避免被系统手势栏遮挡 */
-  bottom: calc(18px + env(safe-area-inset-bottom));
-  text-align: center;
-  z-index: 2; /* 高于 logo，保证可见 */
-  pointer-events: none; /* 不拦截触摸 */
-  -webkit-text-size-adjust: 100%; /* 关闭 iOS 自动文本缩放带来的布局问题 */
-  -ms-text-size-adjust: 100%;
-}
+    /* 文本容器使用安全区并提升到 logo 之上 */
+    .loading-text-container {
+      position: absolute;
+      left: 0;
+      width: 100%;
+      /* 把 bottom 与安全区结合，避免被系统手势栏遮挡 */
+      bottom: calc(18px + env(safe-area-inset-bottom));
+      text-align: center;
+      z-index: 2; /* 高于 logo，保证可见 */
+      pointer-events: none; /* 不拦截触摸 */
+      -webkit-text-size-adjust: 100%; /* 关闭 iOS 自动文本缩放带来的布局问题 */
+      -ms-text-size-adjust: 100%;
+    }
 
-/* 文本样式做一点放大以保证可读性（可按需调整） */
-.loading-text {
-  color: #6a6a6a;
-  font-size: 14px;
-  margin: 4px 0;
-  line-height: 1;
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
-}
+    /* 文本样式做一点放大以保证可读性（可按需调整） */
+    .loading-text {
+      color: #6a6a6a;
+      font-size: 14px;
+      margin: 4px 0;
+      line-height: 1;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
     .loading-screen.hidden {
-      opacity: 0;
-      visibility: hidden;
+      /* 直接隐藏且不使用过渡，立即不可见并移除交互 */
+      display: none !important;
+      visibility: hidden !important;
+      opacity: 0 !important;
       pointer-events: none;
+      transition: none !important;
     }
-
-    @keyframes logoPop {
-      0% { transform: scale(0.92); opacity: 0.0; }
-      60% { transform: scale(1.03); opacity: 1; }
-      100% { transform: scale(1); opacity: 1; }
-    }
-
 
     .content {
       flex: 1;
@@ -971,7 +969,7 @@
   </footer>
 
   <script>
-    // === Loading 层逻辑 ===
+    // === Loading 层逻辑（已移除保险超时，若未加载完成将一直保留在 logo） ===
     (function() {
       const loadingScreen = document.getElementById('loadingScreen');
       if (!loadingScreen) return;
@@ -984,25 +982,24 @@
 
       // 如果只显示一次，检测标记
       if (SHOW_ONLY_ONCE && localStorage.getItem('wkjasdka_splash_shown')) {
-        loadingScreen.classList.add('hidden');
+        // 立即移除，不使用动画
         loadingScreen.setAttribute('aria-hidden','true');
-        // 尝试移除 DOM
-        setTimeout(() => {
-          if (loadingScreen && loadingScreen.parentNode) loadingScreen.parentNode.removeChild(loadingScreen);
-        }, 300);
+        if (loadingScreen && loadingScreen.parentNode) {
+          loadingScreen.parentNode.removeChild(loadingScreen);
+        }
         return;
       }
 
       const start = performance.now();
 
       function hideLoadingInstant() {
-        loadingScreen.classList.add('hidden');
-        loadingScreen.setAttribute('aria-hidden','true');
-        setTimeout(() => {
-          if (loadingScreen && loadingScreen.parentNode) {
+        // 立即从 DOM 中移除 loading 层，避免任何视觉过渡
+        if (loadingScreen) {
+          loadingScreen.setAttribute('aria-hidden','true');
+          if (loadingScreen.parentNode) {
             loadingScreen.parentNode.removeChild(loadingScreen);
           }
-        });
+        }
         if (SHOW_ONLY_ONCE) {
           try { localStorage.setItem('wkjasdka_splash_shown', '1'); } catch(e) {}
         }
@@ -1012,16 +1009,12 @@
       window.addEventListener('load', function() {
         const elapsed = performance.now() - start;
         const remaining = Math.max(0, MIN_DISPLAY_MS - elapsed);
+        // 等待最短显示时间后即时移除（不依赖 CSS 过渡）
         setTimeout(hideLoadingInstant, remaining);
       }, { passive: true });
 
-      // 保险超时：防止极端情况下 loading 永久显示
-      const MAX_WAIT_MS = 10000;
-      setTimeout(() => {
-        if (document.readyState !== 'complete') {
-          hideLoadingInstant();
-        }
-      }, MAX_WAIT_MS);
+      // 注意：已移除保险超时机制（不再在超时后强制移除 loading 层）。
+      // 如果页面一直未能触发 load，loading 层将持续显示，直到 window.load 触发或其它脚本主动调用 hideLoadingInstant。
     })();
 
     // === 设置 --vh 以修复移动端 100vh 高度问题 ===
@@ -1256,7 +1249,6 @@
       scrollToTop();
     });
 
-    // 页面加载完成后隐藏 loading 层（已由上方逻辑处理）
     // Logo 180度立体反转效果
     const logo = document.getElementById('logo');
     if (logo) {
