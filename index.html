@@ -8,6 +8,12 @@
   <!-- 引入Font Awesome用于图标 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
+    /* 根变量：用于修复移动端 100vh 问题和 navbar 高度自适应（在媒体查询中会覆盖） */
+    :root {
+      --vh: 1vh;
+      --navbar-height: 60px; /* 默认手机高度 */
+    }
+
     /* 基础样式 */
     * {
       box-sizing: border-box;
@@ -21,6 +27,9 @@
       overflow-x: hidden;
       -webkit-overflow-scrolling: touch; /* 启用 iOS 惯性滚动 */
       scroll-behavior: smooth; /* 可选：使脚本/锚点滚动平滑 */
+      /* 为了避免 iPhone 底部安全区造成内容被遮挡/留白，给 body 增加安全区内边距 */
+      padding-bottom: env(safe-area-inset-bottom);
+      background-color: #fff;
     }
     
     body {
@@ -41,7 +50,7 @@
       z-index: 9000;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
       transition: transform 0.4s ease-out;
-      height: 60px;
+      height: var(--navbar-height);
     }
     
     .navbar.hidden {
@@ -170,7 +179,7 @@
       transform: translateX(-100%);
       transition: transform 0.3s ease-out;
       box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-      padding-top: 60px;
+      padding-top: var(--navbar-height);
       box-sizing: border-box;
       overflow-y: auto;
       overflow-x: hidden;
@@ -315,41 +324,74 @@
     }
 
     /* Loading 层样式（页面进入 logo） */
-    .loading-screen {
-      position: fixed;
-      inset: 0;               /* top:0; right:0; bottom:0; left:0; */
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background-color: #fff;
-      z-index: 99999;
-      transition: opacity 0.25s ease, visibility 0.25s ease;
-      opacity: 1;
-      visibility: visible;
-    }
+/* === 修复 loading 层在移动端显示文字的问题 === */
+/* 给 loading 层加安全区 padding 兜底（iPhone刘海/下栏） */
+.loading-screen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #fff;
+  z-index: 99999;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+  opacity: 1;
+  visibility: visible;
+  /* 兜底：确保底部安全区不会遮挡内部绝对定位元素 */
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* logo 保持在文本之下 */
+.loading-logo {
+  width: 140px;
+  height: auto;
+  will-change: transform, opacity;
+  animation: logoPop 160ms ease;
+  z-index: 1; /* 放在文字下方 */
+  max-width: 70vw; /* 在非常窄的屏幕上限制 logo 宽度，避免把文本挤到屏幕外 */
+}
+
+/* 文本容器使用安全区并提升到 logo 之上 */
+.loading-text-container {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  /* 把 bottom 与安全区结合，避免被系统手势栏遮挡 */
+  bottom: calc(18px + env(safe-area-inset-bottom));
+  text-align: center;
+  z-index: 2; /* 高于 logo，保证可见 */
+  pointer-events: none; /* 不拦截触摸 */
+  -webkit-text-size-adjust: 100%; /* 关闭 iOS 自动文本缩放带来的布局问题 */
+  -ms-text-size-adjust: 100%;
+}
+
+/* 文本样式做一点放大以保证可读性（可按需调整） */
+.loading-text {
+  color: #6a6a6a;
+  font-size: 14px;
+  margin: 4px 0;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
     .loading-screen.hidden {
       opacity: 0;
       visibility: hidden;
       pointer-events: none;
     }
-    .loading-logo {
-      width: 140px;
-      height: auto;
-      will-change: transform, opacity;
-      animation: logoPop 160ms ease;
-    }
+
     @keyframes logoPop {
       0% { transform: scale(0.92); opacity: 0.0; }
       60% { transform: scale(1.03); opacity: 1; }
       100% { transform: scale(1); opacity: 1; }
     }
-    .loading-text-container { position: absolute; bottom: 24px; text-align: center; width:100%; }
-    .loading-text { color:#6a6a6a; font-size:14px; margin:4px 0; }
+
 
     .content {
       flex: 1;
-      min-height: calc(100vh - 60px);
-      margin-top: 60px;
+      /* 使用 --vh 修复移动端 100vh 的问题，并减去导航栏高度 */
+      min-height: calc(var(--vh, 1vh) * 100 - var(--navbar-height, 60px));
+      margin-top: var(--navbar-height);
       padding: 1.5rem 1rem;
       text-align: center;
       box-sizing: border-box;
@@ -452,12 +494,17 @@
       background-color: #f5f5f5;
       border-top: 1px solid #e0e0e0;
       padding: 10px 0;
+      /* 为了支持 iPhone 底部安全区，增加 env(safe-area-inset-bottom) */
+      padding-bottom: calc(10px + env(safe-area-inset-bottom));
       text-align: center;
       margin-top: auto;
       /* 下面两行确保 footer 的背景和边界充满整个视口宽度，消除左右空白 */
       width: 100vw;
       margin-left: calc(50% - 50vw);
       box-sizing: border-box;
+      /* 确保页脚不被固定在页面外（仍为文档流中的元素） */
+      position: relative;
+      z-index: 1;
     }
 
     /* 移除段落默认的左右外边距，防止文本或行内元素造成视觉空白 */
@@ -641,13 +688,14 @@
 
     /* 平板设备 (768px - 1024px) */
     @media (min-width: 768px) {
+      :root { --navbar-height: 70px; }
       .navbar {
         padding: 1rem 0;
-        height: 70px;
+        height: var(--navbar-height);
       }
       
       .content {
-        margin-top: 70px;
+        margin-top: var(--navbar-height);
         padding: 2rem;
       }
       
@@ -705,13 +753,14 @@
 
     /* 桌面设备 (>= 1024px) */
     @media (min-width: 1024px) {
+      :root { --navbar-height: 80px; }
       .navbar {
         padding: 1.2rem 0;
-        height: 80px;
+        height: var(--navbar-height);
       }
       
       .content {
-        margin-top: 80px;
+        margin-top: var(--navbar-height);
       }
       
       .navbar-logo {
@@ -973,6 +1022,23 @@
           hideLoadingInstant();
         }
       }, MAX_WAIT_MS);
+    })();
+
+    // === 设置 --vh 以修复移动端 100vh 高度问题 ===
+    (function setViewportHeight() {
+      function updateVh() {
+        // window.innerHeight 的值会动态变化（地址栏弹出/隐藏），使用它来计算真实 vh
+        const vh = window.innerHeight * 0.01;
+        document.documentElement.style.setProperty('--vh', vh + 'px');
+      }
+      // 初始设置
+      updateVh();
+      // 在 resize 和 orientationchange 时更新
+      window.addEventListener('resize', updateVh, { passive: true });
+      window.addEventListener('orientationchange', function() {
+        // 在方向变化时延迟一点更新，给浏览器时间完成布局变化
+        setTimeout(updateVh, 120);
+      }, { passive: true });
     })();
 
     // === 卡片翻转功能 ===
