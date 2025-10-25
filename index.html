@@ -12,6 +12,54 @@
     :root {
       --vh: 1vh;
       --navbar-height: 60px; /* 默认手机高度 */
+
+      /* 主题颜色变量（明亮模式默认） */
+      --bg: #ffffff;
+      --surface: #f5f5f5;
+      --card-front: #f8f9fa;
+      --card-back: #e3f2fd;
+      --text: #333333;
+      --muted: #666666;
+      --muted-2: #6a6a6a;
+      --accent: #2196f3;
+      --overlay: rgba(0,0,0,0.5);
+      --shadow: rgba(0,0,0,0.1);
+      --card-shadow: 6px 6px 15px 3px rgba(0, 0, 0, 0.15);
+      --project-overlay: rgba(248, 249, 250, 0.85);
+    }
+
+    /* 深色主题变量：供 JS 或 prefers-color-scheme 使用 */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0b0b0e;
+        --surface: #0f1113;
+        --card-front: #0f1214;
+        --card-back: #07202a;
+        --text: #e6e6e6;
+        --muted: #bfbfbf;
+        --muted-2: #9fa1a3;
+        --accent: #5fb7ff;
+        --overlay: rgba(0,0,0,0.65);
+        --shadow: rgba(0,0,0,0.6);
+        --card-shadow: 6px 6px 20px rgba(0,0,0,0.6);
+        --project-overlay: rgba(12, 14, 16, 0.65);
+      }
+    }
+
+    /* JS 可通过在 documentElement 上设置 data-theme="dark" 来强制深色（优先于 media query） */
+    [data-theme="dark"] {
+      --bg: #29292A;
+      --surface: #3F4040;
+      --card-front: #2B3236;
+      --card-back: #062632;
+      --text: #e6e6e6;
+      --muted: #bfbfbf;
+      --muted-2: #9fa1a3;
+      --accent: #5fb7ff;
+      --overlay: rgba(0,0,0,0.65);
+      --shadow: rgba(0,0,0,0.6);
+      --card-shadow: 6px 6px 20px rgba(0,0,0,0.6);
+      --project-overlay: rgba(12, 14, 16, 0.65);
     }
 
     /* 基础样式 */
@@ -29,7 +77,9 @@
       scroll-behavior: smooth; /* 可选：使脚本/锚点滚动平滑 */
       /* 为了避免 iPhone 底部安全区造成内容被遮挡/留白，给 body 增加安全区内边距 */
       padding-bottom: env(safe-area-inset-bottom);
-      background-color: #fff;
+      background-color: var(--bg);
+      color: var(--text);
+      transition: background-color 220ms ease, color 220ms ease;
     }
     
     body {
@@ -45,11 +95,11 @@
       top: 0;
       left: 0;
       width: 100%;
-      background-color: #d7d7d7;
+      background-color: var(--surface);
       padding: 0.8rem 0;
       z-index: 9000;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      transition: transform 0.4s ease-out;
+      box-shadow: 0 2px 5px var(--shadow);
+      transition: transform 0.4s ease-out, background-color 220ms ease;
       height: var(--navbar-height);
     }
     
@@ -83,7 +133,7 @@
       position: absolute;
       width: 100%;
       height: 2.5px;
-      background-color: #333;
+      background-color: var(--text);
       border-radius: 2px;
       transform-origin: right center;
     }
@@ -120,7 +170,7 @@
       font-size: 1.2rem;
       font-weight: bold;
       text-decoration: none;
-      color: #333;
+      color: var(--text);
       margin: 0;
       padding: 0;
       margin-left: 60px;
@@ -130,17 +180,17 @@
       transform-style: preserve-3d;
       perspective: 1200px;
       position: relative;
-      text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.08);
     }
     
     /* 180度立体反转状态 */
     .navbar-logo.flip-180 {
       transform: rotateY(180deg);
-      text-shadow: -1px 1px 3px rgba(0,0,0,0.2);
+      text-shadow: -1px 1px 3px rgba(0,0,0,0.08);
     }
     
     .navbar-logo:hover {
-      color: #666;
+      color: var(--muted);
     }
     
     .navbar-menu {
@@ -155,7 +205,7 @@
     }
     
     .navbar-link {
-      color: #333;
+      color: var(--text);
       text-decoration: none;
       transition: color 0.3s, transform 0.3s;
       font-weight: 500;
@@ -163,7 +213,7 @@
     }
     
     .navbar-link:hover {
-      color: #666;
+      color: var(--muted);
       transform: translateY(-2px);
     }
 
@@ -174,11 +224,11 @@
       left: 0;
       width: 75%;
       height: 100vh;
-      background-color: #f5f5f5;
+      background-color: var(--surface);
       z-index: 8999;
       transform: translateX(-100%);
-      transition: transform 0.3s ease-out;
-      box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+      transition: transform 0.3s ease-out, background-color 220ms ease;
+      box-shadow: 2px 0 10px var(--shadow);
       padding-top: var(--navbar-height);
       box-sizing: border-box;
       overflow-y: auto;
@@ -203,13 +253,13 @@
     
     .sidebar-item {
       margin: 0;
-      border-bottom: 1px solid #e0e0e0;
+      border-bottom: 1px solid rgba(0,0,0,0.06);
       overflow: hidden;
     }
     
     /* 二级子菜单样式 - 添加展开动画 */
     .sidebar-submenu {
-      background-color: #e9e9e9;
+      background-color: var(--card-front);
       max-height: 0;
       overflow: hidden;
       transition: max-height 0.15s ease-out;
@@ -238,7 +288,7 @@
     .sidebar-link {
       display: block;
       padding: 15px 20px;
-      color: #333;
+      color: var(--text);
       text-decoration: none;
       transition: all 0.3s ease;
       font-size: 1.1rem;
@@ -261,7 +311,7 @@
     /* 保留并增强点击内凹效果 */
     .sidebar-link:active {
       transform: scale(0.96) !important;
-      background-color: #d0d0d0;
+      background-color: rgba(0,0,0,0.06);
       transition: transform 0.1s ease;
     }
 
@@ -287,6 +337,7 @@
       right: 20px;
       transition: transform 0.3s ease;
       font-size: 0.9rem;
+      color: var(--muted);
     }
     
     .has-submenu.open .sidebar-link::after {
@@ -294,7 +345,7 @@
     }
     
     .sidebar-link:hover {
-      background-color: #e0e0e0;
+      background-color: rgba(0,0,0,0.04);
       padding-left: 30px;
     }
     
@@ -302,6 +353,7 @@
       margin-right: 10px;
       width: 20px;
       text-align: center;
+      color: var(--muted);
     }
     
     /* 半透明遮罩 */
@@ -311,7 +363,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background-color: rgba(0,0,0,0.5);
+      background-color: var(--overlay);
       z-index: 8998;
       opacity: 0;
       visibility: hidden;
@@ -331,7 +383,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      background-color: #fff;
+      background-color: var(--bg);
       z-index: 99999;
       /* 去除所有 CSS 过渡和动画，显示/隐藏瞬间发生 */
       opacity: 1;
@@ -351,6 +403,7 @@
       max-width: 70vw; /* 在非常窄的屏幕上限制 logo 宽度，避免把文本挤到屏幕外 */
       /* 去掉任何 animation */
       animation: none !important;
+      filter: none; /* 保持原样，若需深色模式专用 logo，可在 JS 中替换 src */
     }
 
     /* 文本容器使用安全区并提升到 logo 之上 */
@@ -369,7 +422,7 @@
 
     /* 文本样式做一点放大以保证可读性（可按需调整） */
     .loading-text {
-      color: #6a6a6a;
+      color: var(--muted-2);
       font-size: 14px;
       margin: 4px 0;
       line-height: 1;
@@ -399,6 +452,7 @@
       font-size: 1.8rem;
       margin: 1.5rem 0;
       line-height: 1.3;
+      color: var(--text);
     }
 
     /* 卡片容器布局 - 手机优化 */
@@ -428,8 +482,9 @@
       transition: transform 0.4s ease-out;
       transform-style: preserve-3d;
       cursor: pointer;
-      box-shadow: 6px 6px 15px 3px rgba(0, 0, 0, 0.15);
+      box-shadow: var(--card-shadow);
       border-radius: 10px;
+      background: transparent;
     }
 
     .card:hover {
@@ -452,21 +507,22 @@
       box-sizing: border-box;
       border-radius: 10px;
       font-size: 1.1rem;
+      color: var(--text);
     }
 
     .card-front {
-      background-color: #f8f9fa;
+      background-color: var(--card-front);
     }
 
     .card-back {
-      background-color: #e3f2fd;
+      background-color: var(--card-back);
       transform: rotateY(180deg);
     }
 
     /* 鼠标跟随文字样式 */
     .card-tooltip {
       position: absolute;
-      background-color: #333;
+      background-color: #222;
       color: white;
       padding: 5px 10px;
       border-radius: 4px;
@@ -489,8 +545,8 @@
   
     /* 页脚样式（修改：确保背景铺满视口两侧，不留空白） */
     footer {
-      background-color: #f5f5f5;
-      border-top: 1px solid #e0e0e0;
+      background-color: var(--surface);
+      border-top: 1px solid rgba(0,0,0,0.06);
       padding: 10px 0;
       /* 为了支持 iPhone 底部安全区，增加 env(safe-area-inset-bottom) */
       padding-bottom: calc(10px + env(safe-area-inset-bottom));
@@ -503,13 +559,14 @@
       /* 确保页脚不被固定在页面外（仍为文档流中的元素） */
       position: relative;
       z-index: 1;
+      color: var(--muted);
     }
 
     /* 移除段落默认的左右外边距，防止文本或行内元素造成视觉空白 */
     footer p {
       margin: 0;
       padding: 0;
-      color: #666;
+      color: var(--muted);
       font-size: 0.9rem;
       font-weight: 550;
     }
@@ -519,7 +576,7 @@
       width: 80%;
       margin: 2.5rem auto;
       border: none;
-      border-top: 3px solid #ddd;
+      border-top: 3px solid rgba(0,0,0,0.08);
     } 
 
     /* 项目展示区域样式 - 手机优化 */
@@ -532,7 +589,7 @@
     .projects-section h2 {
       font-size: 1.6rem;
       margin-bottom: 1.5rem;
-      color: #333;
+      color: var(--text);
       text-align: center;
     }
 
@@ -555,7 +612,7 @@
       position: relative;
       border-radius: 10px;
       padding: 1.5rem;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 12px var(--shadow);
       transition: transform 0.3s ease, box-shadow 0.3s ease;
       transform-style: preserve-3d;
       perspective: 1500px;
@@ -563,6 +620,7 @@
       flex-direction: column;
       align-items: center;
       gap: 1.2rem;
+      background-clip: padding-box;
     }
 
     .project-card::before {
@@ -572,7 +630,7 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background-color: rgba(248, 249, 250, 0.85);
+      background-color: var(--project-overlay);
       backdrop-filter: blur(8px);
       border-radius: 10px;
       z-index: 0;
@@ -604,7 +662,7 @@
       height: 120px;
       border-radius: 8px;
       overflow: hidden;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 8px var(--shadow);
     }
 
     /* 增强图片抬起效果 */
@@ -634,11 +692,11 @@
     /* 增强标题抬起效果 */
     .project-card:hover h3 {
       transform: translateZ(8px);
-      text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      text-shadow: 0 2px 4px rgba(0,0,0,0.08);
     }
 
     .project-card h3 {
-      color: #333;
+      color: var(--text);
       margin-top: 0;
       margin-bottom: 0.8rem;
       font-size: 1.3rem;
@@ -650,7 +708,7 @@
     }
 
     .project-card p {
-      color: #666;
+      color: var(--muted);
       line-height: 1.6;
       margin-bottom: 1rem;
       font-size: 0.95rem;
@@ -664,7 +722,7 @@
     .project-link {
       display: inline-flex;
       align-items: center;
-      color: #2196f3;
+      color: var(--accent);
       text-decoration: none;
       font-weight: 500;
       transition: color 0.3s ease;
@@ -672,7 +730,7 @@
     }
 
     .project-link:hover {
-      color: #0b7dda;
+      color: color-mix(in srgb, var(--accent) 70%, black);
     }
 
     .project-link i {
@@ -844,7 +902,7 @@
 
   <!-- Loading 层：页面进入时显示 Logo，最短显示 0.1s，最终由 window.load 决定隐藏 -->
   <div class="loading-screen" id="loadingScreen" aria-hidden="false" style="pointer-events:auto;">
-    <img src="/wkjasdka/index/logo3.png" alt="Echo" class="loading-logo">
+    <img src="/wkjasdka/index/logo3.png" alt="Echo" class="loading-logo" id="loadingLogo">
     <div class="loading-text-container">
       <div class="loading-text">from</div>
       <div class="loading-text">- Wkjasdka -</div>
@@ -969,6 +1027,46 @@
   </footer>
 
   <script>
+    // === 自动检测并响应系统深色/浅色偏好（兼容 Android/iOS/Windows 等支持 prefers-color-scheme 的平台） ===
+    // 逻辑：优先使用系统设置（matchMedia），并监听变化。JS 会在 documentElement 上设置 data-theme="dark" 来强制深色主题（便于在样式中覆盖）。
+    (function() {
+      try {
+        const mq = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)');
+        function applyPrefersDark(isDark) {
+          if (isDark) {
+            document.documentElement.setAttribute('data-theme', 'dark');
+          } else {
+            document.documentElement.removeAttribute('data-theme');
+          }
+          // 如果需要，也可以在这里替换 loading logo 为深色版本：
+          const logo = document.getElementById('loadingLogo');
+          if (logo) {
+            // 假设深色模式下存在 /wkjasdka/index/logo3-dark.png（非必须）
+            if (isDark) {
+              // 若深色专用 logo 可用，则替换，否则保持原样
+              // logo.src = '/wkjasdka/index/logo3-dark.png';
+            } else {
+              // logo.src = '/wkjasdka/index/logo3.png';
+            }
+          }
+        }
+        if (mq) {
+          applyPrefersDark(mq.matches);
+          // 监听变化：使用新 API addEventListener('change') 或兼容旧版 addListener
+          if (typeof mq.addEventListener === 'function') {
+            mq.addEventListener('change', e => applyPrefersDark(e.matches));
+          } else if (typeof mq.addListener === 'function') {
+            mq.addListener(e => applyPrefersDark(e.matches));
+          }
+        } else {
+          // 浏览器不支持 matchMedia / prefers-color-scheme：不做任何事，保留默认亮色
+        }
+      } catch (e) {
+        // 忽略任何异常，保持默认样式
+        console.error('Error applying prefers-color-scheme detection:', e);
+      }
+    })();
+
     // === Loading 层逻辑（已移除保险超时，若未加载完成将一直保留在 logo） ===
     (function() {
       const loadingScreen = document.getElementById('loadingScreen');
