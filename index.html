@@ -1049,7 +1049,7 @@ window.addEventListener("load", function() {
   setTimeout(function() {
     document.getElementById('loadingScreen').style.display = 'none';
     document.getElementById('mainContent').style.display = 'block';
-  }, 50);
+  }, 130);
 });
 document.addEventListener("DOMContentLoaded", function() {
   var loadingScreen = document.getElementById('loadingScreen');
@@ -1072,6 +1072,10 @@ document.addEventListener("DOMContentLoaded", function() {
     loadingTexts.style.display = 'block';
   }
 });
+
+window.onbeforeunload = function() {
+    window.scrollTo(0, 0);
+}
 
   </script>
 </body>
