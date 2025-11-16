@@ -1077,37 +1077,6 @@ window.onbeforeunload = function() {
     window.scrollTo(0, 0);
 }
 
-window.addEventListener("load", function() {
-  document.getElementById('mainContent').style.display = 'none';
-  document.getElementById('loadingScreen').style.display = 'flex';
-
-  fetch('https://api.ip.sb/geoip')
-    .then(res => res.json())
-    .then(ipinfo => {
-      // hosting == true 表示为云主机/服务器出口（大部分VPN/代理都属于此类）
-      if (ipinfo.hosting === true) {
-        // 是VPN/代理/服务器IP，禁止访问主页
-        document.getElementById('mainContent').style.display = 'none';
-        document.getElementById('loadingScreen').style.display = 'flex';
-        document.querySelector('.loading-text-container').innerHTML =
-          '<div class="loading-text">检测到VPN/代理，请断开后访问</div>';
-      } else {
-        // 普通用户入口点，允许访问主页
-        setTimeout(function() {
-          document.getElementById('loadingScreen').style.display = 'none';
-          document.getElementById('mainContent').style.display = 'block';
-        }, 50);
-      }
-    })
-    .catch(err => {
-      // API故障时默认放行
-      setTimeout(function() {
-        document.getElementById('loadingScreen').style.display = 'none';
-        document.getElementById('mainContent').style.display = 'block';
-      }, 100);
-    });
-});
-
 
   </script>
 </body>
