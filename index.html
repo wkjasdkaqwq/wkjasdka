@@ -748,6 +748,15 @@ body {
     display: block;
   }
 
+  .loading-text-container {
+    bottom: 60px !important;
+  }
+}
+
+/* 防止加载层滚动 */
+.loading-screen {
+  overflow: hidden;
+  touch-action: none;  /* 阻止移动端滑动 */
 }
 
   </style>
@@ -1055,7 +1064,7 @@ document.addEventListener("DOMContentLoaded", function() {
   var loadingScreen = document.getElementById('loadingScreen');
   var logoImg = loadingScreen.querySelector('.loading-logo');
   var loadingTexts = loadingScreen.querySelector('.loading-text-container');
-
+  
   // 先隐藏 logo 和文字
   logoImg.style.display = 'none';
   loadingTexts.style.display = 'none';
@@ -1065,18 +1074,6 @@ document.addEventListener("DOMContentLoaded", function() {
     logoImg.style.display = 'block';
     loadingTexts.style.display = 'block';
   });
-
-  // 图片加载失败也展示文字
-  logoImg.addEventListener('error', function() {
-    loadingTexts.style.display = 'block';
-  });
-
-  // 超时兜底（防止图片永远没返回但也没 error）
-  setTimeout(function(){
-    if(loadingTexts.style.display === 'none') {
-      loadingTexts.style.display = 'block';
-    }
-  }, 2000);
 
   // 如果已经缓存加载，直接显示
   if (logoImg.complete && logoImg.naturalWidth !== 0) {
