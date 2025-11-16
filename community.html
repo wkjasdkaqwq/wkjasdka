@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Semi-rounded Corner - on Liuyanlin Community</title>
+    <link rel="icon" href="index/echo logo.png" type="image/x-icon">
+    <!-- 引入Font Awesome图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+            
+    /* Logo样式 */
+    .navbar-logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+      text-decoration: none;
+      color: #333;
+      margin: 0;
+      padding: 0;
+      margin-left: 140px;
+      cursor: pointer; /* 显示手型光标，提示可点击 */
+      transition: color 0.3s;
+    }
+    
+    .navbar-logo:hover {
+      color: #666; /* 悬停效果 */
+    }
+    
+    .navbar-menu {
+      display: flex;
+      list-style: none;
+      margin: 0;
+      padding: 0 1rem;
+    }
+    
+    .navbar-item {
+      margin-left: 2rem;
+    }
+    
+    .navbar-link {
+      color: #333;
+      text-decoration: none;
+      transition: color 0.3s, transform 0.3s;
+      font-weight: 500;
+    }
+    
+    .navbar-link:hover {
+      color: #666;
+      transform: translateY(-2px);
+    }
+
+    /* 加载层样式 */
+    .loading-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+    .loading-logo {
+      width: 300px; 
+      height: auto;
+    }
+    .loading-text-container {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      text-align: center;
+      padding: 0;
+    }
+    .loading-text {
+      color: #6a6a6a;
+      font-size: 16px;
+      margin: 5px 0;
+    }
+
+    /* 顶部加载条样式 */
+    .top-loading-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 5px;
+      background-color: #ff8000;
+      width: 0%;
+      z-index: 10000;
+      transition: width 0.1s ease;
+      
+    }
+    </style>
+</head>
+<body>
+  <!-- 顶部加载条 -->
+  <div class="top-loading-bar" id="topLoadingBar"></div>
+  
+  <div class="loading-screen" id="loadingScreen">
+    <img src="index/community2.png" alt="加载Logo" class="loading-logo">
+    <div class="loading-text-container">
+      <div class="loading-text">from</div>
+      <div class="loading-text">- Wkjasdka -</div>
+    </div>
+  </div>
+
+  <div id="mainContent" style="display: none;">
+  </div>
+
+    <script>
+      // 获取加载条元素
+      const loadingBar = document.getElementById('topLoadingBar');
+      let progress = 0;
+      const totalDuration = 150; // 总加载时间
+      const intervalTime = 30; // 进度更新间隔时间
+      
+      // 计算10px对应的百分比（基于视口宽度）
+      const viewportWidth = window.innerWidth;
+      const tenPxPercentage = (10 / viewportWidth) * 100;
+      
+      // 调整每次增加的进度值，使其比原生进度快10px
+      const baseIncrement = 100 / (totalDuration / intervalTime);
+      const increment = baseIncrement + (tenPxPercentage / (totalDuration / intervalTime));
+
+      // 模拟进度更新
+      const progressInterval = setInterval(() => {
+        progress += increment;
+        // 确保进度不会超过100%
+        if (progress >= 100) {
+          progress = 100;
+          clearInterval(progressInterval);
+        }
+        loadingBar.style.width = `${progress}%`;
+      }, intervalTime);
+
+      // 加载完成后处理函数
+      function handleLoadComplete() {
+        // 短暂延迟后隐藏加载屏幕，显示主内容
+        setTimeout(() => {
+          document.getElementById('loadingScreen').style.display = 'none';
+          document.getElementById('mainContent').style.display = 'block';
+          // 隐藏加载条
+          loadingBar.style.display = 'none';
+        }, 320);
+      }
+      
+      // 初始加载逻辑
+      setTimeout(function() {
+        handleLoadComplete();
+      }, totalDuration);
+    </script>
+</body>
+</html>
