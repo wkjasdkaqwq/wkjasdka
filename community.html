@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-            
+    /* 保持原样式不变 */
     /* Logo样式 */
     .navbar-logo {
       font-size: 1.5rem;
@@ -100,7 +100,7 @@
   <div class="top-loading-bar" id="topLoadingBar"></div>
   
   <div class="loading-screen" id="loadingScreen">
-    <img src="/wkjasdka/index/community2.png" alt="加载Logo" class="loading-logo">
+    <img src="/wkjasdka/index/community2.png" alt="加载Logo" class="loading-logo" id="loadingLogo">
     <div class="loading-text-container">
       <div class="loading-text">from</div>
       <div class="loading-text">- Wkjasdka -</div>
@@ -111,8 +111,9 @@
   </div>
 
     <script>
-      // 获取加载条元素
+      // 获取元素
       const loadingBar = document.getElementById('topLoadingBar');
+      const loadingLogo = document.getElementById('loadingLogo');
       let progress = 0;
       const totalDuration = 150; // 总加载时间
       const intervalTime = 30; // 进度更新间隔时间
@@ -121,20 +122,22 @@
       const viewportWidth = window.innerWidth;
       const tenPxPercentage = (10 / viewportWidth) * 100;
       
-      // 调整每次增加的进度值，使其比原生进度快10px
+      // 调整每次增加的进度值
       const baseIncrement = 100 / (totalDuration / intervalTime);
       const increment = baseIncrement + (tenPxPercentage / (totalDuration / intervalTime));
 
-      // 模拟进度更新
-      const progressInterval = setInterval(() => {
-        progress += increment;
-        // 确保进度不会超过100%
-        if (progress >= 100) {
-          progress = 100;
-          clearInterval(progressInterval);
-        }
-        loadingBar.style.width = `${progress}%`;
-      }, intervalTime);
+      // 模拟进度更新函数
+      function startProgress() {
+        const progressInterval = setInterval(() => {
+          progress += increment;
+          // 确保进度不会超过100%
+          if (progress >= 100) {
+            progress = 100;
+            clearInterval(progressInterval);
+          }
+          loadingBar.style.width = `${progress}%`;
+        }, intervalTime);
+      }
 
       // 加载完成后处理函数
       function handleLoadComplete() {
@@ -147,10 +150,22 @@
         }, 320);
       }
       
-      // 初始加载逻辑
-      setTimeout(function() {
-        handleLoadComplete();
-      }, totalDuration);
+      // 监听logo图片加载完成事件
+      loadingLogo.onload = function() {
+        // 图片加载完成后开始进度条动画
+        startProgress();
+        
+        // 启动加载完成计时器
+        setTimeout(handleLoadComplete, totalDuration);
+      };
+
+      // 处理图片加载失败的情况（可选）
+      loadingLogo.onerror = function() {
+        console.error('Logo图片加载失败');
+        // 即使加载失败也继续流程
+        startProgress();
+        setTimeout(handleLoadComplete, totalDuration);
+      };
     </script>
 </body>
 </html>
