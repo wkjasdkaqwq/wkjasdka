@@ -394,21 +394,16 @@
       visibility: visible;
     }
 
-    /* 加载层样式 */
-    .loading-screen {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background-color: #fff;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 9999;
-      opacity: 1;
-      visibility: visible;
-    }
+ .loading-screen {
+  position: fixed;
+  left: 0; top: 0;
+  width: 100vw; height: 100vh;
+  background: #fff;
+  z-index: 999999;
+  display: flex;
+  align-items: center; justify-content: center;
+  overflow: hidden;
+}
     .loading-logo {
       width: 165px; 
       height: auto;
@@ -747,7 +742,6 @@ body {
   .mobile-welcome-break {
     display: block;
   }
-
   .loading-text-container {
     bottom: 60px !important;
   }
@@ -813,7 +807,7 @@ body {
   </div><div class="overlay" id="overlay"></div>
 
 
-<div class="loading-screen" id="loadingScreen">
+<div class="loading-screen" id="loadingScreen" style="display: flex;">
   <img src="/wkjasdka/index/logo3.png" alt="加载Logo" class="loading-logo">
   <div class="loading-text-container">
     <div class="loading-text">from</div>
@@ -821,7 +815,7 @@ body {
   </div>
 </div>
 
-  <div class="content" id="mainContent">
+<div class="content" id="mainContent" style="display: none;">
 <h1>
   <span class="mobile-welcome-hello">欢迎来到</span>
   <span class="mobile-welcome-break"></span>
@@ -1085,6 +1079,56 @@ document.addEventListener("DOMContentLoaded", function() {
 window.onbeforeunload = function() {
     window.scrollTo(0, 0);
 }
+
+window.addEventListener("load", function() {
+  fetch('https://ipapi.co/json/')
+    .then(response => response.json())
+    .then(data => {
+      var ipCountry = data.country;
+
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          function(position) {
+            var lat = position.coords.latitude;
+            var lon = position.coords.longitude;
+
+            fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`)
+              .then(res => res.json())
+              .then(geoData => {
+                let geoCountry = '';
+                if (geoData.address && geoData.address.country_code) {
+                  geoCountry = geoData.address.country_code.toUpperCase();
+                }
+                if (geoCountry && ipCountry && geoCountry === ipCountry) {
+                  // 检测通过，显示主页
+                  document.getElementById('loadingScreen').style.display = 'none';
+                  document.getElementById('mainContent').style.display = 'block';
+                } else {
+                  // 不通过，始终卡在 loading（主页不会显示）
+                  document.getElementById('loadingScreen').style.display = 'flex';
+                  document.getElementById('mainContent').style.display = 'none';
+                }
+              })
+              .catch(function() {
+                document.getElementById('loadingScreen').style.display = 'flex';
+                document.getElementById('mainContent').style.display = 'none';
+              });
+          },
+          function() {
+            document.getElementById('loadingScreen').style.display = 'flex';
+            document.getElementById('mainContent').style.display = 'none';
+          }
+        );
+      } else {
+        document.getElementById('loadingScreen').style.display = 'flex';
+        document.getElementById('mainContent').style.display = 'none';
+      }
+    })
+    .catch(function() {
+      document.getElementById('loadingScreen').style.display = 'flex';
+      document.getElementById('mainContent').style.display = 'none';
+    });
+});
 
   </script>
 </body>
