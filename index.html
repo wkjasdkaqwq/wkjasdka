@@ -801,10 +801,9 @@ body {
   </a>
 </li>
     </ul>
-  </div>
-  
-  <!-- 遮罩层 -->
-  <div class="overlay" id="overlay"></div>
+  </div><div class="overlay" id="overlay"></div>
+
+
 <div class="loading-screen" id="loadingScreen">
   <img src="/wkjasdka/index/logo3.png" alt="加载Logo" class="loading-logo">
   <div class="loading-text-container">
@@ -812,6 +811,7 @@ body {
     <div class="loading-text">- Wkjasdka -</div>
   </div>
 </div>
+
   <div class="content" id="mainContent">
 <h1>
   <span class="mobile-welcome-hello">欢迎来到</span>
@@ -1049,13 +1049,13 @@ window.addEventListener("load", function() {
   setTimeout(function() {
     document.getElementById('loadingScreen').style.display = 'none';
     document.getElementById('mainContent').style.display = 'block';
-  }, 130);
+  },50);
 });
 document.addEventListener("DOMContentLoaded", function() {
   var loadingScreen = document.getElementById('loadingScreen');
   var logoImg = loadingScreen.querySelector('.loading-logo');
   var loadingTexts = loadingScreen.querySelector('.loading-text-container');
-  
+
   // 先隐藏 logo 和文字
   logoImg.style.display = 'none';
   loadingTexts.style.display = 'none';
@@ -1065,6 +1065,18 @@ document.addEventListener("DOMContentLoaded", function() {
     logoImg.style.display = 'block';
     loadingTexts.style.display = 'block';
   });
+
+  // 图片加载失败也展示文字
+  logoImg.addEventListener('error', function() {
+    loadingTexts.style.display = 'block';
+  });
+
+  // 超时兜底（防止图片永远没返回但也没 error）
+  setTimeout(function(){
+    if(loadingTexts.style.display === 'none') {
+      loadingTexts.style.display = 'block';
+    }
+  }, 2000);
 
   // 如果已经缓存加载，直接显示
   if (logoImg.complete && logoImg.naturalWidth !== 0) {
