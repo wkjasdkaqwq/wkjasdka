@@ -416,32 +416,28 @@
       display: block;
     }
 
-    /* 将 loading-text-container 放低一些但确保在安全区域内可见 */
-    .loading-text-container {
-      position: absolute;
-      bottom: 26px; /* 保持在可见范围，避免被底部工具栏挡住 */
-      left: 0;
-      width: 100%;
-      display: flex; /* 改为 flex 以便居中显示 */
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 0;
-      box-sizing: border-box;
-      padding-bottom: env(safe-area-inset-bottom);
-      -webkit-padding-end: env(safe-area-inset-right);
-      -webkit-padding-start: env(safe-area-inset-left);
-      z-index: 10001; /* 确保文本在 logo 之上可见 */
-      pointer-events: none;
-    }
-    .loading-text {
-      color: #212121; /* 更深的颜色以保证对比度 */
-      font-size: 16px; /* 更大的字体，移动端也可见 */
-      margin: 5px 0;
-      font-weight: 600;
-      -webkit-font-smoothing: antialiased;
-    }
+ .loading-text-container {
+    /* 保证固定在屏幕底部并高于 logo */
+    position: fixed !important;
+    bottom: env(safe-area-inset-bottom, 26px) !important;
+    left: 0 !important;
+    width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    z-index: 10001 !important;
+    visibility: visible !important;
+    pointer-events: none !important;
+    -webkit-text-size-adjust: 100% !important;
+  }
+  .loading-text {
+    color: #000 !important; /* 确保对比度 */
+    font-size: 18px !important;
+    font-weight: 700 !important;
+    text-shadow: none !important;
+    -webkit-font-smoothing: antialiased !important;
+  }
 
     /* 将 mainContent 默认隐藏，避免在加载时被闪现（直到 load 后展示） */
     #mainContent {
@@ -1109,48 +1105,40 @@ function addTouchFlip(card) {
     }
   }, {passive: true});
 }
-// 只有在所有网页内容（包括图片等资源）全部加载完毕后才关闭加载logo层
-window.addEventListener("load", function() {
+document.addEventListener('DOMContentLoaded', function() {
+  try {
+    var loadingScreen = document.getElementById('loadingScreen');
+    var loadingTexts = document.getElementById('loadingTexts');
+    var logoImg = document.getElementById('loadingLogo');
 
-  setTimeout(function() {
-    document.getElementById('loadingScreen').style.display = 'none';
-    document.getElementById('mainContent').style.display = 'block';
-  },50);
-});
-document.addEventListener("DOMContentLoaded", function() {
-  var loadingScreen = document.getElementById('loadingScreen');
-  var logoImg = document.getElementById('loadingLogo');
-  var loadingTexts = document.getElementById('loadingTexts');
-  
-  // 显示 loading 文本（即使图片未加载也要可见），优先用 flex 居中显示
-  loadingTexts.style.display = 'flex';
-  loadingTexts.style.opacity = '1';
-  loadingTexts.setAttribute('aria-hidden','false');
+    if (loadingScreen) {
+      // 确保 loading 层覆盖和背景确定
+      loadingScreen.style.display = 'flex';
+      loadingScreen.style.backgroundColor = '#ffffff';
+      loadingScreen.style.zIndex = '9999';
+    }
 
-  // 默认隐藏 logo，等图片真实加载后再显示（避免强制显示损坏图片时覆盖体验）
-  logoImg.style.display = 'none';
+    if (loadingTexts) {
+      // 强制文本可见
+      loadingTexts.style.display = 'flex';
+      loadingTexts.style.visibility = 'visible';
+      loadingTexts.style.opacity = '1';
+      loadingTexts.style.zIndex = '10001';
+      // 兜底设置文本颜色/大小
+      var nodes = loadingTexts.querySelectorAll('.loading-text');
+      nodes.forEach(function(n){ n.style.color = '#000'; n.style.fontSize = '18px'; n.style.fontWeight = '700'; });
+    }
 
-  // 图片加载完成再展示 logo（但不依赖于显示文本）
-  logoImg.addEventListener('load', function() {
-    // logo 显示但确保文本仍然可见（文本 z-index 更高）
-    logoImg.style.display = 'block';
-    loadingTexts.style.display = 'flex';
-    loadingTexts.style.opacity = '1';
-  });
-
-  // 如果已经缓存加载，直接显示 logo（同时文本也保持可见）
-  if (logoImg.complete && logoImg.naturalWidth !== 0) {
-    logoImg.style.display = 'block';
-    loadingTexts.style.display = 'flex';
-    loadingTexts.style.opacity = '1';
+    // 如果 logo 加载后覆盖或定位导致文本被挤走，确保 logo 不盖住文本
+    if (logoImg) {
+      logoImg.style.zIndex = '10000';
+      // 可选：当 logo 未加载时隐藏 logo，确保文字优先可见（如果你需要）
+      // if (!logoImg.complete) logoImg.style.display = 'none';
+    }
+  } catch (err) {
+    // 不要阻断页面，出错时打印到控制台便于调试
+    console.warn('loading fix error:', err);
   }
-
-  // 如果图片加载失败，也要保证文本显示（避免因图片未加载导致文字不可见的问题）
-  logoImg.addEventListener('error', function() {
-    logoImg.style.display = 'none';
-    loadingTexts.style.display = 'flex';
-    loadingTexts.style.opacity = '1';
-  });
 });
 
 // 替换原有的 window.onbeforeunload 行为，避免点击 .project-link 导致页面在跳转前闪回顶部
