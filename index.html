@@ -432,9 +432,9 @@
     -webkit-text-size-adjust: 100% !important;
   }
   .loading-text {
-    color: #000 !important; /* 确保对比度 */
-    font-size: 18px !important;
-    font-weight: 700 !important;
+    color: #8e8e8e !important; /* 确保对比度 */
+    font-size: 16px !important;
+    font-weight: 400 !important;
     text-shadow: none !important;
     -webkit-font-smoothing: antialiased !important;
   }
@@ -1167,6 +1167,55 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 })();
+
+(function() {
+  const loadingScreen = document.getElementById('loadingScreen');
+  const mainContent = document.getElementById('mainContent');
+  const loadingTexts = document.getElementById('loadingTexts');
+  const logoImg = document.getElementById('loadingLogo');
+
+  // 立即禁用任何过渡（无动画）
+  if (loadingScreen) loadingScreen.style.transition = 'none';
+  if (loadingTexts) loadingTexts.style.transition = 'none';
+
+  // 确保主内容初始隐藏，加载文字为非粗体
+  if (mainContent) mainContent.style.display = 'none';
+  if (loadingTexts) {
+    loadingTexts.style.display = 'flex';
+    loadingTexts.style.visibility = 'visible';
+    loadingTexts.style.opacity = '1';
+    loadingTexts.style.zIndex = '10001';
+    loadingTexts.style.fontWeight = '400'; // 非粗体
+  }
+
+  function hideLoading() {
+    if (!loadingScreen) return;
+    // 立即隐藏 loading 层（无动画），显示主内容
+    loadingScreen.style.display = 'none';
+    if (mainContent) mainContent.style.display = 'block';
+
+    // 清理监听器
+    if (logoImg) logoImg.removeEventListener('load', onLogoLoad);
+    window.removeEventListener('load', onWindowLoad);
+  }
+
+  function onLogoLoad() {
+    hideLoading();
+  }
+  function onWindowLoad() {
+    hideLoading();
+  }
+
+  // 如果 logo 已经加载完则立即隐藏，否则仅在 logo load 或 window load 时隐藏
+  if (logoImg && logoImg.complete && logoImg.naturalWidth !== 0) {
+    hideLoading();
+  } else {
+    if (logoImg) logoImg.addEventListener('load', onLogoLoad, {passive: true});
+    window.addEventListener('load', onWindowLoad, {passive: true});
+  }
+})();
+
+
   </script>
 </body>
 </html>
