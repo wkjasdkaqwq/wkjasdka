@@ -752,7 +752,28 @@ body {
   .mobile-welcome-break {
     display: block;
   }
-  
+/* 移动端：当容器有 show-tooltip 时显示悬浮文字（翻转后显示，回正后隐藏）*/
+.card-container .card-tooltip {
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  pointer-events: none;
+  z-index: 1000;
+  white-space: nowrap;
+  opacity: 0; /* 默认隐藏 */
+}
+
+/* 如果想把提示框放在卡片外部顶部（推荐） */
+.card-container .card-tooltip {
+  top: -36px !important; /* 可微调 -36px、-44px 等 */
+}
+
+/* 也可以改为卡片内部顶部：top: 8px !important; */
+
+/* 显示状态（仅移动端会被 JS 加上/移除 show-tooltip） */
+.card-container.show-tooltip .card-tooltip {
+  opacity: 1 !important;
+}
 
 }
 
@@ -1034,27 +1055,44 @@ addTouchFlip(card2);
 
 
 
+// 替换现有的 addTouchFlip 函数为下面的实现（在触摸翻回后移动端自动隐藏悬浮文字，桌面端不变）
 function addTouchFlip(card) {
   let startX = 0, startY = 0;
+  const container = card.closest('.card-container');
+  const tooltip = container ? container.querySelector('.card-tooltip') : null;
+  const FLIP_ANIMATION_MS = 420; // 与 CSS 中 .card 翻转过渡时间保持一致或稍微大一点
 
   card.addEventListener('touchstart', function (e) {
     startX = e.touches[0].clientX;
     startY = e.touches[0].clientY;
-  });
+  }, {passive: true});
 
   card.addEventListener('touchend', function (e) {
-    let endX = e.changedTouches[0].clientX;
-    let endY = e.changedTouches[0].clientY;
+    const endX = e.changedTouches[0].clientX;
+    const endY = e.changedTouches[0].clientY;
 
-    // 判断是否为滑动
+    // 过滤滑动，仅处理点击/轻触
     if (Math.abs(endX - startX) < 10 && Math.abs(endY - startY) < 10) {
-      this.classList.toggle('flipped');
+      // 切换翻转状态
+      card.classList.toggle('flipped');
+
+      // 仅在移动端（宽度 <= 600）执行悬浮文字隐藏逻辑
+      if (window.innerWidth <= 600 && container && tooltip) {
+        // 如果现在是未翻转（即翻回来了），在动画结束后隐藏提示
+        if (!card.classList.contains('flipped')) {
+          setTimeout(function() {
+            container.classList.remove('show-tooltip');
+            // 作为兜底同时强制设置透明度（CSS 中有相关样式）
+            tooltip.style.opacity = '0';
+          }, FLIP_ANIMATION_MS);
+        }
+      }
     }
-  });
+  }, {passive: true});
 }
 // 只有在所有网页内容（包括图片等资源）全部加载完毕后才关闭加载logo层
 window.addEventListener("load", function() {
-  // 可选延迟保证转场更自然，比如 100ms
+
   setTimeout(function() {
     document.getElementById('loadingScreen').style.display = 'none';
     document.getElementById('mainContent').style.display = 'block';
@@ -1089,9 +1127,32 @@ document.addEventListener("DOMContentLoaded", function() {
   });
 });
 
-window.onbeforeunload = function() {
-    window.scrollTo(0, 0);
-}
+// 替换原有的 window.onbeforeunload 行为，避免点击 .project-link 导致页面在跳转前闪回顶部
+// 把下面代码放在原来 window.onbeforeunload 的位置或脚本末尾（确保在 DOMContentLoaded 之后）
+(function() {
+  let skipScrollOnUnload = false;
+
+  // 捕获所有 link 的点击，标记由项目详情触发的导航
+  document.addEventListener('click', function(e) {
+    const a = e.target.closest('a');
+    if (!a) return;
+
+    // 如果是在新标签打开或是下载链接，就不标记
+    if (a.target === '_blank' || a.hasAttribute('download')) return;
+
+    // 根据 class 判断，是项目详情链接则设置标记（适配现有 HTML 中的 class）
+    if (a.classList && a.classList.contains('project-link')) {
+      skipScrollOnUnload = true;
+    }
+  }, true);
+
+  // 在 beforeunload 阶段仅在未被标记时才回到顶部，避免跳转瞬间闪回
+  window.addEventListener('beforeunload', function() {
+    if (!skipScrollOnUnload) {
+      window.scrollTo(0, 0);
+    }
+  });
+})();
 
 
 
