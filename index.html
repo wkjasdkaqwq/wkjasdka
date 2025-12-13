@@ -1169,65 +1169,164 @@ document.addEventListener('DOMContentLoaded', function() {
 })();
 
 (function() {
+  // 配置：用于等待下载完再移除 loading 层的图片选择器
+  // - #loadingLogo 会被自动包含（若存在）
+  // - 其他要等待的小图标请在 <img> 上添加属性 data-wait-load="true"
+  const ICON_SELECTOR = 'img[data-wait-load="true"]';
+
   const loadingScreen = document.getElementById('loadingScreen');
   const mainContent = document.getElementById('mainContent');
+  const loadingTexts = document.getElementById('loadingTexts');
   const logoImg = document.getElementById('loadingLogo');
 
+  // 立即隐藏 loading（无动画，字体非粗体）
   function hideLoadingImmediate() {
     if (!loadingScreen) return;
-    loadingScreen.style.transition = 'none';
-    loadingScreen.style.display = 'none';
-    if (mainContent) mainContent.style.display = 'block';
+    try {
+      loadingScreen.style.transition = 'none';
+      loadingScreen.style.display = 'none';
+      if (mainContent) mainContent.style.display = 'block';
+    } catch (e) { /* ignore */ }
   }
 
-  async function fetchAndSetImage(img, url) {
-    // 使用 fetch 完整下载图片（可按需设置 cache 模式）
-    const resp = await fetch(url, { cache: 'default' });
+  // 回退：等待现有 img 的 load / decode（不使用 fetch）
+  function waitImageDecodeFallback(img) {
+    return new Promise((resolve, reject) => {
+      try {
+        if (img.decode) {
+          // decode() 如果图片已经可解码，会直接 resolve
+          img.decode().then(resolve).catch(reject);
+          return;
+        }
+        // 如果已经完成且有尺寸
+        if (img.complete && img.naturalWidth !== 0) {
+          resolve();
+          return;
+        }
+        // 否则等待 load / error
+        function onLoad() { cleanup(); resolve(); }
+        function onError() { cleanup(); reject(new Error('img load error (fallback)')); }
+        function cleanup() {
+          img.removeEventListener('load', onLoad);
+          img.removeEventListener('error', onError);
+        }
+        img.addEventListener('load', onLoad);
+        img.addEventListener('error', onError);
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
+
+  // fetch 完整下载图片为 blob，再赋值给 img 并 decode
+  async function fetchAndDecodeImage(img, src) {
+    if (!src) throw new Error('no src');
+    // 使用 fetch 完整下载（会在 resolve 前确保字节全部到达）
+    const resp = await fetch(src, { cache: 'default' });
     if (!resp.ok) throw new Error('fetch failed: ' + resp.status);
     const blob = await resp.blob();
     const objectUrl = URL.createObjectURL(blob);
-    // 把下载好的 blob 指定给 img，再等待 decode（确保可渲染）
-    img.src = objectUrl;
-    if (img.decode) {
-      await img.decode();
-    } else {
-      // 回退：等待 load 事件
-      await new Promise((resolve, reject) => {
-        img.addEventListener('load', function onLoad() {
-          img.removeEventListener('load', onLoad);
-          resolve();
+    try {
+      img.src = objectUrl;
+      if (img.decode) {
+        await img.decode();
+      } else {
+        await new Promise((resolve, reject) => {
+          function onLoad() { cleanup(); resolve(); }
+          function onErr() { cleanup(); reject(new Error('img load error after fetch')); }
+          function cleanup() {
+            img.removeEventListener('load', onLoad);
+            img.removeEventListener('error', onErr);
+          }
+          img.addEventListener('load', onLoad);
+          img.addEventListener('error', onErr);
         });
-        img.addEventListener('error', function onError() {
-          img.removeEventListener('error', onError);
-          reject(new Error('img load error'));
-        });
-      });
+      }
+    } finally {
+      // 释放 object URL
+      URL.revokeObjectURL(objectUrl);
     }
-    // 下载后的 object URL 可以在隐藏后撤销（可选）
-    URL.revokeObjectURL(objectUrl);
   }
 
   document.addEventListener('DOMContentLoaded', function() {
-    if (!logoImg) {
-      hideLoadingImmediate();
-      return;
+    // 保证 loading 文本是非粗体并可见（无动画）
+    if (loadingTexts) {
+      loadingTexts.style.display = 'flex';
+      loadingTexts.style.visibility = 'visible';
+      loadingTexts.style.opacity = '1';
+      loadingTexts.style.zIndex = '10001';
+      loadingTexts.style.fontWeight = '400'; // 非粗体
+      loadingTexts.style.transition = 'none';
     }
-    const src = logoImg.getAttribute('src');
-    if (!src) {
+
+    // 隐藏主内容直到所有指定资源真正下载完成
+    if (mainContent) mainContent.style.display = 'none';
+    if (loadingScreen) {
+      loadingScreen.style.display = 'flex';
+      loadingScreen.style.transition = 'none';
+      loadingScreen.style.opacity = '1';
+    }
+
+    // 收集要等待的图片：logo + 所有带 data-wait-load="true" 的 img
+    const waitImgs = [];
+    if (logoImg) waitImgs.push(logoImg);
+    const icons = Array.from(document.querySelectorAll(ICON_SELECTOR));
+    icons.forEach(i => {
+      // 避免重复加入 logo（若 logo 也带了 data-wait-load）
+      if (i !== logoImg) waitImgs.push(i);
+    });
+
+    // 如果没有任何待等待图片（配置错误或页面不含图片），立即移除 loading
+    if (waitImgs.length === 0) {
       hideLoadingImmediate();
       return;
     }
 
-    // 开始用 fetch 下载并在完成后移除 loading
-    fetchAndSetImage(logoImg, src).then(() => {
-      hideLoadingImmediate();
-    }).catch(err => {
-      console.warn('fetch logo failed:', err);
-      // 按你的要求：若失败则不自动隐藏（避免跳过）
-    });
+    // 对每张图片，优先使用 fetch+decode（更严格确保字节已下载），若 fetch 失败则尝试回退 decode（但若回退仍失败，则按你的要求：不隐藏）
+    (async function waitAll() {
+      try {
+        for (const img of waitImgs) {
+          const src = img.getAttribute('src');
+          if (!src) {
+            // 若 img 没有 src，则直接尝试 fallback（将会因缺少 src 而失败）
+            await waitImageDecodeFallback(img);
+            continue;
+          }
+
+          let done = false;
+          // 先尝试 fetch+decode（更稳健）
+          try {
+            await fetchAndDecodeImage(img, src);
+            done = true;
+          } catch (fetchErr) {
+            // fetch 失败（CORS/网络等），尝试回退 decode（可能被浏览器已加载）
+            try {
+              await waitImageDecodeFallback(img);
+              done = true;
+            } catch (fallbackErr) {
+              console.warn('Asset failed both fetch+decode and fallback for', src, fetchErr, fallbackErr);
+              // 按你的要求：如果部分资源未能完成下载/解码，则不移除 loading 层 —— 所以抛出以进入 catch 分支并保持 loading
+              throw new Error('asset not fully available: ' + src);
+            }
+          }
+          if (!done) {
+            throw new Error('asset not ready: ' + src);
+          }
+          // 单张图完成后继续下一张（保证顺序性与可控性）
+        }
+
+        // 所有图片均已成功下载并可渲染 —— 立即移除 loading（无动画）
+        hideLoadingImmediate();
+      } catch (err) {
+        // 若任何一项失败，按你之前的要求：不要自动跳过 loading 层（保持 loading 层）
+        // 仅在控制台记录错误，方便定位（不要改变 loading 层的显示）
+        console.error('Waiting assets failed or incomplete — loading layer remains:', err);
+      }
+    })();
   });
 })();
 
   </script>
 </body>
 </html>
+
