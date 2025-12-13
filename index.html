@@ -1169,17 +1169,37 @@ document.addEventListener('DOMContentLoaded', function() {
 })();
 
 (function() {
-  // 配置：用于等待下载完再移除 loading 层的图片选择器
-  // - #loadingLogo 会被自动包含（若存在）
-  // - 其他要等待的小图标请在 <img> 上添加属性 data-wait-load="true"
-  const ICON_SELECTOR = 'img[data-wait-load="true"]';
-
+  // 元素引用
   const loadingScreen = document.getElementById('loadingScreen');
   const mainContent = document.getElementById('mainContent');
   const loadingTexts = document.getElementById('loadingTexts');
-  const logoImg = document.getElementById('loadingLogo');
 
-  // 立即隐藏 loading（无动画，字体非粗体）
+  // 立即设置无动画、非粗体显示（确保加载文字可见且不加粗）
+  function enforceNoAnimationAndNormalWeight() {
+    try {
+      if (loadingScreen) {
+        loadingScreen.style.transition = 'none';
+        loadingScreen.style.display = 'flex';
+        loadingScreen.style.opacity = '1';
+      }
+      if (loadingTexts) {
+        loadingTexts.style.transition = 'none';
+        loadingTexts.style.fontWeight = '400';
+        loadingTexts.style.display = 'flex';
+        loadingTexts.style.visibility = 'visible';
+        loadingTexts.style.opacity = '1';
+        loadingTexts.style.zIndex = '10001';
+      }
+      if (mainContent) {
+        // 初始隐藏主体，直到所有资源完全可渲染后才显示
+        mainContent.style.display = 'none';
+      }
+    } catch (e) {
+      console.warn('enforce style error', e);
+    }
+  }
+
+  // 立即隐藏 loading 层（无动画）
   function hideLoadingImmediate() {
     if (!loadingScreen) return;
     try {
@@ -1189,144 +1209,81 @@ document.addEventListener('DOMContentLoaded', function() {
     } catch (e) { /* ignore */ }
   }
 
-  // 回退：等待现有 img 的 load / decode（不使用 fetch）
-  function waitImageDecodeFallback(img) {
+  // 为单个图片返回一个在“可渲染”时 resolve 的 Promise
+  function ensureImageDecoded(img) {
     return new Promise((resolve, reject) => {
-      try {
-        if (img.decode) {
-          // decode() 如果图片已经可解码，会直接 resolve
-          img.decode().then(resolve).catch(reject);
-          return;
-        }
-        // 如果已经完成且有尺寸
-        if (img.complete && img.naturalWidth !== 0) {
+      // 没有 src 的图片视为已完成
+      const src = img.getAttribute && img.getAttribute('src');
+      if (!src) { resolve(); return; }
+
+      // 优先使用 decode()（现代浏览器）
+      if (typeof img.decode === 'function') {
+        // img.decode() 在图片已完整下载并解码后 resolve；若图片未下载完会等待
+        img.decode().then(() => {
           resolve();
-          return;
-        }
-        // 否则等待 load / error
-        function onLoad() { cleanup(); resolve(); }
-        function onError() { cleanup(); reject(new Error('img load error (fallback)')); }
-        function cleanup() {
-          img.removeEventListener('load', onLoad);
-          img.removeEventListener('error', onError);
-        }
-        img.addEventListener('load', onLoad);
-        img.addEventListener('error', onError);
-      } catch (err) {
-        reject(err);
-      }
-    });
-  }
-
-  // fetch 完整下载图片为 blob，再赋值给 img 并 decode
-  async function fetchAndDecodeImage(img, src) {
-    if (!src) throw new Error('no src');
-    // 使用 fetch 完整下载（会在 resolve 前确保字节全部到达）
-    const resp = await fetch(src, { cache: 'default' });
-    if (!resp.ok) throw new Error('fetch failed: ' + resp.status);
-    const blob = await resp.blob();
-    const objectUrl = URL.createObjectURL(blob);
-    try {
-      img.src = objectUrl;
-      if (img.decode) {
-        await img.decode();
-      } else {
-        await new Promise((resolve, reject) => {
-          function onLoad() { cleanup(); resolve(); }
-          function onErr() { cleanup(); reject(new Error('img load error after fetch')); }
-          function cleanup() {
-            img.removeEventListener('load', onLoad);
-            img.removeEventListener('error', onErr);
-          }
-          img.addEventListener('load', onLoad);
-          img.addEventListener('error', onErr);
+        }).catch(err => {
+          // decode 可能因图片损坏或跨域限制失败，作为失败处理
+          reject(err || new Error('image decode failed'));
         });
+        return;
       }
-    } finally {
-      // 释放 object URL
-      URL.revokeObjectURL(objectUrl);
-    }
+
+      // 回退：监听 load / error
+      if (img.complete && img.naturalWidth !== 0) {
+        // 浏览器认为已完成且有尺寸，但为了更严谨我们仍 treat 为完成
+        resolve();
+        return;
+      }
+
+      function onLoad() {
+        cleanup();
+        resolve();
+      }
+      function onError(e) {
+        cleanup();
+        reject(e || new Error('image load error'));
+      }
+      function cleanup() {
+        img.removeEventListener('load', onLoad);
+        img.removeEventListener('error', onError);
+      }
+      img.addEventListener('load', onLoad);
+      img.addEventListener('error', onError);
+    });
   }
 
+  // 入口：当 window load 触发（浏览器认为所有外部资源已下载完）后，
+  // 再对页面中所有 <img> 执行 decode/等待，只有全部成功才移除 loading。
   document.addEventListener('DOMContentLoaded', function() {
-    // 保证 loading 文本是非粗体并可见（无动画）
-    if (loadingTexts) {
-      loadingTexts.style.display = 'flex';
-      loadingTexts.style.visibility = 'visible';
-      loadingTexts.style.opacity = '1';
-      loadingTexts.style.zIndex = '10001';
-      loadingTexts.style.fontWeight = '400'; // 非粗体
-      loadingTexts.style.transition = 'none';
-    }
+    enforceNoAnimationAndNormalWeight();
 
-    // 隐藏主内容直到所有指定资源真正下载完成
-    if (mainContent) mainContent.style.display = 'none';
-    if (loadingScreen) {
-      loadingScreen.style.display = 'flex';
-      loadingScreen.style.transition = 'none';
-      loadingScreen.style.opacity = '1';
-    }
+    // 绑定 window load：表示所有资源（图片/样式/子框架等）已完成下载（浏览器范畴）
+    window.addEventListener('load', async function onWindowLoad() {
+      // 收集页面中所有图片（HTMLImageElement）
+      const imgs = Array.from(document.images || []);
+      // 为每张图片创建 promise（注意：若图片解码/加载失败则会 reject）
+      const promises = imgs.map(img => ensureImageDecoded(img));
 
-    // 收集要等待的图片：logo + 所有带 data-wait-load="true" 的 img
-    const waitImgs = [];
-    if (logoImg) waitImgs.push(logoImg);
-    const icons = Array.from(document.querySelectorAll(ICON_SELECTOR));
-    icons.forEach(i => {
-      // 避免重复加入 logo（若 logo 也带了 data-wait-load）
-      if (i !== logoImg) waitImgs.push(i);
-    });
-
-    // 如果没有任何待等待图片（配置错误或页面不含图片），立即移除 loading
-    if (waitImgs.length === 0) {
-      hideLoadingImmediate();
-      return;
-    }
-
-    // 对每张图片，优先使用 fetch+decode（更严格确保字节已下载），若 fetch 失败则尝试回退 decode（但若回退仍失败，则按你的要求：不隐藏）
-    (async function waitAll() {
       try {
-        for (const img of waitImgs) {
-          const src = img.getAttribute('src');
-          if (!src) {
-            // 若 img 没有 src，则直接尝试 fallback（将会因缺少 src 而失败）
-            await waitImageDecodeFallback(img);
-            continue;
-          }
-
-          let done = false;
-          // 先尝试 fetch+decode（更稳健）
-          try {
-            await fetchAndDecodeImage(img, src);
-            done = true;
-          } catch (fetchErr) {
-            // fetch 失败（CORS/网络等），尝试回退 decode（可能被浏览器已加载）
-            try {
-              await waitImageDecodeFallback(img);
-              done = true;
-            } catch (fallbackErr) {
-              console.warn('Asset failed both fetch+decode and fallback for', src, fetchErr, fallbackErr);
-              // 按你的要求：如果部分资源未能完成下载/解码，则不移除 loading 层 —— 所以抛出以进入 catch 分支并保持 loading
-              throw new Error('asset not fully available: ' + src);
-            }
-          }
-          if (!done) {
-            throw new Error('asset not ready: ' + src);
-          }
-          // 单张图完成后继续下一张（保证顺序性与可控性）
-        }
-
-        // 所有图片均已成功下载并可渲染 —— 立即移除 loading（无动画）
+        // 等待所有图片都可渲染（decode 或 load 完成）
+        await Promise.all(promises);
+        // 所有图片都已下载并可渲染，立即隐藏 loading（无动画）
         hideLoadingImmediate();
       } catch (err) {
-        // 若任何一项失败，按你之前的要求：不要自动跳过 loading 层（保持 loading 层）
-        // 仅在控制台记录错误，方便定位（不要改变 loading 层的显示）
-        console.error('Waiting assets failed or incomplete — loading layer remains:', err);
+        // 按你的要求：如果有任一元素（图片）未能成功下载/解码，则不自动隐藏 loading 层
+        // 在此记录错误，便于排查（但不隐藏）
+        console.warn('Some resources failed to finish rendering; loading layer remains. Error:', err);
+        // 注意：此行为会导致页面保持在 loading 层，符合你“不允许跳过/跳过会被避免”的要求。
+      } finally {
+        // 移除该事件监听（防止重复执行）
+        window.removeEventListener('load', onWindowLoad);
       }
-    })();
+    }, { once: true });
   });
 })();
 
   </script>
 </body>
 </html>
+
 
