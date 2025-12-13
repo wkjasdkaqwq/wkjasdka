@@ -412,24 +412,40 @@
     .loading-logo {
       width: 165px; 
       height: auto;
+      z-index: 10000; /* 保证 logo 在 loading 层内层级合理 */
+      display: block;
     }
+
     /* 将 loading-text-container 放低一些但确保在安全区域内可见 */
     .loading-text-container {
       position: absolute;
       bottom: 26px; /* 保持在可见范围，避免被底部工具栏挡住 */
       left: 0;
       width: 100%;
+      display: flex; /* 改为 flex 以便居中显示 */
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
       text-align: center;
       padding: 0;
       box-sizing: border-box;
-      padding-bottom: env(safe-area-inset-bottom); /* iPhone 底部留白 */
+      padding-bottom: env(safe-area-inset-bottom);
       -webkit-padding-end: env(safe-area-inset-right);
       -webkit-padding-start: env(safe-area-inset-left);
+      z-index: 10001; /* 确保文本在 logo 之上可见 */
+      pointer-events: none;
     }
     .loading-text {
-      color: #6a6a6a;
-      font-size: 16px;
+      color: #212121; /* 更深的颜色以保证对比度 */
+      font-size: 16px; /* 更大的字体，移动端也可见 */
       margin: 5px 0;
+      font-weight: 600;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* 将 mainContent 默认隐藏，避免在加载时被闪现（直到 load 后展示） */
+    #mainContent {
+      display: none;
     }
     
 .content {
@@ -529,11 +545,11 @@
     1px 1px 3px rgba(0,0,0,0.3),
     0 0 10px rgba(0,0,0,0.1);
 }
+
 /* 精准移除"关于"按钮下方的横线 */
 .sidebar-item:has(.fa-info-circle) {
   border-bottom: none !important;
 }
-/* 在现有样式中添加或修改以下内容 */
 html, body {
   height: 100%;
   margin: 0;
@@ -752,6 +768,7 @@ body {
   .mobile-welcome-break {
     display: block;
   }
+
 /* 移动端：当容器有 show-tooltip 时显示悬浮文字（翻转后显示，回正后隐藏）*/
 .card-container .card-tooltip {
   transition: opacity 0.18s ease, transform 0.18s ease;
@@ -774,18 +791,15 @@ body {
 .card-container.show-tooltip .card-tooltip {
   opacity: 1 !important;
 }
-/* 在移动端再上移 20px：将底部位置增加 20px（替换或添加到现有媒体查询中） */
-@media (max-width: 600px) {
-  .loading-text-container {
-    /* 之前是 calc(28px + env(...))，现在在此基础上再上移 20px */
-    bottom: calc(48px + env(safe-area-inset-bottom, 0px));
-  }
+
+/* 移动端 loading 文本更大以便于可视 */
+.loading-text {
+  font-size: 18px;
 }
-
-
-
+.loading-text-container {
+  bottom: env(safe-area-inset-bottom, 26px);
 }
-
+}
   </style>
 </head>
 <body>
@@ -842,7 +856,7 @@ body {
 
 <div class="loading-screen" id="loadingScreen">
   <img src="/wkjasdka/index/logo3.png" alt="加载Logo" class="loading-logo" id="loadingLogo">
-  <div class="loading-text-container" id="loadingTexts">
+  <div class="loading-text-container" id="loadingTexts" aria-hidden="false">
     <div class="loading-text">from</div>
     <div class="loading-text">- Wkjasdka -</div>
   </div>
@@ -909,9 +923,6 @@ body {
         this.classList.toggle('flipped');
       });
     }
-
-
-
 
 const card1 = document.getElementById('infoCard1');
 card1.addEventListener('click', function() {
@@ -1063,7 +1074,6 @@ addTouchFlip(card2);
     document.addEventListener('contextmenu', function(e){e.preventDefault();return false;});
 
 
-
 // 替换现有的 addTouchFlip 函数为下面的实现（在触摸翻回后移动端自动隐藏悬浮文字，桌面端不变）
 function addTouchFlip(card) {
   let startX = 0, startY = 0;
@@ -1112,27 +1122,34 @@ document.addEventListener("DOMContentLoaded", function() {
   var logoImg = document.getElementById('loadingLogo');
   var loadingTexts = document.getElementById('loadingTexts');
   
-  // 显示 loading 文本（即使图片未加载也要可见），只延迟或隐藏 logo
-  loadingTexts.style.display = 'block';
+  // 显示 loading 文本（即使图片未加载也要可见），优先用 flex 居中显示
+  loadingTexts.style.display = 'flex';
+  loadingTexts.style.opacity = '1';
+  loadingTexts.setAttribute('aria-hidden','false');
+
+  // 默认隐藏 logo，等图片真实加载后再显示（避免强制显示损坏图片时覆盖体验）
   logoImg.style.display = 'none';
 
   // 图片加载完成再展示 logo（但不依赖于显示文本）
   logoImg.addEventListener('load', function() {
+    // logo 显示但确保文本仍然可见（文本 z-index 更高）
     logoImg.style.display = 'block';
-    // 确保文本仍然可见
-    loadingTexts.style.display = 'block';
+    loadingTexts.style.display = 'flex';
+    loadingTexts.style.opacity = '1';
   });
 
   // 如果已经缓存加载，直接显示 logo（同时文本也保持可见）
   if (logoImg.complete && logoImg.naturalWidth !== 0) {
     logoImg.style.display = 'block';
-    loadingTexts.style.display = 'block';
+    loadingTexts.style.display = 'flex';
+    loadingTexts.style.opacity = '1';
   }
 
   // 如果图片加载失败，也要保证文本显示（避免因图片未加载导致文字不可见的问题）
   logoImg.addEventListener('error', function() {
     logoImg.style.display = 'none';
-    loadingTexts.style.display = 'block';
+    loadingTexts.style.display = 'flex';
+    loadingTexts.style.opacity = '1';
   });
 });
 
@@ -1162,10 +1179,6 @@ document.addEventListener("DOMContentLoaded", function() {
     }
   });
 })();
-
-
-
-
   </script>
 </body>
 </html>
