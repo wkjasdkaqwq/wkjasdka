@@ -1174,45 +1174,59 @@ document.addEventListener('DOMContentLoaded', function() {
   const loadingTexts = document.getElementById('loadingTexts');
   const logoImg = document.getElementById('loadingLogo');
 
-  // 立即禁用任何过渡（无动画）
-  if (loadingScreen) loadingScreen.style.transition = 'none';
-  if (loadingTexts) loadingTexts.style.transition = 'none';
-
-  // 确保主内容初始隐藏，加载文字为非粗体
-  if (mainContent) mainContent.style.display = 'none';
-  if (loadingTexts) {
-    loadingTexts.style.display = 'flex';
-    loadingTexts.style.visibility = 'visible';
-    loadingTexts.style.opacity = '1';
-    loadingTexts.style.zIndex = '10001';
-    loadingTexts.style.fontWeight = '400'; // 非粗体
-  }
-
-  function hideLoading() {
+  // 立即隐藏 loading（无动画）
+  function hideLoadingImmediate() {
     if (!loadingScreen) return;
-    // 立即隐藏 loading 层（无动画），显示主内容
-    loadingScreen.style.display = 'none';
-    if (mainContent) mainContent.style.display = 'block';
-
-    // 清理监听器
-    if (logoImg) logoImg.removeEventListener('load', onLogoLoad);
-    window.removeEventListener('load', onWindowLoad);
+    try {
+      loadingScreen.style.transition = 'none';
+      loadingScreen.style.opacity = '1';
+      loadingScreen.style.display = 'none';
+      if (mainContent) mainContent.style.display = 'block';
+      if (loadingTexts) {
+        loadingTexts.style.transition = 'none';
+        loadingTexts.style.fontWeight = '400'; // 非粗体
+      }
+    } catch (e) { /* ignore */ }
   }
 
-  function onLogoLoad() {
-    hideLoading();
-  }
-  function onWindowLoad() {
-    hideLoading();
-  }
+  document.addEventListener('DOMContentLoaded', function() {
+    // 保持 mainContent 隐藏、loading 显示（无动画）
+    if (mainContent) mainContent.style.display = 'none';
+    if (loadingScreen) {
+      loadingScreen.style.display = 'flex';
+      loadingScreen.style.transition = 'none';
+      loadingScreen.style.opacity = '1';
+    }
+    if (loadingTexts) {
+      loadingTexts.style.display = 'flex';
+      loadingTexts.style.visibility = 'visible';
+      loadingTexts.style.opacity = '1';
+      loadingTexts.style.zIndex = '10001';
+      loadingTexts.style.fontWeight = '400'; // 非粗体
+      loadingTexts.style.transition = 'none';
+    }
 
-  // 如果 logo 已经加载完则立即隐藏，否则仅在 logo load 或 window load 时隐藏
-  if (logoImg && logoImg.complete && logoImg.naturalWidth !== 0) {
-    hideLoading();
-  } else {
-    if (logoImg) logoImg.addEventListener('load', onLogoLoad, {passive: true});
-    window.addEventListener('load', onWindowLoad, {passive: true});
-  }
+    // 只有当 logo 真正加载完成时才移除 loading 层（用户无法手动关闭/跳过）
+    // 如果页面里没有 logo 元素，则直接隐藏，避免永远卡住（元素缺失属于配置错误）
+    if (!logoImg) {
+      hideLoadingImmediate();
+      return;
+    }
+
+    // 如果 logo 已缓存并已加载，立即隐藏
+    if (logoImg.complete && logoImg.naturalWidth !== 0) {
+      hideLoadingImmediate();
+      return;
+    }
+
+    // 等待 logo 的 load 事件，加载完成后立即隐藏（无动画）
+    logoImg.addEventListener('load', function() {
+      hideLoadingImmediate();
+    }, { once: true });
+
+    // 注意：按你的要求已移除任何“安全超时”和“用户触摸/点击强制关闭”的逻辑，
+    // 如果 logo 加载失败（error），加载层将不会自动隐藏 —— 这是你指定的行为。
+  });
 })();
 
 
