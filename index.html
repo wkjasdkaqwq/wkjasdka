@@ -1171,64 +1171,62 @@ document.addEventListener('DOMContentLoaded', function() {
 (function() {
   const loadingScreen = document.getElementById('loadingScreen');
   const mainContent = document.getElementById('mainContent');
-  const loadingTexts = document.getElementById('loadingTexts');
   const logoImg = document.getElementById('loadingLogo');
 
-  // 立即隐藏 loading（无动画）
   function hideLoadingImmediate() {
     if (!loadingScreen) return;
-    try {
-      loadingScreen.style.transition = 'none';
-      loadingScreen.style.opacity = '1';
-      loadingScreen.style.display = 'none';
-      if (mainContent) mainContent.style.display = 'block';
-      if (loadingTexts) {
-        loadingTexts.style.transition = 'none';
-        loadingTexts.style.fontWeight = '400'; // 非粗体
-      }
-    } catch (e) { /* ignore */ }
+    loadingScreen.style.transition = 'none';
+    loadingScreen.style.display = 'none';
+    if (mainContent) mainContent.style.display = 'block';
+  }
+
+  async function fetchAndSetImage(img, url) {
+    // 使用 fetch 完整下载图片（可按需设置 cache 模式）
+    const resp = await fetch(url, { cache: 'default' });
+    if (!resp.ok) throw new Error('fetch failed: ' + resp.status);
+    const blob = await resp.blob();
+    const objectUrl = URL.createObjectURL(blob);
+    // 把下载好的 blob 指定给 img，再等待 decode（确保可渲染）
+    img.src = objectUrl;
+    if (img.decode) {
+      await img.decode();
+    } else {
+      // 回退：等待 load 事件
+      await new Promise((resolve, reject) => {
+        img.addEventListener('load', function onLoad() {
+          img.removeEventListener('load', onLoad);
+          resolve();
+        });
+        img.addEventListener('error', function onError() {
+          img.removeEventListener('error', onError);
+          reject(new Error('img load error'));
+        });
+      });
+    }
+    // 下载后的 object URL 可以在隐藏后撤销（可选）
+    URL.revokeObjectURL(objectUrl);
   }
 
   document.addEventListener('DOMContentLoaded', function() {
-    // 保持 mainContent 隐藏、loading 显示（无动画）
-    if (mainContent) mainContent.style.display = 'none';
-    if (loadingScreen) {
-      loadingScreen.style.display = 'flex';
-      loadingScreen.style.transition = 'none';
-      loadingScreen.style.opacity = '1';
-    }
-    if (loadingTexts) {
-      loadingTexts.style.display = 'flex';
-      loadingTexts.style.visibility = 'visible';
-      loadingTexts.style.opacity = '1';
-      loadingTexts.style.zIndex = '10001';
-      loadingTexts.style.fontWeight = '400'; // 非粗体
-      loadingTexts.style.transition = 'none';
-    }
-
-    // 只有当 logo 真正加载完成时才移除 loading 层（用户无法手动关闭/跳过）
-    // 如果页面里没有 logo 元素，则直接隐藏，避免永远卡住（元素缺失属于配置错误）
     if (!logoImg) {
       hideLoadingImmediate();
       return;
     }
-
-    // 如果 logo 已缓存并已加载，立即隐藏
-    if (logoImg.complete && logoImg.naturalWidth !== 0) {
+    const src = logoImg.getAttribute('src');
+    if (!src) {
       hideLoadingImmediate();
       return;
     }
 
-    // 等待 logo 的 load 事件，加载完成后立即隐藏（无动画）
-    logoImg.addEventListener('load', function() {
+    // 开始用 fetch 下载并在完成后移除 loading
+    fetchAndSetImage(logoImg, src).then(() => {
       hideLoadingImmediate();
-    }, { once: true });
-
-    // 注意：按你的要求已移除任何“安全超时”和“用户触摸/点击强制关闭”的逻辑，
-    // 如果 logo 加载失败（error），加载层将不会自动隐藏 —— 这是你指定的行为。
+    }).catch(err => {
+      console.warn('fetch logo failed:', err);
+      // 按你的要求：若失败则不自动隐藏（避免跳过）
+    });
   });
 })();
-
 
   </script>
 </body>
