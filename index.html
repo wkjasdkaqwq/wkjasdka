@@ -512,22 +512,6 @@
       transition: opacity 0.3s;
       z-index: 10;
     }
-    /* 移动端：将卡片的悬浮提示固定到卡片顶部并水平居中 */
-/* 移动端：卡片悬浮提示顶部居中但默认隐藏（通过 JS 控制显示） */
-.card-tooltip {
-  position: absolute;
-  top: 8px;
-  left: 50%;
-  transform: translateX(-50%);
-  opacity: 0;                    /* 默认隐藏，JS 控制显示/隐藏 */
-  pointer-events: none;          /* 不阻塞触摸事件 */
-  white-space: normal;
-  max-width: calc(100% - 24px);
-  text-align: center;
-  font-size: 0.95rem;
-  z-index: 20;
-  transition: opacity 0.18s ease, transform 0.18s ease;
-}
     .card-container:hover .card-tooltip {
       opacity: 1;
     }
@@ -768,7 +752,6 @@ body {
   .mobile-welcome-break {
     display: block;
   }
-
   
 
 }
@@ -898,34 +881,15 @@ body {
     }
 
 
-// 当翻转动画结束，如果卡片为正面（即不包含 .flipped），自动隐藏对应的悬浮提示
-[card1, card2].forEach(function(card){
-  card.addEventListener('transitionend', function(e){
-    if (!e.propertyName || e.propertyName.indexOf('transform') === -1) return;
-    const tip = this.parentElement.querySelector('.card-tooltip');
-    if (!tip) return;
-    if (!this.classList.contains('flipped')) {
-      tip.style.opacity = '0';
-    }
-  });
-});
+
 
 const card1 = document.getElementById('infoCard1');
 card1.addEventListener('click', function() {
-  if (window.innerWidth > 600) {
-    this.classList.toggle('flipped');
-    const tip = this.parentElement.querySelector('.card-tooltip');
-    if (tip) tip.style.opacity = this.classList.contains('flipped') ? '0' : '';
-  }
+  if(window.innerWidth>600) this.classList.toggle('flipped');
 });
-
 const card2 = document.getElementById('infoCard2');
 card2.addEventListener('click', function() {
-  if (window.innerWidth > 600) {
-    this.classList.toggle('flipped');
-    const tip = this.parentElement.querySelector('.card-tooltip');
-    if (tip) tip.style.opacity = this.classList.contains('flipped') ? '0' : '';
-  }
+  if(window.innerWidth>600) this.classList.toggle('flipped');
 });
 
 // <-- 在这里追加：
@@ -1128,37 +1092,8 @@ document.addEventListener("DOMContentLoaded", function() {
 window.onbeforeunload = function() {
     window.scrollTo(0, 0);
 }
-['cardContainer1','cardContainer2'].forEach(function(id){
-  var cont = document.getElementById(id);
-  if (!cont) return;
-  var tip = cont.querySelector('.card-tooltip');
-  var card = cont.querySelector('.card');
-  if (!tip || !card) return;
-  var hideTimer = null;
 
-  cont.addEventListener('touchstart', function(e){
-    // 如果卡片已经翻转，就不要显示提示
-    if (card.classList.contains('flipped')) return;
-    if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; }
-    tip.style.opacity = '1';
-    tip.style.left = '50%';
-    tip.style.transform = 'translateX(-50%)';
-  }, {passive: true});
 
-  cont.addEventListener('touchend', function(e){
-    if (hideTimer) clearTimeout(hideTimer);
-    hideTimer = setTimeout(function(){ tip.style.opacity = '0'; hideTimer = null; }, 600);
-  }, {passive: true});
-
-  cont.addEventListener('touchcancel', function(){
-    if (hideTimer) clearTimeout(hideTimer);
-    tip.style.opacity = '0';
-  }, {passive: true});
-
-  cont.addEventListener('mouseleave', function(){
-    tip.style.opacity = '0';
-  });
-});
 
 
   </script>
