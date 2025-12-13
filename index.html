@@ -774,6 +774,15 @@ body {
 .card-container.show-tooltip .card-tooltip {
   opacity: 1 !important;
 }
+/* 在移动端再上移 20px：将底部位置增加 20px（替换或添加到现有媒体查询中） */
+@media (max-width: 600px) {
+  .loading-text-container {
+    /* 之前是 calc(28px + env(...))，现在在此基础上再上移 20px */
+    bottom: calc(26px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+
 
 }
 
