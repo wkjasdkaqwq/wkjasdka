@@ -413,13 +413,18 @@
       width: 165px; 
       height: auto;
     }
+    /* 将 loading-text-container 放低一些但确保在安全区域内可见 */
     .loading-text-container {
       position: absolute;
-      bottom: 0;
+      bottom: 12px; /* 保持在可见范围，避免被底部工具栏挡住 */
       left: 0;
       width: 100%;
       text-align: center;
       padding: 0;
+      box-sizing: border-box;
+      padding-bottom: env(safe-area-inset-bottom); /* iPhone 底部留白 */
+      -webkit-padding-end: env(safe-area-inset-right);
+      -webkit-padding-start: env(safe-area-inset-left);
     }
     .loading-text {
       color: #6a6a6a;
@@ -507,6 +512,22 @@
       transition: opacity 0.3s;
       z-index: 10;
     }
+    /* 移动端：将卡片的悬浮提示固定到卡片顶部并水平居中 */
+/* 移动端：卡片悬浮提示顶部居中但默认隐藏（通过 JS 控制显示） */
+.card-tooltip {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;                    /* 默认隐藏，JS 控制显示/隐藏 */
+  pointer-events: none;          /* 不阻塞触摸事件 */
+  white-space: normal;
+  max-width: calc(100% - 24px);
+  text-align: center;
+  font-size: 0.95rem;
+  z-index: 20;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
     .card-container:hover .card-tooltip {
       opacity: 1;
     }
@@ -748,6 +769,8 @@ body {
     display: block;
   }
 
+  
+
 }
 
   </style>
@@ -805,8 +828,8 @@ body {
 
 
 <div class="loading-screen" id="loadingScreen">
-  <img src="/wkjasdka/index/logo3.png" alt="加载Logo" class="loading-logo">
-  <div class="loading-text-container">
+  <img src="/wkjasdka/index/logo3.png" alt="加载Logo" class="loading-logo" id="loadingLogo">
+  <div class="loading-text-container" id="loadingTexts">
     <div class="loading-text">from</div>
     <div class="loading-text">- Wkjasdka -</div>
   </div>
@@ -875,17 +898,39 @@ body {
     }
 
 
+// 当翻转动画结束，如果卡片为正面（即不包含 .flipped），自动隐藏对应的悬浮提示
+[card1, card2].forEach(function(card){
+  card.addEventListener('transitionend', function(e){
+    if (!e.propertyName || e.propertyName.indexOf('transform') === -1) return;
+    const tip = this.parentElement.querySelector('.card-tooltip');
+    if (!tip) return;
+    if (!this.classList.contains('flipped')) {
+      tip.style.opacity = '0';
+    }
+  });
+});
 
+const card1 = document.getElementById('infoCard1');
+card1.addEventListener('click', function() {
+  if (window.innerWidth > 600) {
+    this.classList.toggle('flipped');
+    const tip = this.parentElement.querySelector('.card-tooltip');
+    if (tip) tip.style.opacity = this.classList.contains('flipped') ? '0' : '';
+  }
+});
 
-    // 卡片翻转（桌面端）
-    const card1 = document.getElementById('infoCard1');
-    card1.addEventListener('click', function() {
-      if(window.innerWidth>600) this.classList.toggle('flipped');
-    });
-    const card2 = document.getElementById('infoCard2');
-    card2.addEventListener('click', function() {
-      if(window.innerWidth>600) this.classList.toggle('flipped');
-    });
+const card2 = document.getElementById('infoCard2');
+card2.addEventListener('click', function() {
+  if (window.innerWidth > 600) {
+    this.classList.toggle('flipped');
+    const tip = this.parentElement.querySelector('.card-tooltip');
+    if (tip) tip.style.opacity = this.classList.contains('flipped') ? '0' : '';
+  }
+});
+
+// <-- 在这里追加：
+addTouchFlip(card1);
+addTouchFlip(card2);
 
     // 鼠标跟随提示（桌面端）
     if(window.innerWidth>600){
@@ -1053,29 +1098,67 @@ window.addEventListener("load", function() {
 });
 document.addEventListener("DOMContentLoaded", function() {
   var loadingScreen = document.getElementById('loadingScreen');
-  var logoImg = loadingScreen.querySelector('.loading-logo');
-  var loadingTexts = loadingScreen.querySelector('.loading-text-container');
+  var logoImg = document.getElementById('loadingLogo');
+  var loadingTexts = document.getElementById('loadingTexts');
   
-  // 先隐藏 logo 和文字
+  // 显示 loading 文本（即使图片未加载也要可见），只延迟或隐藏 logo
+  loadingTexts.style.display = 'block';
   logoImg.style.display = 'none';
-  loadingTexts.style.display = 'none';
 
-  // 图片加载完成再展示
+  // 图片加载完成再展示 logo（但不依赖于显示文本）
   logoImg.addEventListener('load', function() {
     logoImg.style.display = 'block';
+    // 确保文本仍然可见
     loadingTexts.style.display = 'block';
   });
 
-  // 如果已经缓存加载，直接显示
+  // 如果已经缓存加载，直接显示 logo（同时文本也保持可见）
   if (logoImg.complete && logoImg.naturalWidth !== 0) {
     logoImg.style.display = 'block';
     loadingTexts.style.display = 'block';
   }
+
+  // 如果图片加载失败，也要保证文本显示（避免因图片未加载导致文字不可见的问题）
+  logoImg.addEventListener('error', function() {
+    logoImg.style.display = 'none';
+    loadingTexts.style.display = 'block';
+  });
 });
 
 window.onbeforeunload = function() {
     window.scrollTo(0, 0);
 }
+['cardContainer1','cardContainer2'].forEach(function(id){
+  var cont = document.getElementById(id);
+  if (!cont) return;
+  var tip = cont.querySelector('.card-tooltip');
+  var card = cont.querySelector('.card');
+  if (!tip || !card) return;
+  var hideTimer = null;
+
+  cont.addEventListener('touchstart', function(e){
+    // 如果卡片已经翻转，就不要显示提示
+    if (card.classList.contains('flipped')) return;
+    if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; }
+    tip.style.opacity = '1';
+    tip.style.left = '50%';
+    tip.style.transform = 'translateX(-50%)';
+  }, {passive: true});
+
+  cont.addEventListener('touchend', function(e){
+    if (hideTimer) clearTimeout(hideTimer);
+    hideTimer = setTimeout(function(){ tip.style.opacity = '0'; hideTimer = null; }, 600);
+  }, {passive: true});
+
+  cont.addEventListener('touchcancel', function(){
+    if (hideTimer) clearTimeout(hideTimer);
+    tip.style.opacity = '0';
+  }, {passive: true});
+
+  cont.addEventListener('mouseleave', function(){
+    tip.style.opacity = '0';
+  });
+});
 
 
   </script>
