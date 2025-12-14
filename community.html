@@ -253,11 +253,12 @@
     </div>
 
     <script>
-       // --- 九宫格菜单逻辑 (保持不变) ---
+// --- 九宫格菜单逻辑 (保持不变) ---
         const btn = document.getElementById("appLauncherBtn");
         const menu = document.getElementById("appLauncherMenu");
         
         btn.addEventListener("click", () => {
+            // 直接切换 display 属性，没有过渡动画
             menu.style.display = (menu.style.display === "flex") ? "none" : "flex";
         });
         
@@ -268,16 +269,17 @@
             }
         });
         
-        // --- 启动页和加载条逻辑 (全新修改) ---
+        // --- 启动页和加载条逻辑 (已移除所有动画和延迟) ---
         const loadingBar = document.getElementById('topLoadingBar');
         const loadingLogo = document.getElementById('loadingLogo');
         const loadingTextContainer = document.getElementById('loadingTextContainer');
         const loadingScreen = document.getElementById('loadingScreen');
         const mainContent = document.getElementById('mainContent');
 
-        const logoLoadDuration = 500; // 模拟 Logo 进度条时间 (50%)
-        const contentLoadDuration = 500; // 模拟内容进度条时间 (后 50%)
-        const intervalTime = 20; // 进度更新间隔时间
+        // 持续时间设置得极短，实现快速填充
+        const logoLoadDuration = 50; // Logo 进度条时间 (50%)
+        const contentLoadDuration = 50; // 内容进度条时间 (后 50%)
+        const intervalTime = 5; // 进度更新间隔时间
 
         // 1. Logo 加载进度 (0% -> 50%)
         function startLogoLoadProgress() {
@@ -312,34 +314,31 @@
 
         // 3. 加载完成后处理函数
         function handleLoadComplete() {
-            // 稍作延迟后隐藏加载屏幕，显示主内容
-            setTimeout(() => {
-                loadingScreen.style.display = 'none';
-                mainContent.style.display = 'block';
-                loadingBar.style.display = 'none'; // 隐藏加载条
-            }, 300); // 隐藏前的过渡时间
+            // **关键：立即隐藏加载屏幕，显示主内容，无延迟**
+            loadingScreen.style.display = 'none';
+            mainContent.style.display = 'block';
+            loadingBar.style.display = 'none'; 
         }
 
         // 4. 监听 Logo 图片下载完成
-        // 首先立即启动 Logo 的进度条（从 0% 到 50%）
         startLogoLoadProgress(); 
 
         loadingLogo.onload = function() {
             // Logo 下载完成后：
             
-            // a. 立即展示 Logo 和文本
+            // a. 立即展示 Logo 和文本（移除淡入，直接可见）
             loadingLogo.style.visibility = 'visible';
             loadingLogo.style.opacity = '1';
             loadingTextContainer.style.visibility = 'visible';
             loadingTextContainer.style.opacity = '1';
 
-            // b. 延迟一段时间（模拟 Logo 进度条走到 50%）后开始内容加载进度
+            // b. 延迟等待 Logo 进度条跑完 50%，然后开始内容进度
             setTimeout(() => {
                 startContentLoadProgress();
             }, logoLoadDuration); 
         };
 
-        // 5. 处理 Logo 缓存或加载失败的情况（作为备用）
+        // 5. 处理 Logo 缓存或加载失败的情况
         if (loadingLogo.complete) {
             loadingLogo.onload();
         }
