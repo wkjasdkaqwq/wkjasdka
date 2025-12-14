@@ -23,7 +23,7 @@
 .app-launcher-group {
     display: flex;
     align-items: center;
-    gap: 8px; /* 九宫格与 Logo 的距离 */
+    gap: 9px; /* 九宫格与 Logo 的距离 */
 }
 /* 九宫格按钮（透明背景） */
 .app-launcher-btn {
@@ -173,11 +173,22 @@
             text-align: center;
             padding: 0;
         }
-        .loading-text {
-            color: #6a6a6a;
-            font-size: 16px;
-            margin: 5px 0;
-        }
+/* 新增：初始隐藏页面其他内容，仅显示 loading 层与顶部加载条；loading logo/text 初始透明 */
+.loading-text,
+.loading-logo {
+  opacity: 0;
+  transition: opacity 0.18s ease;
+  will-change: opacity;
+}
+.loading-logo.visible,
+.loading-text.visible {
+  opacity: 1;
+}
+
+/* 临时隐藏被延迟的元素（JS 会恢复 display） */
+.deferred-hidden {
+  display: none !important;
+}
 
         /* 顶部加载条样式 */
         .top-loading-bar {
@@ -215,12 +226,12 @@
 
     <!-- 下拉菜单 -->
     <div class="app-launcher-menu" id="appLauncherMenu">
-        <a href="#">Outlook</a>
-        <a href="#">OneDrive</a>
-        <a href="#">Word</a>
-        <a href="#">Excel</a>
-        <a href="#">PowerPoint</a>
-        <a href="#">Teams</a>
+        <a href="#">Liuyanlin Community</a>
+        <a href="#">Liuyanlin Forum</a>
+        <a href="#">Liuyanlin Social</a>
+        <a href="#"></a>
+        <a href="#"></a>
+        <a href="#"></a>
     </div>
 </div>
 
@@ -300,7 +311,209 @@ document.addEventListener("click", (e) => {
     }
 });
 
+// 新增：分段进度控制（前50%为logo下载，后50%为页面内容下载）
+// 说明：脚本启动时把页面可延后加载的内容隐藏并把 img.src -> data-src（避免浏览器提前下载），
+// 使用 XHR 跟踪 logo 下载进度（更新 0~50%），logo 完成后恢复其他资源并追踪它们的加载进度（更新 50~100%）。
 
+(function () {
+  const loadingBar = document.getElementById('topLoadingBar');
+  const loadingScreen = document.getElementById('loadingScreen');
+  const loadingLogo = loadingScreen.querySelector('.loading-logo');
+  const loadingTextElems = loadingScreen.querySelectorAll('.loading-text');
+  const topBarEl = loadingBar; // 合理命名
+
+  // 收集需要延迟显示/延迟下载的元素（页面中的所有元素，排除 loading 层与顶部加载条）
+  const toDefer = [];
+  // 包含 body 内的所有顶级元素
+  Array.from(document.body.children).forEach(el => {
+    if (el.id !== 'loadingScreen' && el.id !== 'topLoadingBar' && !loadingScreen.contains(el) && el !== topBarEl) {
+      toDefer.push(el);
+    }
+  });
+  // 还可能存在 body 之前的顶级节点（你的示例有 app-launcher-wrapper 放在 body 之前）
+  Array.from(document.documentElement.children).forEach(el => {
+    if (el.tagName !== 'HEAD' && el.tagName !== 'BODY' && el.id !== 'loadingScreen' && el.id !== 'topLoadingBar' && !loadingScreen.contains(el)) {
+      // 避免重复加入
+      if (!toDefer.includes(el)) toDefer.push(el);
+    }
+  });
+
+  // 保存原始 display 值，以便恢复
+  const originalDisplay = new Map();
+  toDefer.forEach(el => {
+    originalDisplay.set(el, el.style.display || getComputedStyle(el).display || '');
+    el.classList.add('deferred-hidden'); // 立即隐藏
+  });
+
+  // 将除 loadingLogo 以外的所有 img 的 src 移到 data-src，防止浏览器提前下载
+  document.querySelectorAll('img').forEach(img => {
+    if (img === loadingLogo) return; // logo 保留由我们专门控制
+    if (img.hasAttribute('src')) {
+      img.dataset.src = img.getAttribute('src');
+      img.removeAttribute('src');
+    }
+  });
+
+  // 把 loadingLogo 的 src 暂时清空，使用 XHR 下载并跟踪进度
+  const logoUrl = loadingLogo.getAttribute('src');
+  if (!logoUrl) {
+    // 没有 logo 地址的话快速进入下一步（兼容性）
+    startContentLoad();
+    return;
+  }
+  loadingLogo.removeAttribute('src');
+
+  // XHR 二进制下载并回调进度（e.lengthComputable 支持）
+  function fetchBlobWithProgress(url, onProgress) {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('GET', url, true);
+      xhr.responseType = 'blob';
+      xhr.onprogress = function (e) {
+        if (e.lengthComputable) {
+          onProgress(e.loaded / e.total);
+        } else {
+          // 若无法获得总长度，使用一个平滑的近似（不要直接跳到 50%）
+          // 这里使用一个缓慢增长到 0.45 的估计，最终会在 onload 时设置为 1.0
+          const approx = Math.min(0.45, (e.loaded % 500000) / 1000000);
+          onProgress(approx);
+        }
+      };
+      xhr.onload = function () {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          onProgress(1);
+          resolve(xhr.response);
+        } else {
+          reject(new Error('Logo download failed: ' + xhr.status));
+        }
+      };
+      xhr.onerror = function () {
+        reject(new Error('Network error while downloading logo'));
+      };
+      xhr.send();
+    });
+  }
+
+  // 更新 loadingBar（传入 0~1）
+  function setGlobalProgress(percent01) {
+    const percent = Math.max(0, Math.min(100, percent01 * 100));
+    loadingBar.style.width = percent + '%';
+  }
+
+  // 启动 logo 下载（占全局进度的 0~50%）
+  fetchBlobWithProgress(logoUrl, p => {
+    // 把 0~1 的 p 线性映射到 0~50%
+    setGlobalProgress(p * 0.5);
+  }).then(blob => {
+    // logo 下载完成：把 blob 放回 img 并显示 logo 和文字
+    loadingLogo.src = URL.createObjectURL(blob);
+    loadingLogo.classList.add('visible');
+    loadingTextElems.forEach(el => el.classList.add('visible'));
+
+    // 小延迟视觉优化，然后开始加载页面内容（占 50%~100%）
+    setTimeout(() => {
+      startContentLoad();
+    }, 120);
+  }).catch(err => {
+    console.error(err);
+    // 即便 logo 下载失败，也继续加载页面内容（并把进度直接推进）
+    setGlobalProgress(0.5);
+    loadingTextElems.forEach(el => el.classList.add('visible'));
+    startContentLoad();
+  });
+
+  // 启动页面内容加载：恢复 data-src->src 并跟踪所有图片的加载进度作为“后50%”
+  function startContentLoad() {
+    // 收集所有延迟的图片资源（在 toDefer 区域里）
+    const deferredImgs = [];
+    toDefer.forEach(container => {
+      // 对容器自身若为 img 也处理
+      if (container.tagName === 'IMG') {
+        const img = container;
+        if (img.dataset && img.dataset.src) {
+          deferredImgs.push(img);
+        }
+      }
+      container.querySelectorAll && container.querySelectorAll('img').forEach(img => {
+        if (img.dataset && img.dataset.src) deferredImgs.push(img);
+      });
+    });
+
+    if (deferredImgs.length === 0) {
+      // 如果没有延迟图片，仍然需要下载或渲染其他资源。
+      // 这里我们把后半段进度模拟平滑前进到 100%（0.5 -> 1.0）
+      let cur = 50;
+      const timer = setInterval(() => {
+        cur += 6; // 速度可调
+        setGlobalProgress(cur / 100);
+        if (cur >= 100) {
+          clearInterval(timer);
+          finishLoading();
+        }
+      }, 60);
+      // 也可以在这里发起额外的 fetch 请求来加载外部 HTML/数据，然后在完成时调用 finishLoading()
+      return;
+    }
+
+    // 开始恢复图片的 src，并监听 load/error
+    let loadedCount = 0;
+    const total = deferredImgs.length;
+
+    const onItemDone = () => {
+      loadedCount++;
+      const secondHalfProgress = (loadedCount / total); // 0~1
+      // 映射到 50%~100% 区间
+      setGlobalProgress(0.5 + secondHalfProgress * 0.5);
+      if (loadedCount >= total) {
+        // 所有延迟图片加载完毕或失败
+        finishLoading();
+      }
+    };
+
+    deferredImgs.forEach(img => {
+      // attach handlers before设置 src，以捕获立即 load 的情形
+      img.addEventListener('load', onItemDone, { once: true });
+      img.addEventListener('error', onItemDone, { once: true });
+
+      // 恢复 src 触发下载
+      img.setAttribute('src', img.dataset.src);
+      delete img.dataset.src;
+    });
+  }
+
+  // 所有下载都完成后恢复页面并隐藏 loading 层
+  function finishLoading() {
+    // 确保 100%
+    setGlobalProgress(1.0);
+
+    // 小延迟以便进度条动画完成，然后隐藏 loading 层并恢复页面显示
+    setTimeout(() => {
+      // 隐藏 loading 屏幕与顶部加载条
+      if (loadingScreen) loadingScreen.style.display = 'none';
+      if (loadingBar) loadingBar.style.display = 'none';
+
+      // 恢复被延迟隐藏的元素显示状态
+      toDefer.forEach(el => {
+        el.classList.remove('deferred-hidden');
+        const orig = originalDisplay.get(el);
+        if (orig && orig !== 'none') {
+          el.style.display = orig;
+        } else {
+          // 清空 inline display 让浏览器使用默认样式
+          el.style.removeProperty('display');
+        }
+      });
+
+      // 小清理：释放 logo 的 blob URL（如果存在）
+      try {
+        const src = loadingLogo && loadingLogo.src;
+        if (src && src.startsWith('blob:')) {
+          URL.revokeObjectURL(src);
+        }
+      } catch (e) { /* ignore */ }
+    }, 260);
+  }
+})();
 
 
     </script>
