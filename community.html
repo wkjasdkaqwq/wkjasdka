@@ -161,6 +161,11 @@
             align-items: center;
             z-index: 9999;
         }
+        #loadingLogo, #loadingTextContainer {
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.3s ease; /* 添加过渡效果 */
+        }
         .loading-logo {
             width: 300px; 
             height: auto;
@@ -192,23 +197,8 @@
             
         }
 
-        /* ① 启动时隐藏所有非 loading 元素 */
-body > :not(.loading-screen):not(.top-loading-bar) {
-    display: none;
-}
 
-/* ② logo / from 文案默认隐藏，下载完成后再显示 */
-.loading-logo,
-.loading-text {
-    opacity: 0;
-    transition: opacity 0.2s ease;
-}
-
-.loading-logo.show,
-.loading-text.show {
-    opacity: 1;
-}
-
+        
     </style>
 </head>
 
@@ -251,89 +241,109 @@ body > :not(.loading-screen):not(.top-loading-bar) {
     <!-- 顶部加载条 -->
     <div class="top-loading-bar" id="topLoadingBar"></div>
     
-<img src="/wkjasdka/index/community2.png"
-     alt="加载Logo"
-     class="loading-logo"
-     id="loadingLogo">
-
-<div class="loading-text">from</div>
-<div class="loading-text" id="loadingFrom">- Wkjasdka -</div>
-
+    <div class="loading-screen" id="loadingScreen">
+    <img src="/wkjasdka/index/community2.png" alt="加载Logo" class="loading-logo" id="loadingLogo">
+    <div class="loading-text-container" id="loadingTextContainer">
+        <div class="loading-text">from</div>
+        <div class="loading-text">- Wkjasdka -</div>
+    </div>
+</div>
 
     <div id="mainContent" style="display: none;">
     </div>
 
     <script>
-const loadingBar = document.getElementById('topLoadingBar');
-const loadingScreen = document.getElementById('loadingScreen');
-const loadingLogo = document.getElementById('loadingLogo');
-const loadingTexts = document.querySelectorAll('.loading-text');
-const mainContent = document.getElementById('mainContent');
-
-let logoProgress = 0;
-let contentProgress = 0;
-
-/* ===== 1️⃣ Logo 下载（占 0–50%） ===== */
-function loadLogo() {
-    return new Promise((resolve) => {
-        const img = new Image();
-        img.src = loadingLogo.src;
-
-        const timer = setInterval(() => {
-            logoProgress = Math.min(logoProgress + 5, 50);
-            loadingBar.style.width = logoProgress + '%';
-        }, 30);
-
-        img.onload = () => {
-            clearInterval(timer);
-            logoProgress = 50;
-            loadingBar.style.width = '50%';
-
-            // 显示 logo + 文案
-            loadingLogo.classList.add('show');
-            loadingTexts.forEach(t => t.classList.add('show'));
-
-            resolve();
-        };
-    });
-}
-
-/* ===== 2️⃣ 页面内容加载（占 50–100%） ===== */
-function loadContent() {
-    return new Promise((resolve) => {
-        // 这里放你真正的内容加载逻辑（fetch / innerHTML 等）
-
-        const timer = setInterval(() => {
-            contentProgress = Math.min(contentProgress + 5, 50);
-            loadingBar.style.width = (50 + contentProgress) + '%';
-
-            if (contentProgress >= 50) {
-                clearInterval(timer);
-                resolve();
+       // --- 九宫格菜单逻辑 (保持不变) ---
+        const btn = document.getElementById("appLauncherBtn");
+        const menu = document.getElementById("appLauncherMenu");
+        
+        btn.addEventListener("click", () => {
+            menu.style.display = (menu.style.display === "flex") ? "none" : "flex";
+        });
+        
+        // 点击空白处关闭
+        document.addEventListener("click", (e) => {
+            if (!btn.contains(e.target) && !menu.contains(e.target)) {
+                menu.style.display = "none";
             }
-        }, 30);
-    });
-}
+        });
+        
+        // --- 启动页和加载条逻辑 (全新修改) ---
+        const loadingBar = document.getElementById('topLoadingBar');
+        const loadingLogo = document.getElementById('loadingLogo');
+        const loadingTextContainer = document.getElementById('loadingTextContainer');
+        const loadingScreen = document.getElementById('loadingScreen');
+        const mainContent = document.getElementById('mainContent');
 
-/* ===== 3️⃣ 启动流程 ===== */
-(async function start() {
-    await loadLogo();       // 先下载 logo
-    await loadContent();    // 再下载页面内容
+        const logoLoadDuration = 500; // 模拟 Logo 进度条时间 (50%)
+        const contentLoadDuration = 500; // 模拟内容进度条时间 (后 50%)
+        const intervalTime = 20; // 进度更新间隔时间
 
-    // 全部完成
-    loadingBar.style.display = 'none';
-    loadingScreen.style.display = 'none';
+        // 1. Logo 加载进度 (0% -> 50%)
+        function startLogoLoadProgress() {
+            let progress = 0;
+            const logoIncrement = 50 / (logoLoadDuration / intervalTime);
 
-    // 恢复页面元素
-    document.querySelectorAll('body > *').forEach(el => {
-        el.style.display = '';
-    });
+            const logoInterval = setInterval(() => {
+                progress += logoIncrement;
+                if (progress >= 50) {
+                    progress = 50;
+                    clearInterval(logoInterval);
+                }
+                loadingBar.style.width = `${progress}%`;
+            }, intervalTime);
+        }
 
-    mainContent.style.display = 'block';
-})();
+        // 2. 内容加载进度 (50% -> 100%)
+        function startContentLoadProgress() {
+            let progress = 50;
+            const contentIncrement = 50 / (contentLoadDuration / intervalTime);
 
-const btn = document.getElementById("appLauncherBtn");
-const menu = document.getElementById("appLauncherMenu");
+            const contentInterval = setInterval(() => {
+                progress += contentIncrement;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(contentInterval);
+                    handleLoadComplete(); // 完成后处理
+                }
+                loadingBar.style.width = `${progress}%`;
+            }, intervalTime);
+        }
+
+        // 3. 加载完成后处理函数
+        function handleLoadComplete() {
+            // 稍作延迟后隐藏加载屏幕，显示主内容
+            setTimeout(() => {
+                loadingScreen.style.display = 'none';
+                mainContent.style.display = 'block';
+                loadingBar.style.display = 'none'; // 隐藏加载条
+            }, 300); // 隐藏前的过渡时间
+        }
+
+        // 4. 监听 Logo 图片下载完成
+        // 首先立即启动 Logo 的进度条（从 0% 到 50%）
+        startLogoLoadProgress(); 
+
+        loadingLogo.onload = function() {
+            // Logo 下载完成后：
+            
+            // a. 立即展示 Logo 和文本
+            loadingLogo.style.visibility = 'visible';
+            loadingLogo.style.opacity = '1';
+            loadingTextContainer.style.visibility = 'visible';
+            loadingTextContainer.style.opacity = '1';
+
+            // b. 延迟一段时间（模拟 Logo 进度条走到 50%）后开始内容加载进度
+            setTimeout(() => {
+                startContentLoadProgress();
+            }, logoLoadDuration); 
+        };
+
+        // 5. 处理 Logo 缓存或加载失败的情况（作为备用）
+        if (loadingLogo.complete) {
+            loadingLogo.onload();
+        }
+
 
 btn.addEventListener("click", () => {
     menu.style.display = (menu.style.display === "flex") ? "none" : "flex";
