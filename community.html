@@ -10,8 +10,6 @@
     
     <style>
 /* 九宫格按钮位置 */
-
-
 .app-launcher-wrapper {
     position: relative;
     display: inline-block;
@@ -57,7 +55,6 @@
     border-radius: 10px;
     box-shadow: 0px 4px 20px rgba(0,0,0,0.15);
     padding: 10px;
-    animation: fadeIn 0.15s ease;
 }
 
 /* 九宫格图标点 */
@@ -66,27 +63,11 @@
     grid-template-columns: repeat(3, 4px);
     gap: 4px;
 }
-
 .grid-icon span {
     width: 4px;
     height: 4px;
     background: #555;
     border-radius: 50%;
-}
-
-/* 展开菜单 */
-.app-launcher-menu {
-    position: absolute;
-    top: 50px;
-    left: 0;
-    width: 200px;
-    display: none;
-    flex-direction: column;
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0px 4px 20px rgba(0,0,0,0.15);
-    padding: 10px;
-    animation: fadeIn 0.15s ease;
 }
 
 .app-launcher-menu a {
@@ -95,118 +76,81 @@
     text-decoration: none;
     color: #333;
 }
-
 .app-launcher-menu a:hover {
     background: #efefef;
 }
 
-/* 展开动画 */
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(5px); }
-    to { opacity: 1; transform: translateY(0); }
+/* Logo样式 */
+.navbar-logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-decoration: none;
+    color: #333;
+    margin: 0;
+    padding: 0;
+    margin-left: 140px;
+    cursor: pointer; /* 显示手型光标，提示可点击 */
+    transition: color 0.3s;
+}
+.navbar-logo:hover { color: #666; }
+.navbar-menu { display: flex; list-style: none; margin: 0; padding: 0 1rem; }
+.navbar-item { margin-left: 2rem; }
+.navbar-link { color: #333; text-decoration: none; transition: color 0.3s, transform 0.3s; font-weight: 500; }
+.navbar-link:hover { color: #666; transform: translateY(-2px); }
+
+/* 加载层样式：移除淡入淡出（不使用 opacity 过渡） */
+.loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+.loading-logo {
+    width: 300px;
+    height: auto;
+    display: none; /* 只有图片加载完成后才显示 */
+}
+.loading-text-container {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    padding: 0;
+    display: none; /* 只有图片加载完成后才显示 */
+}
+.loading-text {
+    color: #6a6a6a;
+    font-size: 16px;
+    margin: 5px 0;
 }
 
-
-
-        /* Logo样式 */
-        .navbar-logo {
-            font-size: 1.5rem;
-            font-weight: bold;
-            text-decoration: none;
-            color: #333;
-            margin: 0;
-            padding: 0;
-            margin-left: 140px;
-            cursor: pointer; /* 显示手型光标，提示可点击 */
-            transition: color 0.3s;
-        }
-        
-        .navbar-logo:hover {
-            color: #666; /* 悬停效果 */
-        }
-        
-        .navbar-menu {
-            display: flex;
-            list-style: none;
-            margin: 0;
-            padding: 0 1rem;
-        }
-        
-        .navbar-item {
-            margin-left: 2rem;
-        }
-        
-        .navbar-link {
-            color: #333;
-            text-decoration: none;
-            transition: color 0.3s, transform 0.3s;
-            font-weight: 500;
-        }
-        
-        .navbar-link:hover {
-            color: #666;
-            transform: translateY(-2px);
-        }
-
-        /* 加载层样式 */
-        .loading-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background-color: #fff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-        }
-        #loadingLogo, #loadingTextContainer {
-            visibility: hidden;
-            opacity: 0;
-            transition: opacity 0.3s ease; /* 添加过渡效果 */
-        }
-        .loading-logo {
-            width: 300px; 
-            height: auto;
-        }
-        .loading-text-container {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            text-align: center;
-            padding: 0;
-        }
-        .loading-text {
-            color: #6a6a6a;
-            font-size: 16px;
-            margin: 5px 0;
-        }
-
-        /* 顶部加载条样式 */
-        .top-loading-bar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 5px;
-            background-color: #ff8000;
-            width: 0%;
-            z-index: 10000;
-            transition: width 0.1s ease;
-            
-        }
-
-
-        
+/* 顶部加载条样式：允许 width 有平滑过渡，但开屏本身无淡入/淡出 */
+.top-loading-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 5px;
+    background-color: #ff8000;
+    width: 0%;
+    z-index: 10000;
+    transition: width 0.15s linear;
+}
     </style>
 </head>
 
+<body>
 <div class="app-launcher-wrapper">
     <div class="app-launcher-group">
         <!-- 九宫格按钮 -->
-        <button class="app-launcher-btn" id="appLauncherBtn">
-            <div class="grid-icon">
+        <button class="app-launcher-btn" id="appLauncherBtn" aria-label="应用菜单">
+            <div class="grid-icon" aria-hidden="true">
                 <span></span><span></span><span></span>
                 <span></span><span></span><span></span>
                 <span></span><span></span><span></span>
@@ -216,13 +160,11 @@
         <!-- 右侧 Logo（可用文字或图片） -->
         <div class="app-launcher-logo">
             <img src="index/community2.png" alt="Logo" />
-            <!-- 或者文本： -->
-            <!-- <span>MyLogo</span> -->
         </div>
     </div>
 
     <!-- 下拉菜单 -->
-    <div class="app-launcher-menu" id="appLauncherMenu">
+    <div class="app-launcher-menu" id="appLauncherMenu" role="menu" aria-hidden="true">
         <a href="#">Liuyanlin Community</a>
         <a href="#">Liuyanlin Forum</a>
         <a href="#">Liuyanlin Social</a>
@@ -232,132 +174,125 @@
     </div>
 </div>
 
-
-
-
-<body>
-
-
     <!-- 顶部加载条 -->
     <div class="top-loading-bar" id="topLoadingBar"></div>
     
-    <div class="loading-screen" id="loadingScreen">
-    <img src="/wkjasdka/index/community2.png" alt="加载Logo" class="loading-logo" id="loadingLogo">
-    <div class="loading-text-container" id="loadingTextContainer">
-        <div class="loading-text">from</div>
-        <div class="loading-text">- Wkjasdka -</div>
+    <div class="loading-screen" id="loadingScreen" aria-hidden="false">
+        <img src="/wkjasdka/index/community2.png" alt="加载Logo" class="loading-logo" id="loadingLogo">
+        <div class="loading-text-container" id="loadingTextContainer">
+            <div class="loading-text">from</div>
+            <div class="loading-text">- Wkjasdka -</div>
+        </div>
     </div>
-</div>
 
     <div id="mainContent" style="display: none;">
+        <!-- 页面主内容放在这里 -->
     </div>
 
     <script>
-// --- 九宫格菜单逻辑 (保持不变) ---
+        // ------- App launcher（九宫格）逻辑（去掉重复绑定） -------
         const btn = document.getElementById("appLauncherBtn");
         const menu = document.getElementById("appLauncherMenu");
-        
-        btn.addEventListener("click", () => {
-            // 直接切换 display 属性，没有过渡动画
-            menu.style.display = (menu.style.display === "flex") ? "none" : "flex";
+
+        btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const isOpen = menu.style.display === "flex";
+            menu.style.display = isOpen ? "none" : "flex";
+            menu.setAttribute('aria-hidden', isOpen ? 'true' : 'false');
         });
-        
+
         // 点击空白处关闭
         document.addEventListener("click", (e) => {
             if (!btn.contains(e.target) && !menu.contains(e.target)) {
                 menu.style.display = "none";
+                menu.setAttribute('aria-hidden', 'true');
             }
         });
-        
-        // --- 启动页和加载条逻辑 (已移除所有动画和延迟) ---
+
+        // ------- Loading / progress 同步逻辑（无淡入淡出） -------
         const loadingBar = document.getElementById('topLoadingBar');
         const loadingLogo = document.getElementById('loadingLogo');
         const loadingTextContainer = document.getElementById('loadingTextContainer');
         const loadingScreen = document.getElementById('loadingScreen');
         const mainContent = document.getElementById('mainContent');
 
-        // 持续时间设置得极短，实现快速填充
-        const logoLoadDuration = 50; // Logo 进度条时间 (50%)
-        const contentLoadDuration = 50; // 内容进度条时间 (后 50%)
-        const intervalTime = 5; // 进度更新间隔时间
+        let logoLoaded = false;
+        let pageLoaded = false;
+        let progress = 0;
+        loadingBar.style.width = '0%';
 
-        // 1. Logo 加载进度 (0% -> 50%)
-        function startLogoLoadProgress() {
-            let progress = 0;
-            const logoIncrement = 50 / (logoLoadDuration / intervalTime);
+        // 进度条定时器：模拟加载推进，但受 logo/page 状态控制
+        const progressInterval = setInterval(() => {
+            if (!logoLoaded) {
+                // 等待 logo 下载时缓慢推进至 45%
+                progress = Math.min(45, progress + (Math.random() * 1.2 + 0.2));
+            } else if (!pageLoaded) {
+                // logo 已加载，但页面未完全加载，推进到 90%（留出空间）
+                progress = Math.min(90, progress + (Math.random() * 3 + 0.5));
+            } else {
+                // 页面加载完成：立即到 100（handleLoadComplete 会处理隐藏）
+                progress = 100;
+            }
+            loadingBar.style.width = `${Math.floor(progress)}%`;
+            if (progress >= 100) {
+                clearInterval(progressInterval);
+                // 延迟 0（即时）完成清理
+                handleLoadComplete();
+            }
+        }, 100);
 
-            const logoInterval = setInterval(() => {
-                progress += logoIncrement;
-                if (progress >= 50) {
-                    progress = 50;
-                    clearInterval(logoInterval);
-                }
-                loadingBar.style.width = `${progress}%`;
-            }, intervalTime);
+        // Logo 加载完成回调
+        function onLogoLoaded() {
+            if (logoLoaded) return;
+            logoLoaded = true;
+            // 立即显示 Logo 与文字（没有过渡）
+            loadingLogo.style.display = 'block';
+            loadingTextContainer.style.display = 'block';
+            // 进度条立即至少跳到 50%
+            progress = Math.max(progress, 50);
+            loadingBar.style.width = `${Math.floor(progress)}%`;
         }
 
-        // 2. 内容加载进度 (50% -> 100%)
-        function startContentLoadProgress() {
-            let progress = 50;
-            const contentIncrement = 50 / (contentLoadDuration / intervalTime);
-
-            const contentInterval = setInterval(() => {
-                progress += contentIncrement;
-                if (progress >= 100) {
-                    progress = 100;
-                    clearInterval(contentInterval);
-                    handleLoadComplete(); // 完成后处理
-                }
-                loadingBar.style.width = `${progress}%`;
-            }, intervalTime);
+        // 页面完全加载回调
+        function onPageLoaded() {
+            if (pageLoaded) return;
+            pageLoaded = true;
+            // 进度条直接到 100%
+            progress = 100;
+            loadingBar.style.width = '100%';
+            clearInterval(progressInterval);
+            handleLoadComplete();
         }
 
-        // 3. 加载完成后处理函数
         function handleLoadComplete() {
-            // **关键：立即隐藏加载屏幕，显示主内容，无延迟**
+            // 立即隐藏加载屏并显示主内容（无淡入淡出）
             loadingScreen.style.display = 'none';
+            loadingScreen.setAttribute('aria-hidden', 'true');
             mainContent.style.display = 'block';
-            loadingBar.style.display = 'none'; 
+            loadingBar.style.display = 'none';
         }
 
-        // 4. 监听 Logo 图片下载完成
-        startLogoLoadProgress(); 
+        // 监听 logo 图片：
+        loadingLogo.addEventListener('load', onLogoLoaded);
+        loadingLogo.addEventListener('error', () => {
+            // 如果 logo 加载失败，也不要阻塞页面：把 logo 标记为已处理（显示占位文字）
+            logoLoaded = true;
+            loadingTextContainer.style.display = 'block';
+            progress = Math.max(progress, 50);
+            loadingBar.style.width = `${Math.floor(progress)}%`;
+        });
 
-        loadingLogo.onload = function() {
-            // Logo 下载完成后：
-            
-            // a. 立即展示 Logo 和文本（移除淡入，直接可见）
-            loadingLogo.style.visibility = 'visible';
-            loadingLogo.style.opacity = '1';
-            loadingTextContainer.style.visibility = 'visible';
-            loadingTextContainer.style.opacity = '1';
-
-            // b. 延迟等待 Logo 进度条跑完 50%，然后开始内容进度
-            setTimeout(() => {
-                startContentLoadProgress();
-            }, logoLoadDuration); 
-        };
-
-        // 5. 处理 Logo 缓存或加载失败的情况
-        if (loadingLogo.complete) {
-            loadingLogo.onload();
+        // 如果图片缓存导致 already complete，则立即触发
+        if (loadingLogo.complete && loadingLogo.naturalWidth) {
+            onLogoLoaded();
         }
 
-
-btn.addEventListener("click", () => {
-    menu.style.display = (menu.style.display === "flex") ? "none" : "flex";
-});
-
-// 点击空白处关闭
-document.addEventListener("click", (e) => {
-    if (!btn.contains(e.target) && !menu.contains(e.target)) {
-        menu.style.display = "none";
-    }
-});
-
-
-
-
+        // 监听页面完全加载（所有资源）
+        window.addEventListener('load', onPageLoaded);
+        // 如果已在 complete 状态（脚本可能在 load 之后执行），立刻触发
+        if (document.readyState === 'complete') {
+            onPageLoaded();
+        }
     </script>
 </body>
 </html>
