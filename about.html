@@ -486,16 +486,91 @@ body {
       });
     });
 
-    // 加载完成后处理函数
-    function handleLoadComplete() {
-      setTimeout(() => {
-        document.getElementById('loadingScreen').style.display = 'none';
-      }, 180);
-    }
-    
-    setTimeout(function() {
-      handleLoadComplete();
-    }, 300);
+    // --- 启动 / loading 逻辑（已替换为更稳健的实现） ---
+    (function() {
+      const loadingScreenEl = document.getElementById('loadingScreen');
+      const mainContentEl = document.querySelector('.main-content');
+      const loadingTextsEl = document.querySelector('.loading-text-container');
+
+      function enforceNoAnimationAndNormalWeight() {
+        try {
+          if (loadingScreenEl) {
+            loadingScreenEl.style.transition = 'none';
+            loadingScreenEl.style.display = 'flex';
+            loadingScreenEl.style.opacity = '1';
+            loadingScreenEl.style.backgroundColor = '#ffffff';
+            loadingScreenEl.style.zIndex = '9999';
+          }
+          if (loadingTextsEl) {
+            loadingTextsEl.style.transition = 'none';
+            loadingTextsEl.style.visibility = 'visible';
+            loadingTextsEl.style.opacity = '1';
+            loadingTextsEl.style.zIndex = '10001';
+          }
+          if (mainContentEl) {
+            mainContentEl.style.display = 'none';
+          }
+        } catch (e) {
+          console.warn('enforce style error', e);
+        }
+      }
+
+      function hideLoadingImmediate() {
+        if (!loadingScreenEl) return;
+        try {
+          loadingScreenEl.style.transition = 'none';
+          loadingScreenEl.style.display = 'none';
+          if (mainContentEl) mainContentEl.style.display = 'flex';
+        } catch (e) { /* ignore */ }
+      }
+
+      function ensureImageDecoded(img) {
+        return new Promise((resolve, reject) => {
+          const src = img && img.getAttribute && img.getAttribute('src');
+          if (!src) { resolve(); return; }
+
+          if (typeof img.decode === 'function') {
+            img.decode().then(() => resolve()).catch(err => reject(err || new Error('image decode failed')));
+            return;
+          }
+
+          if (img.complete && img.naturalWidth !== 0) {
+            resolve();
+            return;
+          }
+
+          function onLoad() { cleanup(); resolve(); }
+          function onError(e) { cleanup(); reject(e || new Error('image load error')); }
+          function cleanup() {
+            img.removeEventListener('load', onLoad);
+            img.removeEventListener('error', onError);
+          }
+          img.addEventListener('load', onLoad);
+          img.addEventListener('error', onError);
+        });
+      }
+
+      document.addEventListener('DOMContentLoaded', function() {
+        enforceNoAnimationAndNormalWeight();
+
+        window.addEventListener('load', async function onWindowLoad() {
+          const imgs = Array.from(document.images || []);
+          const promises = imgs.map(img => ensureImageDecoded(img));
+
+          try {
+            await Promise.all(promises);
+            // 所有图片都可渲染，隐藏 loading
+            hideLoadingImmediate();
+          } catch (err) {
+            // 若有任一图片失败，则保持 loading 层（与 index.html 行为一致）
+            console.warn('Some resources failed to finish rendering; loading layer remains. Error:', err);
+          } finally {
+            window.removeEventListener('load', onWindowLoad);
+          }
+        }, { once: true });
+      });
+    })();
+    // --- 启动 / loading 逻辑 结束 ---
 
 // 禁止文字选中
 document.addEventListener('selectstart', function(e) {
