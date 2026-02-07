@@ -808,9 +808,6 @@ body {
       document.addEventListener('DOMContentLoaded', function() {
         enforceNoAnimationAndNormalWeight();
 
-        document.addEventListener('DOMContentLoaded', function() {
-        enforceNoAnimationAndNormalWeight();
-
         window.addEventListener('load', async function onWindowLoad() {
           const imgs = Array.from(document.images || []);
           const promises = imgs.map(img => ensureImageDecoded(img));
