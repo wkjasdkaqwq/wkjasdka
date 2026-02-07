@@ -126,9 +126,11 @@
       padding: 0 1rem;
     }
     
-    .navbar-item {
-      margin-left: 2rem;
-    }
+  /* 修改第 128 - 129 行 */
+overflow-y: scroll;         /* 强制允许滚动 */
+scrollbar-width: none;      /* 针对 Firefox 隐藏滚动条 */
+-ms-overflow-style: none;   /* 针对 IE/Edge 隐藏滚动条 */
+}
     
     .navbar-link {
       color: #333;
@@ -243,7 +245,8 @@
 
 /* 优化滚动条样式（可选） */
 .sidebar::-webkit-scrollbar {
-  width: 0px;
+  display: none; 
+width: 0 !important;
 }
 
 .sidebar::-webkit-scrollbar-track {
@@ -267,6 +270,7 @@
       list-style: none;
       padding: 0;
       margin: 0;
+      padding-bottom: 80px
     }
     
     .sidebar-item {
@@ -284,7 +288,7 @@
     }
     
     .sidebar-submenu.open {
-      max-height: 500px; /* 足够大的值以容纳所有子项 */
+      max-height: 1000px; /* 足够大的值以容纳所有子项 */
     }
     
 /* 社交平台子菜单样式修改 - 瞬间放大动画 */
