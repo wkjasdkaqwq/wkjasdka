@@ -2,14 +2,11 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <!-- 必需：移动视口（确保 media query 生效） -->
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <title>关于 - Echo</title>
   <link rel="icon" href="/wkjasdka/index/echo logo.png" type="image/x-icon">
   <!-- 引入Font Awesome图标库（使用最新版本） -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    /* 原 about.html 的样式（不动） */
     /* 导航栏样式 */
     .navbar {
       position: fixed;
@@ -292,258 +289,6 @@ body {
   -moz-user-select: none; /* Firefox */
   -ms-user-select: none; /* IE/Edge */
 }
-
-/* -------------------------
-   从 index.html 提取的移动端 UI 适配样式（保留原样）
-   这些规则包含多个 @media (max-width: ...) 段，适配不同移动断点
-   来源: index.html (see file header)
-------------------------- */
-
-/* 修改第 128 - 129 行 样式段（保留以便 index.css 中的移动样式也生效） */
-@media (max-width: 600px) {
-  .sidebar {
-    width: 85vw;
-    padding-top: 65px;
-    font-size: 1rem;
-  }
-  .navbar-logo {
-    margin-left: 44px;
-    font-size: 1.1rem;
-  }
-  .navbar-menu {
-    padding: 0 0.3rem;
-  }
-  .navbar-item {
-    margin-left: 1rem;
-  }
-
-  .card-container {
-    width: 98vw;
-    max-width: 360px;
-    margin-left: auto; margin-right: auto;
-    height: 145px;
-  }
-  .card-front, .card-back {
-    font-size: 1rem;
-    padding: 1rem;
-  }
-  .middle-line {
-    width: 92%;
-    margin: 2rem auto;
-  }
-
-  .project-card {
-    flex-direction: column;
-    align-items: center;
-    padding: 1rem;
-    min-width: 0;
-  }
-  .project-image-container {
-    width: 90px;
-    height: 90px;
-    margin-bottom: 0.5rem;
-  }
-  .project-content {
-    text-align: center;
-  }
-  /* loading/logo适配 */
-  .loading-logo {
-    width: 135px;
-  }
-  .content h1 {
-    font-size: 1.4rem;
-    margin: 1rem 0;
-  }
-  .projects-section h2 {
-    font-size: 1.35rem;
-    margin-bottom: 0.5rem;
-  }
-  footer p {
-    font-size: 0.9rem;
-  }
-  .project-card h3 {
-    font-size: 1.1rem;
-  }
-  .project-card p {
-    font-size: 0.89rem;
-    margin-bottom: 0.6rem;
-  }
-  .project-link {
-    font-size: 0.93rem;
-  }
-  .sidebar-link {
-    padding: 10px 18px;
-    font-size: 0.98rem;
-  }
-  .sidebar-submenu .sidebar-link {
-    padding-left: 35px;
-    font-size: 0.98rem;
-  }
-}
-
-/* 另一个移动断点段（复制自 index.html，覆盖/增强移动体验） */
-@media (max-width: 600px) {
-  .content h1 {
-    font-size: 1.3rem;
-  }
-  .navbar-logo {
-    margin-left: 70px; /* 或其他更大数值 */
-    font-size: 1.1rem;
-  }
-  .cards-wrapper {
-    flex-direction: column;
-    gap: 0.4rem;  /* 让gap更小，也可以0 */
-  }
-  .card-container {
-    height: 170px;
-    margin: 1rem auto;  /* 这里改成只左右居中，几乎没有上下距离 */
-  }
-  .content h1 {
-    font-size: 1.3rem;
-    white-space: normal !important;
-  }
-  .mobile-welcome-hello {
-    font-size: 1.7em;
-    font-weight: bold;
-    display: block;
-    margin-bottom: 0.1em;
-  }
-  .mobile-welcome-url {
-    display: flex;                                   /* 用flex实现居中 */
-    justify-content: center;                         /* 水平居中 */
-    align-items: center;                             /* （可选，内容垂直居中） */
-    font-size: clamp(1em, 7vw, 2rem);                /* 自动缩放字体适应一行 */
-    max-width: calc(100vw - 100px);                  /* 两侧预留50px */
-    margin-left: auto;                               /* 左右自动分配空隙，保证居中 */
-    margin-right: auto;
-    white-space: nowrap;                             /* 单行显示 */
-    overflow: visible;                               /* 隐藏无用滚动条 */
-    text-align: center;                              /* 内容居中（备用） */
-  }
-  .mobile-welcome-break {
-    display: block;
-  }
-
-  /* 移动端：当容器有 show-tooltip 时显示悬浮文字（翻转后显示，回正后隐藏）*/
-  .card-container .card-tooltip {
-    transition: opacity 0.18s ease, transform 0.18s ease;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    pointer-events: none;
-    z-index: 1000;
-    white-space: nowrap;
-    opacity: 0; /* 默认隐藏 */
-  }
-
-  /* 如果想把提示框放在卡片外部顶部（推荐） */
-  .card-container .card-tooltip {
-    top: -36px !important; /* 可微调 -36px、-44px 等 */
-  }
-
-  /* 显示状态（仅移动端会被 JS 加上/移除 show-tooltip） */
-  .card-container.show-tooltip .card-tooltip {
-    opacity: 1 !important;
-  }
-
-  /* 移动端 loading 文本更大以便于可视 */
-  .loading-text {
-    font-size: 18px;
-  }
-  .loading-text-container {
-    bottom: env(safe-area-inset-bottom, 26px);
-  }
-}
-
-/* 针对触控设备的通用优化（复制自 index.html） */
-@media (pointer: coarse) {
-  cursor: default !important;
-}
-
-/* 另外引用 index.html 的一个更宽断点（较保守适配） */
-@media (max-width: 900px) {
-  .navbar { height: 64px; }
-  .navbar-container { padding: 0 12px; }
-  .navbar-logo { height: 48px; margin-right: 10px; }
-  .logo-text { font-size: 20px; }
-
-  /* 把侧边栏从固定左侧改为页面流中的块（在 navbar 下面显示） */
-  .sidebar {
-    position: static;
-    top: auto;
-    left: auto;
-    width: 100%;
-    height: auto;
-    padding: 8px 10px;
-    display: flex;
-    flex-wrap: nowrap;
-    gap: 8px;
-    overflow-x: auto;
-    box-shadow: none;
-  }
-  /* 侧边按钮改为横向滚动块状按钮，便于在小屏幕快速选择 */
-  .sidebar-option {
-    flex: 0 0 auto;
-    padding: 10px 16px;
-    font-size: 15px;
-    white-space: nowrap;
-    border-radius: 8px;
-    background: transparent;
-    margin-right: 6px;
-  }
-  .sidebar-option:hover { padding-left: 12px; }
-
-  /* 子菜单在移动端变为下拉（占据整行） */
-  .has-suboptions .sub-options {
-    position: static;
-    width: 100%;
-    padding-left: 0;
-    background: transparent;
-  }
-  .sub-option {
-    padding: 8px 16px;
-    font-size: 14px;
-    background: #fafafa;
-    display: block;
-  }
-
-  /* 隐藏中间竖线以节省空间 */
-  .vertical-line { display: none; }
-
-  /* 主内容占满宽度，顶部预留 navbar 高度 */
-  .main-content {
-    margin-left: 0;
-    margin-top: 74px; /* 确保在固定 navbar 下有足够顶部间距 */
-    padding: 16px;
-    align-items: stretch;
-    justify-content: flex-start;
-    text-align: left;
-  }
-
-  .content-section { max-width: 100%; }
-
-  /* loading logo 更小 */
-  .loading-logo { width: 120px; }
-
-  /* 更小设备字体微调 */
-  .sidebar-option { font-size: 15px; }
-  .sub-option { font-size: 14px; }
-}
-
-/* 更窄的手机断点（参考 index.html） */
-@media (max-width: 480px) {
-  .navbar { height: 56px; }
-  .navbar-logo { height: 40px; }
-  .logo-text { font-size: 18px; }
-
-  .main-content { margin-top: 62px; padding: 12px; }
-  .loading-logo { width: 100px; }
-
-  /* 让横向侧栏按钮更易触控 */
-  .sidebar-option { padding: 12px 18px; font-size: 14px; }
-  .sub-option { padding: 10px 18px; font-size: 13px; }
-}
-
-/* end of mobile-adapt rules copied from index.html */
   </style>
 </head>
 <body>
@@ -635,7 +380,7 @@ body {
                         <li><strong>电话</strong>：/</li>
             <li><strong>地址</strong>：/</li>
           </ul>
-          <p>同��，您也可以关注我们的社交媒体：</p>
+          <p>同时，您也可以关注我们的社交媒体：</p>
 
         </div>
       `,
@@ -741,7 +486,7 @@ body {
       });
     });
 
-    // --- 启动 / loading 逻辑（与之前保持一致） ---
+    // --- 启动 / loading 逻辑（已替换为更稳健的实现） ---
     (function() {
       const loadingScreenEl = document.getElementById('loadingScreen');
       const mainContentEl = document.querySelector('.main-content');
