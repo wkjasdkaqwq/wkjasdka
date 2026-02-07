@@ -1,11 +1,1309 @@
-/* Update to fix sidebar scrolling issue */
-
-.sidebar {
-    overflow: auto; /* Allow scrolling */
-    /* Other existing sidebar styles */
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>W.K.Jasdka Welcomes you!</title>
+  <link rel="icon" href="/wkjasdka/index/echo logo.png" type="image/x-icon">
+  <!-- 引入Font Awesome用于图标 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+  <style>
+    /* 导航栏样式 */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background-color: #d7d7d7;
+      padding: 1.2rem 0;
+      z-index: 9000;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      transition: transform 0.4s ease-out;
+    }
+    
+    .navbar.hidden {
+      transform: translateY(-100%);
+    }
+    
+    .navbar-container {
+      width: 100%;
+      margin: 0 auto;
+      padding: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    /* 菜单按钮样式 */
+    .menu-btn {
+      position: absolute;
+      left: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 30px;
+      height: 24px;
+      cursor: pointer;
+      z-index: 9001;
+    }
+    
+    .menu-btn .line {
+      position: absolute;
+      width: 100%;
+      height: 3px;
+      background-color: #333;
+      border-radius: 2px;
+      transform-origin: right center;
+    }
+    
+    .menu-btn:not(.rotated) {
+      transition: transform 0.35s ease-out;
+    }
+    
+    .menu-btn:not(.rotated) .line {
+      transition: all 0.35s ease-out;
+    }
+    
+    .menu-btn.rotated {
+      transition: transform 0.25s cubic-bezier(0.215, 0.61, 0.355, 1);
+    }
+    
+    .menu-btn.rotated .line {
+      transition: all 0.25s cubic-bezier(0.215, 0.61, 0.355, 1);
+    }
+    
+    .menu-btn .line1 { top: 0; transition-delay: 0.02s; }
+    .menu-btn .line2 { top: 50%; transform: translateY(-50%); transition-delay: 0.04s; }
+    .menu-btn .line3 { bottom: 0; transition-delay: 0.06s; }
+    
+    .menu-btn.rotated {
+      transform: translateY(-50%) rotate(90deg) scale(1.1);
+    }
+    
+    .menu-btn.rotated .line {
+      transform-origin: center;
+    }
+.navbar-logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-decoration: none;
+  color: #333;
+  margin: 0;
+  padding: 0;
+  margin-left: 80px;
+  cursor: pointer;
+  transition: color 0.3s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: inline-block;
+  transform-style: preserve-3d;
+  perspective: 1200px;
+  /* 移除backface-visibility: hidden，避免旋转后消失 */
+  position: relative; /* 用于保持旋转时的位置稳定性 */
 }
 
-/* Ensure scrollbar is hidden */
+/* 180度立体反转状态 */
+.navbar-logo.flip-180 {
+  transform: rotateY(180deg);
+}
+
+/* 添加伪元素增强立体效果，同时避免旋转后消失 */
+.navbar-logo::before {
+  content: attr(data-text); /* 使用data属性获取文字内容 */
+  position: absolute;
+  top: 0;
+  left: 0;
+  color: inherit;
+  transform: rotateY(180deg);
+  backface-visibility: hidden; /* 只隐藏伪元素的背面 */
+}
+
+    
+    .navbar-logo:hover {
+      color: #666;
+    }
+    
+    .navbar-menu {
+      display: flex;
+      list-style: none;
+      margin: 0;
+      padding: 0 1rem;
+    }
+    
+    .navbar-item {
+      margin-left: 2rem;
+    }
+    
+    .navbar-link {
+      color: #333;
+      text-decoration: none;
+      transition: color 0.3s, transform 0.3s;
+      font-weight: 500;
+    }
+    
+    .navbar-link:hover {
+      color: #666;
+      transform: translateY(-2px);
+    }
+    /* 修改侧边栏样式，添加滚动功能 */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 500px;
+      height: 100vh;
+      background-color: #f5f5f5;
+      z-index: 8999;
+      transform: translateX(-100%);
+      transition: transform 0.3s ease-out;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+      padding-top: 80px;
+      box-sizing: border-box;
+      overflow-y: auto; /* 添加垂直滚动 */
+      overflow-x: hidden; /* 隐藏水平滚动条 */
+    }
+    /* 手机版侧边栏宽度适配 */
+    @media (max-width: 600px) {
+      .sidebar {
+        width: 85vw;
+        padding-top: 65px;
+        font-size: 1rem;
+      }
+      .navbar-logo {
+        margin-left: 44px;
+        font-size: 1.1rem;
+      }
+      .navbar-menu {
+        padding: 0 0.3rem;
+      }
+      .navbar-item {
+        margin-left: 1rem;
+      }
+
+      .card-container {
+        width: 98vw;
+        max-width: 360px;
+        margin-left: auto; margin-right: auto;
+        height: 145px;
+      }
+      .card-front, .card-back {
+        font-size: 1rem;
+        padding: 1rem;
+      }
+      .middle-line {
+        width: 92%;
+        margin: 2rem auto;
+      }
+
+      .project-card {
+        flex-direction: column;
+        align-items: center;
+        padding: 1rem;
+        min-width: 0;
+      }
+      .project-image-container {
+        width: 90px;
+        height: 90px;
+        margin-bottom: 0.5rem;
+      }
+      .project-content {
+        text-align: center;
+      }
+      /* loading/logo适配 */
+      .loading-logo {
+        width: 135px;
+      }
+      .content h1 {
+        font-size: 1.4rem;
+        margin: 1rem 0;
+      }
+      .projects-section h2 {
+        font-size: 1.35rem;
+        margin-bottom: 0.5rem;
+      }
+      footer p {
+        font-size: 0.9rem;
+      }
+      .project-card h3 {
+        font-size: 1.1rem;
+      }
+      .project-card p {
+        font-size: 0.89rem;
+        margin-bottom: 0.6rem;
+      }
+      .project-link {
+        font-size: 0.93rem;
+      }
+      .sidebar-link {
+        padding: 10px 18px;
+        font-size: 0.98rem;
+      }
+      .sidebar-submenu .sidebar-link {
+        padding-left: 35px;
+        font-size: 0.98rem;
+      }
+    }
+
+
+/* 优化滚动条样式（可选） */
 .sidebar::-webkit-scrollbar {
-    display: none;
+  width: 0px;
 }
+
+.sidebar::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 3px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+  background: #bbb;
+}
+    
+    .sidebar.open {
+      transform: translateX(0);
+    }
+    
+    .sidebar-menu {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    
+.sidebar-item {
+  margin: 0;
+  border-bottom: 1px solid #e0e0e0;
+  /* 移除 overflow: hidden 以允许侧边栏滚动 */
+  /* overflow:
+    
+    /* 二级子菜单样式 - 添加展开动画 */
+    .sidebar-submenu {
+      background-color: #e9e9e9;
+      max-height: 0; /* 初始高度为0 */
+      overflow: hidden;
+      transition: max-height 0.15s ease-out; /* 平滑过渡 */
+    }
+    
+    .sidebar-submenu.open {
+      max-height: 500px; /* 足够大的值以容纳所有子项 */
+    }
+    
+/* 社交平台子菜单样式修改 - 瞬间放大动画 */
+.sidebar-submenu .sidebar-link {
+  padding-left: 50px; /* 子菜单缩进更多 */
+  font-size: 1rem;
+  /* 改为缩放动画，初始状态为0 */
+  transform: scale(0);
+  opacity: 1; /* 保持完全可见 */
+  transition: transform 0s ease, padding 0s ease;
+  transition-delay: 0s;
+}
+    
+/* 当子菜单打开时，所有链接同时瞬间放大到正常大小 */
+.sidebar-submenu.open .sidebar-link {
+  transform: scale(1); /* 瞬间放大到正常大小 */
+  transition-delay: 0s !important; /* 移除所有延迟，同时显示 */
+}
+
+
+    
+    .sidebar-link {
+      display: block;
+      padding: 15px 25px;
+      color: #333;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      font-size: 1.1rem;
+      position: relative;
+    }
+
+    /* 在现有样式中添加按钮点击内凹效果 */
+.menu-btn:active {
+  transform: translateY(-50%) scale(0.9);
+}
+
+.navbar-logo:active {
+  transform: scale(0.95);
+}
+
+.navbar-link:active {
+  transform: translateY(1px);
+}
+
+/* 保留并增强点击内凹效果 */
+.sidebar-link:active {
+  transform: scale(0.96) !important; /* 内凹效果更明显 */
+  background-color: #d0d0d0;
+  transition: transform 0.1s ease; /* 快速的内凹过渡 */
+}
+
+.card:active {
+  transform: scale(0.98) !important;
+}
+    
+/* 社交平台按钮的特殊箭头样式 */
+.social-platform-link::after {
+  content: "\f078" !important; /* 倒三角图标 */
+}
+
+.has-submenu.open .social-platform-link::after {
+  transform: rotate(180deg) !important; /* 展开时旋转180度变为正三角 */
+}
+
+    /* 为有子菜单的项添加箭头动画 - 将小三角改为箭头 */
+    .has-submenu .sidebar-link::after {
+      content: "\f062"; /* 使用Font Awesome的右箭头图标 */
+      font-family: "Font Awesome 6 Free";
+      font-weight: 900;
+      position: absolute;
+      right: 20px;
+      transition: transform 0.3s ease;
+      font-size: 0.9rem; /* 适当调整箭头大小 */
+    }
+    
+    .has-submenu.open .sidebar-link::after {
+      transform: rotate(90deg); /* 展开时旋转90度变为向下箭头 */
+    }
+    
+    .sidebar-link:hover {
+      background-color: #e0e0e0;
+      padding-left: 30px;
+    }
+    
+    .sidebar-link i {
+      margin-right: 10px;
+      width: 20px;
+      text-align: center;
+    }
+    
+    /* 半透明遮罩 */
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+      z-index: 8998;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.4s ease-out, visibility 0.4s ease-out;
+    }
+    
+    .overlay.open {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    /* 加载层样式 */
+    .loading-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      opacity: 1;
+      visibility: visible;
+    }
+    .loading-logo {
+      width: 165px; 
+      height: auto;
+      z-index: 10000; /* 保证 logo 在 loading 层内层级合理 */
+      display: block;
+    }
+
+ .loading-text-container {
+    /* 保证固定在屏幕底部并高于 logo */
+    position: fixed !important;
+    bottom: env(safe-area-inset-bottom, 26px) !important;
+    left: 0 !important;
+    width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    z-index: 10001 !important;
+    visibility: visible !important;
+    pointer-events: none !important;
+    -webkit-text-size-adjust: 100% !important;
+  }
+  .loading-text {
+    color: #8e8e8e !important; /* 确保对比度 */
+    font-size: 16px !important;
+    font-weight: 400 !important;
+    text-shadow: none !important;
+    -webkit-font-smoothing: antialiased !important;
+  }
+
+    /* 将 mainContent 默认隐藏，避免在加载时被闪现（直到 load 后展示） */
+    #mainContent {
+      display: none;
+    }
+    
+.content {
+  min-height: auto;
+  min-height: calc(100vh - 80px);
+  margin-top: 80px;
+  padding: 1.8rem;
+  text-align: center;
+  box-sizing: border-box;
+}
+.content h1 {
+  font-size: 3rem;    /* 比默认大，如需更大可以写 3rem 或更大 */
+  font-weight: 750;    /* 加粗，也可用 700、800 表示更粗 */
+  letter-spacing: 0.9px;  /* （可选）字距更宽一点，视觉更突出 */
+
+}
+    /* 卡片容器布局 */
+    .cards-wrapper {
+      display: flex;
+      justify-content: space-around;
+      margin: 2rem auto;
+      max-width: 1200px;
+      gap: 1.6rem;
+    }
+    /* 卡片样式 */
+    .card-container {
+      perspective: 1000px;
+      width: 300px;
+      height: 200px;
+      margin: 2rem auto;
+      position: relative;
+    }
+    .card {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.4s ease-out;
+      transform-style: preserve-3d;
+      cursor: pointer;
+      box-shadow: 6px 6px 15px 3px rgba(0, 0, 0, 0.15);
+      border-radius: 10px;
+    }
+    .card:hover {
+      transform: scale(1.05);
+    }
+    .card.flipped {
+      transform: rotateY(180deg) scale(1.05);
+    }
+    .card-front, .card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 1.5rem;
+      box-sizing: border-box;
+      border-radius: 10px;
+      font-size: 1.2rem;
+    }
+    .card-front {
+      background-color: #f8f9fa;
+    }
+    .card-back {
+      background-color: #e3f2fd;
+      transform: rotateY(180deg);
+    }
+    /* 鼠标跟随文字样式 */
+    .card-tooltip {
+      position: absolute;
+      background-color: #333;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+      z-index: 10;
+    }
+    .card-container:hover .card-tooltip {
+      opacity: 1;
+    }
+/* 可选：优化文字阴影增强立体感 */
+.navbar-logo {
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+}
+.navbar-logo.flip-180 {
+  text-shadow: -1px 1px 3px rgba(0,0,0,0.2);
+}
+/* 立体旋转动画类 */
+.navbar-logo.rotate-3d {
+  transform: rotateX(0deg) rotateY(90deg); /* X轴和Y轴各旋转一圈 */
+    text-shadow: 
+    1px 1px 3px rgba(0,0,0,0.3),
+    0 0 10px rgba(0,0,0,0.1);
+}
+
+/* 精准移除"关于"按钮下方的横线 */
+.sidebar-item:has(.fa-info-circle) {
+  border-bottom: none !important;
+}
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+/* 页脚样式 */
+footer {
+  background-color: #f5f5f5;
+  border-top: 1px solid #e0e0e0;
+  padding: 10px 0;
+  text-align: center;
+  margin-top: auto;
+}
+.container, .navbar-container, .content, .projects-section {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  max-width: 100% !important;
+}
+footer p {
+  margin: 4px 0;
+  color: #666;
+  font-size: 1rem;
+  font-weight: 550
+}
+/* 调整页面布局，确保页脚在底部 */
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+.content {
+  flex: 1;
+}
+/* 中间横线样式 */
+.middle-line {
+  width: 60%;
+  margin: 4rem auto;
+  border: none;
+  border-top: 3px solid #ddd;
+} 
+    /* 项目展示区域样式 */
+    .projects-section {
+      max-width: 100%;
+      margin: 4rem auto 0;
+      padding: 0;
+    }
+    .projects-section h2 {
+      font-size: 2rem;
+      margin-bottom: 2.5rem;
+      color: #333;
+      text-align: center;
+    }
+    .projects-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin: 0 auto 2rem;
+      padding: 0 1rem;
+      max-width: 1200px;
+      box-sizing: border-box;
+      width: 100%;
+    }
+    .project-card {
+      background-image: url('https://minecraft.net/content/dam/minecraftnet/games/minecraft/logos/Global-Header_MCCB-Logo_300x51.svg');
+      background-size: 60%;
+      background-position: center;
+      background-repeat: no-repeat;
+      position: relative;
+      border-radius: 10px;
+      padding: 2rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      transform-style: preserve-3d;
+      perspective: 1500px;
+      display: flex;
+      align-items: flex-start;
+      gap: 1.5rem;
+    }
+    .project-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(248, 249, 250, 0.85);
+      backdrop-filter: blur(8px);
+      border-radius: 10px;
+      z-index: 0;
+    }
+    .project-card h3,
+    .project-card p,
+    .project-card .project-link,
+    .project-card .project-image-container {
+      position: relative;
+      z-index: 1;
+    }
+    /* 卡片悬停效果 - 整体抬起 */
+    .project-card:hover {
+      transform: translateZ(10px) translateY(-5px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    }
+    .project-card:hover * {
+      transform: translateZ(5px);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .project-image-container {
+      flex: 0 0 120px;
+      height: 120px;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .project-card:hover .project-image-container {
+      transform: translateZ(10px);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+    }
+    .project-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+    .project-card:hover .project-image {
+      transform: scale(1.08);
+    }
+    .project-content {
+      flex: 1;
+      text-align: left;
+    }
+    .project-card:hover h3 {
+      transform: translateZ(8px);
+      text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .project-card h3 {
+      color: #333;
+      margin-top: 0;
+      margin-bottom: 0.8rem;
+      font-size: 1.4rem;
+    }
+    .project-card:hover p {
+      transform: translateZ(6px);
+    }
+    .project-card p {
+      color: #666;
+      line-height: 1.6;
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+    }
+    .project-card:hover .project-link {
+      transform: translateZ(7px);
+    }
+    .project-link {
+      display: inline-flex;
+      align-items: center;
+      color: #2196f3;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.3s ease;
+      font-size: 0.95rem;
+    }
+    .project-link:hover {
+      color: #0b7dda;
+    }
+    .project-link i {
+      margin-left: 8px;
+      transition: transform 0.3s ease;
+    }
+    .project-link:hover i {
+      transform: translateX(3px);
+    }
+@media (max-width: 600px) {
+  .content h1 {
+    font-size: 1.3rem;
+  }
+.navbar-logo {
+    margin-left: 70px; /* 或其他更大数值 */
+    font-size: 1.1rem;
+  }
+  .cards-wrapper {
+    flex-direction: column;
+    gap: 0.4rem;  /* 让gap更小，也可以0 */
+  }
+  .card-container {
+    height: 170px;
+    margin: 1rem auto;  /* 这里改成只左右居中，几乎没有上下距离 */
+
+  }
+  .content h1 {
+    font-size: 1.3rem;
+    white-space: normal !important;
+  }
+  .mobile-welcome-hello {
+    font-size: 1.7em;
+    font-weight: bold;
+    display: block;
+    margin-bottom: 0.1em;
+  }
+  .mobile-welcome-url {
+    display: flex;                                   /* 用flex实现居中 */
+    justify-content: center;                         /* 水平居中 */
+    align-items: center;                             /* （可选，内容垂直居中） */
+    font-size: clamp(1em, 7vw, 2rem);                /* 自动缩放字体适应一行 */
+    max-width: calc(100vw - 100px);                  /* 两侧预留50px */
+    margin-left: auto;                               /* 左右自动分配空隙，保证居中 */
+    margin-right: auto;
+    white-space: nowrap;                             /* 单行显示 */
+    overflow: visible;                               /* 隐藏无用滚动条 */
+    text-align: center;                              /* 内容居中（备用） */
+  }
+  .mobile-welcome-break {
+    display: block;
+  }
+  .mobile-welcome-break {
+    display: block;
+  }
+
+/* 移动端：当容器有 show-tooltip 时显示悬浮文字（翻转后显示，回正后隐藏）*/
+.card-container .card-tooltip {
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  pointer-events: none;
+  z-index: 1000;
+  white-space: nowrap;
+  opacity: 0; /* 默认隐藏 */
+}
+
+/* 如果想把提示框放在卡片外部顶部（推荐） */
+.card-container .card-tooltip {
+  top: -36px !important; /* 可微调 -36px、-44px 等 */
+}
+
+/* 也可以改为卡片内部顶部：top: 8px !important; */
+
+/* 显示状态（仅移动端会被 JS 加上/移除 show-tooltip） */
+.card-container.show-tooltip .card-tooltip {
+  opacity: 1 !important;
+}
+
+/* 移动端 loading 文本更大以便于可视 */
+.loading-text {
+  font-size: 18px;
+}
+.loading-text-container {
+  bottom: env(safe-area-inset-bottom, 26px);
+}
+}
+  </style>
+</head>
+<body>
+  <!-- 以下内容保持原样 ... -->
+  <!-- 导航栏 -->
+  <nav class="navbar" id="navbar">
+    <!-- 菜单按钮 -->
+    <div class="menu-btn" id="menuBtn">
+      <div class="line line1"></div>
+      <div class="line line2"></div>
+      <div class="line line3"></div>
+    </div>
+    <div class="navbar-container">
+      <!-- Logo -->
+      <div class="navbar-logo" id="logo">W.K.Jasdka</div>
+      <ul class="navbar-menu">
+      </ul>
+    </div>
+  </nav>
+  <!-- 侧边栏菜单（二级菜单） -->
+  <div class="sidebar" id="sidebar">
+    <ul class="sidebar-menu">
+      <div class="sidebar-menu-main">
+        <li class="sidebar-item">
+        <a href="#javascript:void(0)" class="sidebar-link" id="sidebarHomeBtn"><i class="fas fa-home"></i> 首页</a>
+        </li>
+        <li class="sidebar-item has-submenu">
+          <a href="#" class="sidebar-link social-platform-link"><i class="fas fa-comment"></i> 社交平台</a>
+          <ul class="sidebar-submenu">
+            <li class="sidebar-item"><a href="https://space.bilibili.com/3493283156200346" class="sidebar-link"><i class="fab fa-bilibili"></i> Bilibili</a></li>
+            <li class="sidebar-item">
+  <a href="https://bsky.app/profile/wkjasdka.bsky.social" class="sidebar-link">
+    <i class="fa-brands fa-bluesky"></i> Bluesky
+  </a>
+</li>
+            <li class="sidebar-item"><a href="https://discord.gg/QQQVS5fJPD" class="sidebar-link"><i class="fab fa-discord"></i> Discord</a></li>
+            <li class="sidebar-item">
+  <a href="https://facebook.com/chenasawkjasdka" class="sidebar-link">
+    <i class="fa-brands fa-facebook-f"></i> Facebook
+  </a>
+</li>
+
+<li class="sidebar-item">
+  <a href="https://instagram.com/imwkjasdka" class="sidebar-link">
+    <i class="fa-brands fa-instagram"></i> Instagram
+  </a>
+</li>
+            <li class="sidebar-item"><a href="https://www.pinterest.com/Wkjasdka" class="sidebar-link"><i class="fab fa-pinterest"></i> Pinterest</a></li>
+            <li class="sidebar-item"><a href="https://open.spotify.com/user/31fp6b7aq3ch2jzdt5up5welfdhq?si=4vDMBCqPRJSPB4a2rxM7eg" class="sidebar-link"><i class="fab fa-spotify"></i> Spotify</a></li>
+            <li class="sidebar-item"><a href="https://tiktok.com/@wkjasdkaqwq" class="sidebar-link"><i class="fab fa-tiktok"></i> TikTok</a></li>
+<li class="sidebar-item">
+  <a href="https://threads.net/@imwkjasdka" class="sidebar-link">
+    <i class="fa-brands fa-threads"></i> Threads
+  </a>
+</li>
+            <li class="sidebar-item"><a href="https://twitch.tv/wkjasdkaqwq" class="sidebar-link"><i class="fab fa-twitch"></i> Twitch</a></li>
+            <li class="sidebar-item"><a href="https://x.com/Wkjasdka" class="sidebar-link"><i class="fab fa-twitter"></i> Twitter</a></li>
+            <li class="sidebar-item"><a href="https://www.youtube.com/@wkjasdkaverynb" class="sidebar-link"><i class="fab fa-youtube"></i> YouTube</a></li>
+          </ul>
+        </li>
+        <li class="sidebar-item">
+          <a id="contactBtn" href="mailto:wkjasdkayeah@yeah.net" class="sidebar-link"><i class="fas fa-envelope"></i> 联系</a>
+        </li>
+      </div>
+<!-- 修复后的关于按钮链接 -->
+<li class="sidebar-item">
+  <a href="about.html" class="sidebar-link" id="about-link">
+    <i class="fas fa-info-circle"></i> 关于
+  </a>
+</li>
+    </ul>
+  </div><div class="overlay" id="overlay"></div>
+
+
+<div class="loading-screen" id="loadingScreen">
+  <img src="/wkjasdka/index/logo3.png" alt="加载Logo" class="loading-logo" id="loadingLogo">
+  <div class="loading-text-container" id="loadingTexts" aria-hidden="false">
+    <div class="loading-text">from</div>
+    <div class="loading-text">- Wkjasdka -</div>
+  </div>
+</div>
+
+  <div class="content" id="mainContent">
+<h1>
+  <span class="mobile-welcome-hello">欢迎来到</span>
+  <span class="mobile-welcome-break"></span>
+  <span class="mobile-welcome-url">Liuyanlin.Wkjasdka.NET</span>
+</h1>
+    <!-- 卡片容器包裹两个卡片 -->
+    <div class="cards-wrapper">
+      <div class="card-container" id="cardContainer1">
+        <div class="card-tooltip" id="cardTooltip1">什么是 Liuyanlin.Wkjasdka.NET ?</div>
+        <div class="card" id="infoCard1">
+          <div class="card-front">
+            这是什么？
+          </div>
+          <div class="card-back">
+            这是 W.K.Jasdka 的官方网站。
+          </div>
+        </div>
+      </div>
+      <!-- 右侧卡片 -->
+      <div class="card-container" id="cardContainer2">
+        <div class="card-tooltip" id="cardTooltip2">Liuyanlin.Wkjasdka.NET 是来干什么的?</div>
+        <div class="card" id="infoCard2">
+          <div class="card-front">
+            有什么用?
+          </div>
+          <div class="card-back">
+            这是用来获取 W.K.Jasdka 已完成开发项目
+          </div>
+        </div>
+      </div>
+    </div>
+  <!-- 新增的横线 -->
+  <hr class="middle-line">
+    <!-- 项目展示区域 -->
+    <section class="projects-section">
+      <h2>Project</h2>
+      <div class="projects-container">
+        <div class="project-card">
+          <div class="project-image-container">
+            <img src="/wkjasdka/index/untitled.png" alt="项目图片" class="project-image">
+          </div>
+          <div class="project-content">
+            <h3>Semi-rounded Corner</h3>
+            <p>内容</p>
+            <a href="community.html" class="project-link">查看详情 <i class="fas fa-arrow-right"></i></a>
+          </div>
+        </div>
+      </div>
+    </section>
+  <!-- 页脚版权信息 -->
+  <footer>
+    <p>2025 Copyright (&copy;) W.K.Jasdka . All rights reserved</p>
+  </footer>
+  <script>
+    // 兼容 touch 端卡片翻转功能
+    function addTouchFlip(card) {
+      card.addEventListener('touchstart', function() {
+        this.classList.toggle('flipped');
+      });
+    }
+
+const card1 = document.getElementById('infoCard1');
+card1.addEventListener('click', function() {
+  if(window.innerWidth>600) this.classList.toggle('flipped');
+});
+const card2 = document.getElementById('infoCard2');
+card2.addEventListener('click', function() {
+  if(window.innerWidth>600) this.classList.toggle('flipped');
+});
+
+// <-- 在这里追加：
+addTouchFlip(card1);
+addTouchFlip(card2);
+
+    // 鼠标跟随提示（桌面端）
+    if(window.innerWidth>600){
+      const cardContainer1 = document.getElementById('cardContainer1');
+      const tooltip1 = document.getElementById('cardTooltip1');
+      cardContainer1.addEventListener('mousemove', function(e) {
+        const rect = cardContainer1.getBoundingClientRect();
+        const tooltipWidth = tooltip1.offsetWidth;
+        const tooltipHeight = tooltip1.offsetHeight;
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+        let left = e.clientX - rect.left + 12;
+        let top = e.clientY - rect.top - 27;
+        const absoluteLeft = rect.left + left;
+        const absoluteTop = rect.top + top;
+        if (absoluteLeft + tooltipWidth > viewportWidth) left = e.clientX - rect.left - tooltipWidth - 12;
+        if (absoluteLeft < 0) left = 12;
+        if (absoluteTop < 0) top = e.clientY - rect.top + 12;
+        if (absoluteTop + tooltipHeight > viewportHeight) top = e.clientY - rect.top - tooltipHeight - 12;
+        tooltip1.style.left = left + 'px';
+        tooltip1.style.top = top + 'px';
+      });
+      const cardContainer2 = document.getElementById('cardContainer2');
+      const tooltip2 = document.getElementById('cardTooltip2');
+      cardContainer2.addEventListener('mousemove', function(e) {
+        const rect = cardContainer2.getBoundingClientRect();
+        const tooltipWidth = tooltip2.offsetWidth;
+        const tooltipHeight = tooltip2.offsetHeight;
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+        let left = e.clientX - rect.left + 12;
+        let top = e.clientY - rect.top - 27;
+        const absoluteLeft = rect.left + left;
+        const absoluteTop = rect.top + top;
+        if (absoluteLeft + tooltipWidth > viewportWidth) left = e.clientX - rect.left - tooltipWidth - 12;
+        if (absoluteLeft < 0) left = 12;
+        if (absoluteTop < 0) top = e.clientY - rect.top + 12;
+        if (absoluteTop + tooltipHeight > viewportHeight) top = e.clientY - rect.top - tooltipHeight - 12;
+        tooltip2.style.left = left + 'px';
+        tooltip2.style.top = top + 'px';
+      });
+    }
+
+    // 导航栏滚动显示/隐藏功能
+    const navbar = document.getElementById('navbar');
+    let lastScrollTop = 0;
+    window.addEventListener('scroll', function() {
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      if (scrollTop > lastScrollTop && scrollTop > 50) {
+        navbar.classList.add('hidden');
+      } else {
+        navbar.classList.remove('hidden');
+      }
+      lastScrollTop = scrollTop;
+    });
+
+    // 侧边栏相关功能
+    const menuBtn = document.getElementById('menuBtn');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+    function openSidebar() {
+      sidebar.classList.add('open');
+      overlay.classList.add('open');
+      menuBtn.classList.add('rotated');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeSidebar() {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('open');
+      menuBtn.classList.remove('rotated');
+      document.body.style.overflow = '';
+      document.querySelectorAll('.sidebar-submenu').forEach(submenu => {
+        submenu.classList.remove('open');
+      });
+      document.querySelectorAll('.sidebar-item.has-submenu').forEach(item => {
+        item.classList.remove('open');
+      });
+    }
+    menuBtn.addEventListener('click', function() {
+      this.classList.remove('rotated');
+      void this.offsetWidth;
+      if (sidebar.classList.contains('open')) {
+        closeSidebar();
+      } else {
+        this.classList.add('rotated');
+        sidebar.classList.add('open');
+        overlay.classList.add('open');
+        document.body.style.overflow = 'hidden';
+      }
+    });
+    overlay.addEventListener('click', closeSidebar);
+    document.querySelectorAll('.sidebar-item.has-submenu').forEach(item => {
+      const link = item.querySelector('.sidebar-link');
+      const submenu = item.querySelector('.sidebar-submenu');
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        submenu.classList.toggle('open');
+        item.classList.toggle('open');
+      });
+    });
+
+
+    // 自定义平滑滚动函数（可选）
+    function scrollToTop() {
+      const scrollDuration = 500;
+      const startScrollTop = window.pageYOffset;
+      const startTime = performance.now();
+      function animateScroll(currentTime) {
+        const elapsedTime = currentTime - startTime;
+        const progress = Math.min(elapsedTime / scrollDuration, 1);
+        const easeProgress = progress < 0.5 
+          ? 4 * progress * progress * progress 
+          : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+        window.scrollTo(0, startScrollTop * (1 - easeProgress));
+        if (progress < 1) requestAnimationFrame(animateScroll);
+      }
+      requestAnimationFrame(animateScroll);
+    }
+    document.getElementById('sidebarHomeBtn').addEventListener('click', function(e) {
+      e.preventDefault();
+      scrollToTop();
+      closeSidebar();
+    });
+    document.getElementById('contactBtn').addEventListener('click', function(e) {
+      e.stopPropagation();
+      window.location.href = this.href;
+    });
+    document.getElementById('logo').addEventListener('click', function() {
+      const logo = this;
+      logo.classList.toggle('flip-180');
+    });
+    // 禁止选择、复制、剪切、右键菜单等
+    document.addEventListener('selectstart', function(e) {e.preventDefault(); return false;});
+    document.addEventListener('copy', function(e){e.preventDefault();return false;});
+    document.addEventListener('cut', function(e){e.preventDefault();return false;});
+    document.addEventListener('contextmenu', function(e){e.preventDefault();return false;});
+
+
+// 替换现有的 addTouchFlip 函数为下面的实现（在触摸翻回后移动端自动隐藏悬浮文字，桌面端不变）
+function addTouchFlip(card) {
+  let startX = 0, startY = 0;
+  const container = card.closest('.card-container');
+  const tooltip = container ? container.querySelector('.card-tooltip') : null;
+  const FLIP_ANIMATION_MS = 420; // 与 CSS 中 .card 翻转过渡时间保持一致或稍微大一点
+
+  card.addEventListener('touchstart', function (e) {
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+  }, {passive: true});
+
+  card.addEventListener('touchend', function (e) {
+    const endX = e.changedTouches[0].clientX;
+    const endY = e.changedTouches[0].clientY;
+
+    // 过滤滑动，仅处理点击/轻触
+    if (Math.abs(endX - startX) < 10 && Math.abs(endY - startY) < 10) {
+      // 切换翻转状态
+      card.classList.toggle('flipped');
+
+      // 仅在移动端（宽度 <= 600）执行悬浮文字隐藏逻辑
+      if (window.innerWidth <= 600 && container && tooltip) {
+        // 如果现在是未翻转（即翻回来了），在动画结束后隐藏提示
+        if (!card.classList.contains('flipped')) {
+          setTimeout(function() {
+            container.classList.remove('show-tooltip');
+            // 作为兜底同时强制设置透明度（CSS 中有相关样式）
+            tooltip.style.opacity = '0';
+          }, FLIP_ANIMATION_MS);
+        }
+      }
+    }
+  }, {passive: true});
+}
+document.addEventListener('DOMContentLoaded', function() {
+  try {
+    var loadingScreen = document.getElementById('loadingScreen');
+    var loadingTexts = document.getElementById('loadingTexts');
+    var logoImg = document.getElementById('loadingLogo');
+
+    if (loadingScreen) {
+      // 确保 loading 层覆盖和背景确定
+      loadingScreen.style.display = 'flex';
+      loadingScreen.style.backgroundColor = '#ffffff';
+      loadingScreen.style.zIndex = '9999';
+    }
+
+    if (loadingTexts) {
+      // 强制文本可见
+      loadingTexts.style.display = 'flex';
+      loadingTexts.style.visibility = 'visible';
+      loadingTexts.style.opacity = '1';
+      loadingTexts.style.zIndex = '10001';
+      // 兜底设置文本颜色/大小
+      var nodes = loadingTexts.querySelectorAll('.loading-text');
+      nodes.forEach(function(n){ n.style.color = '#000'; n.style.fontSize = '18px'; n.style.fontWeight = '700'; });
+    }
+
+    // 如果 logo 加载后覆盖或定位导致文本被挤走，确保 logo 不盖住文本
+    if (logoImg) {
+      logoImg.style.zIndex = '10000';
+      // 可选：当 logo 未加载时隐藏 logo，确保文字优先可见（如果你需要）
+      // if (!logoImg.complete) logoImg.style.display = 'none';
+    }
+  } catch (err) {
+    // 不要阻断页面，出错时打印到控制台便于调试
+    console.warn('loading fix error:', err);
+  }
+});
+
+// 替换原有的 window.onbeforeunload 行为，避免点击 .project-link 导致页面在跳转前闪回顶部
+// 把下面代码放在原来 window.onbeforeunload 的位置或脚本末尾（确保在 DOMContentLoaded 之后）
+(function() {
+  let skipScrollOnUnload = false;
+
+  // 捕获所有 link 的点击，标记由项目详情触发的导航
+  document.addEventListener('click', function(e) {
+    const a = e.target.closest('a');
+    if (!a) return;
+
+    // 如果是在新标签打开或是下载链接，就不标记
+    if (a.target === '_blank' || a.hasAttribute('download')) return;
+
+    // 根据 class 判断，是项目详情链接则设置标记（适配现有 HTML 中的 class）
+    if (a.classList && a.classList.contains('project-link')) {
+      skipScrollOnUnload = true;
+    }
+  }, true);
+
+  // 在 beforeunload 阶段仅在未被标记时才回到顶部，避免跳转瞬间闪回
+  window.addEventListener('beforeunload', function() {
+    if (!skipScrollOnUnload) {
+      window.scrollTo(0, 0);
+    }
+  });
+})();
+
+(function() {
+  // 元素引用
+  const loadingScreen = document.getElementById('loadingScreen');
+  const mainContent = document.getElementById('mainContent');
+  const loadingTexts = document.getElementById('loadingTexts');
+
+  // 立即设置无动画、非粗体显示（确保加载文字可见且不加粗）
+  function enforceNoAnimationAndNormalWeight() {
+    try {
+      if (loadingScreen) {
+        loadingScreen.style.transition = 'none';
+        loadingScreen.style.display = 'flex';
+        loadingScreen.style.opacity = '1';
+      }
+      if (loadingTexts) {
+        loadingTexts.style.transition = 'none';
+        loadingTexts.style.fontWeight = '400';
+        loadingTexts.style.display = 'flex';
+        loadingTexts.style.visibility = 'visible';
+        loadingTexts.style.opacity = '1';
+        loadingTexts.style.zIndex = '10001';
+      }
+      if (mainContent) {
+        // 初始隐藏主体，直到所有资源完全可渲染后才显示
+        mainContent.style.display = 'none';
+      }
+    } catch (e) {
+      console.warn('enforce style error', e);
+    }
+  }
+
+  // 立即隐藏 loading 层（无动画）
+  function hideLoadingImmediate() {
+    if (!loadingScreen) return;
+    try {
+      loadingScreen.style.transition = 'none';
+      loadingScreen.style.display = 'none';
+      if (mainContent) mainContent.style.display = 'block';
+    } catch (e) { /* ignore */ }
+  }
+
+  // 为单个图片返回一个在“可渲染”时 resolve 的 Promise
+  function ensureImageDecoded(img) {
+    return new Promise((resolve, reject) => {
+      // 没有 src 的图片视为已完成
+      const src = img.getAttribute && img.getAttribute('src');
+      if (!src) { resolve(); return; }
+
+      // 优先使用 decode()（现代浏览器）
+      if (typeof img.decode === 'function') {
+        // img.decode() 在图片已完整下载并解码后 resolve；若图片未下载完会等待
+        img.decode().then(() => {
+          resolve();
+        }).catch(err => {
+          // decode 可能因图片损坏或跨域限制失败，作为失败处理
+          reject(err || new Error('image decode failed'));
+        });
+        return;
+      }
+
+      // 回退：监听 load / error
+      if (img.complete && img.naturalWidth !== 0) {
+        // 浏览器认为已完成且有尺寸，但为了更严谨我们仍 treat 为完成
+        resolve();
+        return;
+      }
+
+      function onLoad() {
+        cleanup();
+        resolve();
+      }
+      function onError(e) {
+        cleanup();
+        reject(e || new Error('image load error'));
+      }
+      function cleanup() {
+        img.removeEventListener('load', onLoad);
+        img.removeEventListener('error', onError);
+      }
+      img.addEventListener('load', onLoad);
+      img.addEventListener('error', onError);
+    });
+  }
+
+  // 入口：当 window load 触发（浏览器认为所有外部资源已下载完）后，
+  // 再对页面中所有 <img> 执行 decode/等待，只有全部成功才移除 loading。
+  document.addEventListener('DOMContentLoaded', function() {
+    enforceNoAnimationAndNormalWeight();
+
+    // 绑定 window load：表示所有资源（图片/样式/子框架等）已完成下载（浏览器范畴）
+    window.addEventListener('load', async function onWindowLoad() {
+      // 收集页面中所有图片（HTMLImageElement）
+      const imgs = Array.from(document.images || []);
+      // 为每张图片创建 promise（注意：若图片解码/加载失败则会 reject）
+      const promises = imgs.map(img => ensureImageDecoded(img));
+
+      try {
+        // 等待所有图片都可渲染（decode 或 load 完成）
+        await Promise.all(promises);
+        // 所有图片都已下载并可渲染，立即隐藏 loading（无动画）
+        hideLoadingImmediate();
+      } catch (err) {
+        // 按你的要求：如果有任一元素（图片）未能成功下载/解码，则不自动隐藏 loading 层
+        // 在此记录错误，便于排查（但不隐藏）
+        console.warn('Some resources failed to finish rendering; loading layer remains. Error:', err);
+        // 注意：此行为会导致页面保持在 loading 层，符合你“不允许跳过/跳过会被避免”的要求。
+      } finally {
+        // 移除该事件监听（防止重复执行）
+        window.removeEventListener('load', onWindowLoad);
+      }
+    }, { once: true });
+  });
+})();
+
+  </script>
+</body>
+</html>
+
+
