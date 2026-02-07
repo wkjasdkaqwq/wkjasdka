@@ -261,11 +261,7 @@ width: 0 !important;
 .sidebar::-webkit-scrollbar-thumb:hover {
   background: #bbb;
 }
--webkit-tap-highlight-color: transparent; /* 核心：去掉 Chrome/Safari 点击蓝色遮罩 */
-    -webkit-tap-highlight-color: rgba(0,0,0,0); /* 针对旧版安卓的保险写法 */
-    outline: none !important;                  /* 去掉 Firefox/Chrome 焦点边框 */
-    -webkit-appearance: none;                 /* 去除系统默认渲染外观 */
-}
+
     
     .sidebar.open {
       transform: translateX(0);
@@ -804,6 +800,10 @@ body {
 .loading-text-container {
   bottom: env(safe-area-inset-bottom, 26px);
 }
+}
+@media (pointer: coarse) {
+        cursor: default !important; 
+    }
 }
   </style>
 </head>
