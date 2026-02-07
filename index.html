@@ -800,6 +800,16 @@ body {
   bottom: env(safe-area-inset-bottom, 26px);
 }
 }
+    -webkit-tap-highlight-color: transparent;
+    
+    /* 针对 Firefox 以及消除点击时的焦点虚线框 */
+    outline: none;
+}
+
+/* 针对部分浏览器的 active 状态额外保险 */
+:active, :focus {
+    outline: none !important;
+    -webkit-tap-highlight-color: rgba(0,0,0,0) !important;
   </style>
 </head>
 <body>
