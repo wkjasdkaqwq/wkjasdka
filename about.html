@@ -20,11 +20,11 @@
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
       transition: transform 0.4s ease-out;
     }
-    
+
     .navbar.hidden {
       transform: translateY(-100%);
     }
-    
+
     .navbar-container {
       width: 100%;
       height: 100%;
@@ -34,7 +34,7 @@
       justify-content: space-between;
       align-items: center;
     }
-    
+
     /* Logo样式 */
     .navbar-logo {
       height: 65px;
@@ -43,11 +43,11 @@
       margin-right: 15px;
       cursor: pointer;
     }
-    
+
     .navbar-logo:hover {
       transform: scale(1.05);
     }
-    
+
     .navbar-logo:active {
       transform: scale(0.95);
     }
@@ -160,7 +160,7 @@
       background-color: #d7d7d7;
       font-weight: bold;
     }
-    
+
     .sidebar-option:active {
       transform: scale(0.98);
       background-color: #d0d0d0;
@@ -172,7 +172,7 @@
       overflow: hidden;
       transition: max-height 0.1s ease-out;
     }
-    
+
     .sub-option {
       padding: 12px 50px;
       font-size: 16px;
@@ -180,12 +180,12 @@
       cursor: pointer;
       background-color: #f0f0f0;
     }
-    
+
     .sub-option:hover {
       background-color: #e0e0e0;
       padding-left: 55px;
     }
-    
+
     .sub-option.active {
       background-color: #d0d0d0;
       font-weight: bold;
@@ -205,7 +205,7 @@
       height: 20px;
       text-align: center;
     }
-    
+
     .sidebar-option.expanded .toggle-arrow {
       transform: translateY(-50%) rotate(180deg);
     }
@@ -283,12 +283,101 @@
 
 
     /* 禁止文字选中样式 */
-body {
-  user-select: none;
-  -webkit-user-select: none; /* Safari */
-  -moz-user-select: none; /* Firefox */
-  -ms-user-select: none; /* IE/Edge */
-}
+  body {
+    user-select: none;
+    -webkit-user-select: none; /* Safari */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE/Edge */
+  }
+
+  /* -------------------------
+     响应式（移动端）样式调整
+     ------------------------- */
+
+  /* 平板 -> 竖屏手机（宽度 <= 900px）*/
+  @media (max-width: 900px) {
+    .navbar { height: 64px; }
+    .navbar-container { padding: 0 12px; }
+    .navbar-logo { height: 48px; margin-right: 10px; }
+    .logo-text { font-size: 20px; }
+
+    /* 把侧边栏从固定左侧改为页面流中的块（在 navbar 下面显示） */
+    .sidebar {
+      position: static;
+      top: auto;
+      left: auto;
+      width: 100%;
+      height: auto;
+      padding: 8px 10px;
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 8px;
+      overflow-x: auto;
+      box-shadow: none;
+    }
+    /* 侧边按钮改为横向滚动块状按钮，便于在小屏幕快速选择 */
+    .sidebar-option {
+      flex: 0 0 auto;
+      padding: 10px 16px;
+      font-size: 15px;
+      white-space: nowrap;
+      border-radius: 8px;
+      background: transparent;
+      margin-right: 6px;
+    }
+    .sidebar-option:hover { padding-left: 12px; }
+
+    /* 子菜单在移动端变为下拉（占据整行） */
+    .has-suboptions .sub-options {
+      position: static;
+      width: 100%;
+      padding-left: 0;
+      background: transparent;
+    }
+    .sub-option {
+      padding: 8px 16px;
+      font-size: 14px;
+      background: #fafafa;
+      display: block;
+    }
+
+    /* 隐藏中间竖线以节省空间 */
+    .vertical-line { display: none; }
+
+    /* 主内容占满宽度，顶部预留 navbar 高度 */
+    .main-content {
+      margin-left: 0;
+      margin-top: 74px; /* 确保在固定 navbar 下有足够顶部间距 */
+      padding: 16px;
+      align-items: stretch;
+      justify-content: flex-start;
+      text-align: left;
+    }
+
+    .content-section { max-width: 100%; }
+
+    /* loading logo 更小 */
+    .loading-logo { width: 120px; }
+
+    /* 更小设备字体微调 */
+    .sidebar-option { font-size: 15px; }
+    .sub-option { font-size: 14px; }
+  }
+
+  /* 手机（窄屏 <= 480px）进一步优化 */
+  @media (max-width: 480px) {
+    .navbar { height: 56px; }
+    .navbar-logo { height: 40px; }
+    .logo-text { font-size: 18px; }
+
+    .main-content { margin-top: 62px; padding: 12px; }
+    .loading-logo { width: 100px; }
+
+    /* 让横向侧栏按钮更易触控 */
+    .sidebar-option { padding: 12px 18px; font-size: 14px; }
+    .sub-option { padding: 10px 18px; font-size: 13px; }
+  }
+
   </style>
 </head>
 <body>
@@ -433,7 +522,7 @@ body {
         });
         
         if (isActive) {
-          // 再次点击已激活的子选项，隐藏内容
+          // 再���点击已激活的子选项，隐藏内容
           mainContent.innerHTML = '';
           mainContent.style.justifyContent = 'center';
           mainContent.style.alignItems = 'center';
@@ -486,7 +575,7 @@ body {
       });
     });
 
-    // --- 启动 / loading 逻辑（已替换为更稳健的实现） ---
+    // --- 启动 / loading 逻辑（与之前保持一致） ---
     (function() {
       const loadingScreenEl = document.getElementById('loadingScreen');
       const mainContentEl = document.querySelector('.main-content');
