@@ -834,15 +834,15 @@ body {
    针对 .dark-mode 类名的选择器，由 JS 脚本主动添加
    ======================================== */
 .dark-mode {
-  /* 页面背景色：按照用户要求设置为 #07121C（深蓝黑色） */
+  /* 页面背景色：按照用户要求设置为 #030507（极深黑色） */
   body {
-    background-color: #07121C !important;
+    background-color: #030507 !important;
     color: #e0e0e0 !important; /* 主文字颜色：浅灰色，确保在深色背景下的可读性 */
   }
 
-  /* 导航栏：从浅灰色 #d7d7d7 改为深蓝灰色，保持与背景的对比度 */
+  /* 导航栏：按照用户要求设置为 #07090a */
   .navbar {
-    background-color: #0f1f2e !important; /* 比背景略浅，形成视觉层级 */
+    background-color: #07090a !important; /* 导航栏专用深色 */
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5) !important; /* 加深阴影以增强深色模式的立体感 */
   }
 
@@ -871,9 +871,9 @@ body {
     color: #b0b0b0 !important;
   }
 
-  /* 侧边栏：从浅灰色 #f5f5f5 改为深蓝灰色，与整体深色模式协调 */
+  /* 侧边栏：按照用户要求设置为 #07090a */
   .sidebar {
-    background-color: #0d1a26 !important;
+    background-color: #07090a !important;
     box-shadow: 2px 0 10px rgba(0, 0, 0, 0.7) !important; /* 加深阴影 */
   }
 
@@ -907,9 +907,9 @@ body {
     background-color: rgba(0, 0, 0, 0.7) !important; /* 略微加深遮罩 */
   }
 
-  /* 加载屏幕背景：从白色改为深色背景 #07121C */
+  /* 加载屏幕背景：按照用户要求设置为 #030507 */
   .loading-screen {
-    background-color: #07121C !important;
+    background-color: #030507 !important;
   }
 
   /* 加载文字颜色：从灰色 #8e8e8e 改为浅灰色 #b0b0b0 */
@@ -917,9 +917,9 @@ body {
     color: #b0b0b0 !important;
   }
 
-  /* 主内容区域背景：继承页面背景色 */
+  /* 主内容区域背景：按照用户要求设置为 #030507 */
   #mainContent {
-    background-color: #07121C !important;
+    background-color: #030507 !important;
   }
 
   /* 主标题文字：从深色 #333 改为浅色 #e0e0e0 */
@@ -937,9 +937,9 @@ body {
     color: #e0e0e0 !important;
   }
 
-  /* 项目卡片背景叠加层：从浅色 rgba(248, 249, 250, 0.85) 改为深色半透明 */
+  /* 项目卡片背景叠加层：按照用户要求设置为 #030507 的半透明 */
   .project-card::before {
-    background-color: rgba(13, 26, 38, 0.85) !important; /* 深蓝灰色半透明，与背景协调 */
+    background-color: rgba(3, 5, 7, 0.85) !important; /* 极深黑色半透明，与背景协调 */
   }
 
   /* 项目卡片标题：从深色 #333 改为浅色 #e0e0e0 */
@@ -962,14 +962,14 @@ body {
     color: #90caf9 !important;
   }
 
-  /* 卡片正面背景：从浅色 #f8f9fa 改为深蓝灰色 */
+  /* 卡片正面背景：按照用户要求设置为 #0f1214 */
   .card-front {
-    background-color: #0f1f2e !important;
+    background-color: #0f1214 !important;
   }
 
-  /* 卡片背面背景：从浅蓝色 #e3f2fd 改为深蓝色 */
+  /* 卡片背面背景：按照用户要求设置为 #030507 */
   .card-back {
-    background-color: #1a3a4a !important;
+    background-color: #030507 !important;
   }
 
   /* 卡片文字：需要继承主文字颜色，确保可读性 */
@@ -978,10 +978,10 @@ body {
     color: #e0e0e0 !important;
   }
 
-  /* 页脚背景：从浅灰色 #f5f5f5 改为深蓝灰色 */
+  /* 页脚背景：按照用户要求设置为 #07090a */
   footer {
-    background-color: #0d1a26 !important;
-    border-top-color: #1a2a3a !important; /* 上边框也改为深灰色 */
+    background-color: #07090a !important;
+    border-top-color: #1a2a3a !important; /* 上边框保持深灰色 */
   }
 
   /* 页脚文字：从深色改为浅色 */
@@ -1013,11 +1013,11 @@ body {
 /* 也为了兼容旧的媒体查询方案，保留此块作为备份 */
 @media (prefers-color-scheme: dark) {
   body {
-    background-color: #07121C !important;
+    background-color: #030507 !important;
     color: #e0e0e0 !important;
   }
   .navbar {
-    background-color: #0f1f2e !important;
+    background-color: #07090a !important;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5) !important;
   }
   .menu-btn .line {
@@ -1036,7 +1036,7 @@ body {
     color: #b0b0b0 !important;
   }
   .sidebar {
-    background-color: #0d1a26 !important;
+    background-color: #07090a !important;
     box-shadow: 2px 0 10px rgba(0, 0, 0, 0.7) !important;
   }
   .sidebar-item {
@@ -1058,13 +1058,13 @@ body {
     background-color: rgba(0, 0, 0, 0.7) !important;
   }
   .loading-screen {
-    background-color: #07121C !important;
+    background-color: #030507 !important;
   }
   .loading-text {
     color: #b0b0b0 !important;
   }
   #mainContent {
-    background-color: #07121C !important;
+    background-color: #030507 !important;
   }
   .content h1 {
     color: #e0e0e0 !important;
@@ -1076,7 +1076,7 @@ body {
     color: #e0e0e0 !important;
   }
   .project-card::before {
-    background-color: rgba(13, 26, 38, 0.85) !important;
+    background-color: rgba(3, 5, 7, 0.85) !important;
   }
   .project-card h3 {
     color: #e0e0e0 !important;
@@ -1091,17 +1091,17 @@ body {
     color: #90caf9 !important;
   }
   .card-front {
-    background-color: #0f1f2e !important;
+    background-color: #0f1214 !important;
   }
   .card-back {
-    background-color: #1a3a4a !important;
+    background-color: #030507 !important;
   }
   .card-front,
   .card-back {
     color: #e0e0e0 !important;
   }
   footer {
-    background-color: #0d1a26 !important;
+    background-color: #07090a !important;
     border-top-color: #1a2a3a !important;
   }
   footer p {
