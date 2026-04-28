@@ -817,6 +817,187 @@ body {
         cursor: default !important; 
     }
 }
+
+/* ========================================
+   深色模式适配 (Dark Mode)
+   背景色参考：#07121C（深蓝黑色）
+   ======================================== */
+@media (prefers-color-scheme: dark) {
+  /* 页面背景色：按照用户要求设置为 #07121C（深蓝黑色） */
+  body {
+    background-color: #07121C;
+    color: #e0e0e0; /* 主文字颜色：浅灰色，确保在深色背景下的可读性 */
+  }
+
+  /* 导航栏：从浅灰色 #d7d7d7 改为深蓝灰色，保持与背景的对比度 */
+  .navbar {
+    background-color: #0f1f2e; /* 比背景略浅，形成视觉层级 */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5); /* 加深阴影以增强深色模式的立体感 */
+  }
+
+  /* 菜单按钮线条：从深色 #333 改为浅色 #e0e0e0，确保在深色背景下可见 */
+  .menu-btn .line {
+    background-color: #e0e0e0;
+  }
+
+  /* Logo 文字：从深色 #333 改为浅色 #e0e0e0 */
+  .navbar-logo {
+    color: #e0e0e0;
+  }
+
+  /* Logo 悬停效果：从 #666 改为 #b0b0b0（更浅的灰色） */
+  .navbar-logo:hover {
+    color: #b0b0b0;
+  }
+
+  /* 导航链接：从深色 #333 改为浅色 #e0e0e0 */
+  .navbar-link {
+    color: #e0e0e0;
+  }
+
+  /* 导航链接悬停：从 #666 改为 #b0b0b0 */
+  .navbar-link:hover {
+    color: #b0b0b0;
+  }
+
+  /* 侧边栏：从浅灰色 #f5f5f5 改为深蓝灰色，与整体深色模式协调 */
+  .sidebar {
+    background-color: #0d1a26;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.7); /* 加深阴影 */
+  }
+
+  /* 侧边栏项目分隔线：从浅灰色 #e0e0e0 改为深灰色 #1a2a3a */
+  .sidebar-item {
+    border-bottom: 1px solid #1a2a3a;
+  }
+
+  /* 侧边栏子菜单背景：从浅灰色 #e9e9e9 改为更深的蓝灰色 */
+  .sidebar-submenu {
+    background-color: #0a1420;
+  }
+
+  /* 侧边栏链接：从深色 #333 改为浅色 #e0e0e0 */
+  .sidebar-link {
+    color: #e0e0e0;
+  }
+
+  /* 侧边栏链接悬停背景：从浅灰色 #e0e0e0 改为深灰色 #1a2a3a */
+  .sidebar-link:hover {
+    background-color: #1a2a3a;
+  }
+
+  /* 侧边栏链接点击效果背景：从浅灰色 #d0d0d0 改为深灰色 #0f1f2e */
+  .sidebar-link:active {
+    background-color: #0f1f2e;
+  }
+
+  /* 半透明遮罩：保持黑色半透明，但略微加深以增强深色模式效果 */
+  .overlay {
+    background-color: rgba(0, 0, 0, 0.7); /* 略微加深遮罩 */
+  }
+
+  /* 加载屏幕背景：从白色改为深色背景 #07121C */
+  .loading-screen {
+    background-color: #07121C;
+  }
+
+  /* 加载文字颜色：从灰色 #8e8e8e 改为浅灰色 #b0b0b0 */
+  .loading-text {
+    color: #b0b0b0 !important;
+  }
+
+  /* 主内容区域背景：继承页面背景色 */
+  #mainContent {
+    background-color: #07121C;
+  }
+
+  /* 主标题文字：从深色 #333 改为浅色 #e0e0e0 */
+  .content h1 {
+    color: #e0e0e0;
+  }
+
+  /* 中间分隔线：从浅灰色 #ddd 改为深灰色 #1a2a3a */
+  .middle-line {
+    border-top-color: #1a2a3a;
+  }
+
+  /* 项目区域标题：从深色 #333 改为浅色 #e0e0e0 */
+  .projects-section h2 {
+    color: #e0e0e0;
+  }
+
+  /* 项目卡片背景叠加层：从浅色 rgba(248, 249, 250, 0.85) 改为深色半透明 */
+  .project-card::before {
+    background-color: rgba(13, 26, 38, 0.85); /* 深蓝灰色半透明，与背景协调 */
+  }
+
+  /* 项目卡片标题：从深色 #333 改为浅色 #e0e0e0 */
+  .project-card h3 {
+    color: #e0e0e0;
+  }
+
+  /* 项目卡片描述文字：从灰色 #666 改为浅灰色 #a0a0a0 */
+  .project-card p {
+    color: #a0a0a0;
+  }
+
+  /* 项目卡片链接：从蓝色 #2196f3 改为浅蓝色 #64b5f6，确保在深色背景下可见 */
+  .project-link {
+    color: #64b5f6;
+  }
+
+  /* 项目卡片链接悬停：从深蓝 #0b7dda 改为更浅的蓝色 #90caf9 */
+  .project-link:hover {
+    color: #90caf9;
+  }
+
+  /* 卡片正面背景：从浅色 #f8f9fa 改为深蓝灰色 */
+  .card-front {
+    background-color: #0f1f2e;
+  }
+
+  /* 卡片背面背景：从浅蓝色 #e3f2fd 改为深蓝色 */
+  .card-back {
+    background-color: #1a3a4a;
+  }
+
+  /* 卡片文字：需要继承主文字颜色，确保可读性 */
+  .card-front,
+  .card-back {
+    color: #e0e0e0;
+  }
+
+  /* 页脚背景：从浅灰色 #f5f5f5 改为深蓝灰色 */
+  footer {
+    background-color: #0d1a26;
+    border-top-color: #1a2a3a; /* 上边框也改为深灰色 */
+  }
+
+  /* 页脚文字：从深色改为浅色 */
+  footer p {
+    color: #a0a0a0;
+  }
+
+  /* 工具提示背景：从深灰色改为更深的蓝灰色，确保与深色模式协调 */
+  .card-tooltip {
+    background-color: #1a2a3a;
+    color: #e0e0e0;
+  }
+
+  /* 滚动条样式（Webkit 浏览器）：针对深色模式调整 */
+  .sidebar::-webkit-scrollbar-track {
+    background: #0d1a26;
+  }
+
+  .sidebar::-webkit-scrollbar-thumb {
+    background: #1a2a3a;
+  }
+
+  .sidebar::-webkit-scrollbar-thumb:hover {
+    background: #2a3a4a;
+  }
+}
+/* ======================================== */
   </style>
 </head>
 <body>
