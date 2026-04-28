@@ -7,6 +7,16 @@
   <!-- 引入Font Awesome用于图标 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+  <!-- 深色模式自动检测脚本：在页面加载前立即执行，避免闪烁 -->
+  <script>
+    (function() {
+      // 检测系统是否处于深色模式
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // 如果系统处于深色模式，立即给 html 标签添加 dark-mode 类
+        document.documentElement.classList.add('dark-mode');
+      }
+    })();
+  </script>
   <style>
     /* 导航栏样式 */
     .navbar {
@@ -821,8 +831,9 @@ body {
 /* ========================================
    深色模式适配 (Dark Mode)
    背景色参考：#07121C（深蓝黑色）
+   针对 .dark-mode 类名的选择器，由 JS 脚本主动添加
    ======================================== */
-@media (prefers-color-scheme: dark) {
+.dark-mode {
   /* 页面背景色：按照用户要求设置为 #07121C（深蓝黑色） */
   body {
     background-color: #07121C !important;
@@ -998,6 +1009,118 @@ body {
   }
 }
 /* ======================================== */
+
+/* 也为了兼容旧的媒体查询方案，保留此块作为备份 */
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: #07121C !important;
+    color: #e0e0e0 !important;
+  }
+  .navbar {
+    background-color: #0f1f2e !important;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5) !important;
+  }
+  .menu-btn .line {
+    background-color: #e0e0e0 !important;
+  }
+  .navbar-logo {
+    color: #e0e0e0 !important;
+  }
+  .navbar-logo:hover {
+    color: #b0b0b0 !important;
+  }
+  .navbar-link {
+    color: #e0e0e0 !important;
+  }
+  .navbar-link:hover {
+    color: #b0b0b0 !important;
+  }
+  .sidebar {
+    background-color: #0d1a26 !important;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.7) !important;
+  }
+  .sidebar-item {
+    border-bottom: 1px solid #1a2a3a !important;
+  }
+  .sidebar-submenu {
+    background-color: #0a1420 !important;
+  }
+  .sidebar-link {
+    color: #e0e0e0 !important;
+  }
+  .sidebar-link:hover {
+    background-color: #1a2a3a !important;
+  }
+  .sidebar-link:active {
+    background-color: #0f1f2e !important;
+  }
+  .overlay {
+    background-color: rgba(0, 0, 0, 0.7) !important;
+  }
+  .loading-screen {
+    background-color: #07121C !important;
+  }
+  .loading-text {
+    color: #b0b0b0 !important;
+  }
+  #mainContent {
+    background-color: #07121C !important;
+  }
+  .content h1 {
+    color: #e0e0e0 !important;
+  }
+  .middle-line {
+    border-top-color: #1a2a3a !important;
+  }
+  .projects-section h2 {
+    color: #e0e0e0 !important;
+  }
+  .project-card::before {
+    background-color: rgba(13, 26, 38, 0.85) !important;
+  }
+  .project-card h3 {
+    color: #e0e0e0 !important;
+  }
+  .project-card p {
+    color: #a0a0a0 !important;
+  }
+  .project-link {
+    color: #64b5f6 !important;
+  }
+  .project-link:hover {
+    color: #90caf9 !important;
+  }
+  .card-front {
+    background-color: #0f1f2e !important;
+  }
+  .card-back {
+    background-color: #1a3a4a !important;
+  }
+  .card-front,
+  .card-back {
+    color: #e0e0e0 !important;
+  }
+  footer {
+    background-color: #0d1a26 !important;
+    border-top-color: #1a2a3a !important;
+  }
+  footer p {
+    color: #a0a0a0 !important;
+  }
+  .card-tooltip {
+    background-color: #1a2a3a !important;
+    color: #e0e0e0 !important;
+  }
+  .sidebar::-webkit-scrollbar-track {
+    background: #0d1a26 !important;
+  }
+  .sidebar::-webkit-scrollbar-thumb {
+    background: #1a2a3a !important;
+  }
+  .sidebar::-webkit-scrollbar-thumb:hover {
+    background: #2a3a4a !important;
+  }
+}
   </style>
 </head>
 <body>
