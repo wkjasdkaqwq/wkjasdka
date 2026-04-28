@@ -417,25 +417,33 @@ width: 0 !important;
     .loading-logo {
       width: 65px; 
       height: auto;
-      z-index: 10000; /* 保证 logo 在 loading 层内层级合理 */
-      display: block;
+      z-index: 10000;
+      display: none; /* 初始不显示 */
     }
 
- .loading-text-container {
-    position: fixed !important;
-    bottom: env(safe-area-inset-bottom, 26px) !important;
-    left: 0 !important;
-    width: 100% !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: center !important;
-    z-index: 10001 !important;
-    visibility: visible !important;
-    pointer-events: none !important;
-    -webkit-text-size-adjust: 100% !important;
-    transform: translateY(-32px) !important;
-  }
+    .loading-text-container {
+      position: fixed !important;
+      bottom: env(safe-area-inset-bottom, 26px) !important;
+      left: 0 !important;
+      width: 100% !important;
+      display: none !important; /* 初始不显示 */
+      flex-direction: column !important;
+      align-items: center !important;
+      justify-content: center !important;
+      z-index: 10001 !important;
+      visibility: visible !important;
+      pointer-events: none !important;
+      -webkit-text-size-adjust: 100% !important;
+      transform: translateY(-32px) !important;
+    }
+
+    /* 当 Logo 加载完成后的显示状态 */
+    .loading-ready .loading-logo {
+      display: block;
+    }
+    .loading-ready .loading-text-container {
+      display: flex !important;
+    }
   .loading-text {
     color: #8e8e8e !important; /* 确保对比度 */
     font-size: 16px !important;
@@ -499,7 +507,6 @@ width: 0 !important;
       position: absolute;
       width: 100%;
       height: 100%;
-      backface-visibility: hidden;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -880,7 +887,8 @@ body {
 
 
 <div class="loading-screen" id="loadingScreen">
-  <img src="/wkjasdka/index/logo3.png" alt="加载Logo" class="loading-logo" id="loadingLogo">
+  <!-- 初始不设置 src，由脚本控制加载 -->
+  <img data-src="/wkjasdka/index/logo3.png" alt="加载Logo" class="loading-logo" id="loadingLogo">
   <div class="loading-text-container" id="loadingTexts" aria-hidden="false">
     <div class="loading-text">from</div>
     <div class="loading-text">- Wkjasdka -</div>
@@ -927,7 +935,7 @@ body {
       <div class="projects-container">
         <div class="project-card">
           <div class="project-image-container">
-            <img src="/wkjasdka/index/untitled.png" alt="项目图片" class="project-image">
+            <img data-src="/wkjasdka/index/untitled.png" alt="项目图片" class="project-image">
           </div>
           <div class="project-content">
             <h3>Semi-rounded Corner</h3>
@@ -1134,6 +1142,7 @@ function addTouchFlip(card) {
     }
   }, {passive: true});
 }
+
 document.addEventListener('DOMContentLoaded', function() {
   try {
     var loadingScreen = document.getElementById('loadingScreen');
@@ -1151,7 +1160,6 @@ document.addEventListener('DOMContentLoaded', function() {
       // 强制文本可见
       loadingTexts.style.display = 'flex';
       loadingTexts.style.visibility = 'visible';
-      loadingTexts.style.opacity = '1';
       loadingTexts.style.zIndex = '10001';
       // 兜底设置文本颜色/大小
       var nodes = loadingTexts.querySelectorAll('.loading-text');
@@ -1161,8 +1169,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // 如果 logo 加载后覆盖或定位导致文本被挤走，确保 logo 不盖住文本
     if (logoImg) {
       logoImg.style.zIndex = '10000';
-      // 可选：当 logo 未加载时隐藏 logo，确保文字优先可见（如果你需要）
-      // if (!logoImg.complete) logoImg.style.display = 'none';
     }
   } catch (err) {
     // 不要阻断页面，出错时打印到控制台便于调试
@@ -1170,8 +1176,10 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 
-// 已移除强制返回顶部的 beforeunload 事件监听器
-// 允许浏览器自然恢复滚动位置，避免刷新或下滑时强制返回顶部的问题
+// 禁用浏览器的自动滚动恢复行为
+if ('scrollRestoration' in history) {
+  history.scrollRestoration = 'manual';
+}
 
 // 在页面加载时强制回到顶部，并更新动态年份
 document.addEventListener('DOMContentLoaded', function() {
@@ -1191,118 +1199,118 @@ document.addEventListener('DOMContentLoaded', function() {
   // 元素引用
   const loadingScreen = document.getElementById('loadingScreen');
   const mainContent = document.getElementById('mainContent');
-  const loadingTexts = document.getElementById('loadingTexts');
+  const loadingLogo = document.getElementById('loadingLogo');
 
-  // 立即设置无动画、非粗体显示（确保加载文字可见且不加粗）
-  function enforceNoAnimationAndNormalWeight() {
-    try {
-      if (loadingScreen) {
-        loadingScreen.style.transition = 'none';
-        loadingScreen.style.display = 'flex';
-        loadingScreen.style.opacity = '1';
-      }
-      if (loadingTexts) {
-        loadingTexts.style.transition = 'none';
-        loadingTexts.style.fontWeight = '400';
-        loadingTexts.style.display = 'flex';
-        loadingTexts.style.visibility = 'visible';
-        loadingTexts.style.opacity = '1';
-        loadingTexts.style.zIndex = '10001';
-      }
-      if (mainContent) {
-        // 初始隐藏主体，直到所有资源完全可渲染后才显示
-        mainContent.style.display = 'none';
-      }
-    } catch (e) {
-      console.warn('enforce style error', e);
-    }
-  }
+  // 第一步：优先加载 Logo
+  function loadLogoFirst() {
+    return new Promise((resolve) => {
+      if (!loadingLogo) { resolve(); return; }
 
-  // 立即隐藏 loading 层（无动画）
-  function hideLoadingImmediate() {
-    if (!loadingScreen) return;
-    try {
-      loadingScreen.style.transition = 'none';
-      loadingScreen.style.display = 'none';
-      if (mainContent) mainContent.style.display = 'block';
-    } catch (e) { /* ignore */ }
-  }
+      // 为 Logo 设置 src，开始加载
+      const logoSrc = loadingLogo.getAttribute('data-src');
+      if (!logoSrc) { resolve(); return; }
 
-  // 为单个图片返回一个在“可渲染”时 resolve 的 Promise
-  function ensureImageDecoded(img) {
-    return new Promise((resolve, reject) => {
-      // 没有 src 的图片视为已完成
-      const src = img.getAttribute && img.getAttribute('src');
-      if (!src) { resolve(); return; }
+      loadingLogo.src = logoSrc;
 
-      // 优先使用 decode()（现代浏览器）
-      if (typeof img.decode === 'function') {
-        // img.decode() 在图片已完整下载并解码后 resolve；若图片未下载完会等待
-        img.decode().then(() => {
-          resolve();
-        }).catch(err => {
-          // decode 可能因图片损坏或跨域限制失败，作为失败处理
-          reject(err || new Error('image decode failed'));
-        });
-        return;
-      }
-
-      // 回退：监听 load / error
-      if (img.complete && img.naturalWidth !== 0) {
-        // 浏览器认为已完成且有尺寸，但为了更严谨我们仍 treat 为完成
-        resolve();
-        return;
-      }
-
+      // 等待 Logo 加载完成
       function onLoad() {
         cleanup();
         resolve();
       }
-      function onError(e) {
+      function onError() {
         cleanup();
-        reject(e || new Error('image load error'));
+        resolve(); // 即使失败也继续
       }
       function cleanup() {
-        img.removeEventListener('load', onLoad);
-        img.removeEventListener('error', onError);
+        loadingLogo.removeEventListener('load', onLoad);
+        loadingLogo.removeEventListener('error', onError);
       }
-      img.addEventListener('load', onLoad);
-      img.addEventListener('error', onError);
+
+      loadingLogo.addEventListener('load', onLoad);
+      loadingLogo.addEventListener('error', onError);
     });
   }
 
-  // 入口：当 window load 触发（浏览器认为所有外部资源已下载完）后，
-  // 再对页面中所有 <img> 执行 decode/等待，只有全部成功才移除 loading。
-  document.addEventListener('DOMContentLoaded', function() {
-    enforceNoAnimationAndNormalWeight();
+  // 第二步：显示 Logo 和文字
+  function showLogoAndText() {
+    if (loadingScreen) {
+      loadingScreen.classList.add('loading-ready');
+    }
+  }
 
-    // 绑定 window load：表示所有资源（图片/样式/子框架等）已完成下载（浏览器范畴）
-    window.addEventListener('load', async function onWindowLoad() {
-      // 收集页面中所有图片（HTMLImageElement）
-      const imgs = Array.from(document.images || []);
-      // 为每张图片创建 promise（注意：若图片解码/加载失败则会 reject）
-      const promises = imgs.map(img => ensureImageDecoded(img));
-
-      try {
-        // 等待所有图片都可渲染（decode 或 load 完成）
-        await Promise.all(promises);
-        // 所有图片都已下载并可渲染，立即隐藏 loading（无动画）
-        hideLoadingImmediate();
-      } catch (err) {
-        // 按你的要求：如果有任一元素（图片）未能成功下载/解码，则不自动隐藏 loading 层
-        // 在此记录错误，便于排查（但不隐藏）
-        console.warn('Some resources failed to finish rendering; loading layer remains. Error:', err);
-        // 注意：此行为会导致页面保持在 loading 层，符合你“不允许跳过/跳过会被避免”的要求。
-      } finally {
-        // 移除该事件监听（防止重复执行）
-        window.removeEventListener('load', onWindowLoad);
+  // 第三步：加载其他资源
+  function loadOtherResources() {
+    // 为所有其他图片设置 src
+    const allImgs = document.querySelectorAll('img[data-src]');
+    allImgs.forEach(img => {
+      const src = img.getAttribute('data-src');
+      if (src) {
+        img.src = src;
+        img.removeAttribute('data-src');
       }
-    }, { once: true });
+    });
+  }
+
+  // 第四步：等待所有资源加载完成后隐藏 loading 层
+  function waitForAllResourcesAndHide() {
+    return new Promise((resolve) => {
+      window.addEventListener('load', async function onWindowLoad() {
+        // 收集所有已设置 src 的图片
+        const imgs = Array.from(document.images || []);
+        const promises = imgs.map(img => {
+          return new Promise((imgResolve) => {
+            if (img.complete && img.naturalWidth !== 0) {
+              imgResolve();
+              return;
+            }
+            const onLoad = () => {
+              cleanup();
+              imgResolve();
+            };
+            const onError = () => {
+              cleanup();
+              imgResolve(); // 即使失败也继续
+            };
+            const cleanup = () => {
+              img.removeEventListener('load', onLoad);
+              img.removeEventListener('error', onError);
+            };
+            img.addEventListener('load', onLoad);
+            img.addEventListener('error', onError);
+          });
+        });
+
+        await Promise.all(promises);
+        // 所有资源加载完成，隐藏 loading 层
+        if (loadingScreen) {
+          loadingScreen.style.display = 'none';
+        }
+        if (mainContent) {
+          mainContent.style.display = 'block';
+        }
+        window.removeEventListener('load', onWindowLoad);
+        resolve();
+      }, { once: true });
+    });
+  }
+
+  // 执行不同阶段的加载
+  document.addEventListener('DOMContentLoaded', async function() {
+    // 第一步：优先加载 Logo
+    await loadLogoFirst();
+
+    // 第二步：显示 Logo 和文字
+    showLogoAndText();
+
+    // 第三步：加载其他资源
+    loadOtherResources();
+
+    // 第四步：等待所有资源并隐藏 loading 层
+    await waitForAllResourcesAndHide();
   });
 })();
 
   </script>
 </body>
 </html>
-
 
