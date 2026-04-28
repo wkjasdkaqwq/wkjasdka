@@ -1294,7 +1294,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }, { once: true });
   });
 })();
+// 强制禁用浏览器的自动滚动恢复行为
+if ('scrollRestoration' in history) {
+  history.scrollRestoration = 'manual';
+}
 
+    
   </script>
 </body>
 </html>
