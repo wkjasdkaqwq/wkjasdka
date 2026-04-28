@@ -1173,6 +1173,14 @@ document.addEventListener('DOMContentLoaded', function() {
 // 已移除强制返回顶部的 beforeunload 事件监听器
 // 允许浏览器自然恢复滚动位置，避免刷新或下滑时强制返回顶部的问题
 
+// 在页面加载时强制回到顶部，确保刷新后始终显示顶部内容
+document.addEventListener('DOMContentLoaded', function() {
+  // 使用 setTimeout 确保在浏览器完全准备好后执行
+  setTimeout(function() {
+    window.scrollTo(0, 0);
+  }, 0);
+});
+
 (function() {
   // 元素引用
   const loadingScreen = document.getElementById('loadingScreen');
