@@ -939,7 +939,7 @@ body {
     </section>
   <!-- 页脚版权信息 -->
   <footer>
-    <p>2025 Copyright (&copy;) W.K.Jasdka . All rights reserved</p>
+    <p><span id="current-year">2025</span> Copyright (&copy;) W.K.Jasdka . All rights reserved</p>
   </footer>
   <script>
     // 兼容 touch 端卡片翻转功能
@@ -1173,12 +1173,18 @@ document.addEventListener('DOMContentLoaded', function() {
 // 已移除强制返回顶部的 beforeunload 事件监听器
 // 允许浏览器自然恢复滚动位置，避免刷新或下滑时强制返回顶部的问题
 
-// 在页面加载时强制回到顶部，确保刷新后始终显示顶部内容
+// 在页面加载时强制回到顶部，并更新动态年份
 document.addEventListener('DOMContentLoaded', function() {
-  // 使用 setTimeout 确保在浏览器完全准备好后执行
+  // 1. 强制回到顶部，使用 setTimeout 确保在浏览器完全准备好后执行
   setTimeout(function() {
     window.scrollTo(0, 0);
   }, 0);
+
+  // 2. 动态更新页脚年份（以世界标准时间 UTC 为准）
+  const yearElement = document.getElementById('current-year');
+  if (yearElement) {
+    yearElement.textContent = new Date().getUTCFullYear();
+  }
 });
 
 (function() {
@@ -1294,12 +1300,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }, { once: true });
   });
 })();
-// 强制禁用浏览器的自动滚动恢复行为
-if ('scrollRestoration' in history) {
-  history.scrollRestoration = 'manual';
-}
 
-    
   </script>
 </body>
 </html>
