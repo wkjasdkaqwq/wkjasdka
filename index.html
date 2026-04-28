@@ -514,13 +514,18 @@ width: 0 !important;
       box-sizing: border-box;
       border-radius: 10px;
       font-size: 1.2rem;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
     }
     .card-front {
       background-color: #f8f9fa;
+      transform: translateZ(0.1px);
+      z-index: 2;
     }
     .card-back {
       background-color: #e3f2fd;
-      transform: rotateY(180deg);
+      transform: rotateY(180deg) translateZ(0px);
+      z-index: 1;
     }
     /* 鼠标跟随文字样式 */
     .card-tooltip {
