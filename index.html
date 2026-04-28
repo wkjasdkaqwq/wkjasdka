@@ -1170,32 +1170,8 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 
-// 替换原有的 window.onbeforeunload 行为，避免点击 .project-link 导致页面在跳转前闪回顶部
-// 把下面代码放在原来 window.onbeforeunload 的位置或脚本末尾（确保在 DOMContentLoaded 之后）
-(function() {
-  let skipScrollOnUnload = false;
-
-  // 捕获所有 link 的点击，标记由项目详情触发的导航
-  document.addEventListener('click', function(e) {
-    const a = e.target.closest('a');
-    if (!a) return;
-
-    // 如果是在新标签打开或是下载链接，就不标记
-    if (a.target === '_blank' || a.hasAttribute('download')) return;
-
-    // 根据 class 判断，是项目详情链接则设置标记（适配现有 HTML 中的 class）
-    if (a.classList && a.classList.contains('project-link')) {
-      skipScrollOnUnload = true;
-    }
-  }, true);
-
-  // 在 beforeunload 阶段仅在未被标记时才回到顶部，避免跳转瞬间闪回
-  window.addEventListener('beforeunload', function() {
-    if (!skipScrollOnUnload) {
-      window.scrollTo(0, 0);
-    }
-  });
-})();
+// 已移除强制返回顶部的 beforeunload 事件监听器
+// 允许浏览器自然恢复滚动位置，避免刷新或下滑时强制返回顶部的问题
 
 (function() {
   // 元素引用
