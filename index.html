@@ -1121,6 +1121,7 @@ body {
     background: #2a3a4a !important;
   }
 }
+
   </style>
 </head>
 <body>
@@ -1510,13 +1511,30 @@ document.addEventListener('DOMContentLoaded', function() {
   const mainContent = document.getElementById('mainContent');
   const loadingLogo = document.getElementById('loadingLogo');
 
+  // ========== 深色模式 Logo 切换逻辑 ==========
+  // 定义深浅色 Logo 路径
+  const lightLogoPath = '/wkjasdka/index/logo3-white.png'; // 浅色 Logo（深色模式下使用）
+  const darkLogoPath = '/wkjasdka/index/logo3.png';        // 深色 Logo（浅色模式下使用）
+  
+  // 检测是否处于深色模式
+  function isDarkMode() {
+    return document.documentElement.classList.contains('dark-mode') || 
+           (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  }
+  
+  // 获取当前应该使用的 Logo 路径
+  function getLogoPath() {
+    return isDarkMode() ? lightLogoPath : darkLogoPath;
+  }
+  // ========== 深色模式 Logo 切换逻辑结束 ==========
+
   // 第一步：优先加载 Logo
   function loadLogoFirst() {
     return new Promise((resolve) => {
       if (!loadingLogo) { resolve(); return; }
 
-      // 为 Logo 设置 src，开始加载
-      const logoSrc = loadingLogo.getAttribute('data-src');
+      // 为 Logo 设置 src，开始加载（根据深色模式自动选择）
+      const logoSrc = getLogoPath();
       if (!logoSrc) { resolve(); return; }
 
       loadingLogo.src = logoSrc;
@@ -1618,25 +1636,6 @@ document.addEventListener('DOMContentLoaded', function() {
     await waitForAllResourcesAndHide();
   });
 })();
-// 定义 Logo 路径
-const lightLogo = '/wkjasdka/index/logo3.png'; // 假设这是您的浅色 Logo 路径
-const darkLogo = '/wkjasdka/index/dark_mode.png';       // 原有的深色 Logo 路径
-
-// 根据是否处于深色模式选择 Logo
-const isDarkMode = document.documentElement.classList.contains('dark-mode') || 
-                   (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
-
-const logoToLoad = isDarkMode ? lightLogo : darkLogo;
-
-// 执行加载
-const logoImg = new Image();
-logoImg.src = logoToLoad;
-logoImg.onload = function() {
-    const loadingLogo = document.getElementById('loadingLogo');
-    loadingLogo.src = logoToLoad;
-    // ... 后续显示逻辑保持不变
-};
-
 
   </script>
 </body>
