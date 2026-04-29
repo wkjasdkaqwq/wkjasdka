@@ -1618,6 +1618,25 @@ document.addEventListener('DOMContentLoaded', function() {
     await waitForAllResourcesAndHide();
   });
 })();
+// 定义 Logo 路径
+const lightLogo = '/wkjasdka/index/logo3.png'; // 假设这是您的浅色 Logo 路径
+const darkLogo = '/wkjasdka/index/dark_mode.png';       // 原有的深色 Logo 路径
+
+// 根据是否处于深色模式选择 Logo
+const isDarkMode = document.documentElement.classList.contains('dark-mode') || 
+                   (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+const logoToLoad = isDarkMode ? lightLogo : darkLogo;
+
+// 执行加载
+const logoImg = new Image();
+logoImg.src = logoToLoad;
+logoImg.onload = function() {
+    const loadingLogo = document.getElementById('loadingLogo');
+    loadingLogo.src = logoToLoad;
+    // ... 后续显示逻辑保持不变
+};
+
 
   </script>
 </body>
