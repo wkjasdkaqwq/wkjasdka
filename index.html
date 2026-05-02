@@ -453,16 +453,18 @@ width: 0 !important;
     }
 
     /* 当加载就绪时，根据模式显示对应的 Logo */
+    /* 使用 !important 确保覆盖初始的 display: none */
     .loading-ready #loadingLogoLight {
-      display: block;
+      display: block !important;
     }
     
     /* 深色模式下的显示逻辑 */
-    .dark-mode.loading-ready #loadingLogoLight {
-      display: none;
+    /* 增加选择器权重，确保在深色模式下强制切换 */
+    html.dark-mode .loading-ready #loadingLogoLight {
+      display: none !important;
     }
-    .dark-mode.loading-ready #loadingLogoDark {
-      display: block;
+    html.dark-mode .loading-ready #loadingLogoDark {
+      display: block !important;
     }
 
     .loading-ready .loading-text-container {
@@ -1568,6 +1570,10 @@ document.addEventListener('DOMContentLoaded', function() {
   // 第二步：显示 Logo 和文字
   function showLogoAndText() {
     if (loadingScreen) {
+      // 在添加类名之前，再次确认 html 是否有 dark-mode 类
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.documentElement.classList.add('dark-mode');
+      }
       loadingScreen.classList.add('loading-ready');
     }
   }
