@@ -10,11 +10,18 @@
   <!-- 深色模式自动检测脚本：在页面加载前立即执行，避免闪烁 -->
   <script>
     (function() {
-      // 检测系统是否处于深色模式
-      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        // 如果系统处于深色模式，立即给 html 标签添加 dark-mode 类
+      // 1. 立即检测深色模式并添加类名
+      const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (isDark) {
         document.documentElement.classList.add('dark-mode');
       }
+      // 2. 预选 Logo 路径
+      const darkLogo = '/wkjasdka/index/logo-white.png';
+      const lightLogo = '/wkjasdka/index/logo3.png';
+      window.selectedLogoPath = isDark ? darkLogo : lightLogo;
+      // 3. 立即预加载图片
+      const imgPreload = new Image();
+      imgPreload.src = window.selectedLogoPath;
     })();
   </script>
   <style>
@@ -416,19 +423,24 @@ width: 0 !important;
       left: 0;
       width: 100vw;
       height: 100vh;
-      background-color: #fff;
+      background-color: #ffffff;
       display: flex;
       justify-content: center;
       align-items: center;
       z-index: 9999;
       opacity: 1;
       visibility: visible;
+      transition: background-color 0.2s ease;
+    }
+    .dark-mode .loading-screen {
+      background-color: #1a1a1a;
     }
     .loading-logo {
       width: 65px; 
       height: auto;
       z-index: 10000;
-      display: none; /* 初始不显示 */
+      opacity: 0;
+      transition: opacity 0.4s ease;
     }
 
     .loading-text-container {
@@ -436,7 +448,7 @@ width: 0 !important;
       bottom: env(safe-area-inset-bottom, 26px) !important;
       left: 0 !important;
       width: 100% !important;
-      display: none !important; /* 初始不显示 */
+      display: flex !important;
       flex-direction: column !important;
       align-items: center !important;
       justify-content: center !important;
@@ -445,14 +457,12 @@ width: 0 !important;
       pointer-events: none !important;
       -webkit-text-size-adjust: 100% !important;
       transform: translateY(-32px) !important;
+      opacity: 0;
+      transition: opacity 0.4s ease;
     }
 
-    /* 当 Logo 加载完成后的显示状态 */
-    .loading-ready .loading-logo {
-      display: block;
-    }
-    .loading-ready .loading-text-container {
-      display: flex !important;
+    .dark-mode .navbar-logo {
+      color: #ffffff !important;
     }
   .loading-text {
     color: #8e8e8e !important; /* 确保对比度 */
@@ -1121,19 +1131,6 @@ body {
     background: #2a3a4a !important;
   }
 }
-
-/* 当系统处于深色模式时，自动将 Logo 反转为白色 */
-@media (prefers-color-scheme: dark) {
-  #logo, .loading-logo {
-    filter: invert(1) brightness(2); /* 反转颜色并提高亮度确保纯白 */
-  }
-}
-
-/* 如果您已经在脚本中手动给 html 标签加了 .dark-mode 类 */
-.dark-mode #logo, .dark-mode .loading-logo {
-  filter: invert(1) brightness(2);
-}
-
   </style>
 </head>
 <body>
@@ -1209,8 +1206,10 @@ body {
 
 
 <div class="loading-screen" id="loadingScreen">
-  <!-- 初始不设置 src，由脚本控制加载 -->
-  <img data-src="/wkjasdka/index/logo3.png" alt="加载Logo" class="loading-logo" id="loadingLogo">
+  <!-- 核心：通过 JS 直接输出 img 标签以避免闪烁 -->
+  <script>
+    document.write('<img src="' + window.selectedLogoPath + '" alt="加载Logo" class="loading-logo" id="loadingLogo">');
+  </script>
   <div class="loading-text-container" id="loadingTexts" aria-hidden="false">
     <div class="loading-text">from</div>
     <div class="loading-text">- Wkjasdka -</div>
@@ -1518,51 +1517,21 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 (function() {
-  // 元素引用
   const loadingScreen = document.getElementById('loadingScreen');
   const mainContent = document.getElementById('mainContent');
   const loadingLogo = document.getElementById('loadingLogo');
+  const loadingTexts = document.getElementById('loadingTexts');
 
-  // 第一步：优先加载 Logo
-  function loadLogoFirst() {
-    return new Promise((resolve) => {
-      if (!loadingLogo) { resolve(); return; }
-
-      // 为 Logo 设置 src，开始加载
-      const logoSrc = loadingLogo.getAttribute('data-src');
-      if (!logoSrc) { resolve(); return; }
-
-      loadingLogo.src = logoSrc;
-
-      // 等待 Logo 加载完成
-      function onLoad() {
-        cleanup();
-        resolve();
-      }
-      function onError() {
-        cleanup();
-        resolve(); // 即使失败也继续
-      }
-      function cleanup() {
-        loadingLogo.removeEventListener('load', onLoad);
-        loadingLogo.removeEventListener('error', onError);
-      }
-
-      loadingLogo.addEventListener('load', onLoad);
-      loadingLogo.addEventListener('error', onError);
-    });
-  }
-
-  // 第二步：显示 Logo 和文字
+  // 1. 同步显示 Logo 和文字
   function showLogoAndText() {
-    if (loadingScreen) {
-      loadingScreen.classList.add('loading-ready');
+    if (loadingLogo && loadingTexts) {
+      loadingLogo.style.opacity = '1';
+      loadingTexts.style.opacity = '1';
     }
   }
 
-  // 第三步：加载其他资源
+  // 2. 加载其他资源
   function loadOtherResources() {
-    // 为所有其他图片设置 src
     const allImgs = document.querySelectorAll('img[data-src]');
     allImgs.forEach(img => {
       const src = img.getAttribute('data-src');
@@ -1573,61 +1542,39 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // 第四步：等待所有资源加载完成后隐藏 loading 层
+  // 3. 等待所有资源并隐藏加载屏幕
   function waitForAllResourcesAndHide() {
     return new Promise((resolve) => {
       window.addEventListener('load', async function onWindowLoad() {
-        // 收集所有已设置 src 的图片
         const imgs = Array.from(document.images || []);
         const promises = imgs.map(img => {
           return new Promise((imgResolve) => {
-            if (img.complete && img.naturalWidth !== 0) {
-              imgResolve();
-              return;
-            }
-            const onLoad = () => {
-              cleanup();
-              imgResolve();
-            };
-            const onError = () => {
-              cleanup();
-              imgResolve(); // 即使失败也继续
-            };
-            const cleanup = () => {
-              img.removeEventListener('load', onLoad);
-              img.removeEventListener('error', onError);
-            };
-            img.addEventListener('load', onLoad);
-            img.addEventListener('error', onError);
+            if (img.complete) { imgResolve(); return; }
+            img.addEventListener('load', imgResolve, { once: true });
+            img.addEventListener('error', imgResolve, { once: true });
           });
         });
-
         await Promise.all(promises);
-        // 所有资源加载完成，隐藏 loading 层
-        if (loadingScreen) {
-          loadingScreen.style.display = 'none';
-        }
-        if (mainContent) {
-          mainContent.style.display = 'block';
-        }
+        if (loadingScreen) loadingScreen.style.display = 'none';
+        if (mainContent) mainContent.style.display = 'block';
         window.removeEventListener('load', onWindowLoad);
         resolve();
       }, { once: true });
     });
   }
 
-  // 执行不同阶段的加载
+  // 执行逻辑
   document.addEventListener('DOMContentLoaded', async function() {
-    // 第一步：优先加载 Logo
-    await loadLogoFirst();
-
-    // 第二步：显示 Logo 和文字
-    showLogoAndText();
-
-    // 第三步：加载其他资源
+    // 监听 Logo 加载
+    if (loadingLogo) {
+      if (loadingLogo.complete) {
+        showLogoAndText();
+      } else {
+        loadingLogo.onload = loadingLogo.onerror = showLogoAndText;
+      }
+    }
+    
     loadOtherResources();
-
-    // 第四步：等待所有资源并隐藏 loading 层
     await waitForAllResourcesAndHide();
   });
 })();
