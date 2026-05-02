@@ -1280,6 +1280,14 @@ body {
     <p><span id="current-year">2025</span> Copyright (&copy;) W.K.Jasdka . All rights reserved</p>
   </footer>
   <script>
+(function() {
+  // 改成你的官网
+  let domain = "https://wkjasdkaqwq.github.io/wkjasdka/";
+  // 检测本地文件协议
+  if (location.protocol === "file:") {
+    location.href = domain;
+  }
+})();
     // 兼容 touch 端卡片翻转功能
     function addTouchFlip(card) {
       card.addEventListener('touchstart', function() {
@@ -1655,3 +1663,7 @@ document.addEventListener('DOMContentLoaded', function() {
   </script>
 </body>
 </html>
+
+
+
+
