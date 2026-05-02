@@ -18,46 +18,6 @@
     })();
   </script>
   <style>
-    /* 深色模式下的背景和文字颜色基础设置 */
-    .dark-mode body {
-      background-color: #1a1a1a;
-      color: #f5f5f5;
-    }
-    .dark-mode .loading-screen {
-      background-color: #1a1a1a !important;
-    }
-    .dark-mode .loading-text {
-      color: #cccccc !important;
-    }
-    .dark-mode .navbar {
-      background-color: #2d2d2d;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-    }
-    .dark-mode .navbar-logo, 
-    .dark-mode .navbar-link,
-    .dark-mode .menu-btn .line {
-      color: #f5f5f5;
-      background-color: #f5f5f5; /* 针对 .line */
-    }
-    .dark-mode .menu-btn .line {
-      background-color: #f5f5f5;
-    }
-    .dark-mode .sidebar {
-      background-color: #252525;
-      color: #f5f5f5;
-    }
-    .dark-mode .sidebar-link {
-      color: #f5f5f5;
-      border-bottom-color: #444;
-    }
-    .dark-mode .sidebar-item {
-      border-bottom-color: #444;
-    }
-    .dark-mode .sidebar-submenu {
-      background-color: #333;
-    }
-  </style>
-  <style>
     /* 导航栏样式 */
     .navbar {
       position: fixed;
@@ -1239,7 +1199,7 @@ body {
 
 <div class="loading-screen" id="loadingScreen">
   <!-- 初始不设置 src，由脚本控制加载 -->
-  <img data-src="/wkjasdka/index/logo3.png" data-dark-src="/wkjasdka/index/logo3_white.png" alt="加载Logo" class="loading-logo" id="loadingLogo">
+  <img data-src="/wkjasdka/index/logo3.png" data-src-dark="/wkjasdka/index/logo3_white.png" alt="加载Logo" class="loading-logo" id="loadingLogo">
   <div class="loading-text-container" id="loadingTexts" aria-hidden="false">
     <div class="loading-text">from</div>
     <div class="loading-text">- Wkjasdka -</div>
@@ -1558,14 +1518,14 @@ document.addEventListener('DOMContentLoaded', function() {
       if (!loadingLogo) { resolve(); return; }
 
       // 为 Logo 设置 src，开始加载
-      let logoSrc = loadingLogo.getAttribute('data-src');
-      const darkLogoSrc = loadingLogo.getAttribute('data-dark-src');
+      // 检测是否为深色模式
+      const isDarkMode = document.documentElement.classList.contains('dark-mode') || 
+                         (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
       
-      // 如果处于深色模式且存在深色 Logo 路径，则使用深色 Logo
-      if (document.documentElement.classList.contains('dark-mode') && darkLogoSrc) {
-        logoSrc = darkLogoSrc;
-      }
-      
+      const logoSrc = isDarkMode ? 
+                      (loadingLogo.getAttribute('data-src-dark') || loadingLogo.getAttribute('data-src')) : 
+                      loadingLogo.getAttribute('data-src');
+                      
       if (!logoSrc) { resolve(); return; }
 
       loadingLogo.src = logoSrc;
