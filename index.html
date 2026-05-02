@@ -1121,6 +1121,19 @@ body {
     background: #2a3a4a !important;
   }
 }
+
+/* 当系统处于深色模式时，自动将 Logo 反转为白色 */
+@media (prefers-color-scheme: dark) {
+  #logo, .loading-logo {
+    filter: invert(1) brightness(2); /* 反转颜色并提高亮度确保纯白 */
+  }
+}
+
+/* 如果您已经在脚本中手动给 html 标签加了 .dark-mode 类 */
+.dark-mode #logo, .dark-mode .loading-logo {
+  filter: invert(1) brightness(2);
+}
+
   </style>
 </head>
 <body>
