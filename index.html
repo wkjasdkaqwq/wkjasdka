@@ -1199,7 +1199,7 @@ body {
 
 <div class="loading-screen" id="loadingScreen">
   <!-- 初始不设置 src，由脚本控制加载 -->
-  <img data-src="/wkjasdka/index/logo3.png" data-src-dark="/wkjasdka/index/logo3_white.png" alt="加载Logo" class="loading-logo" id="loadingLogo">
+  <img data-src="/wkjasdka/index/logo3.png" data-src-dark="/wkjasdka/index/dark_mode.png" alt="加载Logo" class="loading-logo" id="loadingLogo">
   <div class="loading-text-container" id="loadingTexts" aria-hidden="false">
     <div class="loading-text">from</div>
     <div class="loading-text">- Wkjasdka -</div>
@@ -1461,20 +1461,31 @@ document.addEventListener('DOMContentLoaded', function() {
     var logoImg = document.getElementById('loadingLogo');
 
     if (loadingScreen) {
-      // 确保 loading 层覆盖和背景确定
+      // 确保 loading 层覆盖
       loadingScreen.style.display = 'flex';
-      loadingScreen.style.backgroundColor = '#ffffff';
       loadingScreen.style.zIndex = '9999';
+      
+      // 根据是否是深色模式设置背景色，避免 JS 覆盖 CSS
+      if (document.documentElement.classList.contains('dark-mode')) {
+        loadingScreen.style.backgroundColor = '#07121C';
+      } else {
+        loadingScreen.style.backgroundColor = '#ffffff';
+      }
     }
 
     if (loadingTexts) {
-      // 强制文本可见
-      loadingTexts.style.display = 'flex';
+      // 仅在非加载状态下设置基础属性，但不强制 display: flex，交给 loading-ready 类控制
       loadingTexts.style.visibility = 'visible';
       loadingTexts.style.zIndex = '10001';
-      // 兜底设置文本颜色/大小
+      
+      // 根据深色模式设置文字颜色
       var nodes = loadingTexts.querySelectorAll('.loading-text');
-      nodes.forEach(function(n){ n.style.color = '#000'; n.style.fontSize = '18px'; n.style.fontWeight = '700'; });
+      var isDark = document.documentElement.classList.contains('dark-mode');
+      nodes.forEach(function(n){ 
+        n.style.color = isDark ? '#b0b0b0' : '#8e8e8e'; 
+        n.style.fontSize = '16px'; 
+        n.style.fontWeight = '400'; 
+      });
     }
 
     // 如果 logo 加载后覆盖或定位导致文本被挤走，确保 logo 不盖住文本
