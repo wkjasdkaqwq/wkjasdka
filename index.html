@@ -428,7 +428,12 @@ width: 0 !important;
       width: 65px; 
       height: auto;
       z-index: 10000;
-      display: none; /* 初始不显示 */
+      display: none; /* 初始隐藏 */
+    }
+    
+    /* 默认隐藏深色模式专用的白色 logo */
+    #loadingLogoDark {
+      display: none;
     }
 
     .loading-text-container {
@@ -436,7 +441,7 @@ width: 0 !important;
       bottom: env(safe-area-inset-bottom, 26px) !important;
       left: 0 !important;
       width: 100% !important;
-      display: none !important; /* 初始不显示 */
+      display: none !important; /* 初始隐藏 */
       flex-direction: column !important;
       align-items: center !important;
       justify-content: center !important;
@@ -447,10 +452,19 @@ width: 0 !important;
       transform: translateY(-32px) !important;
     }
 
-    /* 当 Logo 加载完成后的显示状态 */
-    .loading-ready .loading-logo {
+    /* 当加载就绪时，根据模式显示对应的 Logo */
+    .loading-ready #loadingLogoLight {
       display: block;
     }
+    
+    /* 深色模式下的显示逻辑 */
+    .dark-mode.loading-ready #loadingLogoLight {
+      display: none;
+    }
+    .dark-mode.loading-ready #loadingLogoDark {
+      display: block;
+    }
+
     .loading-ready .loading-text-container {
       display: flex !important;
     }
@@ -1198,8 +1212,9 @@ body {
 
 
 <div class="loading-screen" id="loadingScreen">
-  <!-- 初始不设置 src，由脚本控制加载 -->
-  <img data-src="/wkjasdka/index/logo3.png" data-src-dark="/wkjasdka/index/dark_mode.png" alt="加载Logo" class="loading-logo" id="loadingLogo">
+  <!-- 放置两个 Logo，由 CSS 控制在不同模式下的显示 -->
+  <img data-src="/wkjasdka/index/logo3.png" alt="加载Logo" class="loading-logo" id="loadingLogoLight">
+  <img data-src="/wkjasdka/index/dark_mode.png" alt="加载Logo" class="loading-logo" id="loadingLogoDark">
   <div class="loading-text-container" id="loadingTexts" aria-hidden="false">
     <div class="loading-text">from</div>
     <div class="loading-text">- Wkjasdka -</div>
@@ -1464,17 +1479,10 @@ document.addEventListener('DOMContentLoaded', function() {
       // 确保 loading 层覆盖
       loadingScreen.style.display = 'flex';
       loadingScreen.style.zIndex = '9999';
-      
-      // 根据是否是深色模式设置背景色，避免 JS 覆盖 CSS
-      if (document.documentElement.classList.contains('dark-mode')) {
-        loadingScreen.style.backgroundColor = '#07121C';
-      } else {
-        loadingScreen.style.backgroundColor = '#ffffff';
-      }
     }
 
     if (loadingTexts) {
-      // 仅在非加载状态下设置基础属性，但不强制 display: flex，交给 loading-ready 类控制
+      // 基础属性设置，display 由 CSS 控制
       loadingTexts.style.visibility = 'visible';
       loadingTexts.style.zIndex = '10001';
       
@@ -1489,9 +1497,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // 如果 logo 加载后覆盖或定位导致文本被挤走，确保 logo 不盖住文本
-    if (logoImg) {
-      logoImg.style.zIndex = '10000';
-    }
+    const l1 = document.getElementById('loadingLogoLight');
+    const l2 = document.getElementById('loadingLogoDark');
+    if (l1) l1.style.zIndex = '10000';
+    if (l2) l2.style.zIndex = '10000';
   } catch (err) {
     // 不要阻断页面，出错时打印到控制台便于调试
     console.warn('loading fix error:', err);
@@ -1521,42 +1530,38 @@ document.addEventListener('DOMContentLoaded', function() {
   // 元素引用
   const loadingScreen = document.getElementById('loadingScreen');
   const mainContent = document.getElementById('mainContent');
-  const loadingLogo = document.getElementById('loadingLogo');
+  const logoLight = document.getElementById('loadingLogoLight');
+  const logoDark = document.getElementById('loadingLogoDark');
 
-  // 第一步：优先加载 Logo
+  // 第一步：优先加载 Logo（根据当前模式选择对应的 Logo）
   function loadLogoFirst() {
     return new Promise((resolve) => {
-      if (!loadingLogo) { resolve(); return; }
-
-      // 为 Logo 设置 src，开始加载
-      // 检测是否为深色模式
-      const isDarkMode = document.documentElement.classList.contains('dark-mode') || 
-                         (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      // 确定当前应该显示的 Logo
+      const isDarkMode = document.documentElement.classList.contains('dark-mode');
+      const targetLogo = isDarkMode ? logoDark : logoLight;
       
-      const logoSrc = isDarkMode ? 
-                      (loadingLogo.getAttribute('data-src-dark') || loadingLogo.getAttribute('data-src')) : 
-                      loadingLogo.getAttribute('data-src');
-                      
-      if (!logoSrc) { resolve(); return; }
+      if (!targetLogo) { resolve(); return; }
 
-      loadingLogo.src = logoSrc;
+      // 为两个 Logo 都设置 src（预加载），但我们主要等待目标 Logo
+      const srcLight = logoLight ? logoLight.getAttribute('data-src') : null;
+      const srcDark = logoDark ? logoDark.getAttribute('data-src') : null;
+      
+      if (logoLight && srcLight) logoLight.src = srcLight;
+      if (logoDark && srcDark) logoDark.src = srcDark;
 
-      // 等待 Logo 加载完成
-      function onLoad() {
-        cleanup();
+      // 等待目标 Logo 加载完成
+      if (targetLogo.complete && targetLogo.naturalWidth !== 0) {
         resolve();
+      } else {
+        targetLogo.addEventListener('load', function onLoad() {
+          targetLogo.removeEventListener('load', onLoad);
+          resolve();
+        });
+        targetLogo.addEventListener('error', function onError() {
+          targetLogo.removeEventListener('error', onError);
+          resolve();
+        });
       }
-      function onError() {
-        cleanup();
-        resolve(); // 即使失败也继续
-      }
-      function cleanup() {
-        loadingLogo.removeEventListener('load', onLoad);
-        loadingLogo.removeEventListener('error', onError);
-      }
-
-      loadingLogo.addEventListener('load', onLoad);
-      loadingLogo.addEventListener('error', onError);
     });
   }
 
