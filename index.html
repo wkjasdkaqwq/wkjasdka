@@ -16,7 +16,7 @@
         document.documentElement.classList.add('dark-mode');
       }
       // 2. 预选 Logo 路径
-      const darkLogo = '/wkjasdka/index/logo-white.png';
+      const darkLogo = '/wkjasdka/index/dark_mode.png';
       const lightLogo = '/wkjasdka/index/logo3.png';
       window.selectedLogoPath = isDark ? darkLogo : lightLogo;
       // 3. 立即预加载图片
@@ -428,9 +428,7 @@ width: 0 !important;
       justify-content: center;
       align-items: center;
       z-index: 9999;
-      opacity: 1;
       visibility: visible;
-      transition: background-color 0.2s ease;
     }
     .dark-mode .loading-screen {
       background-color: #1a1a1a;
@@ -439,8 +437,7 @@ width: 0 !important;
       width: 65px; 
       height: auto;
       z-index: 10000;
-      opacity: 0;
-      transition: opacity 0.4s ease;
+      display: none; /* 初始隐藏，由 JS 控制显示 */
     }
 
     .loading-text-container {
@@ -448,7 +445,7 @@ width: 0 !important;
       bottom: env(safe-area-inset-bottom, 26px) !important;
       left: 0 !important;
       width: 100% !important;
-      display: flex !important;
+      display: none !important; /* 初始隐藏，由 JS 控制显示 */
       flex-direction: column !important;
       align-items: center !important;
       justify-content: center !important;
@@ -457,8 +454,6 @@ width: 0 !important;
       pointer-events: none !important;
       -webkit-text-size-adjust: 100% !important;
       transform: translateY(-32px) !important;
-      opacity: 0;
-      transition: opacity 0.4s ease;
     }
 
     .dark-mode .navbar-logo {
@@ -1525,8 +1520,8 @@ document.addEventListener('DOMContentLoaded', function() {
   // 1. 同步显示 Logo 和文字
   function showLogoAndText() {
     if (loadingLogo && loadingTexts) {
-      loadingLogo.style.opacity = '1';
-      loadingTexts.style.opacity = '1';
+      loadingLogo.style.display = 'block';
+      loadingTexts.style.display = 'flex';
     }
   }
 
@@ -1582,3 +1577,4 @@ document.addEventListener('DOMContentLoaded', function() {
   </script>
 </body>
 </html>
+
