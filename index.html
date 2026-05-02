@@ -1618,7 +1618,19 @@ document.addEventListener('DOMContentLoaded', function() {
     await waitForAllResourcesAndHide();
   });
 })();
+// 在页面加载脚本中加入
+document.addEventListener('DOMContentLoaded', function() {
+    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const loadingLogo = document.getElementById('loadingLogo');
+    
+    if (isDarkMode && loadingLogo) {
+        // 如果是深色模式，加载白色 Logo
+        loadingLogo.setAttribute('data-src', '/wkjasdka/index/dark_mode.png');
+    }
+});
 
+
+    
   </script>
 </body>
 </html>
