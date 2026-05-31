@@ -29,20 +29,20 @@
             transition: width 0.2s cubic-bezier(0.1, 0.5, 0.5, 1);
         }
 
-        /* 加载层 - 初始橙色背景 */
+        /* 加载层 - 改为白色背景 */
         .loading-screen {
             position: fixed;
             top: 0;
             left: 0;
             width: 100vw;
             height: 100vh;
-            background-color: #ff8000; /* 初始橙色背景 */
+            background-color: #fff; /* 移除橙色，改为白色 */
             display: flex;
             justify-content: center;
             align-items: center;
             z-index: 10000;
             flex-direction: column;
-            transition: background-color 0.4s ease, transform 0.6s cubic-bezier(0.7, 0, 0.3, 1), opacity 0.5s ease;
+            transition: transform 0.6s cubic-bezier(0.7, 0, 0.3, 1), opacity 0.5s ease;
             transform-origin: center;
         }
 
@@ -50,35 +50,28 @@
         .logo-container {
             display: none;
             text-align: center;
-            transition: filter 0.3s ease, transform 0.3s ease;
         }
 
         .loading-logo {
             width: 280px; 
             height: auto;
-            /* 初始状态可能需要根据您的 logo 原色微调 */
             transition: filter 0.3s ease;
         }
 
         .loading-text-container {
             margin-top: 30px;
-            color: #fff; /* 橙色背景上使用白色文字 */
+            color: #6a6a6a; /* 改回深灰色文字 */
             transition: opacity 0.3s ease;
         }
 
         /* 动画状态类 */
         
-        /* 1. 背景变透明 */
-        .loading-screen.transparent-bg {
-            background-color: rgba(255, 128, 0, 0);
-        }
-
-        /* 2. 颜色反转 (负片效果) */
+        /* 1. 颜色反转 (负片效果) */
         .logo-inverted {
             filter: invert(1) hue-rotate(180deg);
         }
 
-        /* 3. 视口拉近 (放大并穿过) */
+        /* 2. 视口拉近 (放大并穿过) */
         .screen-zoom-in {
             transform: scale(5); /* 极速放大 */
             opacity: 0;
@@ -89,7 +82,7 @@
         #mainContent {
             display: none;
             opacity: 0;
-            transform: scale(0.9); /* 从远处拉近 */
+            transform: scale(0.9);
             transition: transform 0.8s cubic-bezier(0.1, 0.5, 0.5, 1), opacity 0.6s ease;
             padding: 20px;
         }
@@ -199,9 +192,9 @@
         </div>
         
         <div style="margin-top: 80px; text-align: center; max-width: 600px; margin-left: auto; margin-right: auto;">
-            <h1 style="font-size: 2.5rem; color: #333;">欢迎回来</h1>
+            <h1 style="font-size: 2.5rem; color: #333;">加载完成</h1>
             <p style="font-size: 1.1rem; color: #666; line-height: 1.6;">
-                我们为您实现了高级的电影感转场：从橙色背景到反色闪动，最后穿过 Logo 揭开页面。
+                已移除橙色背景。保留了反色闪动与拉近转场效果。
             </p>
         </div>
     </div>
@@ -222,7 +215,6 @@
             loadingBar.style.width = percent + '%';
         }
 
-        // 1. 初始化加载
         function initLoading() {
             let startTimer = setInterval(() => {
                 if (currentProgress < 50) {
@@ -234,7 +226,6 @@
             }, 30);
         }
 
-        // 2. Logo 显示阶段
         function showLogoPhase() {
             logoContainer.style.display = 'block';
             
@@ -248,29 +239,26 @@
             }, 100);
         }
 
-        // 3. 核心转场逻辑：反色 + 透明 + 拉近
         function startCinematicTransition() {
             updateProgress(100);
 
             setTimeout(() => {
-                // 第一步：颜色反转 (闪动感)
+                // 1. 反色闪动
                 loadingLogo.classList.add('logo-inverted');
-                textContainer.style.opacity = '0'; // 隐藏文字，聚焦 Logo
+                textContainer.style.opacity = '0';
                 
                 setTimeout(() => {
-                    // 第二步：背景变透明，开始拉近
-                    loadingScreen.classList.add('transparent-bg');
+                    // 2. 视口拉近并变透明
                     loadingScreen.classList.add('screen-zoom-in');
                     loadingBar.style.opacity = '0';
                     
-                    // 第三步：同步显示主内容
+                    // 3. 显示主内容
                     mainContent.style.display = 'block';
                     setTimeout(() => {
                         mainContent.classList.add('active');
                         document.body.style.overflow = 'auto';
                     }, 100);
 
-                    // 清理
                     setTimeout(() => {
                         loadingScreen.style.display = 'none';
                     }, 600);
@@ -301,4 +289,3 @@
     </script>
 </body>
 </html>
-
