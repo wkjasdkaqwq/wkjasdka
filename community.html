@@ -13,6 +13,7 @@
             margin: 0;
             padding: 0;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            overflow: hidden; /* 加载时禁止滚动 */
         }
 
         /* 顶部加载条 */
@@ -24,7 +25,8 @@
             background-color: #ff8000;
             width: 0%;
             z-index: 10000;
-            transition: width 0.2s ease-out;
+            /* 使用更灵敏的过渡，取消 linear 让它看起来更有弹性 */
+            transition: width 0.3s cubic-bezier(0.1, 0.5, 0.5, 1);
         }
 
         /* 加载层样式 */
@@ -165,6 +167,7 @@
         <div style="margin-top: 50px; text-align: center;">
             <h1>欢迎来到社区</h1>
             <p>页面内容已加载完成。</p>
+            <p>这是一个演示页面，所有的资源都已成功同步加载。</p>
         </div>
     </div>
 
@@ -176,6 +179,7 @@
         const mainContent = document.getElementById('mainContent');
 
         let currentProgress = 0;
+        let isFullyLoaded = false;
 
         function updateProgress(percent) {
             currentProgress = percent;
@@ -183,42 +187,59 @@
         }
 
         // 核心加载逻辑
-        function startLoadingSequence() {
-            // 1. 进度条先行：从 0% 增长到 50%
-            let stage1Interval = setInterval(() => {
+        function initLoading() {
+            // 第一阶段：快速启动到 50%
+            let startTimer = setInterval(() => {
                 if (currentProgress < 50) {
-                    updateProgress(currentProgress + 2);
+                    // 递增速度逐渐减慢，模拟真实感
+                    let step = (50 - currentProgress) / 10;
+                    updateProgress(currentProgress + Math.max(step, 1));
                 } else {
-                    clearInterval(stage1Interval);
-                    showLogoAndContinue();
+                    clearInterval(startTimer);
+                    showLogo();
                 }
-            }, 30);
+            }, 50);
         }
 
-        function showLogoAndContinue() {
-            // 2. 进度到 50% 时，显示 Logo 和底部文字
+        function showLogo() {
+            // 显示 Logo
             loadingLogo.style.display = 'block';
             loadingTextContainer.style.display = 'block';
 
-            // 3. 继续增加进度到 100%（模拟后续网页内容加载）
-            let stage2Interval = setInterval(() => {
-                if (currentProgress < 100) {
-                    updateProgress(currentProgress + 2);
-                } else {
-                    clearInterval(stage2Interval);
-                    finishLoading();
+            // 第二阶段：进入内容等待阶段，缓慢爬升到 90%
+            // 这是一个“防卡死”进度，让用户觉得一直在加载
+            let waitingTimer = setInterval(() => {
+                if (isFullyLoaded) {
+                    clearInterval(waitingTimer);
+                    finishLoadingSequence();
+                } else if (currentProgress < 90) {
+                    updateProgress(currentProgress + 0.5);
                 }
-            }, 30);
+            }, 100);
         }
 
-        function finishLoading() {
-            // 4. 加载完成，移除加载层
+        function finishLoadingSequence() {
+            // 第三阶段：快速填满并消失
+            updateProgress(100);
+            
             setTimeout(() => {
-                loadingScreen.style.display = 'none';
-                mainContent.style.display = 'block';
-                loadingBar.style.display = 'none';
-            }, 300);
+                loadingScreen.style.opacity = '0';
+                loadingScreen.style.transition = 'opacity 0.4s ease';
+                
+                setTimeout(() => {
+                    loadingScreen.style.display = 'none';
+                    mainContent.style.display = 'block';
+                    loadingBar.style.display = 'none';
+                    document.body.style.overflow = 'auto'; // 恢复滚动
+                }, 400);
+            }, 300); // 让用户看清 100%
         }
+
+        // 监听网页真实加载状态
+        window.addEventListener('load', () => {
+            isFullyLoaded = true;
+            // 如果此时进度还没到 50%（比如网速极快），逻辑也会在 initLoading 完成后自动触发 finishLoadingSequence
+        });
 
         // 九宫格菜单逻辑
         const btn = document.getElementById("appLauncherBtn");
@@ -235,10 +256,8 @@
             });
         }
 
-        // 页面进入即刻开始
-        window.addEventListener('DOMContentLoaded', () => {
-            startLoadingSequence();
-        });
+        // 启动
+        initLoading();
     </script>
 </body>
 </html>
