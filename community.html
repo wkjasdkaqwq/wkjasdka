@@ -27,77 +27,70 @@
             width: 0%;
             z-index: 10001;
             transition: width 0.2s cubic-bezier(0.1, 0.5, 0.5, 1);
-            box-shadow: 0 0 10px rgba(255, 128, 0, 0.5);
         }
 
-        /* 加载层样式 */
+        /* 加载层 - 初始橙色背景 */
         .loading-screen {
             position: fixed;
             top: 0;
             left: 0;
             width: 100vw;
             height: 100vh;
-            background-color: #fff;
+            background-color: #ff8000; /* 初始橙色背景 */
             display: flex;
             justify-content: center;
             align-items: center;
             z-index: 10000;
             flex-direction: column;
+            transition: background-color 0.4s ease, transform 0.6s cubic-bezier(0.7, 0, 0.3, 1), opacity 0.5s ease;
             transform-origin: center;
-            transition: transform 0.6s cubic-bezier(0.7, 0, 0.3, 1), opacity 0.4s ease;
         }
 
-        /* Logo 容器 - 用于执行 Angry Birds 风格的弹跳 */
+        /* Logo 容器 */
         .logo-container {
-            display: none; /* 初始隐藏 */
+            display: none;
             text-align: center;
-            transform: scale(0.8);
-            opacity: 0;
-            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
-        }
-
-        .logo-container.show {
-            display: block;
-            transform: scale(1);
-            opacity: 1;
-        }
-
-        /* Logo 弹动动画类 */
-        .logo-bounce {
-            animation: angry-bounce 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        @keyframes angry-bounce {
-            0% { transform: scale(1); }
-            30% { transform: scale(1.2) rotate(-3deg); }
-            60% { transform: scale(0.9) rotate(3deg); }
-            100% { transform: scale(1); }
+            transition: filter 0.3s ease, transform 0.3s ease;
         }
 
         .loading-logo {
             width: 280px; 
             height: auto;
-            filter: drop-shadow(0 5px 15px rgba(0,0,0,0.1));
+            /* 初始状态可能需要根据您的 logo 原色微调 */
+            transition: filter 0.3s ease;
         }
 
         .loading-text-container {
             margin-top: 30px;
+            color: #fff; /* 橙色背景上使用白色文字 */
+            transition: opacity 0.3s ease;
         }
 
-        .loading-text {
-            color: #6a6a6a;
-            font-size: 16px;
-            margin: 5px 0;
-            font-weight: 500;
-            letter-spacing: 1px;
+        /* 动画状态类 */
+        
+        /* 1. 背景变透明 */
+        .loading-screen.transparent-bg {
+            background-color: rgba(255, 128, 0, 0);
         }
 
-        /* 主内容进入动画 */
+        /* 2. 颜色反转 (负片效果) */
+        .logo-inverted {
+            filter: invert(1) hue-rotate(180deg);
+        }
+
+        /* 3. 视口拉近 (放大并穿过) */
+        .screen-zoom-in {
+            transform: scale(5); /* 极速放大 */
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* 主内容进入状态 */
         #mainContent {
             display: none;
             opacity: 0;
-            transform: scale(1.1);
-            transition: transform 0.7s cubic-bezier(0.1, 0.5, 0.5, 1), opacity 0.5s ease;
+            transform: scale(0.9); /* 从远处拉近 */
+            transition: transform 0.8s cubic-bezier(0.1, 0.5, 0.5, 1), opacity 0.6s ease;
             padding: 20px;
         }
 
@@ -105,12 +98,6 @@
             display: block;
             opacity: 1;
             transform: scale(1);
-        }
-
-        /* 揭幕遮罩效果 (Angry Birds 2 风格的圆形扩散) */
-        .iris-out {
-            clip-path: circle(0% at 50% 50%);
-            transition: clip-path 0.8s cubic-bezier(0.7, 0, 0.3, 1);
         }
 
         /* 九宫格样式保持 */
@@ -182,7 +169,7 @@
     <div class="loading-screen" id="loadingScreen">
         <div class="logo-container" id="logoContainer">
             <img id="loadingLogo" alt="加载Logo" class="loading-logo" src="/wkjasdka/index/community2.png">
-            <div class="loading-text-container">
+            <div class="loading-text-container" id="textContainer">
                 <div class="loading-text">from</div>
                 <div class="loading-text">- Wkjasdka -</div>
             </div>
@@ -212,10 +199,9 @@
         </div>
         
         <div style="margin-top: 80px; text-align: center; max-width: 600px; margin-left: auto; margin-right: auto;">
-            <h1 style="font-size: 2.5rem; color: #333;">欢迎来到社区</h1>
+            <h1 style="font-size: 2.5rem; color: #333;">欢迎回来</h1>
             <p style="font-size: 1.1rem; color: #666; line-height: 1.6;">
-                我们参考了《愤怒的小鸟2》的转场风格，为您打造了动感十足的进入动画。
-                进度条填满后，Logo 会有一个俏皮的弹动，随后页面会以缩放揭幕的方式展现。
+                我们为您实现了高级的电影感转场：从橙色背景到反色闪动，最后穿过 Logo 揭开页面。
             </p>
         </div>
     </div>
@@ -223,6 +209,8 @@
     <script>
         const loadingBar = document.getElementById('topLoadingBar');
         const logoContainer = document.getElementById('logoContainer');
+        const loadingLogo = document.getElementById('loadingLogo');
+        const textContainer = document.getElementById('textContainer');
         const loadingScreen = document.getElementById('loadingScreen');
         const mainContent = document.getElementById('mainContent');
 
@@ -234,72 +222,62 @@
             loadingBar.style.width = percent + '%';
         }
 
-        // 1. 启动加载流程
+        // 1. 初始化加载
         function initLoading() {
             let startTimer = setInterval(() => {
                 if (currentProgress < 50) {
-                    let step = (50 - currentProgress) / 8;
-                    updateProgress(currentProgress + Math.max(step, 1.5));
+                    updateProgress(currentProgress + 2);
                 } else {
                     clearInterval(startTimer);
-                    triggerLogoPhase();
+                    showLogoPhase();
                 }
-            }, 40);
+            }, 30);
         }
 
-        // 2. Logo 出现阶段
-        function triggerLogoPhase() {
-            logoContainer.classList.add('show');
+        // 2. Logo 显示阶段
+        function showLogoPhase() {
+            logoContainer.style.display = 'block';
             
-            // 缓慢爬升进度
             let waitingTimer = setInterval(() => {
                 if (isFullyLoaded) {
                     clearInterval(waitingTimer);
-                    startFinishSequence();
-                } else if (currentProgress < 95) {
-                    updateProgress(currentProgress + 0.3);
+                    startCinematicTransition();
+                } else if (currentProgress < 98) {
+                    updateProgress(currentProgress + 0.2);
                 }
-            }, 80);
+            }, 100);
         }
 
-        // 3. 收尾冲刺与 Angry Birds 风格动画
-        function startFinishSequence() {
-            // 快速冲到 100%
+        // 3. 核心转场逻辑：反色 + 透明 + 拉近
+        function startCinematicTransition() {
             updateProgress(100);
 
             setTimeout(() => {
-                // Logo 弹一下
-                logoContainer.classList.add('logo-bounce');
+                // 第一步：颜色反转 (闪动感)
+                loadingLogo.classList.add('logo-inverted');
+                textContainer.style.opacity = '0'; // 隐藏文字，聚焦 Logo
                 
                 setTimeout(() => {
-                    // 执行转场
-                    executeAngryBirdsTransition();
-                }, 400);
-            }, 300);
+                    // 第二步：背景变透明，开始拉近
+                    loadingScreen.classList.add('transparent-bg');
+                    loadingScreen.classList.add('screen-zoom-in');
+                    loadingBar.style.opacity = '0';
+                    
+                    // 第三步：同步显示主内容
+                    mainContent.style.display = 'block';
+                    setTimeout(() => {
+                        mainContent.classList.add('active');
+                        document.body.style.overflow = 'auto';
+                    }, 100);
+
+                    // 清理
+                    setTimeout(() => {
+                        loadingScreen.style.display = 'none';
+                    }, 600);
+                }, 300);
+            }, 400);
         }
 
-        function executeAngryBirdsTransition() {
-            // 隐藏进度条
-            loadingBar.style.opacity = '0';
-            
-            // 加载屏幕缩小并消失 (Angry Birds 2 风格)
-            loadingScreen.style.transform = 'scale(1.5)';
-            loadingScreen.style.opacity = '0';
-            
-            // 主内容从 1.1 缩回到 1.0 展现
-            mainContent.style.display = 'block';
-            setTimeout(() => {
-                mainContent.classList.add('active');
-                document.body.style.overflow = 'auto';
-            }, 50);
-
-            setTimeout(() => {
-                loadingScreen.style.display = 'none';
-                loadingBar.style.display = 'none';
-            }, 700);
-        }
-
-        // 监听网页真实加载状态
         window.addEventListener('load', () => {
             isFullyLoaded = true;
         });
