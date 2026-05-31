@@ -9,13 +9,64 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        /* 基础样式修复 */
         body {
             margin: 0;
             padding: 0;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         }
 
+        /* 顶部加载条 */
+        .top-loading-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background-color: #ff8000;
+            width: 0%;
+            z-index: 10000;
+            transition: width 0.2s ease-out;
+        }
+
+        /* 加载层样式 */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            flex-direction: column;
+        }
+        #loadingLogo, #loadingTextContainer {
+            display: none; /* 初始隐藏 */
+        }
+        .loading-logo {
+            width: 300px; 
+            height: auto;
+        }
+        .loading-text-container {
+            position: absolute;
+            bottom: 40px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+        }
+        .loading-text {
+            color: #6a6a6a;
+            font-size: 16px;
+            margin: 5px 0;
+        }
+
+        #mainContent {
+            display: none;
+            padding: 20px;
+        }
+
+        /* 九宫格样式保持 */
         .app-launcher-wrapper {
             position: relative;
             display: inline-block;
@@ -73,57 +124,6 @@
         .app-launcher-menu a:hover {
             background: #efefef;
         }
-
-        /* 加载层样式 */
-        .loading-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background-color: #fff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            flex-direction: column;
-        }
-        #loadingLogo, #loadingTextContainer {
-            display: none; /* 初始隐藏，直到下载完成 */
-        }
-        .loading-logo {
-            width: 300px; 
-            height: auto;
-        }
-        .loading-text-container {
-            position: absolute;
-            bottom: 40px;
-            left: 0;
-            width: 100%;
-            text-align: center;
-        }
-        .loading-text {
-            color: #6a6a6a;
-            font-size: 16px;
-            margin: 5px 0;
-        }
-
-        /* 顶部加载条 */
-        .top-loading-bar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 3px;
-            background-color: #ff8000;
-            width: 0%;
-            z-index: 10000;
-            transition: width 0.1s ease-out;
-        }
-
-        #mainContent {
-            display: none;
-            padding: 20px;
-        }
     </style>
 </head>
 <body>
@@ -133,15 +133,14 @@
     
     <!-- 加载屏幕 -->
     <div class="loading-screen" id="loadingScreen">
-        <!-- 注意：src 留空，由 JS 异步加载 -->
-        <img id="loadingLogo" alt="加载Logo" class="loading-logo">
+        <img id="loadingLogo" alt="加载Logo" class="loading-logo" src="/wkjasdka/index/community2.png">
         <div class="loading-text-container" id="loadingTextContainer">
             <div class="loading-text">from</div>
             <div class="loading-text">- Wkjasdka -</div>
         </div>
     </div>
 
-    <!-- 导航栏/九宫格（初始隐藏，属于主内容一部分或在加载后显示） -->
+    <!-- 主内容 -->
     <div id="mainContent">
         <div class="app-launcher-wrapper">
             <div class="app-launcher-group">
@@ -175,85 +174,50 @@
         const loadingTextContainer = document.getElementById('loadingTextContainer');
         const loadingScreen = document.getElementById('loadingScreen');
         const mainContent = document.getElementById('mainContent');
-        
-        const LOGO_URL = '/wkjasdka/index/community2.png';
 
-        // 更新进度条
+        let currentProgress = 0;
+
         function updateProgress(percent) {
+            currentProgress = percent;
             loadingBar.style.width = percent + '%';
         }
 
-        // 1. 异步下载 Logo 并同步进度条
-        async function downloadLogo() {
-            try {
-                const response = await fetch(LOGO_URL);
-                if (!response.ok) throw new Error('Logo 无法加载');
-
-                const reader = response.body.getReader();
-                const contentLength = +response.headers.get('Content-Length');
-                
-                let receivedLength = 0;
-                let chunks = [];
-
-                while(true) {
-                    const {done, value} = await reader.read();
-                    if (done) break;
-                    chunks.push(value);
-                    receivedLength += value.length;
-                    
-                    if (contentLength) {
-                        // Logo 下载进度占总进度的 0% - 80%
-                        const progress = (receivedLength / contentLength) * 80;
-                        updateProgress(progress);
-                    } else {
-                        // 如果没有 Content-Length，模拟一个平滑增长
-                        let current = parseFloat(loadingBar.style.width) || 0;
-                        updateProgress(Math.min(80, current + 2));
-                    }
+        // 核心加载逻辑
+        function startLoadingSequence() {
+            // 1. 进度条先行：从 0% 增长到 50%
+            let stage1Interval = setInterval(() => {
+                if (currentProgress < 50) {
+                    updateProgress(currentProgress + 2);
+                } else {
+                    clearInterval(stage1Interval);
+                    showLogoAndContinue();
                 }
-
-                // 下载完成，转换为 Blob 并显示
-                const blob = new Blob(chunks);
-                const objectUrl = URL.createObjectURL(blob);
-                loadingLogo.src = objectUrl;
-                
-                // 确保图片完全渲染
-                loadingLogo.onload = () => {
-                    loadingLogo.style.display = 'block';
-                    loadingTextContainer.style.display = 'block';
-                    updateProgress(80);
-                    // 进入第二阶段：加载页面内容
-                    loadPageContent();
-                };
-            } catch (error) {
-                console.error('Logo 下载失败:', error);
-                // 容错处理：直接进入下一阶段
-                updateProgress(80);
-                loadPageContent();
-            }
+            }, 30);
         }
 
-        // 2. 加载页面内容阶段
-        function loadPageContent() {
-            // 模拟页面内容加载进度从 80% 到 100%
-            let progress = 80;
-            const interval = setInterval(() => {
-                progress += 2;
-                updateProgress(progress);
-                if (progress >= 100) {
-                    clearInterval(interval);
+        function showLogoAndContinue() {
+            // 2. 进度到 50% 时，显示 Logo 和底部文字
+            loadingLogo.style.display = 'block';
+            loadingTextContainer.style.display = 'block';
+
+            // 3. 继续增加进度到 100%（模拟后续网页内容加载）
+            let stage2Interval = setInterval(() => {
+                if (currentProgress < 100) {
+                    updateProgress(currentProgress + 2);
+                } else {
+                    clearInterval(stage2Interval);
                     finishLoading();
                 }
-            }, 50);
+            }, 30);
         }
 
-        // 3. 完成加载
         function finishLoading() {
+            // 4. 加载完成，移除加载层
             setTimeout(() => {
                 loadingScreen.style.display = 'none';
                 mainContent.style.display = 'block';
                 loadingBar.style.display = 'none';
-            }, 200); // 稍微停顿让用户看到 100%
+            }, 300);
         }
 
         // 九宫格菜单逻辑
@@ -271,9 +235,9 @@
             });
         }
 
-        // 启动加载流程
+        // 页面进入即刻开始
         window.addEventListener('DOMContentLoaded', () => {
-            downloadLogo();
+            startLoadingSequence();
         });
     </script>
 </body>
