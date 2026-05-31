@@ -1,20 +1,11 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Semi-rounded Corner - on Liuyanlin Community</title>
-    <link rel="icon" href="/wkjasdka/index/echo logo.png" type="image/x-icon">
-    <!-- 引入Font Awesome图标库 -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+come/6.4.0/css/all.min.css">
     
     <style>
         body {
             margin: 0;
             padding: 0;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            overflow: hidden;
-            background-color: #fff;
+            overflow: hidden; /* 加载时禁止滚动 */
         }
 
         /* 顶部加载条 */
@@ -22,75 +13,51 @@
             position: fixed;
             top: 0;
             left: 0;
-            height: 4px;
+            height: 3px;
             background-color: #ff8000;
             width: 0%;
-            z-index: 10001;
-            transition: width 0.2s cubic-bezier(0.1, 0.5, 0.5, 1);
+            z-index: 10000;
+            /* 使用更灵敏的过渡，取消 linear 让它看起来更有弹性 */
+            transition: width 0.3s cubic-bezier(0.1, 0.5, 0.5, 1);
         }
 
-        /* 加载层 - 改为白色背景 */
+        /* 加载层样式 */
         .loading-screen {
             position: fixed;
             top: 0;
             left: 0;
             width: 100vw;
             height: 100vh;
-            background-color: #fff; /* 移除橙色，改为白色 */
+            background-color: #fff;
             display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 10000;
+            z-index: 9999;
             flex-direction: column;
-            transition: transform 0.6s cubic-bezier(0.7, 0, 0.3, 1), opacity 0.5s ease;
-            transform-origin: center;
         }
-
-        /* Logo 容器 */
-        .logo-container {
-            display: none;
+        #loadingLogo, #loadingTextContainer {
+            display: none; /* 初始隐藏 */
+        }
+        .loading-logo {
+            width: 300px; 
+            height: auto;
+        }
+        .loading-text-container {
+            position: absolute;
+            bottom: 40px;
+            left: 0;
+            width: 100%;
             text-align: center;
         }
-
-        .loading-logo {
-            width: 280px; 
-            height: auto;
-            transition: filter 0.3s ease;
+        .loading-text {
+            color: #6a6a6a;
+            font-size: 16px;
+            margin: 5px 0;
         }
 
-        .loading-text-container {
-            margin-top: 30px;
-            color: #6a6a6a; /* 改回深灰色文字 */
-            transition: opacity 0.3s ease;
-        }
-
-        /* 动画状态类 */
-        
-        /* 1. 颜色反转 (负片效果) */
-        .logo-inverted {
-            filter: invert(1) hue-rotate(180deg);
-        }
-
-        /* 2. 视口拉近 (放大并穿过) */
-        .screen-zoom-in {
-            transform: scale(5); /* 极速放大 */
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        /* 主内容进入状态 */
         #mainContent {
             display: none;
-            opacity: 0;
-            transform: scale(0.9);
-            transition: transform 0.8s cubic-bezier(0.1, 0.5, 0.5, 1), opacity 0.6s ease;
             padding: 20px;
-        }
-
-        #mainContent.active {
-            display: block;
-            opacity: 1;
-            transform: scale(1);
         }
 
         /* 九宫格样式保持 */
@@ -160,12 +127,10 @@
     
     <!-- 加载屏幕 -->
     <div class="loading-screen" id="loadingScreen">
-        <div class="logo-container" id="logoContainer">
-            <img id="loadingLogo" alt="加载Logo" class="loading-logo" src="/wkjasdka/index/community2.png">
-            <div class="loading-text-container" id="textContainer">
-                <div class="loading-text">from</div>
-                <div class="loading-text">- Wkjasdka -</div>
-            </div>
+        <img id="loadingLogo" alt="加载Logo" class="loading-logo" src="/wkjasdka/index/community2.png">
+        <div class="loading-text-container" id="loadingTextContainer">
+            <div class="loading-text">from</div>
+            <div class="loading-text">- Wkjasdka -</div>
         </div>
     </div>
 
@@ -191,19 +156,17 @@
             </div>
         </div>
         
-        <div style="margin-top: 80px; text-align: center; max-width: 600px; margin-left: auto; margin-right: auto;">
-            <h1 style="font-size: 2.5rem; color: #333;">加载完成</h1>
-            <p style="font-size: 1.1rem; color: #666; line-height: 1.6;">
-                已移除橙色背景。保留了反色闪动与拉近转场效果。
-            </p>
+        <div style="margin-top: 50px; text-align: center;">
+            <h1>欢迎来到社区</h1>
+            <p>页面内容已加载完成。</p>
+            <p>这是一个演示页面，所有的资源都已成功同步加载。</p>
         </div>
     </div>
 
     <script>
         const loadingBar = document.getElementById('topLoadingBar');
-        const logoContainer = document.getElementById('logoContainer');
         const loadingLogo = document.getElementById('loadingLogo');
-        const textContainer = document.getElementById('textContainer');
+        const loadingTextContainer = document.getElementById('loadingTextContainer');
         const loadingScreen = document.getElementById('loadingScreen');
         const mainContent = document.getElementById('mainContent');
 
@@ -215,59 +178,59 @@
             loadingBar.style.width = percent + '%';
         }
 
+        // 核心加载逻辑
         function initLoading() {
+            // 第一阶段：快速启动到 50%
             let startTimer = setInterval(() => {
                 if (currentProgress < 50) {
-                    updateProgress(currentProgress + 2);
+                    // 递增速度逐渐减慢，模拟真实感
+                    let step = (50 - currentProgress) / 10;
+                    updateProgress(currentProgress + Math.max(step, 1));
                 } else {
                     clearInterval(startTimer);
-                    showLogoPhase();
+                    showLogo();
                 }
-            }, 30);
+            }, 50);
         }
 
-        function showLogoPhase() {
-            logoContainer.style.display = 'block';
-            
+        function showLogo() {
+            // 显示 Logo
+            loadingLogo.style.display = 'block';
+            loadingTextContainer.style.display = 'block';
+
+            // 第二阶段：进入内容等待阶段，缓慢爬升到 90%
+            // 这是一个“防卡死”进度，让用户觉得一直在加载
             let waitingTimer = setInterval(() => {
                 if (isFullyLoaded) {
                     clearInterval(waitingTimer);
-                    startCinematicTransition();
-                } else if (currentProgress < 98) {
-                    updateProgress(currentProgress + 0.2);
+                    finishLoadingSequence();
+                } else if (currentProgress < 90) {
+                    updateProgress(currentProgress + 0.5);
                 }
             }, 100);
         }
 
-        function startCinematicTransition() {
+        function finishLoadingSequence() {
+            // 第三阶段：快速填满并消失
             updateProgress(100);
-
+            
             setTimeout(() => {
-                // 1. 反色闪动
-                loadingLogo.classList.add('logo-inverted');
-                textContainer.style.opacity = '0';
+                loadingScreen.style.opacity = '0';
+                loadingScreen.style.transition = 'opacity 0.4s ease';
                 
                 setTimeout(() => {
-                    // 2. 视口拉近并变透明
-                    loadingScreen.classList.add('screen-zoom-in');
-                    loadingBar.style.opacity = '0';
-                    
-                    // 3. 显示主内容
+                    loadingScreen.style.display = 'none';
                     mainContent.style.display = 'block';
-                    setTimeout(() => {
-                        mainContent.classList.add('active');
-                        document.body.style.overflow = 'auto';
-                    }, 100);
-
-                    setTimeout(() => {
-                        loadingScreen.style.display = 'none';
-                    }, 600);
-                }, 300);
-            }, 400);
+                    loadingBar.style.display = 'none';
+                    document.body.style.overflow = 'auto'; // 恢复滚动
+                }, 400);
+            }, 300); // 让用户看清 100%
         }
 
+        // 监听网页真实加载状态
         window.addEventListener('load', () => {
             isFullyLoaded = true;
+            // 如果此时进度还没到 50%（比如网速极快），逻辑也会在 initLoading 完成后自动触发 finishLoadingSequence
         });
 
         // 九宫格菜单逻辑
@@ -285,7 +248,7 @@
             });
         }
 
+        // 启动
         initLoading();
     </script>
 </body>
-</html>
