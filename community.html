@@ -129,7 +129,7 @@
             <h1 style="font-size: 3rem; color: #333;">网页内容已就绪</h1>
             <p style="font-size: 1.2rem; color: #666;">
                 0.25s 极速摄像机拉远完成。<br>
-                注意观察边缘的浅灰色阴影效果。
+                注意观察边缘的灰色阴影效果。
             </p>
             <div class="visual-blocks">
                 <div class="block"></div>
@@ -188,7 +188,7 @@
                 logoContainer.style.opacity = '0';
                 bottomInfo.style.opacity = '0';
 
-                // 2. 0.25s 极速拉远 + 边缘阴影
+                // 2. 0.25s 极速拉远 + 醒目灰色阴影
                 setTimeout(startUltraFastReveal, 150);
 
             }, 400); 
@@ -196,7 +196,7 @@
 
         function startUltraFastReveal() {
             let startTime = null;
-            const duration = 2000; // 0.25秒
+            const duration = 250; // 0.25秒
             const maxRadius = Math.max(window.innerWidth, window.innerHeight) * 1.5;
 
             function animate(timestamp) {
@@ -208,13 +208,17 @@
                 const easeP = 1 - Math.pow(1 - p, 4);
                 const radius = easeP * maxRadius;
                 
-                // 增加浅灰色阴影：通过 radial-gradient 的多层色阶实现
-                // 从透明到浅灰再到纯黑
-                const shadowWidth = 160; // 阴影宽度
+                // 醒目的灰色阴影效果
+                // 多层渐变：透明圆心 → 浅灰 → 中灰 → 深灰 → 纯黑
+                const shadowWidth = 200; // 阴影宽度（增大）
+                const shadowHardness = 80; // 阴影边缘硬度
+                
                 const mask = `radial-gradient(circle at center, 
                     transparent ${radius}px, 
-                    rgba(0,0,0,0.05) ${radius + shadowWidth * 0.5}px, 
-                    rgba(0,0,0,0.15) ${radius + shadowWidth}px, 
+                    rgba(100,100,100,0.2) ${radius + shadowHardness * 0.25}px,
+                    rgba(80,80,80,0.4) ${radius + shadowHardness * 0.5}px,
+                    rgba(60,60,60,0.6) ${radius + shadowHardness * 0.75}px,
+                    rgba(40,40,40,0.8) ${radius + shadowWidth}px,
                     black ${radius + shadowWidth + 1}px)`;
                 
                 loadingScreen.style.webkitMaskImage = mask;
