@@ -196,7 +196,7 @@
 
         function startUltraFastReveal() {
             let startTime = null;
-            const duration = 500; // 0.25秒
+            const duration = 2000; // 0.25秒
             const maxRadius = Math.max(window.innerWidth, window.innerHeight) * 1.5;
 
             function animate(timestamp) {
@@ -210,7 +210,7 @@
                 
                 // 增加浅灰色阴影：通过 radial-gradient 的多层色阶实现
                 // 从透明到浅灰再到纯黑
-                const shadowWidth = 60; // 阴影宽度
+                const shadowWidth = 160; // 阴影宽度
                 const mask = `radial-gradient(circle at center, 
                     transparent ${radius}px, 
                     rgba(0,0,0,0.05) ${radius + shadowWidth * 0.5}px, 
