@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>社区 - 启动动画极致优化版</title>
+    <title>社区 - 启动动画完美透视版</title>
     <style>
         body, html {
             margin: 0;
@@ -15,7 +15,7 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
 
-        /* 顶部加载条 - 还原最初颜色 */
+        /* 顶部加载条 - 还原最初颜色 #ff8000 */
         .top-loading-bar {
             position: fixed;
             top: 0;
@@ -40,32 +40,17 @@
             justify-content: center;
             align-items: center;
             flex-direction: column;
-            /* 核心：使用 mask 实现透视。初始时不透视。 */
+            /* 关键：使用 mask 实现透视。初始时不透视。 */
             -webkit-mask-image: radial-gradient(circle at center, transparent 0%, black 0%);
             mask-image: radial-gradient(circle at center, transparent 0%, black 0%);
         }
 
-        /* 灰色阴影环 - 独立的视觉层 */
-        .shadow-ring {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 0;
-            height: 0;
-            border-radius: 50%;
-            z-index: 10000;
-            pointer-events: none;
-            box-shadow: 0 0 0 0 rgba(100, 100, 100, 0);
-            opacity: 0;
-        }
-
-        /* Logo 容器 */
+        /* Logo 容器：它的透明度变化会直接露出下方的 mainContent，因为我们会同步开启镂空 */
         #logoContainer {
             display: none;
             z-index: 10000;
             text-align: center;
-            transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .loading-logo {
@@ -78,7 +63,7 @@
             bottom: 40px;
             width: 100%;
             text-align: center;
-            transition: opacity 0.6s ease;
+            transition: opacity 1s ease;
         }
 
         .loading-text {
@@ -87,7 +72,7 @@
             margin: 5px 0;
         }
 
-        /* 主内容 */
+        /* 主内容：它始终在最底层，等待被透出来 */
         #mainContent {
             position: absolute;
             top: 0;
@@ -109,7 +94,7 @@
             max-width: 800px;
         }
 
-        .visual-blocks {
+        .placeholder-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 20px;
@@ -117,11 +102,10 @@
             width: 100%;
         }
 
-        .block {
+        .placeholder-item {
             height: 150px;
-            background: #f7f7f7;
-            border-radius: 15px;
-            border: 1px solid #eee;
+            background: #f5f5f5;
+            border-radius: 12px;
         }
     </style>
 </head>
@@ -139,20 +123,17 @@
         </div>
     </div>
 
-    <!-- 灰色阴影环 -->
-    <div class="shadow-ring" id="shadowRing"></div>
-
     <div id="mainContent">
         <div class="content-box">
-            <h1 style="font-size: 3rem; color: #333;">网页内容已就绪</h1>
+            <h1 style="font-size: 3rem; color: #333;">网页内容已加载</h1>
             <p style="font-size: 1.2rem; color: #666;">
-                0.25s 极速摄像机拉远完成。<br>
-                注意观察边缘的灰色阴影效果。
+                Logo 变透明时，您已能透过它看到这些文字。<br>
+                随后视角以 Logo 为中心平滑拉远。
             </p>
-            <div class="visual-blocks">
-                <div class="block"></div>
-                <div class="block"></div>
-                <div class="block"></div>
+            <div class="placeholder-grid">
+                <div class="placeholder-item"></div>
+                <div class="placeholder-item"></div>
+                <div class="placeholder-item"></div>
             </div>
         </div>
     </div>
@@ -162,7 +143,6 @@
         const logoContainer = document.getElementById('logoContainer');
         const bottomInfo = document.getElementById('bottomInfo');
         const loadingScreen = document.getElementById('loadingScreen');
-        const shadowRing = document.getElementById('shadowRing');
 
         let currentProgress = 0;
         let isFullyLoaded = false;
@@ -172,6 +152,7 @@
             loadingBar.style.width = percent + '%';
         }
 
+        // 还原最初版本的加载逻辑
         function initLoading() {
             let startTimer = setInterval(() => {
                 if (currentProgress < 50) {
@@ -203,56 +184,36 @@
             setTimeout(() => {
                 loadingBar.style.opacity = '0';
                 
-                // 1. Logo 变淡
+                // 1. 让 Logo 和文字开始变淡
                 logoContainer.style.opacity = '0';
                 bottomInfo.style.opacity = '0';
 
-                // 2. 0.25s 极速拉远 + 醒目灰色阴影环
-                setTimeout(startUltraFastReveal, 150);
+                // 2. 核心：在 Logo 变淡的同时，立即开启一个镂空窗口
+                // 这样当 Logo 变半透明时，露出的不是白色背景，而是后面的内容
+                startPerfectReveal();
 
             }, 400); 
         }
 
-        function startUltraFastReveal() {
-            let startTime = null;
-            const duration = 250; // 0.25秒
+        function startPerfectReveal() {
+            let radius = 0;
             const maxRadius = Math.max(window.innerWidth, window.innerHeight) * 1.5;
+            
+            // 初始镂空范围，确保 Logo 变淡时立即能看到背景
+            radius = 10; 
 
-            function animate(timestamp) {
-                if (!startTime) startTime = timestamp;
-                const elapsed = timestamp - startTime;
-                const p = Math.min(elapsed / duration, 1);
+            function animate() {
+                // 模拟摄像机平滑拉远
+                radius += (radius + 25) * 0.08; 
                 
-                // 非线性动画：easeOutQuart (四次减速)
-                const easeP = 1 - Math.pow(1 - p, 4);
-                const radius = easeP * maxRadius;
-                
-                // 更新 mask，实现摄像机拉远效果（逐渐显示内容）
-                const mask = `radial-gradient(circle at center, 
-                    transparent ${radius}px, 
-                    black ${radius + 1}px)`;
-                
+                const mask = `radial-gradient(circle at center, transparent ${radius}px, black ${radius + 1}px)`;
                 loadingScreen.style.webkitMaskImage = mask;
                 loadingScreen.style.maskImage = mask;
 
-                // 更新灰色阴影环：随着拉远逐渐显示
-                shadowRing.style.width = radius * 2 + 'px';
-                shadowRing.style.height = radius * 2 + 'px';
-                
-                // 阴影环的 box-shadow：中心浅，向外渐深
-                const shadowBlur = 80;
-                const shadowSpread = 30;
-                shadowRing.style.boxShadow = `
-                    0 0 ${shadowBlur}px ${shadowSpread}px rgba(120, 120, 120, ${0.5 * easeP}),
-                    inset 0 0 ${shadowBlur * 0.7}px ${shadowSpread * 0.5}px rgba(100, 100, 100, ${0.4 * easeP})
-                `;
-                shadowRing.style.opacity = easeP;
-
-                if (p < 1) {
+                if (radius < maxRadius) {
                     requestAnimationFrame(animate);
                 } else {
                     loadingScreen.style.display = 'none';
-                    shadowRing.style.display = 'none';
                     document.body.style.overflow = 'auto';
                 }
             }
