@@ -1,9 +1,16 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>社区 - 启动动画优化</title>
     <style>
         body {
             margin: 0;
             padding: 0;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             overflow: hidden; /* 加载时禁止滚动 */
+            background-color: #fff;
         }
 
         /* 顶部加载条 */
@@ -15,7 +22,6 @@
             background-color: #ff8000;
             width: 0%;
             z-index: 10000;
-            /* 使用更灵敏的过渡，取消 linear 让它看起来更有弹性 */
             transition: width 0.3s cubic-bezier(0.1, 0.5, 0.5, 1);
         }
 
@@ -32,33 +38,58 @@
             align-items: center;
             z-index: 9999;
             flex-direction: column;
+            transition: opacity 1s ease-out;
         }
-        #loadingLogo, #loadingTextContainer {
-            display: none; /* 初始隐藏 */
-        }
+
         .loading-logo {
             width: 300px; 
             height: auto;
+            opacity: 0;
+            transform: scale(0.95);
+            transition: opacity 0.8s ease, transform 0.8s ease;
         }
+        
+        .loading-logo.show {
+            opacity: 1;
+            transform: scale(1);
+        }
+
         .loading-text-container {
             position: absolute;
             bottom: 40px;
             left: 0;
             width: 100%;
             text-align: center;
+            opacity: 0;
+            transition: opacity 0.8s ease;
         }
+        
+        .loading-text-container.show {
+            opacity: 1;
+        }
+
         .loading-text {
             color: #6a6a6a;
             font-size: 16px;
             margin: 5px 0;
         }
 
+        /* 主内容容器 - 初始状态为缩放并透明 */
         #mainContent {
-            display: none;
+            opacity: 0;
+            visibility: hidden;
             padding: 20px;
+            transform: scale(1.1); /* 从四周向中心缩小的反向感，或者说从中心向四周扩散 */
+            transition: opacity 1.2s cubic-bezier(0.2, 0.8, 0.2, 1), transform 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
 
-        /* 九宫格样式保持 */
+        #mainContent.active {
+            opacity: 1;
+            visibility: visible;
+            transform: scale(1);
+        }
+
+        /* 九宫格样式 */
         .app-launcher-wrapper {
             position: relative;
             display: inline-block;
@@ -158,6 +189,9 @@
             <h1>欢迎来到社区</h1>
             <p>页面内容已加载完成。</p>
             <p>这是一个演示页面，所有的资源都已成功同步加载。</p>
+            <div style="margin-top: 30px;">
+                <img src="https://via.placeholder.com/800x400" alt="示例图片" style="max-width: 100%; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+            </div>
         </div>
     </div>
 
@@ -178,11 +212,10 @@
 
         // 核心加载逻辑
         function initLoading() {
-            // 第一阶段：快速启动到 50%
+            // 第一阶段：快速启动到 40%
             let startTimer = setInterval(() => {
-                if (currentProgress < 50) {
-                    // 递增速度逐渐减慢，模拟真实感
-                    let step = (50 - currentProgress) / 10;
+                if (currentProgress < 40) {
+                    let step = (40 - currentProgress) / 8;
                     updateProgress(currentProgress + Math.max(step, 1));
                 } else {
                     clearInterval(startTimer);
@@ -192,43 +225,56 @@
         }
 
         function showLogo() {
-            // 显示 Logo
-            loadingLogo.style.display = 'block';
-            loadingTextContainer.style.display = 'block';
+            // 渐显 Logo 和文字
+            loadingLogo.classList.add('show');
+            loadingTextContainer.classList.add('show');
 
-            // 第二阶段：进入内容等待阶段，缓慢爬升到 90%
-            // 这是一个“防卡死”进度，让用户觉得一直在加载
+            // 第二阶段：缓慢爬升到 95%
             let waitingTimer = setInterval(() => {
-                if (isFullyLoaded) {
+                if (isFullyLoaded && currentProgress >= 60) {
                     clearInterval(waitingTimer);
                     finishLoadingSequence();
-                } else if (currentProgress < 90) {
-                    updateProgress(currentProgress + 0.5);
+                } else if (currentProgress < 95) {
+                    updateProgress(currentProgress + 0.3);
                 }
             }, 100);
         }
 
         function finishLoadingSequence() {
-            // 第三阶段：快速填满并消失
+            // 第三阶段：填满进度条
             updateProgress(100);
             
             setTimeout(() => {
-                loadingScreen.style.opacity = '0';
-                loadingScreen.style.transition = 'opacity 0.4s ease';
+                // 1. Logo 和文字慢慢变透明 (参考愤怒的小鸟2)
+                loadingLogo.style.opacity = '0';
+                loadingTextContainer.style.opacity = '0';
+                loadingLogo.style.transform = 'scale(1.1)'; // 稍微放大淡出
                 
+                // 2. 进度条也消失
+                loadingBar.style.opacity = '0';
+                loadingBar.style.transition = 'opacity 0.5s ease';
+
                 setTimeout(() => {
-                    loadingScreen.style.display = 'none';
-                    mainContent.style.display = 'block';
-                    loadingBar.style.display = 'none';
-                    document.body.style.overflow = 'auto'; // 恢复滚动
-                }, 400);
-            }, 300); // 让用户看清 100%
+                    // 3. 加载背景变透明
+                    loadingScreen.style.opacity = '0';
+                    
+                    // 4. 主内容从四周“进入”（通过缩放和透明度实现扩散感）
+                    mainContent.style.display = 'block'; // 确保它是 block 才能应用动画
+                    // 强制重绘
+                    mainContent.offsetHeight; 
+                    mainContent.classList.add('active');
+
+                    setTimeout(() => {
+                        loadingScreen.style.display = 'none';
+                        document.body.style.overflow = 'auto'; // 恢复滚动
+                    }, 1000);
+                }, 800); // 等待 Logo 淡出后再开始背景淡出和内容进入
+            }, 500);
         }
 
         // 监听网页真实加载状态
         window.addEventListener('load', () => {
             isFullyLoaded = true;
-            // 如果此时进度还没到 50%（比如网速极快），逻辑也会在 initLoading 完成后自动触发 finishLoadingSequence
         });
 
         // 九宫格菜单逻辑
@@ -250,3 +296,4 @@
         initLoading();
     </script>
 </body>
+</html>
