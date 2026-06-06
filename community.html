@@ -3,19 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>社区 - 启动动画</title>
+    <title>社区 - 启动动画最终版</title>
     <style>
-        body, html {
+        body {
             margin: 0;
             padding: 0;
-            width: 100%;
-            height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             overflow: hidden;
             background-color: #fff;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
 
-        /* 顶部加载条 */
+        /* 顶部加载条 - 还原最初颜色 #ff8000 */
         .top-loading-bar {
             position: fixed;
             top: 0;
@@ -23,195 +21,190 @@
             height: 3px;
             background-color: #ff8000;
             width: 0%;
-            z-index: 10001;
-            transition: width 0.3s ease;
+            z-index: 10000;
+            transition: width 0.3s cubic-bezier(0.1, 0.5, 0.5, 1);
         }
 
-        /* 加载屏幕容器 */
+        /* 加载屏幕 - 使用 mask-image 实现 Logo 处的透视 */
         .loading-screen {
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 9999;
+            width: 100vw;
+            height: 100vh;
             background-color: #fff;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
-            /* 关键：使用 mask-image 实现镂空 */
+            z-index: 9999;
+            flex-direction: column;
+            /* 初始 mask 完全不透明 */
             -webkit-mask-image: radial-gradient(circle at center, transparent 0%, black 0%);
             mask-image: radial-gradient(circle at center, transparent 0%, black 0%);
             -webkit-mask-size: 100% 100%;
             mask-size: 100% 100%;
-            -webkit-mask-repeat: no-repeat;
-            mask-repeat: no-repeat;
         }
 
-        .logo-container {
-            text-align: center;
-            transition: opacity 0.4s ease;
+        #loadingLogo, #loadingTextContainer {
+            display: none;
+            transition: opacity 0.5s ease;
         }
 
         .loading-logo {
-            width: 280px;
+            width: 300px; 
             height: auto;
-            margin-bottom: 20px;
         }
 
-        .bottom-text {
+        .loading-text-container {
             position: absolute;
-            bottom: 50px;
-            text-align: center;
-            color: #888;
-            font-size: 14px;
-            transition: opacity 0.4s ease;
-        }
-
-        /* 主内容：摄像机拉远效果 */
-        #mainContent {
-            position: absolute;
-            top: 0;
+            bottom: 40px;
             left: 0;
             width: 100%;
-            height: 100%;
+            text-align: center;
+        }
+
+        .loading-text {
+            color: #6a6a6a;
+            font-size: 16px;
+            margin: 5px 0;
+        }
+
+        /* 主内容 - 摄像机拉远效果 */
+        #mainContent {
+            display: none;
+            padding: 20px;
             opacity: 0;
-            visibility: hidden;
-            transform: scale(2.5); /* 初始极近 */
-            transition: transform 1.2s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.8s ease-out;
-            padding: 40px;
-            box-sizing: border-box;
+            transform: scale(4); /* 初始极近，增加视觉张力 */
+            transition: transform 1.2s cubic-bezier(0.15, 0.85, 0.35, 1), opacity 1s ease;
             background: #fff;
-            overflow-y: auto;
+            min-height: 100vh;
+            box-sizing: border-box;
         }
 
         #mainContent.active {
             opacity: 1;
-            visibility: visible;
-            transform: scale(1); /* 拉远到正常 */
+            transform: scale(1);
         }
 
-        /* 内容装饰 */
         .content-card {
-            background: #f8f9fa;
-            border-radius: 12px;
-            padding: 30px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-        }
-
-        /* 九宫格按钮 */
-        .launcher-btn {
-            width: 40px;
-            height: 40px;
-            border: none;
-            background: none;
-            cursor: pointer;
-            padding: 8px;
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 4px;
-        }
-        .launcher-btn span {
-            background: #333;
-            border-radius: 50%;
+            max-width: 800px;
+            margin: 50px auto;
+            text-align: center;
+            background: #fcfcfc;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.03);
         }
     </style>
 </head>
 <body>
 
-    <div class="top-loading-bar" id="loadingBar"></div>
-
+    <div class="top-loading-bar" id="topLoadingBar"></div>
+    
     <div class="loading-screen" id="loadingScreen">
-        <div class="logo-container" id="logoContainer">
-            <img src="/wkjasdka/index/community2.png" alt="Logo" class="loading-logo">
-        </div>
-        <div class="bottom-text" id="bottomText">
-            <div>from</div>
-            <div style="font-weight: bold; margin-top: 5px;">- WKJASDKA -</div>
+        <img id="loadingLogo" alt="加载Logo" class="loading-logo" src="/wkjasdka/index/community2.png">
+        <div class="loading-text-container" id="loadingTextContainer">
+            <div class="loading-text">from</div>
+            <div class="loading-text">- Wkjasdka -</div>
         </div>
     </div>
 
     <div id="mainContent">
-        <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 40px;">
-            <button class="launcher-btn">
-                <span></span><span></span><span></span>
-                <span></span><span></span><span></span>
-                <span></span><span></span><span></span>
-            </button>
-            <img src="/wkjasdka/index/community2.png" alt="Logo" style="height: 30px;">
-        </div>
-
         <div class="content-card">
-            <h1 style="margin-top: 0;">探索新社区</h1>
-            <p>内容已通过镂空动画完美呈现。这种效果模拟了《愤怒的小鸟2》的启动体验，结合了 Logo 区域的透视和摄像机的拉远感。</p>
-        </div>
-
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-            <div class="content-card" style="height: 200px;"></div>
-            <div class="content-card" style="height: 200px;"></div>
+            <h1 style="font-size: 2.5rem; color: #333;">欢迎回来</h1>
+            <p style="font-size: 1.1rem; color: #666;">刚才您透过 Logo 的窗口看到了这里，网页内容正随着摄像机拉远而展开。</p>
+            <div style="margin-top: 40px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
+                <div style="height: 120px; background: #eee; border-radius: 12px;"></div>
+                <div style="height: 120px; background: #eee; border-radius: 12px;"></div>
+                <div style="height: 120px; background: #eee; border-radius: 12px;"></div>
+            </div>
         </div>
     </div>
 
     <script>
-        const bar = document.getElementById('loadingBar');
-        const screen = document.getElementById('loadingScreen');
-        const logo = document.getElementById('logoContainer');
-        const bottom = document.getElementById('bottomText');
-        const main = document.getElementById('mainContent');
+        const loadingBar = document.getElementById('topLoadingBar');
+        const loadingLogo = document.getElementById('loadingLogo');
+        const loadingTextContainer = document.getElementById('loadingTextContainer');
+        const loadingScreen = document.getElementById('loadingScreen');
+        const mainContent = document.getElementById('mainContent');
 
-        let progress = 0;
-        let loaded = false;
+        let currentProgress = 0;
+        let isFullyLoaded = false;
 
-        // 模拟加载进度
-        const timer = setInterval(() => {
-            if (progress < 90) {
-                progress += loaded ? 5 : 0.8;
-                bar.style.width = progress + '%';
-            } else if (loaded) {
-                clearInterval(timer);
-                startExitAnimation();
-            }
-        }, 30);
+        function updateProgress(percent) {
+            currentProgress = percent;
+            loadingBar.style.width = percent + '%';
+        }
 
-        window.onload = () => { loaded = true; };
+        // 还原最初版本的加载逻辑
+        function initLoading() {
+            let startTimer = setInterval(() => {
+                if (currentProgress < 50) {
+                    let step = (50 - currentProgress) / 10;
+                    updateProgress(currentProgress + Math.max(step, 1));
+                } else {
+                    clearInterval(startTimer);
+                    showLogo();
+                }
+            }, 50);
+        }
 
-        function startExitAnimation() {
-            bar.style.width = '100%';
+        function showLogo() {
+            loadingLogo.style.display = 'block';
+            loadingTextContainer.style.display = 'block';
+
+            let waitingTimer = setInterval(() => {
+                if (isFullyLoaded) {
+                    clearInterval(waitingTimer);
+                    finishLoadingSequence();
+                } else if (currentProgress < 90) {
+                    updateProgress(currentProgress + 0.5);
+                }
+            }, 100);
+        }
+
+        function finishLoadingSequence() {
+            updateProgress(100);
             
             setTimeout(() => {
-                bar.style.opacity = '0';
+                loadingBar.style.opacity = '0';
                 
-                // 1. 开始主内容拉远动画（在背景后面先动起来）
-                main.classList.add('active');
+                // 1. 同步开始：主内容在背景下开始拉远
+                mainContent.style.display = 'block';
+                mainContent.offsetHeight;
+                mainContent.classList.add('active');
 
-                // 2. Logo 和底部文字变淡，露出后面的内容（通过镂空）
-                logo.style.opacity = '0';
-                bottom.style.opacity = '0';
+                // 2. Logo 和文字开始变淡
+                loadingLogo.style.opacity = '0';
+                loadingTextContainer.style.opacity = '0';
 
-                // 3. 镂空扩散动画
+                // 3. 镂空圆圈扩散：Logo 变淡的同时，它所在的区域会“漏”出后面的内容
                 let radius = 0;
-                const expand = () => {
-                    radius += (radius + 20) * 0.15; // 加速扩散
+                const expandMask = () => {
+                    radius += (radius + 30) * 0.1; // 调整扩散节奏
                     const mask = `radial-gradient(circle at center, transparent ${radius}px, black ${radius + 1}px)`;
-                    screen.style.webkitMaskImage = mask;
-                    screen.style.maskImage = mask;
+                    loadingScreen.style.webkitMaskImage = mask;
+                    loadingScreen.style.maskImage = mask;
 
                     if (radius < Math.max(window.innerWidth, window.innerHeight) * 1.5) {
-                        requestAnimationFrame(expand);
+                        requestAnimationFrame(expandMask);
                     } else {
-                        screen.style.display = 'none';
+                        loadingScreen.style.display = 'none';
                         document.body.style.overflow = 'auto';
                     }
                 };
                 
-                // 稍微延迟一下镂空，让用户先感觉到 Logo 变透明
-                setTimeout(expand, 200);
+                // 关键点：Logo 开始淡出后，立即开始镂空，形成“Logo 融化显现背景”的效果
+                setTimeout(expandMask, 50);
 
-            }, 400);
+            }, 400); 
         }
+
+        window.addEventListener('load', () => {
+            isFullyLoaded = true;
+        });
+
+        initLoading();
     </script>
 </body>
 </html>
-
