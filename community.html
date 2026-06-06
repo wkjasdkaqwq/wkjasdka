@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>社区 - 摄像机拉远最终版</title>
+    <title>社区 - 启动动画完美透视版</title>
     <style>
         body, html {
             margin: 0;
@@ -15,7 +15,7 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
 
-        /* 顶部加载条 - 还原最初颜色 */
+        /* 顶部加载条 - 还原最初颜色 #ff8000 */
         .top-loading-bar {
             position: fixed;
             top: 0;
@@ -27,7 +27,7 @@
             transition: width 0.3s cubic-bezier(0.1, 0.5, 0.5, 1);
         }
 
-        /* 加载屏幕：作为遮罩层实现摄像机效果 */
+        /* 加载屏幕：作为背景遮罩 */
         .loading-screen {
             position: fixed;
             top: 0;
@@ -35,21 +35,22 @@
             width: 100vw;
             height: 100vh;
             background-color: #fff;
+            z-index: 9999;
             display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 10000;
             flex-direction: column;
-            /* 初始 mask 不透明 */
+            /* 关键：使用 mask 实现透视。初始时不透视。 */
             -webkit-mask-image: radial-gradient(circle at center, transparent 0%, black 0%);
             mask-image: radial-gradient(circle at center, transparent 0%, black 0%);
-            -webkit-mask-size: 100% 100%;
-            mask-size: 100% 100%;
         }
 
-        #loadingLogo, #loadingTextContainer {
+        /* Logo 容器：它的透明度变化会直接露出下方的 mainContent，因为我们会同步开启镂空 */
+        #logoContainer {
             display: none;
-            transition: opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1); /* 缓慢淡出 */
+            z-index: 10000;
+            text-align: center;
+            transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .loading-logo {
@@ -57,12 +58,12 @@
             height: auto;
         }
 
-        .loading-text-container {
+        .bottom-info {
             position: absolute;
             bottom: 40px;
-            left: 0;
             width: 100%;
             text-align: center;
+            transition: opacity 1s ease;
         }
 
         .loading-text {
@@ -71,39 +72,40 @@
             margin: 5px 0;
         }
 
-        /* 主网页内容 - 保持完全静止 */
+        /* 主内容：它始终在最底层，等待被透出来 */
         #mainContent {
-            display: block; 
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             padding: 40px;
             box-sizing: border-box;
             background: #fff;
-            min-height: 100vh;
-            width: 100%;
-            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             z-index: 1;
         }
 
-        .content-card {
-            max-width: 900px;
-            margin: 40px auto;
+        .content-box {
             text-align: center;
-            background: #ffffff;
-            padding: 60px;
-            border-radius: 30px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.05);
-            border: 1px solid #f0f0f0;
+            max-width: 800px;
         }
 
-        .visual-grid {
+        .placeholder-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 30px;
-            margin-top: 50px;
+            gap: 20px;
+            margin-top: 40px;
+            width: 100%;
         }
-        .visual-item {
-            height: 200px;
-            background: linear-gradient(135deg, #f5f5f5 0%, #eeeeee 100%);
-            border-radius: 20px;
+
+        .placeholder-item {
+            height: 150px;
+            background: #f5f5f5;
+            border-radius: 12px;
         }
     </style>
 </head>
@@ -112,32 +114,34 @@
     <div class="top-loading-bar" id="topLoadingBar"></div>
     
     <div class="loading-screen" id="loadingScreen">
-        <img id="loadingLogo" alt="加载Logo" class="loading-logo" src="/wkjasdka/index/community2.png">
-        <div class="loading-text-container" id="loadingTextContainer">
+        <div id="logoContainer">
+            <img class="loading-logo" src="/wkjasdka/index/community2.png" alt="Logo">
+        </div>
+        <div class="bottom-info" id="bottomInfo">
             <div class="loading-text">from</div>
             <div class="loading-text">- Wkjasdka -</div>
         </div>
     </div>
 
     <div id="mainContent">
-        <div class="content-card">
-            <h1 style="font-size: 3.5rem; color: #222; margin-bottom: 20px; font-weight: 800;">社区全景已展现</h1>
-            <p style="font-size: 1.3rem; color: #888; max-width: 600px; margin: 0 auto;">
-                Logo 消失后，遮罩层像摄像机镜头一样拉开。<br>
-                网页内容始终保持静止，仅视角在后退。
+        <div class="content-box">
+            <h1 style="font-size: 3rem; color: #333;">网页内容已加载</h1>
+            <p style="font-size: 1.2rem; color: #666;">
+                Logo 变透明时，您已能透过它看到这些文字。<br>
+                随后视角以 Logo 为中心平滑拉远。
             </p>
-            <div class="visual-grid">
-                <div class="visual-item"></div>
-                <div class="visual-item"></div>
-                <div class="visual-item"></div>
+            <div class="placeholder-grid">
+                <div class="placeholder-item"></div>
+                <div class="placeholder-item"></div>
+                <div class="placeholder-item"></div>
             </div>
         </div>
     </div>
 
     <script>
         const loadingBar = document.getElementById('topLoadingBar');
-        const loadingLogo = document.getElementById('loadingLogo');
-        const loadingTextContainer = document.getElementById('loadingTextContainer');
+        const logoContainer = document.getElementById('logoContainer');
+        const bottomInfo = document.getElementById('bottomInfo');
         const loadingScreen = document.getElementById('loadingScreen');
 
         let currentProgress = 0;
@@ -162,9 +166,8 @@
         }
 
         function showLogo() {
-            loadingLogo.style.display = 'block';
-            loadingTextContainer.style.display = 'block';
-
+            logoContainer.style.display = 'block';
+            
             let waitingTimer = setInterval(() => {
                 if (isFullyLoaded) {
                     clearInterval(waitingTimer);
@@ -181,46 +184,41 @@
             setTimeout(() => {
                 loadingBar.style.opacity = '0';
                 
-                // 第一阶段：Logo 慢慢消失 (1.5秒)
-                loadingLogo.style.opacity = '0';
-                loadingTextContainer.style.opacity = '0';
+                // 1. 让 Logo 和文字开始变淡
+                logoContainer.style.opacity = '0';
+                bottomInfo.style.opacity = '0';
 
-                // 第二阶段：在 Logo 消失过程中（或稍后）启动摄像机拉远
-                setTimeout(() => {
-                    startCameraZoomOut();
-                }, 800); // 在 Logo 还没完全变透明时就开始拉远，衔接更自然
+                // 2. 核心：在 Logo 变淡的同时，立即开启一个镂空窗口
+                // 这样当 Logo 变半透明时，露出的不是白色背景，而是后面的内容
+                startPerfectReveal();
 
             }, 400); 
         }
 
-        function startCameraZoomOut() {
+        function startPerfectReveal() {
             let radius = 0;
             const maxRadius = Math.max(window.innerWidth, window.innerHeight) * 1.5;
-            let startTime = null;
-            const zoomDuration = 1200; // 拉远动画持续 1.2 秒
+            
+            // 初始镂空范围，确保 Logo 变淡时立即能看到背景
+            radius = 10; 
 
-            function animateZoom(timestamp) {
-                if (!startTime) startTime = timestamp;
-                const elapsed = timestamp - startTime;
-                const progress = Math.min(elapsed / zoomDuration, 1);
-                
-                // 使用 easeInExpo 增加拉远的爆发感
-                const ease = progress === 0 ? 0 : Math.pow(2, 10 * progress - 10);
-                radius = ease * maxRadius;
+            function animate() {
+                // 模拟摄像机平滑拉远
+                radius += (radius + 25) * 0.08; 
                 
                 const mask = `radial-gradient(circle at center, transparent ${radius}px, black ${radius + 1}px)`;
                 loadingScreen.style.webkitMaskImage = mask;
                 loadingScreen.style.maskImage = mask;
 
-                if (progress < 1) {
-                    requestAnimationFrame(animateZoom);
+                if (radius < maxRadius) {
+                    requestAnimationFrame(animate);
                 } else {
                     loadingScreen.style.display = 'none';
                     document.body.style.overflow = 'auto';
                 }
             }
             
-            requestAnimationFrame(animateZoom);
+            requestAnimationFrame(animate);
         }
 
         window.addEventListener('load', () => {
@@ -231,4 +229,3 @@
     </script>
 </body>
 </html>
-
