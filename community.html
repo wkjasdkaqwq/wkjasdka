@@ -3,14 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>社区 - 启动动画优化</title>
+    <title>社区 - 启动动画</title>
     <style>
-        body {
+        body, html {
             margin: 0;
             padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            overflow: hidden; /* 加载时禁止滚动 */
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
             background-color: #fff;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
 
         /* 顶部加载条 */
@@ -21,279 +23,195 @@
             height: 3px;
             background-color: #ff8000;
             width: 0%;
-            z-index: 10000;
-            transition: width 0.3s cubic-bezier(0.1, 0.5, 0.5, 1);
+            z-index: 10001;
+            transition: width 0.3s ease;
         }
 
-        /* 加载层样式 */
+        /* 加载屏幕容器 */
         .loading-screen {
             position: fixed;
             top: 0;
             left: 0;
-            width: 100vw;
-            height: 100vh;
+            width: 100%;
+            height: 100%;
+            z-index: 9999;
             background-color: #fff;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            z-index: 9999;
-            flex-direction: column;
-            transition: opacity 1s ease-out;
+            /* 关键：使用 mask-image 实现镂空 */
+            -webkit-mask-image: radial-gradient(circle at center, transparent 0%, black 0%);
+            mask-image: radial-gradient(circle at center, transparent 0%, black 0%);
+            -webkit-mask-size: 100% 100%;
+            mask-size: 100% 100%;
+            -webkit-mask-repeat: no-repeat;
+            mask-repeat: no-repeat;
+        }
+
+        .logo-container {
+            text-align: center;
+            transition: opacity 0.4s ease;
         }
 
         .loading-logo {
-            width: 300px; 
+            width: 280px;
             height: auto;
-            opacity: 0;
-            transform: scale(0.95);
-            transition: opacity 0.8s ease, transform 0.8s ease;
-        }
-        
-        .loading-logo.show {
-            opacity: 1;
-            transform: scale(1);
+            margin-bottom: 20px;
         }
 
-        .loading-text-container {
+        .bottom-text {
             position: absolute;
-            bottom: 40px;
+            bottom: 50px;
+            text-align: center;
+            color: #888;
+            font-size: 14px;
+            transition: opacity 0.4s ease;
+        }
+
+        /* 主内容：摄像机拉远效果 */
+        #mainContent {
+            position: absolute;
+            top: 0;
             left: 0;
             width: 100%;
-            text-align: center;
-            opacity: 0;
-            transition: opacity 0.8s ease;
-        }
-        
-        .loading-text-container.show {
-            opacity: 1;
-        }
-
-        .loading-text {
-            color: #6a6a6a;
-            font-size: 16px;
-            margin: 5px 0;
-        }
-
-        /* 主内容容器 - 初始状态为缩放并透明 */
-        #mainContent {
+            height: 100%;
             opacity: 0;
             visibility: hidden;
-            padding: 20px;
-            transform: scale(1.1); /* 从四周向中心缩小的反向感，或者说从中心向四周扩散 */
-            transition: opacity 1.2s cubic-bezier(0.2, 0.8, 0.2, 1), transform 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+            transform: scale(2.5); /* 初始极近 */
+            transition: transform 1.2s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.8s ease-out;
+            padding: 40px;
+            box-sizing: border-box;
+            background: #fff;
+            overflow-y: auto;
         }
 
         #mainContent.active {
             opacity: 1;
             visibility: visible;
-            transform: scale(1);
+            transform: scale(1); /* 拉远到正常 */
         }
 
-        /* 九宫格样式 */
-        .app-launcher-wrapper {
-            position: relative;
-            display: inline-block;
-            padding: 10px;
+        /* 内容装饰 */
+        .content-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
-        .app-launcher-group {
-            display: flex;
-            align-items: center;
-            gap: 9px;
-        }
-        .app-launcher-btn {
+
+        /* 九宫格按钮 */
+        .launcher-btn {
             width: 40px;
             height: 40px;
-            background: transparent;
             border: none;
+            background: none;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .app-launcher-logo img {
-            height: 28px;
-            width: auto;
-        }
-        .grid-icon {
+            padding: 8px;
             display: grid;
-            grid-template-columns: repeat(3, 4px);
+            grid-template-columns: repeat(3, 1fr);
             gap: 4px;
         }
-        .grid-icon span {
-            width: 4px;
-            height: 4px;
-            background: #555;
+        .launcher-btn span {
+            background: #333;
             border-radius: 50%;
-        }
-        .app-launcher-menu {
-            position: absolute;
-            top: 50px;
-            left: 0;
-            width: 200px;
-            display: none;
-            flex-direction: column;
-            background: #fff;
-            border-radius: 10px;
-            box-shadow: 0px 4px 20px rgba(0,0,0,0.15);
-            padding: 10px;
-            z-index: 100;
-        }
-        .app-launcher-menu a {
-            padding: 10px;
-            border-radius: 6px;
-            text-decoration: none;
-            color: #333;
-        }
-        .app-launcher-menu a:hover {
-            background: #efefef;
         }
     </style>
 </head>
 <body>
 
-    <!-- 顶部加载条 -->
-    <div class="top-loading-bar" id="topLoadingBar"></div>
-    
-    <!-- 加载屏幕 -->
+    <div class="top-loading-bar" id="loadingBar"></div>
+
     <div class="loading-screen" id="loadingScreen">
-        <img id="loadingLogo" alt="加载Logo" class="loading-logo" src="/wkjasdka/index/community2.png">
-        <div class="loading-text-container" id="loadingTextContainer">
-            <div class="loading-text">from</div>
-            <div class="loading-text">- Wkjasdka -</div>
+        <div class="logo-container" id="logoContainer">
+            <img src="/wkjasdka/index/community2.png" alt="Logo" class="loading-logo">
+        </div>
+        <div class="bottom-text" id="bottomText">
+            <div>from</div>
+            <div style="font-weight: bold; margin-top: 5px;">- WKJASDKA -</div>
         </div>
     </div>
 
-    <!-- 主内容 -->
     <div id="mainContent">
-        <div class="app-launcher-wrapper">
-            <div class="app-launcher-group">
-                <button class="app-launcher-btn" id="appLauncherBtn">
-                    <div class="grid-icon">
-                        <span></span><span></span><span></span>
-                        <span></span><span></span><span></span>
-                        <span></span><span></span><span></span>
-                    </div>
-                </button>
-                <div class="app-launcher-logo">
-                    <img src="/wkjasdka/index/community2.png" alt="Logo" />
-                </div>
-            </div>
-            <div class="app-launcher-menu" id="appLauncherMenu">
-                <a href="#">Liuyanlin Community</a>
-                <a href="#">Liuyanlin Forum</a>
-                <a href="#">Liuyanlin Social</a>
-            </div>
+        <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 40px;">
+            <button class="launcher-btn">
+                <span></span><span></span><span></span>
+                <span></span><span></span><span></span>
+                <span></span><span></span><span></span>
+            </button>
+            <img src="/wkjasdka/index/community2.png" alt="Logo" style="height: 30px;">
         </div>
-        
-        <div style="margin-top: 50px; text-align: center;">
-            <h1>欢迎来到社区</h1>
-            <p>页面内容已加载完成。</p>
-            <p>这是一个演示页面，所有的资源都已成功同步加载。</p>
-            <div style="margin-top: 30px;">
-                <img src="https://via.placeholder.com/800x400" alt="示例图片" style="max-width: 100%; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-            </div>
+
+        <div class="content-card">
+            <h1 style="margin-top: 0;">探索新社区</h1>
+            <p>内容已通过镂空动画完美呈现。这种效果模拟了《愤怒的小鸟2》的启动体验，结合了 Logo 区域的透视和摄像机的拉远感。</p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div class="content-card" style="height: 200px;"></div>
+            <div class="content-card" style="height: 200px;"></div>
         </div>
     </div>
 
     <script>
-        const loadingBar = document.getElementById('topLoadingBar');
-        const loadingLogo = document.getElementById('loadingLogo');
-        const loadingTextContainer = document.getElementById('loadingTextContainer');
-        const loadingScreen = document.getElementById('loadingScreen');
-        const mainContent = document.getElementById('mainContent');
+        const bar = document.getElementById('loadingBar');
+        const screen = document.getElementById('loadingScreen');
+        const logo = document.getElementById('logoContainer');
+        const bottom = document.getElementById('bottomText');
+        const main = document.getElementById('mainContent');
 
-        let currentProgress = 0;
-        let isFullyLoaded = false;
+        let progress = 0;
+        let loaded = false;
 
-        function updateProgress(percent) {
-            currentProgress = percent;
-            loadingBar.style.width = percent + '%';
-        }
+        // 模拟加载进度
+        const timer = setInterval(() => {
+            if (progress < 90) {
+                progress += loaded ? 5 : 0.8;
+                bar.style.width = progress + '%';
+            } else if (loaded) {
+                clearInterval(timer);
+                startExitAnimation();
+            }
+        }, 30);
 
-        // 核心加载逻辑
-        function initLoading() {
-            // 第一阶段：快速启动到 40%
-            let startTimer = setInterval(() => {
-                if (currentProgress < 40) {
-                    let step = (40 - currentProgress) / 8;
-                    updateProgress(currentProgress + Math.max(step, 1));
-                } else {
-                    clearInterval(startTimer);
-                    showLogo();
-                }
-            }, 50);
-        }
+        window.onload = () => { loaded = true; };
 
-        function showLogo() {
-            // 渐显 Logo 和文字
-            loadingLogo.classList.add('show');
-            loadingTextContainer.classList.add('show');
-
-            // 第二阶段：缓慢爬升到 95%
-            let waitingTimer = setInterval(() => {
-                if (isFullyLoaded && currentProgress >= 60) {
-                    clearInterval(waitingTimer);
-                    finishLoadingSequence();
-                } else if (currentProgress < 95) {
-                    updateProgress(currentProgress + 0.3);
-                }
-            }, 100);
-        }
-
-        function finishLoadingSequence() {
-            // 第三阶段：填满进度条
-            updateProgress(100);
+        function startExitAnimation() {
+            bar.style.width = '100%';
             
             setTimeout(() => {
-                // 1. Logo 和文字慢慢变透明 (参考愤怒的小鸟2)
-                loadingLogo.style.opacity = '0';
-                loadingTextContainer.style.opacity = '0';
-                loadingLogo.style.transform = 'scale(1.1)'; // 稍微放大淡出
+                bar.style.opacity = '0';
                 
-                // 2. 进度条也消失
-                loadingBar.style.opacity = '0';
-                loadingBar.style.transition = 'opacity 0.5s ease';
+                // 1. 开始主内容拉远动画（在背景后面先动起来）
+                main.classList.add('active');
 
-                setTimeout(() => {
-                    // 3. 加载背景变透明
-                    loadingScreen.style.opacity = '0';
-                    
-                    // 4. 主内容从四周“进入”（通过缩放和透明度实现扩散感）
-                    mainContent.style.display = 'block'; // 确保它是 block 才能应用动画
-                    // 强制重绘
-                    mainContent.offsetHeight; 
-                    mainContent.classList.add('active');
+                // 2. Logo 和底部文字变淡，露出后面的内容（通过镂空）
+                logo.style.opacity = '0';
+                bottom.style.opacity = '0';
 
-                    setTimeout(() => {
-                        loadingScreen.style.display = 'none';
-                        document.body.style.overflow = 'auto'; // 恢复滚动
-                    }, 1000);
-                }, 800); // 等待 Logo 淡出后再开始背景淡出和内容进入
-            }, 500);
+                // 3. 镂空扩散动画
+                let radius = 0;
+                const expand = () => {
+                    radius += (radius + 20) * 0.15; // 加速扩散
+                    const mask = `radial-gradient(circle at center, transparent ${radius}px, black ${radius + 1}px)`;
+                    screen.style.webkitMaskImage = mask;
+                    screen.style.maskImage = mask;
+
+                    if (radius < Math.max(window.innerWidth, window.innerHeight) * 1.5) {
+                        requestAnimationFrame(expand);
+                    } else {
+                        screen.style.display = 'none';
+                        document.body.style.overflow = 'auto';
+                    }
+                };
+                
+                // 稍微延迟一下镂空，让用户先感觉到 Logo 变透明
+                setTimeout(expand, 200);
+
+            }, 400);
         }
-
-        // 监听网页真实加载状态
-        window.addEventListener('load', () => {
-            isFullyLoaded = true;
-        });
-
-        // 九宫格菜单逻辑
-        const btn = document.getElementById("appLauncherBtn");
-        const menu = document.getElementById("appLauncherMenu");
-        if (btn && menu) {
-            btn.addEventListener("click", (e) => {
-                e.stopPropagation();
-                menu.style.display = (menu.style.display === "flex") ? "none" : "flex";
-            });
-            document.addEventListener("click", (e) => {
-                if (!btn.contains(e.target) && !menu.contains(e.target)) {
-                    menu.style.display = "none";
-                }
-            });
-        }
-
-        // 启动
-        initLoading();
     </script>
 </body>
 </html>
+
