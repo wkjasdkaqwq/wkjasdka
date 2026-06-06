@@ -45,6 +45,21 @@
             mask-image: radial-gradient(circle at center, transparent 0%, black 0%);
         }
 
+        /* 灰色阴影环 - 独立的视觉层 */
+        .shadow-ring {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            z-index: 10000;
+            pointer-events: none;
+            box-shadow: 0 0 0 0 rgba(100, 100, 100, 0);
+            opacity: 0;
+        }
+
         /* Logo 容器 */
         #logoContainer {
             display: none;
@@ -124,6 +139,9 @@
         </div>
     </div>
 
+    <!-- 灰色阴影环 -->
+    <div class="shadow-ring" id="shadowRing"></div>
+
     <div id="mainContent">
         <div class="content-box">
             <h1 style="font-size: 3rem; color: #333;">网页内容已就绪</h1>
@@ -144,6 +162,7 @@
         const logoContainer = document.getElementById('logoContainer');
         const bottomInfo = document.getElementById('bottomInfo');
         const loadingScreen = document.getElementById('loadingScreen');
+        const shadowRing = document.getElementById('shadowRing');
 
         let currentProgress = 0;
         let isFullyLoaded = false;
@@ -184,11 +203,11 @@
             setTimeout(() => {
                 loadingBar.style.opacity = '0';
                 
-                // 1. Logo 变淡 (稍微加快一点点)
+                // 1. Logo 变淡
                 logoContainer.style.opacity = '0';
                 bottomInfo.style.opacity = '0';
 
-                // 2. 0.25s 极速拉远 + 醒目灰色阴影
+                // 2. 0.25s 极速拉远 + 醒目灰色阴影环
                 setTimeout(startUltraFastReveal, 150);
 
             }, 400); 
@@ -208,26 +227,32 @@
                 const easeP = 1 - Math.pow(1 - p, 4);
                 const radius = easeP * maxRadius;
                 
-                // 醒目的灰色阴影效果
-                // 多层渐变：透明圆心 → 浅灰 → 中灰 → 深灰 → 纯黑
-                const shadowWidth = 200; // 阴影宽度（增大）
-                const shadowHardness = 80; // 阴影边缘硬度
-                
+                // 更新 mask，实现摄像机拉远效果（逐渐显示内容）
                 const mask = `radial-gradient(circle at center, 
                     transparent ${radius}px, 
-                    rgba(100,100,100,0.2) ${radius + shadowHardness * 0.25}px,
-                    rgba(80,80,80,0.4) ${radius + shadowHardness * 0.5}px,
-                    rgba(60,60,60,0.6) ${radius + shadowHardness * 0.75}px,
-                    rgba(40,40,40,0.8) ${radius + shadowWidth}px,
-                    black ${radius + shadowWidth + 1}px)`;
+                    black ${radius + 1}px)`;
                 
                 loadingScreen.style.webkitMaskImage = mask;
                 loadingScreen.style.maskImage = mask;
+
+                // 更新灰色阴影环：随着拉远逐渐显示
+                shadowRing.style.width = radius * 2 + 'px';
+                shadowRing.style.height = radius * 2 + 'px';
+                
+                // 阴影环的 box-shadow：中心浅，向外渐深
+                const shadowBlur = 80;
+                const shadowSpread = 30;
+                shadowRing.style.boxShadow = `
+                    0 0 ${shadowBlur}px ${shadowSpread}px rgba(120, 120, 120, ${0.5 * easeP}),
+                    inset 0 0 ${shadowBlur * 0.7}px ${shadowSpread * 0.5}px rgba(100, 100, 100, ${0.4 * easeP})
+                `;
+                shadowRing.style.opacity = easeP;
 
                 if (p < 1) {
                     requestAnimationFrame(animate);
                 } else {
                     loadingScreen.style.display = 'none';
+                    shadowRing.style.display = 'none';
                     document.body.style.overflow = 'auto';
                 }
             }
