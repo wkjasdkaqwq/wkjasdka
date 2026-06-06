@@ -3,17 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>社区 - 启动动画最终版</title>
+    <title>社区 - 摄像机拉远最终版</title>
     <style>
-        body {
+        body, html {
             margin: 0;
             padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            width: 100%;
+            height: 100%;
             overflow: hidden;
             background-color: #fff;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
 
-        /* 顶部加载条 - 还原最初颜色 #ff8000 */
+        /* 顶部加载条 - 还原最初颜色 */
         .top-loading-bar {
             position: fixed;
             top: 0;
@@ -21,11 +23,11 @@
             height: 3px;
             background-color: #ff8000;
             width: 0%;
-            z-index: 10000;
+            z-index: 10001;
             transition: width 0.3s cubic-bezier(0.1, 0.5, 0.5, 1);
         }
 
-        /* 加载屏幕 - 使用 mask-image 实现 Logo 处的透视 */
+        /* 加载屏幕：作为遮罩层实现摄像机效果 */
         .loading-screen {
             position: fixed;
             top: 0;
@@ -36,9 +38,9 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 9999;
+            z-index: 10000;
             flex-direction: column;
-            /* 初始 mask 完全不透明 */
+            /* 初始 mask 不透明 */
             -webkit-mask-image: radial-gradient(circle at center, transparent 0%, black 0%);
             mask-image: radial-gradient(circle at center, transparent 0%, black 0%);
             -webkit-mask-size: 100% 100%;
@@ -47,7 +49,7 @@
 
         #loadingLogo, #loadingTextContainer {
             display: none;
-            transition: opacity 0.5s ease;
+            transition: opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1); /* 缓慢淡出 */
         }
 
         .loading-logo {
@@ -69,31 +71,39 @@
             margin: 5px 0;
         }
 
-        /* 主内容 - 摄像机拉远效果 */
+        /* 主网页内容 - 保持完全静止 */
         #mainContent {
-            display: none;
-            padding: 20px;
-            opacity: 0;
-            transform: scale(4); /* 初始极近，增加视觉张力 */
-            transition: transform 1.2s cubic-bezier(0.15, 0.85, 0.35, 1), opacity 1s ease;
+            display: block; 
+            padding: 40px;
+            box-sizing: border-box;
             background: #fff;
             min-height: 100vh;
-            box-sizing: border-box;
-        }
-
-        #mainContent.active {
-            opacity: 1;
-            transform: scale(1);
+            width: 100%;
+            position: relative;
+            z-index: 1;
         }
 
         .content-card {
-            max-width: 800px;
-            margin: 50px auto;
+            max-width: 900px;
+            margin: 40px auto;
             text-align: center;
-            background: #fcfcfc;
-            padding: 40px;
+            background: #ffffff;
+            padding: 60px;
+            border-radius: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.05);
+            border: 1px solid #f0f0f0;
+        }
+
+        .visual-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin-top: 50px;
+        }
+        .visual-item {
+            height: 200px;
+            background: linear-gradient(135deg, #f5f5f5 0%, #eeeeee 100%);
             border-radius: 20px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.03);
         }
     </style>
 </head>
@@ -111,12 +121,15 @@
 
     <div id="mainContent">
         <div class="content-card">
-            <h1 style="font-size: 2.5rem; color: #333;">欢迎回来</h1>
-            <p style="font-size: 1.1rem; color: #666;">刚才您透过 Logo 的窗口看到了这里，网页内容正随着摄像机拉远而展开。</p>
-            <div style="margin-top: 40px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
-                <div style="height: 120px; background: #eee; border-radius: 12px;"></div>
-                <div style="height: 120px; background: #eee; border-radius: 12px;"></div>
-                <div style="height: 120px; background: #eee; border-radius: 12px;"></div>
+            <h1 style="font-size: 3.5rem; color: #222; margin-bottom: 20px; font-weight: 800;">社区全景已展现</h1>
+            <p style="font-size: 1.3rem; color: #888; max-width: 600px; margin: 0 auto;">
+                Logo 消失后，遮罩层像摄像机镜头一样拉开。<br>
+                网页内容始终保持静止，仅视角在后退。
+            </p>
+            <div class="visual-grid">
+                <div class="visual-item"></div>
+                <div class="visual-item"></div>
+                <div class="visual-item"></div>
             </div>
         </div>
     </div>
@@ -126,7 +139,6 @@
         const loadingLogo = document.getElementById('loadingLogo');
         const loadingTextContainer = document.getElementById('loadingTextContainer');
         const loadingScreen = document.getElementById('loadingScreen');
-        const mainContent = document.getElementById('mainContent');
 
         let currentProgress = 0;
         let isFullyLoaded = false;
@@ -169,35 +181,46 @@
             setTimeout(() => {
                 loadingBar.style.opacity = '0';
                 
-                // 1. 同步开始：主内容在背景下开始拉远
-                mainContent.style.display = 'block';
-                mainContent.offsetHeight;
-                mainContent.classList.add('active');
-
-                // 2. Logo 和文字开始变淡
+                // 第一阶段：Logo 慢慢消失 (1.5秒)
                 loadingLogo.style.opacity = '0';
                 loadingTextContainer.style.opacity = '0';
 
-                // 3. 镂空圆圈扩散：Logo 变淡的同时，它所在的区域会“漏”出后面的内容
-                let radius = 0;
-                const expandMask = () => {
-                    radius += (radius + 30) * 0.1; // 调整扩散节奏
-                    const mask = `radial-gradient(circle at center, transparent ${radius}px, black ${radius + 1}px)`;
-                    loadingScreen.style.webkitMaskImage = mask;
-                    loadingScreen.style.maskImage = mask;
-
-                    if (radius < Math.max(window.innerWidth, window.innerHeight) * 1.5) {
-                        requestAnimationFrame(expandMask);
-                    } else {
-                        loadingScreen.style.display = 'none';
-                        document.body.style.overflow = 'auto';
-                    }
-                };
-                
-                // 关键点：Logo 开始淡出后，立即开始镂空，形成“Logo 融化显现背景”的效果
-                setTimeout(expandMask, 50);
+                // 第二阶段：在 Logo 消失过程中（或稍后）启动摄像机拉远
+                setTimeout(() => {
+                    startCameraZoomOut();
+                }, 800); // 在 Logo 还没完全变透明时就开始拉远，衔接更自然
 
             }, 400); 
+        }
+
+        function startCameraZoomOut() {
+            let radius = 0;
+            const maxRadius = Math.max(window.innerWidth, window.innerHeight) * 1.5;
+            let startTime = null;
+            const zoomDuration = 1200; // 拉远动画持续 1.2 秒
+
+            function animateZoom(timestamp) {
+                if (!startTime) startTime = timestamp;
+                const elapsed = timestamp - startTime;
+                const progress = Math.min(elapsed / zoomDuration, 1);
+                
+                // 使用 easeInExpo 增加拉远的爆发感
+                const ease = progress === 0 ? 0 : Math.pow(2, 10 * progress - 10);
+                radius = ease * maxRadius;
+                
+                const mask = `radial-gradient(circle at center, transparent ${radius}px, black ${radius + 1}px)`;
+                loadingScreen.style.webkitMaskImage = mask;
+                loadingScreen.style.maskImage = mask;
+
+                if (progress < 1) {
+                    requestAnimationFrame(animateZoom);
+                } else {
+                    loadingScreen.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                }
+            }
+            
+            requestAnimationFrame(animateZoom);
         }
 
         window.addEventListener('load', () => {
@@ -208,3 +231,4 @@
     </script>
 </body>
 </html>
+
