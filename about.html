@@ -301,13 +301,18 @@
       align-items: stretch;
       text-align: left;
       background: #ffffff;
-      opacity: 1;
-      transition: opacity 0.5s ease;
     }
 
-    /* 内容消失态 */
-    .main-content.fade-out {
-      opacity: 0;
+    /* 移动端内容带淡入淡出动画 */
+    @media (max-width: 768px) {
+      .main-content {
+        opacity: 1;
+        transition: opacity 0.5s ease;
+      }
+
+      .main-content.fade-out {
+        opacity: 0;
+      }
     }
 
     /* 内容区块样式 */
@@ -767,27 +772,43 @@
       item.addEventListener('click', function() {
         const contentKey = this.dataset.content;
         const isActive = this.classList.contains('active');
+        const isMobile = window.innerWidth <= 768;
         
         document.querySelectorAll('.sidebar-item, .sidebar-subitem').forEach(el => el.classList.remove('active'));
         
-        // 添加淡出效果
-        mainContent.classList.add('fade-out');
+        // 仅移动端添加淡出效果
+        if (isMobile) {
+          mainContent.classList.add('fade-out');
+        }
         
-        setTimeout(() => {
+        const updateContent = () => {
           if (isActive) {
-            mainContent.innerHTML = '';
+            // 重复点击：移动端返回欢迎页，桌面端保持空白
+            if (isMobile) {
+              mainContent.innerHTML = mobileWelcomeTemplate;
+            } else {
+              mainContent.innerHTML = '';
+            }
           } else {
             this.classList.add('active');
             this.closest('.sidebar-submenu').previousElementSibling.classList.add('active');
             if (contentData[contentKey]) mainContent.innerHTML = contentData[contentKey].body;
           }
           
-          // 移除淡出效果，触发淡入
-          mainContent.classList.remove('fade-out');
-        }, 500);
+          // 移动端移除淡出效果，触发淡入
+          if (isMobile) {
+            mainContent.classList.remove('fade-out');
+          }
+        };
+        
+        if (isMobile) {
+          setTimeout(updateContent, 500);
+        } else {
+          updateContent();
+        }
         
         // 移动端关闭菜单
-        if (window.innerWidth <= 768) {
+        if (isMobile) {
           sidebar.classList.remove('active');
           sidebarOverlay.classList.remove('active');
         }
@@ -799,15 +820,23 @@
       item.addEventListener('click', function() {
         const contentKey = this.dataset.content;
         const isActive = this.classList.contains('active');
+        const isMobile = window.innerWidth <= 768;
         
         document.querySelectorAll('.sidebar-item, .sidebar-subitem').forEach(el => el.classList.remove('active'));
         
-        // 添加淡出效果
-        mainContent.classList.add('fade-out');
+        // 仅移动端添加淡出效果
+        if (isMobile) {
+          mainContent.classList.add('fade-out');
+        }
         
-        setTimeout(() => {
+        const updateContent = () => {
           if (isActive) {
-            mainContent.innerHTML = '';
+            // 重复点击：移动端返回欢迎页，桌面端保持空白
+            if (isMobile) {
+              mainContent.innerHTML = mobileWelcomeTemplate;
+            } else {
+              mainContent.innerHTML = '';
+            }
           } else {
             this.classList.add('active');
             if (contentData[contentKey]) mainContent.innerHTML = contentData[contentKey].body;
@@ -818,12 +847,20 @@
             });
           }
           
-          // 移除淡出效果，触发淡入
-          mainContent.classList.remove('fade-out');
-        }, 500);
+          // 移动端移除淡出效果，触发淡入
+          if (isMobile) {
+            mainContent.classList.remove('fade-out');
+          }
+        };
+        
+        if (isMobile) {
+          setTimeout(updateContent, 500);
+        } else {
+          updateContent();
+        }
         
         // 移动端关闭菜单
-        if (window.innerWidth <= 768) {
+        if (isMobile) {
           sidebar.classList.remove('active');
           sidebarOverlay.classList.remove('active');
         }
