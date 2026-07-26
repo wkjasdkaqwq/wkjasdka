@@ -642,6 +642,20 @@
     const menuBtn = document.getElementById('menuBtn');
     const sidebarOverlay = document.getElementById('sidebarOverlay');
     let lastScrollTop = 0;
+
+    // 禁用/恢复页面滚动的函数
+    function disableScroll() {
+      document.body.style.overflow = 'hidden';
+    }
+
+    function enableScroll() {
+      document.body.style.overflow = '';
+    }
+
+    // 检查是否有任何二级菜单处于展开状态
+    function isAnySubmenuExpanded() {
+      return document.querySelectorAll('.sidebar-submenu.expanded').length > 0;
+    }
     
     // 菜单按钮点击事件
     menuBtn.addEventListener('click', function() {
@@ -764,6 +778,13 @@
 
         this.classList.toggle('expanded');
         submenu.classList.toggle('expanded');
+
+        // 根据是否有任何展开的二级菜单来控制滚动
+        if (isAnySubmenuExpanded()) {
+          disableScroll();
+        } else {
+          enableScroll();
+        }
       });
     });
 
