@@ -2,11 +2,16 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>关于 - Echo</title>
   <link rel="icon" href="/wkjasdka/index/echo logo.png" type="image/x-icon">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     /* 全局样式 */
+    * {
+      box-sizing: border-box;
+    }
+
     ::selection {
       background: #E67E22;
       color: white;
@@ -28,6 +33,9 @@
       z-index: 9000;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
       transition: transform 0.4s ease-out;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
     
     .navbar.hidden {
@@ -67,6 +75,18 @@
       align-items: center;
     }
 
+    /* 菜单按钮 */
+    .menu-btn {
+      display: none;
+      background: none;
+      border: none;
+      font-size: 24px;
+      color: #333;
+      cursor: pointer;
+      padding: 10px;
+      -webkit-tap-highlight-color: transparent;
+    }
+
     /* 加载层样式 */
     .loading-screen {
       position: fixed;
@@ -81,6 +101,21 @@
       z-index: 9999;
     }
 
+    /* 加载层内容容器，默认隐藏 */
+    .loading-content {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* 当 Logo 加载完成后显示 */
+    .loading-content.visible {
+      display: flex;
+    }
+
     .loading-screen.hidden {
       display: none;
     }
@@ -92,7 +127,7 @@
 
     .loading-text-container {
       position: absolute;
-      bottom: 32px; /* 调整为距离底部 32px */
+      bottom: 32px;
       left: 0;
       width: 100%;
       text-align: center;
@@ -138,12 +173,12 @@
       z-index: 7000;
     }
 
-    /* 背景竖线 - 抹除顶部像素，起始位置微调 */
+    /* 背景竖线 */
     .sidebar::after {
       content: "";
       position: absolute;
       right: 0;
-      top: 1px; /* 抹除最顶部的 1px，避免超出第一个选项卡 */
+      top: 1px;
       bottom: 0;
       width: 1px;
       background-color: #ccc;
@@ -167,20 +202,11 @@
       overflow: hidden;
       text-overflow: ellipsis;
       background-color: #f0f0f0;
-      
-      /* 默认无圆角 */
-      border-top-right-radius: 0;
-      border-bottom-right-radius: 0;
-      
       border-right: 1px solid #ccc;
       transition: background-color 0.3s, padding-left 0.3s, transform 0.1s;
       z-index: 5;
-    }
-
-    /* 取消最顶部选项在被选中/展开时的圆角 */
-    .sidebar-group:first-child .sidebar-item.active,
-    .sidebar-group:first-child .sidebar-item.expanded {
-      border-top-right-radius: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
     }
 
     .sidebar-item:hover {
@@ -188,15 +214,15 @@
       padding-left: 40px;
     }
 
+    .sidebar-item:active {
+      background-color: #d0d0d0;
+      transform: scale(0.98);
+    }
+
     .sidebar-item.active, .sidebar-item.expanded {
       background-color: #e0e0e0;
       font-weight: bold;
-      border-right-color: #e0e0e0; /* 激活时与背景色融合 */
-    }
-    
-    .sidebar-item:active {
-      transform: scale(0.98);
-      background-color: #d0d0d0;
+      border-right-color: #e0e0e0;
     }
 
     /* 展开/收起箭头 */
@@ -233,7 +259,7 @@
       border-right: 1px solid #d7d7d7;
     }
 
-    /* 子项样式 - 始终无圆角 */
+    /* 子项样式 */
     .sidebar-subitem {
       padding: 12px 50px;
       font-size: 16px;
@@ -242,10 +268,8 @@
       position: relative;
       border-right: 1px solid #d7d7d7;
       transition: background-color 0.3s, padding-left 0.3s, transform 0.1s;
-    }
-
-    .sidebar-subitem + .sidebar-subitem {
-      border-top: 1px solid rgba(0,0,0,0.05);
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
     }
 
     .sidebar-subitem:hover {
@@ -253,14 +277,14 @@
       padding-left: 55px;
     }
 
+    .sidebar-subitem:active {
+      transform: scale(0.98);
+    }
+
     .sidebar-subitem.active {
       background-color: rgba(0,0,0,0.1);
       font-weight: bold;
       border-right-color: transparent;
-    }
-
-    .sidebar-subitem:active {
-      transform: scale(0.98);
     }
 
     /* 主内容区域样式 */
@@ -277,6 +301,13 @@
       align-items: stretch;
       text-align: left;
       background: #ffffff;
+      opacity: 1;
+      transition: opacity 0.5s ease;
+    }
+
+    /* 内容消失态 */
+    .main-content.fade-out {
+      opacity: 0;
     }
 
     /* 内容区块样式 */
@@ -318,6 +349,227 @@
       border-radius: 6px;
       border: 1px solid #e8e8e8;
     }
+
+    /* ========== 移动端适配 (768px 及以下) ========== */
+    @media (max-width: 768px) {
+      /* 导航栏调整 */
+      .navbar {
+        height: 60px;
+      }
+
+      .navbar-logo {
+        height: 50px;
+        margin-right: 10px;
+      }
+
+      .logo-text {
+        font-size: 24px;
+      }
+
+      /* 显示菜单按钮 */
+      .menu-btn {
+        display: block;
+      }
+
+      /* 加载页 Logo 缩小到 35px */
+      .loading-logo {
+        width: 35px;
+        height: auto;
+      }
+
+      .loading-text {
+        font-size: 14px;
+        margin: 3px 0;
+      }
+
+      /* 侧边栏改为抽屉式菜单 */
+      .sidebar {
+        position: fixed;
+        left: auto;
+        right: 0;
+        top: 60px;
+        width: 70%;
+        max-width: 280px;
+        height: calc(100vh - 60px);
+        background-color: #f9f9f9;
+        transform: translateX(100%);
+        transition: transform 0.3s ease;
+        overflow-y: auto;
+        z-index: 6000;
+        box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+      }
+
+      .sidebar.active {
+        transform: translateX(0);
+      }
+
+      .sidebar::after {
+        display: none;
+      }
+
+      /* 侧边栏项调整 */
+      .sidebar-item {
+        padding: 15px 20px;
+        font-size: 16px;
+        border-right: none;
+        border-bottom: 1px solid #e0e0e0;
+        white-space: normal;
+        overflow: visible;
+        text-overflow: clip;
+      }
+
+      .sidebar-item:hover {
+        padding-left: 20px;
+      }
+
+      .sidebar-item.expandable::after {
+        right: 15px;
+      }
+
+      .sidebar-subitem {
+        padding: 12px 30px;
+        font-size: 14px;
+        border-right: none;
+        border-bottom: 1px solid #e8e8e8;
+      }
+
+      .sidebar-subitem:hover {
+        padding-left: 30px;
+      }
+
+      /* 主内容区域调整 */
+      .main-content {
+        margin-left: 0;
+        margin-top: 70px;
+        padding: 20px 15px;
+        min-height: calc(100vh - 70px - 60px);
+      }
+
+      /* 内容区块调整 */
+      .content-section h2 {
+        font-size: 22px;
+        padding-bottom: 10px;
+        margin-bottom: 15px;
+      }
+
+      .content-section p {
+        font-size: 14px;
+        margin-bottom: 1em;
+      }
+
+      .info-box {
+        padding: 15px 20px;
+        margin: 15px 0;
+      }
+
+      .content-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+        margin: 15px 0;
+      }
+
+      .grid-item {
+        padding: 20px;
+      }
+
+      .grid-item h3 {
+        font-size: 16px;
+        margin-top: 0;
+      }
+
+      /* 页脚调整 */
+      footer {
+        height: 50px;
+      }
+    }
+
+    /* ========== 超小屏幕适配 (480px 及以下) ========== */
+    @media (max-width: 480px) {
+      .navbar {
+        height: 55px;
+      }
+
+      .navbar-logo {
+        height: 45px;
+        margin-right: 8px;
+      }
+
+      .logo-text {
+        font-size: 20px;
+      }
+
+      .menu-btn {
+        font-size: 20px;
+        padding: 8px;
+      }
+
+      .loading-logo {
+        width: 35px;
+      }
+
+      .loading-text {
+        font-size: 12px;
+        margin: 2px 0;
+      }
+
+      .sidebar {
+        top: 55px;
+        height: calc(100vh - 55px);
+      }
+
+      .main-content {
+        margin-top: 65px;
+        padding: 15px 10px;
+        min-height: calc(100vh - 65px - 50px);
+      }
+
+      .content-section h2 {
+        font-size: 18px;
+        padding-bottom: 8px;
+        margin-bottom: 12px;
+      }
+
+      .content-section p {
+        font-size: 13px;
+      }
+
+      .sidebar-item {
+        padding: 12px 15px;
+        font-size: 14px;
+      }
+
+      .sidebar-subitem {
+        padding: 10px 25px;
+        font-size: 13px;
+      }
+
+      .grid-item {
+        padding: 15px;
+      }
+
+      .grid-item h3 {
+        font-size: 14px;
+      }
+    }
+
+    /* 遮罩层 */
+    .sidebar-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 5999;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+
+    .sidebar-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
   </style>
 </head>
 <body>
@@ -328,8 +580,14 @@
         <img src="/wkjasdka/index/echo logo.png" alt="echoLogo" class="navbar-logo" id="logo">
         <span class="logo-text">关于</span>
       </div>
+      <button class="menu-btn" id="menuBtn">
+        <i class="fas fa-bars"></i>
+      </button>
     </div>
   </nav>
+
+  <!-- 侧边栏遮罩 -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
   <!-- 左侧选项栏 -->
   <div class="sidebar" id="sidebar">
@@ -362,10 +620,12 @@
 
   <!-- 加载层 -->
   <div class="loading-screen" id="loadingScreen">
-    <img src="index/logo3.png" alt="加载Logo" class="loading-logo">
-    <div class="loading-text-container">
-      <div class="loading-text">from</div>
-      <div class="loading-text">- Wkjasdka -</div>
+    <div class="loading-content" id="loadingContent">
+      <img src="index/logo3.png" alt="加载Logo" class="loading-logo" id="loadingLogo">
+      <div class="loading-text-container">
+        <div class="loading-text">from</div>
+        <div class="loading-text">- Wkjasdka -</div>
+      </div>
     </div>
   </div>
 
@@ -373,7 +633,24 @@
 
   <script>
     const navbar = document.getElementById('navbar');
+    const sidebar = document.getElementById('sidebar');
+    const menuBtn = document.getElementById('menuBtn');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
     let lastScrollTop = 0;
+    
+    // 菜单按钮点击事件
+    menuBtn.addEventListener('click', function() {
+      sidebar.classList.toggle('active');
+      sidebarOverlay.classList.toggle('active');
+    });
+
+    // 遮罩点击关闭菜单
+    sidebarOverlay.addEventListener('click', function() {
+      sidebar.classList.remove('active');
+      sidebarOverlay.classList.remove('active');
+    });
+
+    // 滚动隐藏导航栏
     window.addEventListener('scroll', function() {
       const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
       if (scrollTop > lastScrollTop && scrollTop > 50) {
@@ -386,7 +663,7 @@
 
     const contentData = {
       "echo": {
-        body: `<div class="content-section"><h2>Echo 是什么？</h2><p>Echo 是一个致力于提升数字协作效率的创新项目。我们通过前沿的技术 and 人性化的设计，为用户提供无缝的协作体验。</p><div class="info-box"><p><strong>当前状态：</strong> 项目正在积极开发中，核心功能不断完善。</p></div></div>`
+        body: `<div class="content-section"><h2>Echo 是什么？</h2><p>Echo 是一个致力于提升数字协作效率的创新项目。我们通过前沿的技术和人性化的设计，为用户提供无缝的协作体验。</p><div class="info-box"><p><strong>当前状态：</strong> 项目正在积极开发中，核心功能不断完善。</p></div></div>`
       },
       "wkjasdka": {
         body: `<div class="content-section"><h2>W.K.Jasdka 是什么？</h2><p>W.K.Jasdka 是 Echo 项目背后的核心团队标识，代表着对极致体验和创新精神的不懈追求。</p><div class="content-grid"><div class="grid-item"><h3>🎯 使命</h3><p>打造简洁、高效且人性化的软件工具</p></div><div class="grid-item"><h3>💡 理念</h3><p>以用户为中心，不断创新和改进</p></div></div></div>`
@@ -407,6 +684,65 @@
 
     const mainContent = document.getElementById('mainContent');
     const loadingScreen = document.getElementById('loadingScreen');
+    const loadingContent = document.getElementById('loadingContent');
+    const loadingLogo = document.getElementById('loadingLogo');
+
+    // 移动端欢迎页模板
+    const mobileWelcomeTemplate = `
+      <div class="content-section">
+        <h2 style="text-align: center; font-size: 28px; margin-bottom: 30px; color: #E67E22;">欢迎来到 Echo</h2>
+        <div class="info-box" style="background-color: #f0f8ff; border-left-color: #E67E22; text-align: center;">
+          <p style="font-size: 16px; line-height: 1.8; color: #333;">
+            <strong>Hi 👋</strong><br><br>
+            欢迎使用 Echo 关于页面。<br>
+            点击右上角的菜单按钮，选择您感兴趣的内容吧！
+          </p>
+        </div>
+        <div class="content-grid" style="margin-top: 40px;">
+          <div class="grid-item" style="text-align: center;">
+            <h3 style="font-size: 18px; color: #E67E22;">📖 了解 Echo</h3>
+            <p>探索我们的项目理念和使命</p>
+          </div>
+          <div class="grid-item" style="text-align: center;">
+            <h3 style="font-size: 18px; color: #E67E22;">👥 认识团队</h3>
+            <p>与 W.K.Jasdka 和 Liuyanlin 相识</p>
+          </div>
+          <div class="grid-item" style="text-align: center;">
+            <h3 style="font-size: 18px; color: #E67E22;">💬 联系我们</h3>
+            <p>有任何问题？随时与我们取得联系</p>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // 加载页 Logo 加载逻辑
+    function showLoadingContent() {
+      loadingContent.classList.add('visible');
+    }
+
+    if (loadingLogo.complete) {
+      showLoadingContent();
+    } else {
+      loadingLogo.addEventListener('load', showLoadingContent);
+    }
+
+    // 初始化页面显示逻辑
+    function initializeContent() {
+      // 检查是否是移动端
+      const isMobile = window.innerWidth <= 768;
+      if (isMobile) {
+        // 移动端默认显示欢迎页
+        mainContent.innerHTML = mobileWelcomeTemplate;
+      }
+      // 桌面端保持空白，不执行任何操作
+    }
+
+    // 页面加载完成后初始化
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initializeContent);
+    } else {
+      initializeContent();
+    }
 
     // 1. 可展开项点击
     document.querySelectorAll('.sidebar-item.expandable').forEach(item => {
@@ -434,12 +770,26 @@
         
         document.querySelectorAll('.sidebar-item, .sidebar-subitem').forEach(el => el.classList.remove('active'));
         
-        if (isActive) {
-          mainContent.innerHTML = '';
-        } else {
-          this.classList.add('active');
-          this.closest('.sidebar-submenu').previousElementSibling.classList.add('active');
-          if (contentData[contentKey]) mainContent.innerHTML = contentData[contentKey].body;
+        // 添加淡出效果
+        mainContent.classList.add('fade-out');
+        
+        setTimeout(() => {
+          if (isActive) {
+            mainContent.innerHTML = '';
+          } else {
+            this.classList.add('active');
+            this.closest('.sidebar-submenu').previousElementSibling.classList.add('active');
+            if (contentData[contentKey]) mainContent.innerHTML = contentData[contentKey].body;
+          }
+          
+          // 移除淡出效果，触发淡入
+          mainContent.classList.remove('fade-out');
+        }, 500);
+        
+        // 移动端关闭菜单
+        if (window.innerWidth <= 768) {
+          sidebar.classList.remove('active');
+          sidebarOverlay.classList.remove('active');
         }
       });
     });
@@ -452,16 +802,30 @@
         
         document.querySelectorAll('.sidebar-item, .sidebar-subitem').forEach(el => el.classList.remove('active'));
         
-        if (isActive) {
-          mainContent.innerHTML = '';
-        } else {
-          this.classList.add('active');
-          if (contentData[contentKey]) mainContent.innerHTML = contentData[contentKey].body;
+        // 添加淡出效果
+        mainContent.classList.add('fade-out');
+        
+        setTimeout(() => {
+          if (isActive) {
+            mainContent.innerHTML = '';
+          } else {
+            this.classList.add('active');
+            if (contentData[contentKey]) mainContent.innerHTML = contentData[contentKey].body;
+            
+            document.querySelectorAll('.sidebar-item.expandable.expanded').forEach(expandable => {
+              expandable.classList.remove('expanded');
+              document.getElementById(expandable.dataset.expandable).classList.remove('expanded');
+            });
+          }
           
-          document.querySelectorAll('.sidebar-item.expandable.expanded').forEach(expandable => {
-            expandable.classList.remove('expanded');
-            document.getElementById(expandable.dataset.expandable).classList.remove('expanded');
-          });
+          // 移除淡出效果，触发淡入
+          mainContent.classList.remove('fade-out');
+        }, 500);
+        
+        // 移动端关闭菜单
+        if (window.innerWidth <= 768) {
+          sidebar.classList.remove('active');
+          sidebarOverlay.classList.remove('active');
         }
       });
     });
