@@ -12,6 +12,7 @@
         html,
         body {
             margin: 0;
+            padding: 0;
             width: 100%;
             height: 100%;
             overflow: hidden;
@@ -27,11 +28,11 @@
             position: fixed;
             top: 0;
             left: 0;
+            z-index: 10001;
             width: 0%;
             height: 3px;
-            z-index: 10001;
             background: var(--accent);
-            transition: width .3s cubic-bezier(.1, .5, .5, 1), opacity .5s ease;
+            transition: width .3s cubic-bezier(.1, .5, .5, 1), opacity .4s ease;
         }
 
         .loading-screen {
@@ -39,21 +40,34 @@
             inset: 0;
             z-index: 9999;
             display: flex;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
             flex-direction: column;
+            overflow: hidden;
             background: #fff;
-            opacity: 1;
-            transition: opacity 1.2s ease;
         }
 
-        /* 加载完成后，整个加载层变透明，内容页从后方穿透显示 */
-        .loading-screen.fade-out {
-            opacity: 0;
+        /* 载入结束后，白色遮罩改由 canvas 绘制，以便挖出 PNG 的真实透明轮廓。 */
+        .loading-screen.is-revealing {
+            background: transparent;
+        }
+
+        #logoRevealCanvas {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            display: none;
+            width: 100%;
+            height: 100%;
             pointer-events: none;
         }
 
+        #logoRevealCanvas.active {
+            display: block;
+        }
+
         #logoContainer {
+            position: relative;
             z-index: 1;
             text-align: center;
             opacity: 0;
@@ -66,10 +80,11 @@
             transform: scale(1);
         }
 
-        /* 内容页加载完成后，仅让 Logo 慢慢变透明 */
+        /* 第一步：Logo 逐渐透明，正下方的内容通过同形状镂空显现。 */
         #logoContainer.fade-out {
             opacity: 0;
-            transition: opacity 1.2s ease;
+            transform: scale(1);
+            transition: opacity .7s ease;
         }
 
         .loading-logo {
@@ -80,11 +95,10 @@
 
         .bottom-info {
             position: absolute;
+            z-index: 1;
             bottom: 40px;
             width: 100%;
             text-align: center;
-            opacity: 1;
-            transition: opacity .35s ease;
         }
 
         .loading-text {
@@ -103,7 +117,7 @@
             justify-content: center;
             box-sizing: border-box;
             width: 100%;
-            height: 100%;
+            min-height: 100%;
             padding: 40px;
             background: #fff;
         }
@@ -127,14 +141,26 @@
             background: #f5f5f5;
         }
 
+        @media (prefers-reduced-motion: reduce) {
+            #logoContainer.fade-out {
+                transition-duration: .01ms;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="top-loading-bar" id="topLoadingBar"></div>
 
     <div class="loading-screen" id="loadingScreen" aria-label="页面加载中">
+        <canvas id="logoRevealCanvas" aria-hidden="true"></canvas>
+
         <div id="logoContainer">
-            <img class="loading-logo" src="/wkjasdka/index/community2.png" alt="Logo">
+            <img
+                id="loadingLogo"
+                class="loading-logo"
+                src="/wkjasdka/index/community2.png"
+                alt="LIUYANLIN COMMUNITY"
+            >
         </div>
 
         <div class="bottom-info" id="bottomInfo">
@@ -160,12 +186,24 @@
 
     <script>
         const loadingBar = document.getElementById('topLoadingBar');
-        const logoContainer = document.getElementById('logoContainer');
         const loadingScreen = document.getElementById('loadingScreen');
+        const logoContainer = document.getElementById('logoContainer');
+        const logoImage = document.getElementById('loadingLogo');
+        const revealCanvas = document.getElementById('logoRevealCanvas');
+        const bottomInfo = document.getElementById('bottomInfo');
+
+        const revealContext = revealCanvas.getContext('2d');
+        const maskCanvas = document.createElement('canvas');
+        const maskContext = maskCanvas.getContext('2d');
 
         let currentProgress = 0;
         let isFullyLoaded = false;
-        let hasStartedReveal = false;
+        let revealStarted = false;
+        let viewportWidth = 0;
+        let viewportHeight = 0;
+        let deviceScale = 1;
+        let logoWidth = 300;
+        let logoHeight = 87;
 
         function updateProgress(percent) {
             currentProgress = Math.min(percent, 100);
@@ -180,7 +218,7 @@
                     clearInterval(waitingTimer);
                     finishLoadingSequence();
                 } else if (currentProgress < 90) {
-                    updateProgress(currentProgress + 0.5);
+                    updateProgress(currentProgress + .5);
                 }
             }, 100);
         }
@@ -197,22 +235,114 @@
             }, 50);
         }
 
+        function prepareRevealCanvases() {
+            viewportWidth = window.innerWidth;
+            viewportHeight = window.innerHeight;
+            deviceScale = Math.min(window.devicePixelRatio || 1, 2);
+
+            revealCanvas.width = Math.round(viewportWidth * deviceScale);
+            revealCanvas.height = Math.round(viewportHeight * deviceScale);
+            maskCanvas.width = Math.round(viewportWidth * deviceScale);
+            maskCanvas.height = Math.round(viewportHeight * deviceScale);
+
+            revealContext.setTransform(deviceScale, 0, 0, deviceScale, 0, 0);
+            maskContext.setTransform(deviceScale, 0, 0, deviceScale, 0, 0);
+            maskContext.clearRect(0, 0, viewportWidth, viewportHeight);
+
+            const logoBox = logoImage.getBoundingClientRect();
+            logoWidth = logoBox.width || 300;
+            logoHeight = logoBox.height || logoWidth * (logoImage.naturalHeight / logoImage.naturalWidth || .29);
+        }
+
+        /* 将不同大小的同一 Logo 轮廓累积到遮罩中，形成从 Logo 边缘向外推进的开口。 */
+        function stampLogoMask(scale) {
+            maskContext.save();
+            maskContext.translate(viewportWidth / 2, viewportHeight / 2);
+            maskContext.scale(scale, scale);
+            maskContext.drawImage(
+                logoImage,
+                -logoWidth / 2,
+                -logoHeight / 2,
+                logoWidth,
+                logoHeight
+            );
+            maskContext.restore();
+        }
+
+        function paintRevealLayer() {
+            revealContext.globalCompositeOperation = 'source-over';
+            revealContext.clearRect(0, 0, viewportWidth, viewportHeight);
+            revealContext.fillStyle = '#fff';
+            revealContext.fillRect(0, 0, viewportWidth, viewportHeight);
+
+            revealContext.globalCompositeOperation = 'destination-out';
+            revealContext.drawImage(maskCanvas, 0, 0, viewportWidth, viewportHeight);
+            revealContext.globalCompositeOperation = 'source-over';
+        }
+
+        function expandFromLogo() {
+            const expansionDuration = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 1 : 1500;
+            const targetScale = Math.max(
+                viewportWidth / logoWidth,
+                viewportHeight / logoHeight
+            ) * 2.4;
+            const expansionStart = performance.now();
+
+            function frame(now) {
+                const progress = Math.min((now - expansionStart) / expansionDuration, 1);
+                const eased = 1 - Math.pow(1 - progress, 3);
+                const scale = 1 + (targetScale - 1) * eased;
+
+                stampLogoMask(scale);
+                paintRevealLayer();
+
+                if (progress < 1) {
+                    requestAnimationFrame(frame);
+                } else {
+                    loadingScreen.style.display = 'none';
+                    document.body.classList.add('is-ready');
+                }
+            }
+
+            requestAnimationFrame(frame);
+        }
+
         function finishLoadingSequence() {
-            if (hasStartedReveal) return;
-            hasStartedReveal = true;
+            if (revealStarted) return;
+            revealStarted = true;
             updateProgress(100);
 
             setTimeout(() => {
                 loadingBar.style.opacity = '0';
-                loadingScreen.classList.add('fade-out');
+                prepareRevealCanvases();
+                revealCanvas.classList.add('active');
+                loadingScreen.classList.add('is-revealing');
+
+                // 在 Logo 透明的同时，先挖出完全相同的 PNG 轮廓。
+                stampLogoMask(1);
+                paintRevealLayer();
+                logoContainer.classList.add('fade-out');
+
+                // Logo 消失后，再从其轮廓边缘向屏幕边缘扩散。
+                setTimeout(() => {
+                    bottomInfo.style.opacity = '0';
+                    expandFromLogo();
+                }, 700);
             }, 350);
         }
+
+        window.addEventListener('resize', () => {
+            if (!revealStarted || !revealCanvas.classList.contains('active')) return;
+            prepareRevealCanvases();
+            stampLogoMask(1);
+            paintRevealLayer();
+        });
 
         window.addEventListener('load', () => {
             isFullyLoaded = true;
         });
 
-        // 防止外部图片路径失效时页面永远停留在加载状态
+        // 防止外部资源异常时页面无限等待。
         setTimeout(() => {
             isFullyLoaded = true;
         }, 5000);
