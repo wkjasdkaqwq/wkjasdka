@@ -1,24 +1,17 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+
   <meta charset="UTF-8">
+
   <title>W.K.Jasdka Welcomes you!</title>
+
   <link rel="icon" href="/wkjasdka/index/echo logo.png" type="image/x-icon">
-  <!-- 引入Font Awesome用于图标 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
-  <!-- 深色模式自动检测脚本：在页面加载前立即执行，避免闪烁 -->
-  <script>
-    (function() {
-      // 检测系统是否处于深色模式
-      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        // 如果系统处于深色模式，立即给 html 标签添加 dark-mode 类
-        document.documentElement.classList.add('dark-mode');
-      }
-    })();
-  </script>
+
   <style>
-    /* 导航栏样式 */
     .navbar {
       position: fixed;
       top: 0;
@@ -43,7 +36,6 @@
       justify-content: space-between;
       align-items: center;
     }
-    /* 菜单按钮样式 */
     .menu-btn {
       position: absolute;
       left: 20px;
@@ -134,14 +126,7 @@
       list-style: none;
       margin: 0;
       padding: 0 1rem;
-    }
-    
-  /* 修改第 128 - 129 行 */
-overflow-y: scroll;         /* 强制允许滚动 */
-scrollbar-width: none;      /* 针对 Firefox 隐藏滚动条 */
--ms-overflow-style: none;   /* 针对 IE/Edge 隐藏滚动条 */
-}
-    
+    }    
     .navbar-link {
       color: #333;
       text-decoration: none;
@@ -841,16 +826,8 @@ body {
   bottom: env(safe-area-inset-bottom, 26px);
 }
 }
-@media (pointer: coarse) {
-        cursor: default !important; 
-    }
-}
 
-/* ========================================
-   深色模式适配 (Dark Mode)
-   背景色参考：#07121C（深蓝黑色）
-   针对 .dark-mode 类名的选择器，由 JS 脚本主动添加
-   ======================================== */
+
 .dark-mode {
   /* 页面背景色：按照用户要求设置为 #07121C（深蓝黑色） */
   body {
@@ -1280,15 +1257,16 @@ body {
     <p><span id="current-year">2025</span> Copyright (&copy;) W.K.Jasdka . All rights reserved</p>
   </footer>
   <script>
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.documentElement.classList.add('dark-mode');
+      }
+
 (function() {
-  // 改成你的官网
   let domain = "https://wkjasdkaqwq.github.io/wkjasdka/";
-  // 检测本地文件协议
   if (location.protocol === "file:") {
     location.href = domain;
   }
 })();
-    // 兼容 touch 端卡片翻转功能
     function addTouchFlip(card) {
       card.addEventListener('touchstart', function() {
         this.classList.toggle('flipped');
