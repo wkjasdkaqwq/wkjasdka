@@ -134,9 +134,15 @@
     }
 
     .loading-logo {
-      width: 65px; 
+      display: none;
+      width: 65px;
       height: auto;
     }
+
+    #loadingLogoDark { display: none; }
+    .loading-ready #loadingLogoLight { display: block; }
+    html.dark-mode .loading-ready #loadingLogoLight { display: none; }
+    html.dark-mode .loading-ready #loadingLogoDark { display: block; }
 
     .loading-text-container {
       position: fixed !important;
@@ -596,14 +602,60 @@
       opacity: 1;
       visibility: visible;
     }
+
+    /* 首页同款系统深色主题 */
+    html.dark-mode { color-scheme: dark; }
+    html.dark-mode body { background-color: #07121C !important; color: #e0e0e0 !important; }
+    html.dark-mode .navbar { background-color: #0f1f2e !important; box-shadow: 0 2px 5px rgba(0,0,0,.5) !important; }
+    html.dark-mode .navbar-logo { filter: brightness(0) invert(1); }
+    html.dark-mode .navbar-logo:hover { opacity: .82; }
+    html.dark-mode .logo-text, html.dark-mode .menu-btn { color: #e0e0e0 !important; }
+    html.dark-mode .sidebar { background-color: #0d1a26 !important; box-shadow: -2px 0 10px rgba(0,0,0,.7) !important; }
+    html.dark-mode .sidebar::after { background-color: #1a2a3a !important; }
+    html.dark-mode .sidebar-item { background-color: #0f1f2e !important; color: #e0e0e0 !important; border-right-color: #1a2a3a !important; }
+    html.dark-mode .sidebar-item:hover { background-color: #1a2a3a !important; }
+    html.dark-mode .sidebar-item:active { background-color: #0a1420 !important; }
+    html.dark-mode .sidebar-item.active, html.dark-mode .sidebar-item.expanded { background-color: #1a2a3a !important; border-right-color: #1a2a3a !important; }
+    html.dark-mode .sidebar-item.expandable::after { color: #b0b0b0 !important; }
+    html.dark-mode .sidebar-submenu { background-color: #0a1420 !important; }
+    html.dark-mode .sidebar-submenu.expanded { border-right-color: #1a2a3a !important; }
+    html.dark-mode .sidebar-subitem { color: #e0e0e0 !important; border-right-color: #1a2a3a !important; }
+    html.dark-mode .sidebar-subitem:hover { background-color: #1a2a3a !important; }
+    html.dark-mode .sidebar-subitem:active { background-color: #0f1f2e !important; }
+    html.dark-mode .sidebar-subitem.active { background-color: rgba(255,255,255,.08) !important; border-right-color: transparent !important; }
+    html.dark-mode .main-content { background-color: #07121C !important; color: #e0e0e0 !important; }
+    html.dark-mode .content-section h2 { color: #e0e0e0; border-bottom-color: #1a2a3a; }
+    html.dark-mode .content-section p { color: #a0a0a0; }
+    html.dark-mode .info-box { background-color: #0f1f2e !important; border-left-color: #e67e22 !important; }
+    html.dark-mode .info-box p { color: #a0a0a0 !important; }
+    html.dark-mode .grid-item { background-color: #0d1a26 !important; border-color: #1a2a3a !important; color: #e0e0e0 !important; }
+    html.dark-mode .main-content a { color: #64b5f6; }
+    html.dark-mode .main-content a:hover { color: #90caf9; }
+    html.dark-mode footer { background-color: #0d1a26 !important; border-top-color: #1a2a3a !important; color: #a0a0a0 !important; }
+    html.dark-mode .loading-screen { background-color: #07121C !important; }
+    html.dark-mode .loading-text { color: #b0b0b0 !important; }
+    html.dark-mode .sidebar-overlay { background-color: rgba(0,0,0,.7) !important; }
+    html.dark-mode .sidebar::-webkit-scrollbar-track { background: #0d1a26; }
+    html.dark-mode .sidebar::-webkit-scrollbar-thumb { background: #1a2a3a; }
+    html.dark-mode .sidebar::-webkit-scrollbar-thumb:hover { background: #2a3a4a; }
   </style>
+  <script>
+    (function () {
+      if (!window.matchMedia) return;
+      const darkPreference = window.matchMedia('(prefers-color-scheme: dark)');
+      const syncTheme = () => document.documentElement.classList.toggle('dark-mode', darkPreference.matches);
+      syncTheme();
+      if (darkPreference.addEventListener) darkPreference.addEventListener('change', syncTheme);
+      else if (darkPreference.addListener) darkPreference.addListener(syncTheme);
+    })();
+  </script>
 </head>
 <body>
   <!-- 导航栏 -->
   <nav class="navbar" id="navbar">
     <div class="navbar-container">
       <div class="logo-container">
-        <img src="/wkjasdka/index/echo logo.png" alt="echoLogo" class="navbar-logo" id="logo">
+        <img src="index/echo logo.png" alt="echoLogo" class="navbar-logo" id="logo">
         <span class="logo-text">关于</span>
       </div>
       <button class="menu-btn" id="menuBtn">
@@ -647,7 +699,8 @@
   <!-- 加载层 -->
   <div class="loading-screen" id="loadingScreen">
     <div class="loading-content" id="loadingContent">
-      <img src="index/logo3.png" alt="加载Logo" class="loading-logo" id="loadingLogo">
+      <img src="index/logo3.png" alt="加载Logo" class="loading-logo" id="loadingLogoLight">
+      <img src="index/dark_mode.png" alt="加载Logo" class="loading-logo" id="loadingLogoDark">
       <div class="loading-text-container" id="loadingTexts" aria-hidden="false">
         <div class="loading-text">from</div>
         <div class="loading-text">- Wkjasdka -</div>
@@ -725,7 +778,9 @@
     const mainContent = document.getElementById('mainContent');
     const loadingScreen = document.getElementById('loadingScreen');
     const loadingContent = document.getElementById('loadingContent');
-    const loadingLogo = document.getElementById('loadingLogo');
+    const loadingLogoLight = document.getElementById('loadingLogoLight');
+    const loadingLogoDark = document.getElementById('loadingLogoDark');
+    const activeLoadingLogo = document.documentElement.classList.contains('dark-mode') ? loadingLogoDark : loadingLogoLight;
 
     // 移动端欢迎页模板
     const mobileWelcomeTemplate = `
@@ -761,10 +816,12 @@
       loadingContent.classList.add('visible');
     }
 
-    if (loadingLogo.complete) {
+    if (activeLoadingLogo.complete && activeLoadingLogo.naturalWidth > 0) {
       showLoadingContent();
     } else {
-      loadingLogo.addEventListener('load', showLoadingContent);
+      activeLoadingLogo.addEventListener('load', () => {
+        if (activeLoadingLogo.naturalWidth > 0) showLoadingContent();
+      }, { once: true });
     }
 
     // 初始化页面显示逻辑
