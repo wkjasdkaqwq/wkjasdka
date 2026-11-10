@@ -35,6 +35,7 @@
     .sidebar.open { transform: translateX(0); }
     @media (max-width: 600px) {
       .navbar { height: 3.75rem; }
+      .notification-panel { top: 4.25rem; right: 0.75rem; width: calc(100vw - 1.5rem); max-height: calc(100vh - 5.25rem); }
       .sidebar { width: 85vw; padding-top: 4.0625rem; font-size: 1rem; }
       .navbar-logo { margin-left: 0; font-size: 1.1rem; }
       .navbar-menu { padding: 0 0.3rem; }
@@ -76,7 +77,7 @@
     .sidebar-link:hover { background-color: #e0e0e0; padding-left: 30px; }
     .sidebar-link i { margin-right: 10px; width: 20px; text-align: center; }
     .sidebar-item:has(.fa-info-circle) { border-bottom: none !important; }
-    .sidebar-settings { position: relative; flex: 0 0 46px; align-self: flex-start; margin: 1rem 0 1.25rem 1.25rem; width: 46px; height: 46px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: #e2e2e2; color: #333; text-decoration: none; font-size: 1.2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.18); transition: background-color 0.2s ease, transform 0.2s ease; z-index: 9000; }
+    .sidebar-settings { position: relative; flex: 0 0 46px; align-self: flex-start; margin: 2rem 0 1.25rem 1.25rem; width: 46px; height: 46px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: #e2e2e2; color: #333; text-decoration: none; font-size: 1.2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.18); transition: background-color 0.2s ease, transform 0.2s ease; z-index: 9000; }
     .sidebar-settings:hover { background: #d2d2d2; transform: scale(1.08); }
     .sidebar-settings:active { transform: scale(0.94); }
     .sidebar-settings::after { content: attr(data-tooltip); position: absolute; left: 56px; bottom: 50%; transform: translateY(50%); padding: 6px 9px; border-radius: 4px; background: #333; color: #fff; font-size: 0.85rem; white-space: nowrap; opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 0.18s ease, visibility 0.18s ease; }
@@ -85,6 +86,16 @@
     .dark-mode .sidebar-settings:hover { background: #26394d; }
     .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 8998; opacity: 0; visibility: hidden; transition: opacity 0.4s ease-out, visibility 0.4s ease-out; }
     .overlay.open { opacity: 1; visibility: visible; }
+    .notification-panel { position: fixed; top: 5rem; right: 1rem; z-index: 9002; width: min(24rem, calc(100vw - 2rem)); max-height: calc(100vh - 6rem); overflow-y: auto; box-sizing: border-box; padding: 1rem; border: 1px solid #e0e0e0; border-radius: 12px; background: #fff; color: #333; box-shadow: 0 8px 28px rgba(0,0,0,0.18); opacity: 0; visibility: hidden; transform: translateY(-0.5rem); transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease; }
+    .notification-panel.open { opacity: 1; visibility: visible; transform: translateY(0); }
+    .notification-panel-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 0.75rem; }
+    .notification-panel-header h2 { margin: 0; font-size: 1.1rem; }
+    .notification-close { width: 2rem; height: 2rem; padding: 0; border: 0; border-radius: 50%; background: transparent; color: inherit; font-size: 1.5rem; line-height: 1; cursor: pointer; }
+    .notification-close:hover { background: rgba(127,127,127,0.15); }
+    .notification-close:focus-visible { outline: 2px solid #64b5f6; outline-offset: 2px; }
+    .notification-empty { margin: 0; padding: 1.25rem 0.5rem; color: #66717a; text-align: center; }
+    .dark-mode .notification-panel { background: #0d1a26; color: #e0e0e0; border-color: #1a2a3a; }
+    .dark-mode .notification-empty { color: #a0aab3; }
     .loading-screen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: #fff; display: flex; justify-content: center; align-items: center; z-index: 9999; opacity: 1; visibility: visible; }
     .loading-logo { width: 65px; height: auto; z-index: 10000; display: none; }
     #loadingLogoDark { display: none; }
@@ -168,6 +179,10 @@
     <a class="sidebar-settings" href="settings.html" data-tooltip="Settings" aria-label="Settings" title="Settings"><i class="fas fa-cog" aria-hidden="true"></i></a>
   </div>
   <div class="overlay" id="overlay"></div>
+  <aside class="notification-panel" id="notificationPanel" role="dialog" aria-labelledby="notificationTitle" aria-hidden="true" tabindex="-1">
+    <div class="notification-panel-header"><h2 id="notificationTitle">通知</h2><button class="notification-close" id="notificationClose" type="button" aria-label="关闭通知栏">&times;</button></div>
+    <p class="notification-empty">目前暂无通知。</p>
+  </aside>
   <div class="loading-screen" id="loadingScreen"><img data-src="/wkjasdka/index/logo3.png" alt="加载Logo" class="loading-logo" id="loadingLogoLight"><img data-src="/wkjasdka/index/dark_mode.png" alt="加载Logo" class="loading-logo" id="loadingLogoDark"><div class="loading-text-container" id="loadingTexts" aria-hidden="false"><div class="loading-text">from</div><div class="loading-text">- Wkjasdka -</div></div></div>
   <div class="content" id="mainContent"><h1><span class="mobile-welcome-hello">Welcome come to</span><span class="mobile-welcome-break"></span><span class="mobile-welcome-url">the W.K.Jasdka Official Website!</span></h1><div class="cards-wrapper"><div class="card-container" id="cardContainer1"><div class="card-tooltip" id="cardTooltip1">What is Liuyanlin.Wkjasdka.NET?</div><div class="card" id="infoCard1"><div class="card-front">What is this?</div><div class="card-back">This is the official website of W.K.Jasdka.</div></div></div><div class="card-container" id="cardContainer2"><div class="card-tooltip" id="cardTooltip2">What is Liuyanlin.Wkjasdka.NET used for?</div><div class="card" id="infoCard2"><div class="card-front">What is it for?</div><div class="card-back">This is used to retrieve completed development projects of W.K.Jasdka.</div></div></div></div><hr class="middle-line"><section class="projects-section"><h2>Project</h2><div class="projects-container"><div class="project-card"><div class="project-image-container"><img data-src="/wkjasdka/index/untitled.png" alt="ProjectImage" class="project-image"></div><div class="project-content"><h3>Semi-rounded Corner</h3><p>Content to input</p><a href="community.html" class="project-link">View Details <i class="fas fa-arrow-right"></i></a></div></div></div></section><footer><p><span id="current-year">2025</span> Copyright (&copy;) W.K.Jasdka . All rights reserved</p></footer></div>
   <script>
@@ -179,6 +194,9 @@
     const menuBtn = document.getElementById('menuBtn');
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('overlay');
+    const notificationPanel = document.getElementById('notificationPanel');
+    const notificationClose = document.getElementById('notificationClose');
+    let notificationReturnFocus = null;
 
     function closeSidebar(returnFocus = false) {
       sidebar.classList.remove('open');
@@ -191,6 +209,20 @@
       menuBtn.style.right = '';
       document.querySelectorAll('.sidebar-submenu, .sidebar-item.has-submenu').forEach(el => el.classList.remove('open'));
       if (returnFocus) menuBtn.focus();
+    }
+
+    function closeNotificationPanel(returnFocus = false) {
+      notificationPanel.classList.remove('open');
+      notificationPanel.setAttribute('aria-hidden', 'true');
+      if (returnFocus && notificationReturnFocus && notificationReturnFocus !== document.body) notificationReturnFocus.focus();
+    }
+
+    function openNotificationPanel() {
+      if (notificationPanel.classList.contains('open')) return;
+      notificationReturnFocus = document.activeElement;
+      if (sidebar.classList.contains('open')) closeSidebar();
+      notificationPanel.classList.add('open');
+      notificationPanel.setAttribute('aria-hidden', 'false');
     }
 
     function openSidebar() {
@@ -208,17 +240,33 @@
     }
 
     function toggleSidebar() {
+      if (notificationPanel.classList.contains('open')) closeNotificationPanel();
       if (sidebar.classList.contains('open')) closeSidebar();
       else openSidebar();
     }
 
     menuBtn.addEventListener('click', toggleSidebar);
+    notificationClose.addEventListener('click', () => closeNotificationPanel(true));
+    document.addEventListener('click', event => {
+      if (notificationPanel.classList.contains('open') && !notificationPanel.contains(event.target)) closeNotificationPanel();
+    });
     overlay.addEventListener('click', () => closeSidebar());
 
     document.addEventListener('keydown', event => {
-      if (event.key === 'Escape' && sidebar.classList.contains('open')) {
+      if (event.key === 'Escape') {
+        if (notificationPanel.classList.contains('open')) {
+          event.preventDefault();
+          closeNotificationPanel(true);
+        } else if (sidebar.classList.contains('open')) {
+          event.preventDefault();
+          closeSidebar(true);
+        }
+      }
+
+      const isEditable = event.target instanceof HTMLElement && event.target.closest('input, textarea, select, [contenteditable="true"]');
+      if (event.shiftKey && !event.altKey && !event.ctrlKey && !event.metaKey && event.key.toLowerCase() === 'a' && !isEditable) {
         event.preventDefault();
-        closeSidebar(true);
+        openNotificationPanel();
       }
     });
 
