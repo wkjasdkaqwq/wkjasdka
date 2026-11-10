@@ -497,6 +497,14 @@
       }
     }
 
+    /* Keep navbar sizing aligned with settings.html above its 600px breakpoint. */
+    @media (min-width: 601px) and (max-width: 768px) {
+      .navbar-logo { height: 1.5rem; }
+      .logo-text { font-size: 1.5rem; }
+      .sidebar { top: 66px; height: calc(100vh - 66px); }
+      .main-content { margin-top: 82px; min-height: calc(100vh - 82px - 60px); }
+    }
+
     /* ========== 超小屏幕适配 (480px 及以下) ========== */
     @media (max-width: 480px) {
       .navbar-logo {
