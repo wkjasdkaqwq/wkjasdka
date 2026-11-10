@@ -57,8 +57,9 @@
     .shortcuts-information { min-height: 0; overflow: auto; padding: clamp(1rem, 3vw, 2rem); }
     .shortcuts-hint { margin: 0 0 1.25rem; color: #66717a; line-height: 1.5; }
     .shortcut-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
-    .shortcut-info-card { display: flex; min-height: 150px; flex-direction: column; align-items: flex-start; justify-content: space-between; gap: 1.25rem; padding: 1.25rem; border: 1px solid #e0e5e9; border-radius: 14px; background: #f8f9fa; color: inherit; font: inherit; text-align: left; cursor: default; transition: border-color .16s ease, background .16s ease, box-shadow .16s ease, transform .16s ease; }
-    .shortcut-info-card:hover, .shortcut-info-card.is-active { border-color: #e67e22; background: #fff8f1; box-shadow: 0 8px 24px rgba(230,126,34,.16); transform: translateY(-2px); }
+    .shortcut-info-card { display: flex; min-height: 150px; flex-direction: column; align-items: flex-start; justify-content: space-between; gap: 1.25rem; padding: 1.25rem; border: 1px solid #e0e5e9; border-radius: 14px; background: #f8f9fa; color: inherit; font: inherit; text-align: left; cursor: pointer; transition: border-color .16s ease, background .16s ease, box-shadow .16s ease, transform .16s ease; }
+    .shortcut-info-card.is-active, .shortcut-info-card.is-selected { border-color: #e67e22; background: #fff8f1; box-shadow: 0 8px 24px rgba(230,126,34,.16); transform: translateY(-2px); }
+    .shortcut-info-card.is-preview, .shortcuts-dialog.has-selected-shortcut .shortcut-info-card:hover:not(.is-selected) { border-color: #efbd95; background: #fffaf6; box-shadow: 0 5px 18px rgba(230,126,34,.09); transform: translateY(-1px); }
     .shortcut-info-card strong { font-size: clamp(1rem, 2vw, 1.2rem); }
     .shortcut-info-card span { color: #66717a; line-height: 1.5; }
     .shortcut-combo { display: inline-flex; align-items: center; gap: .45rem; }
@@ -71,6 +72,7 @@
     .keyboard-key { display: grid; flex: 1 1 0; place-items: center; min-width: 0; height: clamp(20px, 2.8vh, 30px); padding: 0 .2rem; border: 1px solid #c8d0d7; border-bottom-width: 3px; border-radius: 6px; background: #fff; color: #36434d; font: 600 clamp(.55rem, 1.1vw, .78rem)/1 Arial, sans-serif; opacity: .78; transition: background .45s ease, color .45s ease, border-color .45s ease, box-shadow .45s ease, transform .45s ease, opacity .45s ease; }
     .keyboard-key[data-key="Shift"], .keyboard-key[data-key="Backspace"], .keyboard-key[data-key="Tab"], .keyboard-key[data-key="CapsLock"], .keyboard-key[data-key="Enter"], .keyboard-key[data-key="Control"], .keyboard-key[data-key="Alt"], .keyboard-key[data-key="Escape"] { flex-grow: 1.6; }
     .keyboard-key[data-key="Space"] { flex-grow: 5.5; }
+    .keyboard-key.is-preview-highlighted { z-index: 1; border-color: #efbd95; background: #ffe9d8; color: #744315; opacity: .94; box-shadow: 0 0 0 2px rgba(230,126,34,.1); transform: translateY(-1px); }
     .keyboard-key.is-highlighted { z-index: 1; border-color: #c95f08; background: #e67e22; color: #fff; opacity: 1; box-shadow: 0 0 0 3px rgba(230,126,34,.2), 0 5px 14px rgba(230,126,34,.28); transform: translateY(-2px); }
     html.dark-mode .shortcuts-dialog { border-color: #26394d; background: #0d1a26; color: #e0e0e0; }
     html.dark-mode .shortcuts-header, html.dark-mode .keyboard-area { border-color: #26394d; }
@@ -78,10 +80,12 @@
     html.dark-mode .shortcuts-close { background: #1a2a3a; }
     html.dark-mode .shortcuts-hint, html.dark-mode .shortcut-info-card span, html.dark-mode .keyboard-caption { color: #a0aab3; }
     html.dark-mode .shortcut-info-card { border-color: #26394d; background: #101f2e; }
-    html.dark-mode .shortcut-info-card:hover, html.dark-mode .shortcut-info-card.is-active { border-color: #e67e22; background: #2a2119; }
+    html.dark-mode .shortcut-info-card.is-active, html.dark-mode .shortcut-info-card.is-selected { border-color: #e67e22; background: #2a2119; }
+    html.dark-mode .shortcut-info-card.is-preview, html.dark-mode .shortcuts-dialog.has-selected-shortcut .shortcut-info-card:hover:not(.is-selected) { border-color: #9c7656; background: #382b20; box-shadow: 0 5px 18px rgba(230,126,34,.08); }
     html.dark-mode .shortcut-combo kbd, html.dark-mode .keyboard-key { border-color: #425363; background: #172839; color: #e0e0e0; }
     html.dark-mode .keyboard-area { background: #091521; }
     html.dark-mode .keyboard-key.is-highlighted { border-color: #f39a4f; background: #e67e22; color: #fff; }
+    html.dark-mode .keyboard-key.is-preview-highlighted { border-color: #a77b57; background: #483521; color: #ffe0c3; }
 
     .loading-screen { position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; background: #fff; }
     .loading-logo { display: none; width: 65px; height: auto; z-index: 10000; }
@@ -194,14 +198,14 @@
       </header>
       <div class="shortcuts-layout">
         <div class="shortcuts-information">
-          <p class="shortcuts-hint" id="shortcutsHint" data-i18n="shortcutsHint">Hover over or focus a shortcut to see its keys highlighted below.</p>
+          <p class="shortcuts-hint" id="shortcutsHint" data-i18n="shortcutsHint">Click a shortcut to pin it; hover another for a lighter preview. Click blank space to clear.</p>
           <div class="shortcut-list">
-            <button class="shortcut-info-card" type="button" data-keys="Shift A">
+            <button class="shortcut-info-card" type="button" aria-pressed="false" data-keys="Shift A">
               <span class="shortcut-combo"><kbd>Shift</kbd><b>+</b><kbd>A</kbd></span>
               <strong data-i18n="shortcutToggleTitle">Toggle the side menu</strong>
               <span data-i18n="shortcutToggleDescription">Open the menu, or close it when it is already open.</span>
             </button>
-            <button class="shortcut-info-card" type="button" data-keys="Escape">
+            <button class="shortcut-info-card" type="button" aria-pressed="false" data-keys="Escape">
               <span class="shortcut-combo"><kbd>Esc</kbd></span>
               <strong data-i18n="shortcutEscapeTitle">Close the side menu</strong>
               <span data-i18n="shortcutEscapeDescription">Close the open side menu and return focus to its menu button.</span>
@@ -245,7 +249,7 @@
         shortcutsOpen: 'View shortcuts',
         shortcutsModalTitle: 'Keyboard shortcuts',
         shortcutsClose: 'Close shortcuts',
-        shortcutsHint: 'Hover over or focus a shortcut to light up its keys; the two Shift keys alternate after 3 seconds.',
+        shortcutsHint: 'Click a shortcut to pin it; hover another for a lighter preview. Click blank space to clear. The two Shift keys alternate after 3 seconds.',
         shortcutToggleTitle: 'Toggle the side menu',
         shortcutToggleDescription: 'Open the menu, or close it when it is already open.',
         shortcutEscapeTitle: 'Close the side menu',
@@ -265,7 +269,7 @@
         shortcutsOpen: '查看快捷键',
         shortcutsModalTitle: '快捷键',
         shortcutsClose: '关闭快捷键窗口',
-        shortcutsHint: '悬停或聚焦快捷键可点亮对应按键；左右 Shift 键先同时亮起，3 秒后开始轮换。',
+        shortcutsHint: '点击快捷键可固定选择；悬停另一项可浅色预览，点击空白处取消。左右 Shift 先同时亮起，3 秒后轮换。',
         shortcutToggleTitle: '切换侧边菜单',
         shortcutToggleDescription: '展开菜单；菜单已展开时再次按下即可关闭。',
         shortcutEscapeTitle: '关闭侧边菜单',
@@ -279,12 +283,17 @@
     const darkModeToggle = document.getElementById('darkModeToggle');
     const languageSelect = document.getElementById('languageSelect');
     const shortcutsModal = document.getElementById('shortcutsModal');
+    const shortcutsDialog = shortcutsModal.querySelector('.shortcuts-dialog');
     const shortcutsOpen = document.getElementById('shortcutsOpen');
     const shortcutsClose = document.getElementById('shortcutsClose');
     let shortcutsReturnFocus = null;
     let previousBodyOverflow = '';
     let shiftCycleTimeout = null;
     let shiftCycleInterval = null;
+    let shiftCycleCard = null;
+    let pinnedShortcutCard = null;
+    let hoveredShortcutCard = null;
+    let focusedShortcutCard = null;
     const savedTheme = localStorage.getItem('wkjasdka-dark-mode');
     const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
     const isDark = savedTheme === null ? prefersDark : savedTheme === 'true';
@@ -330,11 +339,80 @@
       shiftCycleInterval = null;
     }
 
+    function getPrimaryShortcutCard() {
+      if (!shortcutsModal.classList.contains('open')) return null;
+      return pinnedShortcutCard || hoveredShortcutCard || focusedShortcutCard;
+    }
+
+    function syncShiftCycle(card) {
+      const shouldCycle = card && card.dataset.keys.split(' ').includes('Shift');
+      if (!shouldCycle) {
+        clearShiftCycle();
+        shiftCycleCard = null;
+        return;
+      }
+      if (shiftCycleCard === card && (shiftCycleTimeout !== null || shiftCycleInterval !== null)) return;
+
+      clearShiftCycle();
+      shiftCycleCard = card;
+      const leftShift = document.querySelector('.keyboard-key[data-key="Shift"][data-side="left"]');
+      const rightShift = document.querySelector('.keyboard-key[data-key="Shift"][data-side="right"]');
+      shiftCycleTimeout = window.setTimeout(() => {
+        shiftCycleTimeout = null;
+        if (getPrimaryShortcutCard() !== card) {
+          shiftCycleCard = null;
+          return;
+        }
+        let leftIsLit = true;
+        rightShift.classList.remove('is-highlighted');
+        shiftCycleInterval = window.setInterval(() => {
+          if (getPrimaryShortcutCard() !== card) {
+            clearShiftCycle();
+            shiftCycleCard = null;
+            return;
+          }
+          leftIsLit = !leftIsLit;
+          leftShift.classList.toggle('is-highlighted', leftIsLit);
+          rightShift.classList.toggle('is-highlighted', !leftIsLit);
+        }, 1000);
+      }, 3000);
+    }
+
+    function updateShortcutHighlight() {
+      const isOpen = shortcutsModal.classList.contains('open');
+      const transientCard = isOpen ? (hoveredShortcutCard || focusedShortcutCard) : null;
+      const primaryCard = isOpen ? (pinnedShortcutCard || transientCard) : null;
+      const previewCard = pinnedShortcutCard && transientCard && transientCard !== pinnedShortcutCard ? transientCard : null;
+      const primaryKeys = new Set(primaryCard ? primaryCard.dataset.keys.split(' ') : []);
+      const previewKeys = new Set(previewCard ? previewCard.dataset.keys.split(' ') : []);
+
+      shortcutsDialog.classList.toggle('has-selected-shortcut', Boolean(isOpen && pinnedShortcutCard));
+      document.querySelectorAll('.shortcut-info-card').forEach(card => {
+        const isSelected = isOpen && card === pinnedShortcutCard;
+        card.classList.toggle('is-selected', isSelected);
+        card.classList.toggle('is-active', isOpen && card === primaryCard);
+        card.classList.toggle('is-preview', isOpen && card === previewCard);
+        card.setAttribute('aria-pressed', String(isSelected));
+      });
+      document.querySelectorAll('.keyboard-key').forEach(key => {
+        const isPrimaryKey = primaryKeys.has(key.dataset.key);
+        key.classList.toggle('is-highlighted', isPrimaryKey);
+        key.classList.toggle('is-preview-highlighted', !isPrimaryKey && previewKeys.has(key.dataset.key));
+      });
+      syncShiftCycle(primaryCard);
+    }
+
     function closeShortcuts() {
       clearShiftCycle();
-      document.querySelectorAll('.shortcut-info-card.is-active, .keyboard-key.is-highlighted').forEach(element => {
-        element.classList.remove('is-active', 'is-highlighted');
+      shiftCycleCard = null;
+      pinnedShortcutCard = null;
+      hoveredShortcutCard = null;
+      focusedShortcutCard = null;
+      shortcutsDialog.classList.remove('has-selected-shortcut');
+      document.querySelectorAll('.shortcut-info-card.is-active, .shortcut-info-card.is-selected, .shortcut-info-card.is-preview, .keyboard-key.is-highlighted, .keyboard-key.is-preview-highlighted').forEach(element => {
+        element.classList.remove('is-active', 'is-selected', 'is-preview', 'is-highlighted', 'is-preview-highlighted');
       });
+      document.querySelectorAll('.shortcut-info-card').forEach(card => card.setAttribute('aria-pressed', 'false'));
       shortcutsModal.classList.remove('open');
       shortcutsModal.setAttribute('aria-hidden', 'true');
       document.body.style.overflow = previousBodyOverflow;
@@ -348,6 +426,11 @@
     shortcutsOpen.addEventListener('click', openShortcuts);
     shortcutsClose.addEventListener('click', closeShortcuts);
     shortcutsModal.addEventListener('click', event => {
+      if (event.target.closest('.shortcut-info-card')) return;
+      pinnedShortcutCard = null;
+      hoveredShortcutCard = null;
+      focusedShortcutCard = null;
+      updateShortcutHighlight();
       if (event.target === shortcutsModal) closeShortcuts();
     });
     document.addEventListener('keydown', event => {
@@ -370,33 +453,26 @@
       }
     });
     document.querySelectorAll('.shortcut-info-card').forEach(card => {
-      const setHighlight = active => {
-        clearShiftCycle();
-        const shouldHighlight = active && shortcutsModal.classList.contains('open');
-        const keys = card.dataset.keys.split(' ');
-        card.classList.toggle('is-active', shouldHighlight);
-        document.querySelectorAll('.keyboard-key').forEach(key => {
-          key.classList.toggle('is-highlighted', shouldHighlight && keys.includes(key.dataset.key));
-        });
-        if (!shouldHighlight || !keys.includes('Shift')) return;
-
-        const leftShift = document.querySelector('.keyboard-key[data-key="Shift"][data-side="left"]');
-        const rightShift = document.querySelector('.keyboard-key[data-key="Shift"][data-side="right"]');
-        shiftCycleTimeout = window.setTimeout(() => {
-          if (!card.classList.contains('is-active') || !shortcutsModal.classList.contains('open')) return;
-          let leftIsLit = true;
-          rightShift.classList.remove('is-highlighted');
-          shiftCycleInterval = window.setInterval(() => {
-            leftIsLit = !leftIsLit;
-            leftShift.classList.toggle('is-highlighted', leftIsLit);
-            rightShift.classList.toggle('is-highlighted', !leftIsLit);
-          }, 1000);
-        }, 3000);
-      };
-      card.addEventListener('pointerenter', () => setHighlight(true));
-      card.addEventListener('pointerleave', () => setHighlight(card === document.activeElement));
-      card.addEventListener('focus', () => setHighlight(true));
-      card.addEventListener('blur', () => setHighlight(card.matches(':hover')));
+      card.addEventListener('click', () => {
+        pinnedShortcutCard = card;
+        updateShortcutHighlight();
+      });
+      card.addEventListener('pointerenter', () => {
+        hoveredShortcutCard = card;
+        updateShortcutHighlight();
+      });
+      card.addEventListener('pointerleave', () => {
+        if (hoveredShortcutCard === card) hoveredShortcutCard = null;
+        updateShortcutHighlight();
+      });
+      card.addEventListener('focus', () => {
+        focusedShortcutCard = card;
+        updateShortcutHighlight();
+      });
+      card.addEventListener('blur', () => {
+        if (focusedShortcutCard === card) focusedShortcutCard = null;
+        updateShortcutHighlight();
+      });
     });
 
     document.getElementById('logo').addEventListener('click', event => {
