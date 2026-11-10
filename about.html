@@ -193,11 +193,23 @@
       top: 66px;
       width: 25%;
       bottom: 0;
-      background-color: #f9f9f9;
+      background-color: transparent;
       padding-top: 1.875rem;
       box-sizing: border-box;
       overflow-y: auto;
       z-index: 7000;
+    }
+
+    .sidebar::before {
+      content: "";
+      position: absolute;
+      top: 1.875rem;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      background-color: #f9f9f9;
+      z-index: 0;
+      pointer-events: none;
     }
 
     /* 背景竖线 */
@@ -205,7 +217,7 @@
       content: "";
       position: absolute;
       right: 0;
-      top: 1px;
+      top: calc(1.875rem + 1px);
       bottom: 0;
       width: 1px;
       background-color: #ccc;
@@ -420,7 +432,7 @@
         width: 70%;
         max-width: 280px;
         height: calc(100vh - 3.75rem);
-        background-color: #f9f9f9;
+        background-color: transparent;
         transform: translateX(100%);
         transition: transform 0.3s ease;
         overflow-y: auto;
@@ -611,7 +623,8 @@
     html.dark-mode .navbar-logo { filter: brightness(0) invert(1); }
     html.dark-mode .navbar-logo:hover { opacity: .82; }
     html.dark-mode .logo-text, html.dark-mode .menu-btn { color: #e0e0e0 !important; }
-    html.dark-mode .sidebar { background-color: #0d1a26 !important; box-shadow: -2px 0 10px rgba(0,0,0,.7) !important; }
+    html.dark-mode .sidebar { background-color: transparent !important; box-shadow: -2px 0 10px rgba(0,0,0,.7) !important; }
+    html.dark-mode .sidebar::before { background-color: #0d1a26 !important; }
     html.dark-mode .sidebar::after { background-color: #1a2a3a !important; }
     html.dark-mode .sidebar-item { background-color: #0f1f2e !important; color: #e0e0e0 !important; border-right-color: #1a2a3a !important; }
     html.dark-mode .sidebar-item:hover { background-color: #1a2a3a !important; }
@@ -731,7 +744,16 @@
     function isAnySubmenuExpanded() {
       return document.querySelectorAll('.sidebar-submenu.expanded').length > 0;
     }
-    
+
+    function collapseExpandedSubmenus() {
+      document.querySelectorAll('.sidebar-item.expandable.expanded').forEach(item => {
+        item.classList.remove('expanded');
+        const submenu = document.getElementById(item.dataset.expandable);
+        if (submenu) submenu.classList.remove('expanded');
+      });
+      if (!isAnySubmenuExpanded()) enableScroll();
+    }
+
     // 菜单按钮点击事件
     menuBtn.addEventListener('click', function() {
       sidebar.classList.toggle('active');
@@ -874,9 +896,10 @@
         const contentKey = this.dataset.content;
         const isActive = this.classList.contains('active');
         const isMobile = window.innerWidth <= 768;
-        
+        collapseExpandedSubmenus();
+
         document.querySelectorAll('.sidebar-item, .sidebar-subitem').forEach(el => el.classList.remove('active'));
-        
+
         // 仅移动端添加淡出效果
         if (isMobile) {
           mainContent.classList.add('fade-out');
@@ -922,9 +945,10 @@
         const contentKey = this.dataset.content;
         const isActive = this.classList.contains('active');
         const isMobile = window.innerWidth <= 768;
-        
+        collapseExpandedSubmenus();
+
         document.querySelectorAll('.sidebar-item, .sidebar-subitem').forEach(el => el.classList.remove('active'));
-        
+
         // 仅移动端添加淡出效果
         if (isMobile) {
           mainContent.classList.add('fade-out');
@@ -941,11 +965,6 @@
           } else {
             this.classList.add('active');
             if (contentData[contentKey]) mainContent.innerHTML = contentData[contentKey].body;
-            
-            document.querySelectorAll('.sidebar-item.expandable.expanded').forEach(expandable => {
-              expandable.classList.remove('expanded');
-              document.getElementById(expandable.dataset.expandable).classList.remove('expanded');
-            });
           }
           
           // 移动端移除淡出效果，触发淡入
