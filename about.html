@@ -28,8 +28,9 @@
       left: 0;
       width: 100%;
       background-color: #d7d7d7;
-      padding: 0;
-      height: 73.5px;
+      padding: 1.2rem 0;
+      height: auto;
+      line-height: normal;
       z-index: 9000;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
       transition: transform 0.4s ease-out;
@@ -44,16 +45,16 @@
     
     .navbar-container {
       width: 100%;
-      height: 100%;
+      height: auto;
       margin: 0 auto;
-      padding: 0 20px;
+      padding: 0;
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
     
     .navbar-logo {
-      height: 65px;
+      height: 1.5rem;
       width: auto;
       margin-right: 15px;
       cursor: pointer;
@@ -64,7 +65,8 @@
     }
 
     .logo-text {
-      font-size: 32px;
+      font-size: 1.5rem;
+      line-height: normal;
       font-weight: bold;
       color: #333;
       white-space: nowrap;
@@ -78,12 +80,19 @@
     /* 菜单按钮 */
     .menu-btn {
       display: none;
+      position: absolute;
+      top: 50%;
+      right: 20px;
+      transform: translateY(-50%);
+      width: 30px;
+      height: 24px;
       background: none;
       border: none;
       font-size: 24px;
+      line-height: 1;
       color: #333;
       cursor: pointer;
-      padding: 10px;
+      padding: 0;
       -webkit-tap-highlight-color: transparent;
     }
 
@@ -164,7 +173,7 @@
     .sidebar {
       position: fixed;
       left: 0;
-      top: 100px;
+      top: 66px;
       width: 25%;
       bottom: 0;
       background-color: #f9f9f9;
@@ -290,10 +299,10 @@
     /* 主内容区域样式 */
     .main-content {
       margin-left: 25%;
-      margin-top: 90px;
+      margin-top: 82px;
       padding: 40px 60px;
       flex: 1;
-      min-height: calc(100vh - 90px - 60px);
+      min-height: calc(100vh - 82px - 60px);
       box-sizing: border-box;
       display: flex;
       flex-direction: column;
@@ -359,16 +368,16 @@
     @media (max-width: 768px) {
       /* 导航栏调整 */
       .navbar {
-        height: 60px;
+        height: auto;
       }
 
       .navbar-logo {
-        height: 50px;
+        height: 1.1rem;
         margin-right: 10px;
       }
 
       .logo-text {
-        font-size: 24px;
+        font-size: 1.1rem;
       }
 
       /* 显示菜单按钮 */
@@ -392,10 +401,10 @@
         position: fixed;
         left: auto;
         right: 0;
-        top: 60px;
+        top: 58px;
         width: 70%;
         max-width: 280px;
-        height: calc(100vh - 60px);
+        height: calc(100vh - 58px);
         background-color: #f9f9f9;
         transform: translateX(100%);
         transition: transform 0.3s ease;
@@ -445,9 +454,9 @@
       /* 主内容区域调整 */
       .main-content {
         margin-left: 0;
-        margin-top: 70px;
+        margin-top: 68px;
         padding: 20px 15px;
-        min-height: calc(100vh - 70px - 60px);
+        min-height: calc(100vh - 68px - 60px);
       }
 
       /* 内容区块调整 */
@@ -490,22 +499,18 @@
 
     /* ========== 超小屏幕适配 (480px 及以下) ========== */
     @media (max-width: 480px) {
-      .navbar {
-        height: 55px;
-      }
-
       .navbar-logo {
-        height: 45px;
+        height: 1.1rem;
         margin-right: 8px;
       }
 
       .logo-text {
-        font-size: 20px;
+        font-size: 1.1rem;
       }
 
       .menu-btn {
         font-size: 20px;
-        padding: 8px;
+        padding: 0;
       }
 
       .loading-logo {
@@ -518,14 +523,14 @@
       }
 
       .sidebar {
-        top: 55px;
-        height: calc(100vh - 55px);
+        top: 58px;
+        height: calc(100vh - 58px);
       }
 
       .main-content {
-        margin-top: 65px;
+        margin-top: 68px;
         padding: 15px 10px;
-        min-height: calc(100vh - 65px - 50px);
+        min-height: calc(100vh - 68px - 50px);
       }
 
       .content-section h2 {
