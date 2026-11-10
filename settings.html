@@ -53,9 +53,8 @@
     .shortcuts-header { display: flex; flex: 0 0 auto; align-items: center; justify-content: space-between; gap: 1rem; min-height: 72px; padding: 1rem 1.5rem; border-bottom: 1px solid #e3e7eb; }
     .shortcuts-header h2 { margin: 0; font-size: clamp(1.2rem, 2.5vw, 1.65rem); }
     .shortcuts-close { display: grid; flex: 0 0 42px; place-items: center; width: 42px; height: 42px; border: 0; border-radius: 50%; background: #edf0f2; color: inherit; font-size: 1.65rem; line-height: 1; cursor: pointer; }
-    .shortcuts-layout { display: grid; flex: 1 1 auto; grid-template-rows: minmax(0, 3fr) minmax(170px, 1fr); min-height: 0; }
+    .shortcuts-layout { display: grid; flex: 1 1 auto; grid-template-rows: minmax(0, 7fr) minmax(170px, 3fr); min-height: 0; }
     .shortcuts-information { min-height: 0; overflow: auto; padding: clamp(1rem, 3vw, 2rem); }
-    .shortcuts-hint { margin: 0 0 1.25rem; color: #66717a; line-height: 1.5; }
     .shortcut-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
     .shortcut-info-card { display: flex; min-height: 150px; flex-direction: column; align-items: flex-start; justify-content: space-between; gap: 1.25rem; padding: 1.25rem; border: 1px solid #e0e5e9; border-radius: 14px; background: #f8f9fa; color: inherit; font: inherit; text-align: left; cursor: pointer; transition: border-color .16s ease, background .16s ease, box-shadow .16s ease, transform .16s ease; }
     .shortcut-info-card.is-active, .shortcut-info-card.is-selected { border-color: #e67e22; background: #fff8f1; box-shadow: 0 8px 24px rgba(230,126,34,.16); transform: translateY(-2px); }
@@ -66,19 +65,19 @@
     .shortcut-combo kbd { min-width: 42px; padding: .45rem .7rem; border: 1px solid #cbd3d9; border-bottom-width: 3px; border-radius: 7px; background: #fff; color: #263238; font: 700 .9rem/1.2 Arial, sans-serif; text-align: center; }
     .shortcut-combo b { color: #7b8790; }
     .keyboard-area { display: flex; min-height: 0; flex-direction: column; justify-content: center; gap: .3rem; padding: .45rem clamp(.5rem, 2vw, 1.5rem) .55rem; border-top: 1px solid #e3e7eb; background: #f1f3f5; }
-    .keyboard-caption { margin: 0; color: #66717a; font-size: .72rem; font-weight: 700; letter-spacing: .06em; text-align: center; text-transform: uppercase; }
-    .keyboard { display: flex; flex-direction: column; gap: .22rem; width: min(900px, 100%); margin: 0 auto; }
+    .keyboard { display: flex; flex-direction: column; gap: .3rem; width: min(1100px, 100%); margin: 0 auto; }
     .keyboard-row { display: flex; justify-content: center; gap: .28rem; }
-    .keyboard-key { display: grid; flex: 1 1 0; place-items: center; min-width: 0; height: clamp(20px, 2.8vh, 30px); padding: 0 .2rem; border: 1px solid #c8d0d7; border-bottom-width: 3px; border-radius: 6px; background: #fff; color: #36434d; font: 600 clamp(.55rem, 1.1vw, .78rem)/1 Arial, sans-serif; opacity: .78; transition: background .45s ease, color .45s ease, border-color .45s ease, box-shadow .45s ease, transform .45s ease, opacity .45s ease; }
+    .keyboard-key { display: grid; flex: 1 1 0; place-items: center; min-width: 0; height: clamp(24px, 3.2vh, 38px); padding: 0 .2rem; border: 1px solid #c8d0d7; border-bottom-width: 3px; border-radius: 6px; background: #fff; color: #36434d; font: 600 clamp(.62rem, 1vw, .9rem)/1 Arial, sans-serif; opacity: .78; transition: background .3s ease, color .3s ease, border-color .3s ease, border-bottom-width .18s ease, box-shadow .3s ease, transform .18s ease-out, opacity .3s ease; }
     .keyboard-key[data-key="Shift"], .keyboard-key[data-key="Backspace"], .keyboard-key[data-key="Tab"], .keyboard-key[data-key="CapsLock"], .keyboard-key[data-key="Enter"], .keyboard-key[data-key="Control"], .keyboard-key[data-key="Alt"], .keyboard-key[data-key="Escape"] { flex-grow: 1.6; }
+    .keyboard-key[data-key="Insert"], .keyboard-key[data-key="Delete"] { flex-grow: 1.5; }
     .keyboard-key[data-key="Space"] { flex-grow: 5.5; }
-    .keyboard-key.is-preview-highlighted { z-index: 1; border-color: #efbd95; background: #ffe9d8; color: #744315; opacity: .94; box-shadow: 0 0 0 2px rgba(230,126,34,.1); transform: translateY(-1px); }
-    .keyboard-key.is-highlighted { z-index: 1; border-color: #c95f08; background: #e67e22; color: #fff; opacity: 1; box-shadow: 0 0 0 3px rgba(230,126,34,.2), 0 5px 14px rgba(230,126,34,.28); transform: translateY(-2px); }
+    .keyboard-key.is-preview-highlighted { z-index: 1; border-color: #efbd95; background: #ffe9d8; color: #744315; opacity: .94; box-shadow: 0 0 0 2px rgba(230,126,34,.1); transform: none; }
+    .keyboard-key.is-highlighted { z-index: 1; border-color: #c95f08; border-bottom-width: 1px; background: #e67e22; color: #fff; opacity: 1; box-shadow: inset 0 2px 4px rgba(100,45,0,.24), 0 0 0 2px rgba(230,126,34,.18); transform: translate(2px, 2px); }
     html.dark-mode .shortcuts-dialog { border-color: #26394d; background: #0d1a26; color: #e0e0e0; }
     html.dark-mode .shortcuts-header, html.dark-mode .keyboard-area { border-color: #26394d; }
     html.dark-mode .shortcuts-header { border-bottom-color: #26394d; }
     html.dark-mode .shortcuts-close { background: #1a2a3a; }
-    html.dark-mode .shortcuts-hint, html.dark-mode .shortcut-info-card span, html.dark-mode .keyboard-caption { color: #a0aab3; }
+    html.dark-mode .shortcut-info-card span { color: #a0aab3; }
     html.dark-mode .shortcut-info-card { border-color: #26394d; background: #101f2e; }
     html.dark-mode .shortcut-info-card.is-active, html.dark-mode .shortcut-info-card.is-selected { border-color: #e67e22; background: #2a2119; }
     html.dark-mode .shortcut-info-card.is-preview, html.dark-mode .shortcuts-dialog.has-selected-shortcut .shortcut-info-card:hover:not(.is-selected) { border-color: #9c7656; background: #382b20; box-shadow: 0 5px 18px rgba(230,126,34,.08); }
@@ -123,7 +122,7 @@
       .shortcuts-modal { padding: 1vh 1vw; }
       .shortcuts-dialog { width: 98vw; height: 96vh; height: 96dvh; border-radius: 14px; }
       .shortcuts-header { min-height: 58px; padding: .65rem 1rem; }
-      .shortcuts-layout { grid-template-rows: minmax(0, 3fr) minmax(155px, 1fr); }
+      .shortcuts-layout { grid-template-rows: minmax(0, 7fr) minmax(155px, 3fr); }
       .shortcuts-information { padding: 1rem; }
       .shortcut-list { grid-template-columns: 1fr; gap: .65rem; }
       .shortcut-info-card { min-height: 96px; flex-direction: row; align-items: center; padding: .85rem; }
@@ -131,21 +130,20 @@
       .shortcut-combo { gap: .25rem; }
       .shortcut-combo kbd { min-width: 34px; padding: .38rem .45rem; font-size: .8rem; }
       .keyboard-area { gap: .3rem; padding: .45rem .35rem .5rem; }
-      .keyboard-caption { font-size: .62rem; letter-spacing: .04em; }
-      .keyboard { gap: .2rem; }
+      .keyboard { gap: .16rem; }
       .keyboard-row { gap: .22rem; }
-      .keyboard-key { height: clamp(18px, 2.5vh, 23px); padding: 0 .08rem; border-radius: 4px; font-size: clamp(.45rem, 1.6vw, .58rem); }
+      .keyboard-key { height: clamp(22px, 3vh, 28px); padding: 0 .08rem; border-radius: 4px; font-size: clamp(.48rem, 1.6vw, .64rem); }
     }
     @media (max-height: 560px) {
       .shortcuts-dialog { height: 96vh; height: 96dvh; }
-      .shortcuts-layout { grid-template-rows: minmax(0, 3fr) minmax(150px, 1fr); }
+      .shortcuts-layout { grid-template-rows: minmax(0, 7fr) minmax(0, 3fr); }
       .shortcuts-header { min-height: 50px; padding: .4rem 1rem; }
       .shortcuts-information { padding: .65rem 1rem; }
       .shortcut-info-card { min-height: 78px; padding: .65rem; }
-      .keyboard-area { gap: .25rem; padding: .35rem; }
-      .keyboard { gap: .2rem; }
-      .keyboard-row { gap: .18rem; }
-      .keyboard-key { height: 18px; }
+      .keyboard-area { justify-content: flex-start; gap: .1rem; overflow: auto; padding: .2rem .35rem; }
+      .keyboard { gap: .03rem; }
+      .keyboard-row { gap: .12rem; }
+      .keyboard-key { height: 14px; border-radius: 3px; font-size: .52rem; }
     }
   </style>
 </head>
@@ -191,14 +189,13 @@
   </main>
 
   <div class="shortcuts-modal" id="shortcutsModal" aria-hidden="true">
-    <section class="shortcuts-dialog" role="dialog" aria-modal="true" aria-labelledby="shortcutsModalTitle" aria-describedby="shortcutsHint">
+    <section class="shortcuts-dialog" role="dialog" aria-modal="true" aria-labelledby="shortcutsModalTitle">
       <header class="shortcuts-header">
         <h2 id="shortcutsModalTitle" data-i18n="shortcutsModalTitle">Keyboard shortcuts</h2>
         <button class="shortcuts-close" id="shortcutsClose" type="button" aria-label="Close shortcuts" data-i18n-aria-label="shortcutsClose">&times;</button>
       </header>
       <div class="shortcuts-layout">
         <div class="shortcuts-information">
-          <p class="shortcuts-hint" id="shortcutsHint" data-i18n="shortcutsHint">Click a shortcut to pin it; hover another for a lighter preview. Click blank space to clear.</p>
           <div class="shortcut-list">
             <button class="shortcut-info-card" type="button" aria-pressed="false" data-keys="Shift A">
               <span class="shortcut-combo"><kbd>Shift</kbd><b>+</b><kbd>A</kbd></span>
@@ -213,9 +210,9 @@
           </div>
         </div>
         <div class="keyboard-area">
-          <p class="keyboard-caption" data-i18n="keyboardCaption">Keyboard · highlighted keys match the selected shortcut</p>
           <div class="keyboard" role="img" aria-label="Keyboard visualization" data-i18n-aria-label="keyboardLabel">
-            <div class="keyboard-row"><span class="keyboard-key" data-key="Escape">Esc</span><span class="keyboard-key" data-key="Backquote">`</span><span class="keyboard-key" data-key="1">1</span><span class="keyboard-key" data-key="2">2</span><span class="keyboard-key" data-key="3">3</span><span class="keyboard-key" data-key="4">4</span><span class="keyboard-key" data-key="5">5</span><span class="keyboard-key" data-key="6">6</span><span class="keyboard-key" data-key="7">7</span><span class="keyboard-key" data-key="8">8</span><span class="keyboard-key" data-key="9">9</span><span class="keyboard-key" data-key="0">0</span><span class="keyboard-key" data-key="-">-</span><span class="keyboard-key" data-key="=">=</span><span class="keyboard-key" data-key="Backspace">Bksp</span></div>
+            <div class="keyboard-row keyboard-function-row"><span class="keyboard-key" data-key="Escape">Esc</span><span class="keyboard-key" data-key="F1">F1</span><span class="keyboard-key" data-key="F2">F2</span><span class="keyboard-key" data-key="F3">F3</span><span class="keyboard-key" data-key="F4">F4</span><span class="keyboard-key" data-key="F5">F5</span><span class="keyboard-key" data-key="F6">F6</span><span class="keyboard-key" data-key="F7">F7</span><span class="keyboard-key" data-key="F8">F8</span><span class="keyboard-key" data-key="F9">F9</span><span class="keyboard-key" data-key="F10">F10</span><span class="keyboard-key" data-key="F11">F11</span><span class="keyboard-key" data-key="F12">F12</span><span class="keyboard-key" data-key="Insert" aria-label="Insert">Insert</span><span class="keyboard-key" data-key="Delete" aria-label="Delete">Delete</span></div>
+            <div class="keyboard-row"><span class="keyboard-key" data-key="Backquote">`</span><span class="keyboard-key" data-key="1">1</span><span class="keyboard-key" data-key="2">2</span><span class="keyboard-key" data-key="3">3</span><span class="keyboard-key" data-key="4">4</span><span class="keyboard-key" data-key="5">5</span><span class="keyboard-key" data-key="6">6</span><span class="keyboard-key" data-key="7">7</span><span class="keyboard-key" data-key="8">8</span><span class="keyboard-key" data-key="9">9</span><span class="keyboard-key" data-key="0">0</span><span class="keyboard-key" data-key="-">-</span><span class="keyboard-key" data-key="=">=</span><span class="keyboard-key" data-key="Backspace" aria-label="Backspace">&larr;</span></div>
             <div class="keyboard-row"><span class="keyboard-key" data-key="Tab">Tab</span><span class="keyboard-key" data-key="Q">Q</span><span class="keyboard-key" data-key="W">W</span><span class="keyboard-key" data-key="E">E</span><span class="keyboard-key" data-key="R">R</span><span class="keyboard-key" data-key="T">T</span><span class="keyboard-key" data-key="Y">Y</span><span class="keyboard-key" data-key="U">U</span><span class="keyboard-key" data-key="I">I</span><span class="keyboard-key" data-key="O">O</span><span class="keyboard-key" data-key="P">P</span><span class="keyboard-key" data-key="[">[</span><span class="keyboard-key" data-key="]">]</span><span class="keyboard-key" data-key="Backslash">&#92;</span></div>
             <div class="keyboard-row"><span class="keyboard-key" data-key="CapsLock">Caps</span><span class="keyboard-key" data-key="A">A</span><span class="keyboard-key" data-key="S">S</span><span class="keyboard-key" data-key="D">D</span><span class="keyboard-key" data-key="F">F</span><span class="keyboard-key" data-key="G">G</span><span class="keyboard-key" data-key="H">H</span><span class="keyboard-key" data-key="J">J</span><span class="keyboard-key" data-key="K">K</span><span class="keyboard-key" data-key="L">L</span><span class="keyboard-key" data-key=";">;</span><span class="keyboard-key" data-key="'">'</span><span class="keyboard-key" data-key="Enter">Enter</span></div>
             <div class="keyboard-row"><span class="keyboard-key" data-key="Shift" data-side="left">Shift</span><span class="keyboard-key" data-key="Z">Z</span><span class="keyboard-key" data-key="X">X</span><span class="keyboard-key" data-key="C">C</span><span class="keyboard-key" data-key="V">V</span><span class="keyboard-key" data-key="B">B</span><span class="keyboard-key" data-key="N">N</span><span class="keyboard-key" data-key="M">M</span><span class="keyboard-key" data-key=",">,</span><span class="keyboard-key" data-key=".">.</span><span class="keyboard-key" data-key="/">/</span><span class="keyboard-key" data-key="Shift" data-side="right">Shift</span></div>
@@ -249,12 +246,10 @@
         shortcutsOpen: 'View shortcuts',
         shortcutsModalTitle: 'Keyboard shortcuts',
         shortcutsClose: 'Close shortcuts',
-        shortcutsHint: 'Click a shortcut to pin it; hover another for a lighter preview. Click blank space to clear. The two Shift keys alternate after 3 seconds.',
         shortcutToggleTitle: 'Toggle the side menu',
         shortcutToggleDescription: 'Open the menu, or close it when it is already open.',
         shortcutEscapeTitle: 'Close the side menu',
         shortcutEscapeDescription: 'Close the open side menu and return focus to its menu button.',
-        keyboardCaption: 'Keyboard · highlighted keys match the selected shortcut',
         keyboardLabel: 'Keyboard visualization'
       },
       'zh-CN': {
@@ -269,12 +264,10 @@
         shortcutsOpen: '查看快捷键',
         shortcutsModalTitle: '快捷键',
         shortcutsClose: '关闭快捷键窗口',
-        shortcutsHint: '点击快捷键可固定选择；悬停另一项可浅色预览，点击空白处取消。左右 Shift 先同时亮起，3 秒后轮换。',
         shortcutToggleTitle: '切换侧边菜单',
         shortcutToggleDescription: '展开菜单；菜单已展开时再次按下即可关闭。',
         shortcutEscapeTitle: '关闭侧边菜单',
         shortcutEscapeDescription: '关闭已展开的侧边菜单，并将焦点返回菜单按钮。',
-        keyboardCaption: '键盘 · 高亮按键对应所选快捷键',
         keyboardLabel: '键盘示意图'
       }
     };
