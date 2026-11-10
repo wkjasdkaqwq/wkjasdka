@@ -28,8 +28,9 @@
       left: 0;
       width: 100%;
       background-color: #d7d7d7;
-      padding: 1.2rem 0;
-      height: auto;
+      height: 66px;
+      box-sizing: border-box;
+      padding: 0;
       line-height: normal;
       z-index: 9000;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
@@ -368,7 +369,7 @@
     @media (max-width: 768px) {
       /* 导航栏调整 */
       .navbar {
-        height: auto;
+        height: 60px;
       }
 
       .navbar-logo {
@@ -401,10 +402,10 @@
         position: fixed;
         left: auto;
         right: 0;
-        top: 58px;
+        top: 60px;
         width: 70%;
         max-width: 280px;
-        height: calc(100vh - 58px);
+        height: calc(100vh - 60px);
         background-color: #f9f9f9;
         transform: translateX(100%);
         transition: transform 0.3s ease;
@@ -454,9 +455,9 @@
       /* 主内容区域调整 */
       .main-content {
         margin-left: 0;
-        margin-top: 68px;
+        margin-top: 70px;
         padding: 20px 15px;
-        min-height: calc(100vh - 68px - 60px);
+        min-height: calc(100vh - 70px - 60px);
       }
 
       /* 内容区块调整 */
@@ -499,6 +500,7 @@
 
     /* Keep navbar sizing aligned with settings.html above its 600px breakpoint. */
     @media (min-width: 601px) and (max-width: 768px) {
+      .navbar { height: 66px; }
       .navbar-logo { height: 1.5rem; }
       .logo-text { font-size: 1.5rem; }
       .sidebar { top: 66px; height: calc(100vh - 66px); }
@@ -531,14 +533,14 @@
       }
 
       .sidebar {
-        top: 58px;
-        height: calc(100vh - 58px);
+        top: 60px;
+        height: calc(100vh - 60px);
       }
 
       .main-content {
-        margin-top: 68px;
+        margin-top: 70px;
         padding: 15px 10px;
-        min-height: calc(100vh - 68px - 50px);
+        min-height: calc(100vh - 70px - 50px);
       }
 
       .content-section h2 {

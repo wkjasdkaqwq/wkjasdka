@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
   <style>
-    .navbar { position: fixed; top: 0; left: 0; width: 100%; background-color: #d7d7d7; padding: 1.2rem 0; height: auto; z-index: 9000; box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: transform 0.4s ease-out; }
+    .navbar { position: fixed; top: 0; left: 0; width: 100%; background-color: #d7d7d7; height: 66px; box-sizing: border-box; padding: 0; z-index: 9000; box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: transform 0.4s ease-out; }
     .navbar.hidden { transform: translateY(-100%); }
     .navbar-container { width: 100%; margin: 0 auto; padding: 0; display: flex; justify-content: space-between; align-items: center; }
     .menu-btn { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); width: 30px; height: 24px; cursor: pointer; z-index: 9001; }
@@ -32,6 +32,7 @@
     .sidebar { position: fixed; top: 0; right: 0; left: auto; width: 500px; height: 100vh; background-color: #f5f5f5; z-index: 8999; transform: translateX(100%); transition: transform 0.3s ease-out; box-shadow: -2px 0 10px rgba(0,0,0,0.1); padding-top: 80px; box-sizing: border-box; overflow-y: auto; overflow-x: hidden; }
     .sidebar.open { transform: translateX(0); }
     @media (max-width: 600px) {
+      .navbar { height: 60px; }
       .sidebar { width: 85vw; padding-top: 65px; font-size: 1rem; }
       .navbar-logo { margin-left: 44px; font-size: 1.1rem; }
       .navbar-menu { padding: 0 0.3rem; }
