@@ -232,7 +232,8 @@
       const isEditable = event.target instanceof HTMLElement && event.target.closest('input, textarea, select, [contenteditable="true"]');
       if (event.shiftKey && !event.altKey && !event.ctrlKey && !event.metaKey && event.key.toLowerCase() === 'a' && !isEditable) {
         event.preventDefault();
-        if (!sidebar.classList.contains('open')) openSidebar();
+        if (sidebar.classList.contains('open')) closeSidebar(true);
+        else openSidebar();
       }
     });
 
