@@ -29,7 +29,6 @@
       width: 100%;
       background-color: #d7d7d7;
       padding: 1.2rem 0;
-      min-height: 72px;
       z-index: 9000;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
       transition: transform 0.4s ease-out;
@@ -53,11 +52,12 @@
     }
     
     .navbar-logo {
+      display: inline-block;
       height: auto;
-      max-height: 40px;
       width: auto;
       margin-right: 15px;
       cursor: pointer;
+      line-height: 1.2;
     }
     
     .navbar-logo:hover {
@@ -166,7 +166,7 @@
     .sidebar {
       position: fixed;
       left: 0;
-      top: 100px;
+      top: 88px;
       width: 25%;
       bottom: 0;
       background-color: #f9f9f9;
@@ -292,7 +292,7 @@
     /* 主内容区域样式 */
     .main-content {
       margin-left: 25%;
-      margin-top: 90px;
+      margin-top: 112px;
       padding: 40px 60px;
       flex: 1;
       min-height: calc(100vh - 90px - 60px);
@@ -361,12 +361,10 @@
     @media (max-width: 768px) {
       /* 导航栏调整 */
       .navbar {
-        min-height: 60px;
         padding: 0.8rem 0;
       }
 
       .navbar-logo {
-        max-height: 34px;
         margin-right: 10px;
       }
 
@@ -448,7 +446,7 @@
       /* 主内容区域调整 */
       .main-content {
         margin-left: 0;
-        margin-top: 70px;
+        margin-top: 76px;
         padding: 20px 15px;
         min-height: calc(100vh - 70px - 60px);
       }
@@ -494,12 +492,10 @@
     /* ========== 超小屏幕适配 (480px 及以下) ========== */
     @media (max-width: 480px) {
       .navbar {
-        min-height: 56px;
         padding: 0.7rem 0;
       }
 
       .navbar-logo {
-        max-height: 28px;
         margin-right: 8px;
       }
 
@@ -527,7 +523,7 @@
       }
 
       .main-content {
-        margin-top: 65px;
+        margin-top: 64px;
         padding: 15px 10px;
         min-height: calc(100vh - 65px - 50px);
       }
