@@ -28,7 +28,8 @@
       left: 0;
       width: 100%;
       background-color: #d7d7d7;
-      padding: 1.2rem 0;
+      padding: 0;
+      height: 73.5px;
       z-index: 9000;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
       transition: transform 0.4s ease-out;
@@ -52,12 +53,10 @@
     }
     
     .navbar-logo {
-      display: inline-block;
-      height: auto;
+      height: 65px;
       width: auto;
       margin-right: 15px;
       cursor: pointer;
-      line-height: 1.2;
     }
     
     .navbar-logo:hover {
@@ -65,11 +64,10 @@
     }
 
     .logo-text {
-      font-size: 1.5rem;
+      font-size: 32px;
       font-weight: bold;
       color: #333;
       white-space: nowrap;
-      line-height: 1.2;
     }
 
     .logo-container {
@@ -166,7 +164,7 @@
     .sidebar {
       position: fixed;
       left: 0;
-      top: 88px;
+      top: 100px;
       width: 25%;
       bottom: 0;
       background-color: #f9f9f9;
@@ -292,7 +290,7 @@
     /* 主内容区域样式 */
     .main-content {
       margin-left: 25%;
-      margin-top: 112px;
+      margin-top: 90px;
       padding: 40px 60px;
       flex: 1;
       min-height: calc(100vh - 90px - 60px);
@@ -361,15 +359,16 @@
     @media (max-width: 768px) {
       /* 导航栏调整 */
       .navbar {
-        padding: 0.8rem 0;
+        height: 60px;
       }
 
       .navbar-logo {
+        height: 50px;
         margin-right: 10px;
       }
 
       .logo-text {
-        font-size: 1.2rem;
+        font-size: 24px;
       }
 
       /* 显示菜单按钮 */
@@ -446,7 +445,7 @@
       /* 主内容区域调整 */
       .main-content {
         margin-left: 0;
-        margin-top: 76px;
+        margin-top: 70px;
         padding: 20px 15px;
         min-height: calc(100vh - 70px - 60px);
       }
@@ -492,15 +491,16 @@
     /* ========== 超小屏幕适配 (480px 及以下) ========== */
     @media (max-width: 480px) {
       .navbar {
-        padding: 0.7rem 0;
+        height: 55px;
       }
 
       .navbar-logo {
+        height: 45px;
         margin-right: 8px;
       }
 
       .logo-text {
-        font-size: 1.05rem;
+        font-size: 20px;
       }
 
       .menu-btn {
@@ -523,7 +523,7 @@
       }
 
       .main-content {
-        margin-top: 64px;
+        margin-top: 65px;
         padding: 15px 10px;
         min-height: calc(100vh - 65px - 50px);
       }
