@@ -7,10 +7,10 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
   <style>
-    .navbar { position: fixed; top: 0; left: 0; width: 100%; background-color: #d7d7d7; height: 66px; box-sizing: border-box; padding: 0; z-index: 9000; box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: transform 0.4s ease-out; }
+    .navbar { position: fixed; top: 0; left: 0; width: 100%; background-color: #d7d7d7; height: 4.125rem; box-sizing: border-box; padding: 0; z-index: 9000; box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: transform 0.4s ease-out; }
     .navbar.hidden { transform: translateY(-100%); }
     .navbar-container { width: 100%; margin: 0 auto; padding: 0; display: flex; justify-content: space-between; align-items: center; }
-    .menu-btn { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); width: 30px; height: 24px; cursor: pointer; z-index: 9001; }
+    .menu-btn { position: absolute; right: 1.25rem; top: 50%; transform: translateY(-50%); width: 1.875rem; height: 1.5rem; cursor: pointer; z-index: 9001; }
     .menu-btn .line { position: absolute; width: 100%; height: 3px; background-color: #333; border-radius: 2px; transform-origin: right center; }
     .menu-btn:not(.rotated) { transition: transform 0.35s ease-out; }
     .menu-btn:not(.rotated) .line { transition: all 0.35s ease-out; }
@@ -19,7 +19,7 @@
     .menu-btn .line1 { top: 0; transition-delay: 0.02s; }
     .menu-btn .line2 { top: 50%; transform: translateY(-50%); transition-delay: 0.04s; }
     .menu-btn .line3 { bottom: 0; transition-delay: 0.06s; }
-    .navbar-logo { font-size: 1.5rem; font-weight: bold; text-decoration: none; color: #333; margin: 0 0 0 80px; padding: 0; cursor: pointer; transition: color 0.3s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); display: inline-block; transform-style: preserve-3d; perspective: 1200px; position: relative; text-shadow: 1px 1px 3px rgba(0,0,0,0.2); }
+    .navbar-logo { font-size: 1.5rem; font-weight: bold; text-decoration: none; color: #333; margin: 0 0 0 5rem; padding: 0; cursor: pointer; transition: color 0.3s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); display: inline-block; transform-style: preserve-3d; perspective: 1200px; position: relative; text-shadow: 1px 1px 3px rgba(0,0,0,0.2); }
     .navbar-logo.flip-180 { transform: rotateY(180deg); text-shadow: -1px 1px 3px rgba(0,0,0,0.2); }
     .navbar-logo::before { content: attr(data-text); position: absolute; top: 0; left: 0; color: inherit; transform: rotateY(180deg); backface-visibility: hidden; }
     .navbar-logo:hover { color: #666; }
@@ -29,12 +29,12 @@
     .navbar-link { color: #333; text-decoration: none; transition: color 0.3s, transform 0.3s; font-weight: 500; }
     .navbar-link:hover { color: #666; transform: translateY(-2px); }
     .navbar-link:active { transform: translateY(1px); }
-    .sidebar { position: fixed; top: 0; right: 0; left: auto; width: 500px; height: 100vh; background-color: #f5f5f5; z-index: 8999; transform: translateX(100%); transition: transform 0.3s ease-out; box-shadow: -2px 0 10px rgba(0,0,0,0.1); padding-top: 80px; box-sizing: border-box; overflow-y: auto; overflow-x: hidden; }
+    .sidebar { position: fixed; top: 0; right: 0; left: auto; width: 500px; height: 100vh; background-color: #f5f5f5; z-index: 8999; transform: translateX(100%); transition: transform 0.3s ease-out; box-shadow: -2px 0 10px rgba(0,0,0,0.1); padding-top: 5rem; box-sizing: border-box; overflow-y: auto; overflow-x: hidden; }
     .sidebar.open { transform: translateX(0); }
     @media (max-width: 600px) {
-      .navbar { height: 60px; }
-      .sidebar { width: 85vw; padding-top: 65px; font-size: 1rem; }
-      .navbar-logo { margin-left: 44px; font-size: 1.1rem; }
+      .navbar { height: 3.75rem; }
+      .sidebar { width: 85vw; padding-top: 4.0625rem; font-size: 1rem; }
+      .navbar-logo { margin-left: 2.75rem; font-size: 1.1rem; }
       .navbar-menu { padding: 0 0.3rem; }
       .navbar-item { margin-left: 1rem; }
       .card-container { width: 98vw; max-width: 360px; margin-left: auto; margin-right: auto; height: 145px; }
@@ -93,7 +93,7 @@
     .loading-ready .loading-text-container { display: flex !important; }
     .loading-text { color: #8e8e8e !important; font-size: 16px !important; font-weight: 400 !important; text-shadow: none !important; -webkit-font-smoothing: antialiased !important; }
     #mainContent { display: none; }
-    .content { min-height: auto; min-height: calc(100vh - 80px); margin-top: 80px; padding: 1.8rem; text-align: center; box-sizing: border-box; }
+    .content { min-height: auto; min-height: calc(100vh - 5rem); margin-top: 5rem; padding: 1.8rem; text-align: center; box-sizing: border-box; }
     .content h1 { font-size: 3rem; font-weight: 750; letter-spacing: 0.9px; }
     .cards-wrapper { display: flex; justify-content: space-around; margin: 2rem auto; max-width: 1200px; gap: 1.6rem; }
     .card-container { perspective: 1000px; width: 300px; height: 200px; margin: 2rem auto; position: relative; }
@@ -136,7 +136,7 @@
     .project-link:hover i { transform: translateX(3px); }
     @media (max-width: 600px) {
       .content h1 { font-size: 1.3rem; }
-      .navbar-logo { margin-left: 70px; font-size: 1.1rem; }
+      .navbar-logo { margin-left: 4.375rem; font-size: 1.1rem; }
       .cards-wrapper { flex-direction: column; gap: 0.4rem; }
       .card-container { height: 170px; margin: 1rem auto; }
       .content h1 { font-size: 1.3rem; white-space: normal !important; }

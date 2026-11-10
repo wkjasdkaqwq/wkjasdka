@@ -28,7 +28,7 @@
       left: 0;
       width: 100%;
       background-color: #d7d7d7;
-      height: 66px;
+      height: 4.125rem;
       box-sizing: border-box;
       padding: 0;
       line-height: normal;
@@ -57,7 +57,7 @@
     .navbar-logo {
       height: 1.5rem;
       width: auto;
-      margin-right: 15px;
+      margin-right: 0.9375rem;
       cursor: pointer;
     }
     
@@ -83,10 +83,10 @@
       display: none;
       position: absolute;
       top: 50%;
-      right: 20px;
+      right: 1.25rem;
       transform: translateY(-50%);
-      width: 30px;
-      height: 24px;
+      width: 1.875rem;
+      height: 1.5rem;
       background: none;
       border: none;
       font-size: 24px;
@@ -369,7 +369,7 @@
     @media (max-width: 768px) {
       /* 导航栏调整 */
       .navbar {
-        height: 60px;
+        height: 3.75rem;
       }
 
       .navbar-logo {
@@ -402,10 +402,10 @@
         position: fixed;
         left: auto;
         right: 0;
-        top: 60px;
+        top: 3.75rem;
         width: 70%;
         max-width: 280px;
-        height: calc(100vh - 60px);
+        height: calc(100vh - 3.75rem);
         background-color: #f9f9f9;
         transform: translateX(100%);
         transition: transform 0.3s ease;
@@ -455,9 +455,9 @@
       /* 主内容区域调整 */
       .main-content {
         margin-left: 0;
-        margin-top: 70px;
+        margin-top: 4.375rem;
         padding: 20px 15px;
-        min-height: calc(100vh - 70px - 60px);
+        min-height: calc(100vh - 4.375rem - 3.75rem);
       }
 
       /* 内容区块调整 */
@@ -500,11 +500,11 @@
 
     /* Keep navbar sizing aligned with settings.html above its 600px breakpoint. */
     @media (min-width: 601px) and (max-width: 768px) {
-      .navbar { height: 66px; }
+      .navbar { height: 4.125rem; }
       .navbar-logo { height: 1.5rem; }
       .logo-text { font-size: 1.5rem; }
-      .sidebar { top: 66px; height: calc(100vh - 66px); }
-      .main-content { margin-top: 82px; min-height: calc(100vh - 82px - 60px); }
+      .sidebar { top: 4.125rem; height: calc(100vh - 4.125rem); }
+      .main-content { margin-top: 5.125rem; min-height: calc(100vh - 5.125rem - 3.75rem); }
     }
 
     /* ========== 超小屏幕适配 (480px 及以下) ========== */
@@ -519,7 +519,7 @@
       }
 
       .menu-btn {
-        font-size: 20px;
+        font-size: 1.25rem;
         padding: 0;
       }
 
@@ -533,14 +533,14 @@
       }
 
       .sidebar {
-        top: 60px;
-        height: calc(100vh - 60px);
+        top: 3.75rem;
+        height: calc(100vh - 3.75rem);
       }
 
       .main-content {
-        margin-top: 70px;
+        margin-top: 4.375rem;
         padding: 15px 10px;
-        min-height: calc(100vh - 70px - 50px);
+        min-height: calc(100vh - 4.375rem - 3.125rem);
       }
 
       .content-section h2 {
