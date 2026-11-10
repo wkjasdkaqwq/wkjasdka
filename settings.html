@@ -7,200 +7,161 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
   <style>
-    :root { color-scheme: light; }
+    :root { color-scheme: light; font-family: Arial, sans-serif; }
     * { box-sizing: border-box; }
     html, body { min-height: 100%; margin: 0; }
-    body { min-height: 100vh; background: #fff; color: #333; font-family: Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { min-height: 100vh; background: #fff; color: #333; -webkit-tap-highlight-color: transparent; transition: background-color .25s, color .25s; }
 
-    .navbar { position: fixed; top: 0; left: 0; width: 100%; padding: 1.2rem 0; z-index: 9000; background: #d7d7d7; box-shadow: 0 2px 5px rgba(0,0,0,.1); transition: transform .4s ease-out; }
-    .navbar.hidden { transform: translateY(-100%); }
-    .navbar-container { display: flex; align-items: center; justify-content: space-between; width: 100%; margin: 0 auto; }
-    .navbar-logo { display: inline-block; margin-left: 80px; color: #333; font-size: 1.5rem; font-weight: bold; text-decoration: none; cursor: pointer; position: relative; perspective: 1200px; transform-style: preserve-3d; transition: color .3s ease, transform .3s cubic-bezier(.34,1.56,.64,1); text-shadow: 1px 1px 3px rgba(0,0,0,.2); }
+    .navbar { position: fixed; top: 0; left: 0; width: 100%; padding: 1.2rem 0; z-index: 9000; background: #d7d7d7; box-shadow: 0 2px 5px rgba(0,0,0,.1); }
+    .navbar-container { display: flex; align-items: center; justify-content: space-between; width: 100%; }
+    .navbar-logo { display: inline-block; margin-left: 80px; color: #333; font-size: 1.5rem; font-weight: bold; text-decoration: none; position: relative; perspective: 1200px; transform-style: preserve-3d; transition: color .3s ease, transform .3s cubic-bezier(.34,1.56,.64,1); text-shadow: 1px 1px 3px rgba(0,0,0,.2); }
     .navbar-logo:hover { color: #666; }
     .navbar-logo.flip-180 { transform: rotateY(180deg); }
     .navbar-logo::before { content: attr(data-text); position: absolute; top: 0; left: 0; color: inherit; transform: rotateY(180deg); backface-visibility: hidden; }
-    .navbar-menu { display: flex; margin: 0; padding: 0 1rem; list-style: none; }
 
-    .menu-btn { position: absolute; top: 50%; right: 20px; width: 30px; height: 24px; z-index: 9001; cursor: pointer; transform: translateY(-50%); transition: transform .35s ease-out; }
-    .menu-btn .line { position: absolute; width: 100%; height: 3px; border-radius: 2px; background: #333; transform-origin: right center; transition: all .35s ease-out; }
-    .menu-btn .line1 { top: 0; transition-delay: .02s; }
-    .menu-btn .line2 { top: 50%; transform: translateY(-50%); transition-delay: .04s; }
-    .menu-btn .line3 { bottom: 0; transition-delay: .06s; }
-    .menu-btn.rotated { transform: translateY(-50%) rotate(90deg) scale(1.1); transition: transform .25s cubic-bezier(.215,.61,.355,1); }
-    .menu-btn.rotated .line { transform-origin: center; transition: all .25s cubic-bezier(.215,.61,.355,1); }
-    .menu-btn:active { transform: translateY(-50%) scale(.9); }
+    main { width: min(720px, calc(100% - 32px)); margin: 112px auto 48px; }
+    .page-heading { margin-bottom: 1.5rem; }
+    .page-heading h1 { margin: 0 0 .45rem; font-size: clamp(1.8rem, 5vw, 2.4rem); }
+    .page-heading p { margin: 0; color: #66717a; line-height: 1.5; }
+    .settings-card { padding: .25rem 1.25rem; border: 1px solid #e3e7eb; border-radius: 14px; background: #f8f9fa; box-shadow: 0 5px 18px rgba(0,0,0,.06); }
+    .setting-row { display: flex; align-items: center; justify-content: space-between; gap: 1.25rem; min-height: 94px; padding: 1rem 0; }
+    .setting-row + .setting-row { border-top: 1px solid #e0e4e8; }
+    .setting-copy { min-width: 0; }
+    .setting-copy h2 { margin: 0 0 .35rem; font-size: 1.05rem; }
+    .setting-copy p { margin: 0; color: #66717a; font-size: .92rem; line-height: 1.45; }
+    .theme-toggle { position: relative; flex: 0 0 52px; width: 52px; height: 30px; margin: 0; appearance: none; border: 0; border-radius: 999px; background: #aab3bb; cursor: pointer; transition: background .2s ease; }
+    .theme-toggle::before { content: ''; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; box-shadow: 0 1px 4px #0003; transition: transform .2s ease; }
+    .theme-toggle:checked { background: #2196f3; }
+    .theme-toggle:checked::before { transform: translateX(22px); }
+    .theme-toggle:focus-visible, .language-select:focus-visible, .navbar-logo:focus-visible { outline: 3px solid #64b5f6; outline-offset: 3px; }
+    .language-select { width: min(220px, 42vw); min-height: 42px; padding: .5rem .75rem; border: 1px solid #c8d0d7; border-radius: 8px; background: #fff; color: #263238; font: inherit; }
 
-    .sidebar { position: fixed; top: 0; right: 0; width: 500px; height: 100vh; padding-top: 80px; overflow-x: hidden; overflow-y: auto; z-index: 8999; background: #f5f5f5; box-shadow: -2px 0 10px rgba(0,0,0,.1); transform: translateX(100%); transition: transform .3s ease-out; }
-    .sidebar.open { transform: translateX(0); }
-    .sidebar-menu { margin: 0; padding: 0 0 80px; list-style: none; }
-    .sidebar-menu-main { margin: 0; padding: 0; }
-    .sidebar-item { margin: 0; overflow: hidden; border-bottom: 1px solid #e0e0e0; }
-    .sidebar-item:has(.fa-info-circle) { border-bottom: 0; }
-    .sidebar-link { position: relative; display: block; padding: 15px 25px; color: #333; font-size: 1.1rem; text-decoration: none; transition: all .3s ease; }
-    .sidebar-link:hover { padding-left: 30px; background: #e0e0e0; }
-    .sidebar-link i { width: 20px; margin-right: 10px; text-align: center; }
-    .sidebar-link:active { transform: scale(.96); background: #d0d0d0; }
-    .has-submenu > .sidebar-link::after { content: '\f062'; position: absolute; right: 20px; font-family: 'Font Awesome 6 Free'; font-size: .9rem; font-weight: 900; transition: transform .3s ease; }
-    .has-submenu.open > .sidebar-link::after { transform: rotate(90deg); }
-    .social-platform-link::after { content: '\f078' !important; }
-    .has-submenu.open .social-platform-link::after { transform: rotate(180deg) !important; }
-    .sidebar-submenu { max-height: 0; overflow: hidden; padding: 0; background: #e9e9e9; transition: max-height .15s ease-out; }
-    .sidebar-submenu.open { max-height: 1000px; }
-    .sidebar-submenu .sidebar-link { padding-left: 50px; font-size: 1rem; transform: scale(0); transition: transform 0s ease, padding 0s ease; }
-    .sidebar-submenu.open .sidebar-link { transform: scale(1); }
-    .sidebar::-webkit-scrollbar { display: none; width: 0 !important; }
-
-    .sidebar-settings { position: absolute; bottom: 20px; left: 20px; z-index: 9000; display: flex; align-items: center; justify-content: center; width: 46px; height: 46px; border-radius: 50%; background: #e2e2e2; color: #333; font-size: 1.2rem; text-decoration: none; box-shadow: 0 2px 8px rgba(0,0,0,.18); transition: background .2s ease, transform .2s ease; }
-    .sidebar-settings:hover, .sidebar-settings:focus-visible { background: #d2d2d2; transform: scale(1.08); }
-    .sidebar-settings:active { transform: scale(.94); }
-    .sidebar-settings::after { content: attr(data-tooltip); position: absolute; top: 50%; left: 56px; padding: 6px 9px; border-radius: 4px; background: #333; color: #fff; font-size: .85rem; white-space: nowrap; opacity: 0; visibility: hidden; transform: translateY(-50%); pointer-events: none; transition: opacity .18s ease, visibility .18s ease; }
-    .sidebar-settings:hover::after, .sidebar-settings:focus-visible::after { opacity: 1; visibility: visible; }
-
-    .overlay { position: fixed; inset: 0; z-index: 8998; background: rgba(0,0,0,.5); opacity: 0; visibility: hidden; transition: opacity .4s ease-out, visibility .4s ease-out; }
-    .overlay.open { opacity: 1; visibility: visible; }
     .loading-screen { position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; background: #fff; }
     .loading-logo { display: none; width: 65px; height: auto; z-index: 10000; }
     #loadingLogoDark { display: none; }
-    .loading-text-container { position: fixed; bottom: env(safe-area-inset-bottom,26px); left: 0; z-index: 10001; display: none; width: 100%; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; transform: translateY(-32px); }
+    .loading-text-container { position: fixed !important; bottom: env(safe-area-inset-bottom,26px) !important; left: 0 !important; z-index: 10001 !important; display: none !important; width: 100% !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; pointer-events: none !important; transform: translateY(-32px) !important; }
     .loading-text { color: #8e8e8e; font-size: 16px; font-weight: 400; }
     .loading-ready #loadingLogoLight { display: block; }
-    .loading-ready .loading-text-container { display: flex; }
+    .loading-ready .loading-text-container { display: flex !important; }
     html.dark-mode .loading-ready #loadingLogoLight { display: none; }
     html.dark-mode .loading-ready #loadingLogoDark { display: block; }
-
-    /* Settings content is intentionally empty; keep a clear area below the shared site header. */
-    main { min-height: calc(100vh - 80px); margin-top: 80px; }
 
     html.dark-mode { color-scheme: dark; background: #07121C; color: #e0e0e0; }
     html.dark-mode body { background: #07121C; color: #e0e0e0; }
     html.dark-mode .navbar { background: #0f1f2e; box-shadow: 0 2px 5px rgba(0,0,0,.5); }
-    html.dark-mode .navbar-logo, html.dark-mode .sidebar-link { color: #e0e0e0; }
-    html.dark-mode .menu-btn .line { background: #e0e0e0; }
-    html.dark-mode .sidebar { background: #0d1a26; box-shadow: -2px 0 10px rgba(0,0,0,.7); }
-    html.dark-mode .sidebar-item { border-color: #1a2a3a; }
-    html.dark-mode .sidebar-submenu { background: #0a1420; }
-    html.dark-mode .sidebar-link:hover { background: #1a2a3a; }
-    html.dark-mode .sidebar-settings { background: #1a2a3a; color: #e0e0e0; }
-    html.dark-mode .sidebar-settings:hover { background: #26394d; }
-    html.dark-mode .overlay { background: rgba(0,0,0,.7); }
+    html.dark-mode .navbar-logo { color: #e0e0e0; }
+    html.dark-mode .navbar-logo:hover { color: #b0b0b0; }
+    html.dark-mode .page-heading p, html.dark-mode .setting-copy p { color: #a0aab3; }
+    html.dark-mode .settings-card { background: #0d1a26; border-color: #1a2a3a; box-shadow: 0 5px 18px rgba(0,0,0,.2); }
+    html.dark-mode .setting-row + .setting-row { border-color: #1a2a3a; }
+    html.dark-mode .language-select { background: #0f1f2e; color: #e0e0e0; border-color: #34495a; }
     html.dark-mode .loading-screen { background: #07121C; }
     html.dark-mode .loading-text { color: #b0b0b0; }
 
-    @media (prefers-color-scheme: dark) {
-      html:not(.light-mode) { color-scheme: dark; background: #07121C; color: #e0e0e0; }
-      html:not(.light-mode) body { background: #07121C; color: #e0e0e0; }
-      html:not(.light-mode) .navbar { background: #0f1f2e; box-shadow: 0 2px 5px rgba(0,0,0,.5); }
-      html:not(.light-mode) .navbar-logo, html:not(.light-mode) .sidebar-link { color: #e0e0e0; }
-      html:not(.light-mode) .menu-btn .line { background: #e0e0e0; }
-      html:not(.light-mode) .sidebar { background: #0d1a26; box-shadow: -2px 0 10px rgba(0,0,0,.7); }
-      html:not(.light-mode) .sidebar-item { border-color: #1a2a3a; }
-      html:not(.light-mode) .sidebar-submenu { background: #0a1420; }
-      html:not(.light-mode) .sidebar-link:hover { background: #1a2a3a; }
-      html:not(.light-mode) .sidebar-settings { background: #1a2a3a; color: #e0e0e0; }
-      html:not(.light-mode) .overlay { background: rgba(0,0,0,.7); }
-      html:not(.light-mode) .loading-screen { background: #07121C; }
-      html:not(.light-mode) .loading-text { color: #b0b0b0; }
-    }
-
     @media (max-width: 600px) {
-      .sidebar { width: 85vw; padding-top: 65px; font-size: 1rem; }
-      .navbar-logo { margin-left: 44px; font-size: 1.1rem; }
-      .sidebar-link { padding: 10px 18px; font-size: .98rem; }
-      .sidebar-submenu .sidebar-link { padding-left: 35px; font-size: .98rem; }
+      .navbar-logo { margin-left: 20px; font-size: 1.2rem; }
+      main { margin-top: 94px; }
+      .settings-card { padding: .15rem 1rem; }
+      .setting-row { min-height: 88px; }
+      .setting-copy h2 { font-size: 1rem; }
+      .setting-copy p { font-size: .85rem; }
       .loading-logo { width: 35px; }
     }
   </style>
 </head>
 <body>
-  <nav class="navbar" id="navbar">
-    <div class="menu-btn" id="menuBtn" role="button" tabindex="0" aria-label="Open menu" aria-expanded="false">
-      <div class="line line1"></div><div class="line line2"></div><div class="line line3"></div>
-    </div>
+  <nav class="navbar" aria-label="Site header">
     <div class="navbar-container">
       <a class="navbar-logo" id="logo" href="wkjasdka.html" data-text="W.K.Jasdka">W.K.Jasdka</a>
-      <ul class="navbar-menu"></ul>
     </div>
   </nav>
 
-  <aside class="sidebar" id="sidebar" aria-label="Site navigation">
-    <ul class="sidebar-menu">
-      <div class="sidebar-menu-main">
-        <li class="sidebar-item"><a href="wkjasdka.html" class="sidebar-link"><i class="fas fa-home"></i> Top</a></li>
-        <li class="sidebar-item has-submenu">
-          <a href="#" class="sidebar-link social-platform-link"><i class="fas fa-comment"></i> Social Platforms</a>
-          <ul class="sidebar-submenu">
-            <li class="sidebar-item"><a href="https://space.bilibili.com/3493283156200346" class="sidebar-link"><i class="fab fa-bilibili"></i> Bilibili</a></li>
-            <li class="sidebar-item"><a href="https://bsky.app/profile/wkjasdka.bsky.social" class="sidebar-link"><i class="fa-brands fa-bluesky"></i> Bluesky</a></li>
-            <li class="sidebar-item"><a href="https://discord.gg/QQQVS5fJPD" class="sidebar-link"><i class="fab fa-discord"></i> Discord</a></li>
-            <li class="sidebar-item"><a href="https://facebook.com/chenasawkjasdka" class="sidebar-link"><i class="fa-brands fa-facebook-f"></i> Facebook</a></li>
-            <li class="sidebar-item"><a href="https://instagram.com/imwkjasdka" class="sidebar-link"><i class="fa-brands fa-instagram"></i> Instagram</a></li>
-            <li class="sidebar-item"><a href="https://www.pinterest.com/Wkjasdka" class="sidebar-link"><i class="fab fa-pinterest"></i> Pinterest</a></li>
-            <li class="sidebar-item"><a href="https://open.spotify.com/user/31fp6b7aq3ch2jzdt5up5welfdhq?si=4vDMBCqPRJSPB4a2rxM7eg" class="sidebar-link"><i class="fab fa-spotify"></i> Spotify</a></li>
-            <li class="sidebar-item"><a href="https://tiktok.com/@wkjasdkaqwq" class="sidebar-link"><i class="fab fa-tiktok"></i> TikTok</a></li>
-            <li class="sidebar-item"><a href="https://threads.net/@imwkjasdka" class="sidebar-link"><i class="fa-brands fa-threads"></i> Threads</a></li>
-            <li class="sidebar-item"><a href="https://twitch.tv/wkjasdkaqwq" class="sidebar-link"><i class="fab fa-twitch"></i> Twitch</a></li>
-            <li class="sidebar-item"><a href="https://x.com/Wkjasdka" class="sidebar-link"><i class="fab fa-twitter"></i> Twitter</a></li>
-            <li class="sidebar-item"><a href="https://www.youtube.com/@wkjasdkaverynb" class="sidebar-link"><i class="fab fa-youtube"></i> YouTube</a></li>
-          </ul>
-        </li>
-        <li class="sidebar-item"><a href="mailto:wkjasdkayeah@yeah.net" class="sidebar-link"><i class="fas fa-envelope"></i> Contact</a></li>
+  <main>
+    <header class="page-heading">
+      <h1 data-i18n="title">Settings</h1>
+      <p data-i18n="intro">Choose your preferred appearance and language.</p>
+    </header>
+
+    <section class="settings-card" aria-label="Settings">
+      <div class="setting-row">
+        <div class="setting-copy">
+          <h2 data-i18n="darkTitle">Dark mode</h2>
+          <p data-i18n="darkDescription">Use the dark color scheme on this device.</p>
+        </div>
+        <input class="theme-toggle" id="darkModeToggle" type="checkbox" role="switch" aria-label="Dark mode">
       </div>
-      <li class="sidebar-item"><a href="about.html" class="sidebar-link"><i class="fas fa-info-circle"></i> About</a></li>
-    </ul>
-    <a class="sidebar-settings" href="settings.html" data-tooltip="Settings" aria-label="Settings" title="Settings"><i class="fas fa-cog" aria-hidden="true"></i></a>
-  </aside>
-  <div class="overlay" id="overlay"></div>
+      <div class="setting-row">
+        <div class="setting-copy">
+          <h2 data-i18n="languageTitle">Language</h2>
+          <p data-i18n="languageDescription">Choose the language used on this settings page.</p>
+        </div>
+        <select class="language-select" id="languageSelect" aria-label="Language">
+          <option value="en">English</option>
+          <option value="zh-CN">简体中文</option>
+        </select>
+      </div>
+    </section>
+  </main>
 
   <div class="loading-screen" id="loadingScreen" aria-label="Loading">
     <img src="/wkjasdka/index/logo3.png" alt="Loading logo" class="loading-logo" id="loadingLogoLight">
     <img src="/wkjasdka/index/dark_mode.png" alt="Loading logo" class="loading-logo" id="loadingLogoDark">
-    <div class="loading-text-container" id="loadingTexts"><div class="loading-text">from</div><div class="loading-text">- Wkjasdka -</div></div>
+    <div class="loading-text-container" id="loadingTexts">
+      <div class="loading-text">from</div>
+      <div class="loading-text">- Wkjasdka -</div>
+    </div>
   </div>
 
-  <main id="mainContent" aria-label="Settings page"></main>
-
   <script>
+    const translations = {
+      en: {
+        title: 'Settings',
+        intro: 'Choose your preferred appearance and language.',
+        darkTitle: 'Dark mode',
+        darkDescription: 'Use the dark color scheme on this device.',
+        languageTitle: 'Language',
+        languageDescription: 'Choose the language used on this settings page.'
+      },
+      'zh-CN': {
+        title: '设置',
+        intro: '选择你偏好的外观和语言。',
+        darkTitle: '深色模式',
+        darkDescription: '在此设备上使用深色主题。',
+        languageTitle: '语言',
+        languageDescription: '选择设置页面的显示语言。'
+      }
+    };
+
+    const root = document.documentElement;
+    const darkModeToggle = document.getElementById('darkModeToggle');
+    const languageSelect = document.getElementById('languageSelect');
+    const savedTheme = localStorage.getItem('wkjasdka-dark-mode');
     const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    if (prefersDark) document.documentElement.classList.add('dark-mode');
+    const isDark = savedTheme === null ? prefersDark : savedTheme === 'true';
+    const savedLanguage = localStorage.getItem('wkjasdka-language');
 
-    const menuButton = document.getElementById('menuBtn');
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('overlay');
-
-    function closeSidebar() {
-      sidebar.classList.remove('open');
-      overlay.classList.remove('open');
-      menuButton.classList.remove('rotated');
-      menuButton.setAttribute('aria-expanded', 'false');
-      menuButton.setAttribute('aria-label', 'Open menu');
-      document.body.style.overflow = '';
-      document.querySelectorAll('.sidebar-submenu.open, .sidebar-item.has-submenu.open').forEach(element => element.classList.remove('open'));
+    function setDarkMode(enabled, persist = true) {
+      root.classList.toggle('dark-mode', enabled);
+      root.classList.toggle('light-mode', !enabled);
+      darkModeToggle.checked = enabled;
+      if (persist) localStorage.setItem('wkjasdka-dark-mode', String(enabled));
     }
 
-    function toggleSidebar() {
-      const isOpen = sidebar.classList.toggle('open');
-      overlay.classList.toggle('open', isOpen);
-      menuButton.classList.toggle('rotated', isOpen);
-      menuButton.setAttribute('aria-expanded', String(isOpen));
-      menuButton.setAttribute('aria-label', isOpen ? 'Close menu' : 'Open menu');
-      document.body.style.overflow = isOpen ? 'hidden' : '';
-    }
-
-    menuButton.addEventListener('click', toggleSidebar);
-    menuButton.addEventListener('keydown', event => {
-      if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); toggleSidebar(); }
-    });
-    overlay.addEventListener('click', closeSidebar);
-
-    document.querySelectorAll('.sidebar-item.has-submenu').forEach(item => {
-      const link = item.querySelector(':scope > .sidebar-link');
-      const submenu = item.querySelector('.sidebar-submenu');
-      link.addEventListener('click', event => {
-        event.preventDefault();
-        submenu.classList.toggle('open');
-        item.classList.toggle('open');
+    function setLanguage(language, persist = true) {
+      const selectedLanguage = translations[language] ? language : 'en';
+      document.documentElement.lang = selectedLanguage === 'zh-CN' ? 'zh-CN' : 'en-GB';
+      languageSelect.value = selectedLanguage;
+      document.querySelectorAll('[data-i18n]').forEach(element => {
+        const key = element.dataset.i18n;
+        element.textContent = translations[selectedLanguage][key];
       });
-    });
+      if (persist) localStorage.setItem('wkjasdka-language', selectedLanguage);
+    }
+
+    setDarkMode(isDark, false);
+    setLanguage(savedLanguage || 'en', false);
+    darkModeToggle.addEventListener('change', () => setDarkMode(darkModeToggle.checked));
+    languageSelect.addEventListener('change', () => setLanguage(languageSelect.value));
 
     document.getElementById('logo').addEventListener('click', event => {
       if (event.currentTarget.href === window.location.href) {
@@ -212,10 +173,7 @@
     window.addEventListener('load', () => {
       const loading = document.getElementById('loadingScreen');
       loading.classList.add('loading-ready');
-      window.setTimeout(() => {
-        loading.style.display = 'none';
-        document.getElementById('mainContent').style.display = 'block';
-      }, 350);
+      window.setTimeout(() => { loading.style.display = 'none'; }, 350);
     }, { once: true });
   </script>
 </body>
