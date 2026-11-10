@@ -43,6 +43,45 @@
     .theme-toggle:checked::before { transform: translateX(22px); }
     .theme-toggle:focus-visible, .language-select:focus-visible, .navbar-logo:focus-visible { outline: 3px solid #64b5f6; outline-offset: 3px; }
     .language-select { width: min(220px, 42vw); min-height: 42px; padding: .5rem .75rem; border: 1px solid #c8d0d7; border-radius: 8px; background: #fff; color: #263238; font: inherit; }
+    .shortcuts-open { min-height: 42px; padding: .65rem 1rem; border: 0; border-radius: 8px; background: #e67e22; color: #fff; font: inherit; font-weight: 700; cursor: pointer; transition: background .2s ease, transform .2s ease; }
+    .shortcuts-open:hover { background: #cf6d16; transform: translateY(-1px); }
+    .shortcuts-open:focus-visible, .shortcuts-close:focus-visible, .shortcut-info-card:focus-visible { outline: 3px solid #64b5f6; outline-offset: 3px; }
+    .shortcuts-modal { position: fixed; inset: 0; z-index: 9500; display: grid; place-items: center; padding: 2vh 2vw; background: rgba(5,12,20,.68); opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .2s ease, visibility .2s ease; }
+    .shortcuts-modal.open { opacity: 1; visibility: visible; pointer-events: auto; }
+    .shortcuts-dialog { display: flex; flex-direction: column; width: min(1200px, 96vw); height: min(900px, 94vh); height: min(900px, 94dvh); overflow: hidden; border: 1px solid #dfe4e8; border-radius: 20px; background: #fff; color: #263238; box-shadow: 0 24px 80px rgba(0,0,0,.32); transform: translateY(12px) scale(.985); transition: transform .2s ease; }
+    .shortcuts-modal.open .shortcuts-dialog { transform: translateY(0) scale(1); }
+    .shortcuts-header { display: flex; flex: 0 0 auto; align-items: center; justify-content: space-between; gap: 1rem; min-height: 72px; padding: 1rem 1.5rem; border-bottom: 1px solid #e3e7eb; }
+    .shortcuts-header h2 { margin: 0; font-size: clamp(1.2rem, 2.5vw, 1.65rem); }
+    .shortcuts-close { display: grid; flex: 0 0 42px; place-items: center; width: 42px; height: 42px; border: 0; border-radius: 50%; background: #edf0f2; color: inherit; font-size: 1.65rem; line-height: 1; cursor: pointer; }
+    .shortcuts-layout { display: grid; flex: 1 1 auto; grid-template-rows: minmax(0, 3fr) minmax(170px, 1fr); min-height: 0; }
+    .shortcuts-information { min-height: 0; overflow: auto; padding: clamp(1rem, 3vw, 2rem); }
+    .shortcuts-hint { margin: 0 0 1.25rem; color: #66717a; line-height: 1.5; }
+    .shortcut-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+    .shortcut-info-card { display: flex; min-height: 150px; flex-direction: column; align-items: flex-start; justify-content: space-between; gap: 1.25rem; padding: 1.25rem; border: 1px solid #e0e5e9; border-radius: 14px; background: #f8f9fa; color: inherit; font: inherit; text-align: left; cursor: default; transition: border-color .16s ease, background .16s ease, box-shadow .16s ease, transform .16s ease; }
+    .shortcut-info-card:hover, .shortcut-info-card.is-active { border-color: #e67e22; background: #fff8f1; box-shadow: 0 8px 24px rgba(230,126,34,.16); transform: translateY(-2px); }
+    .shortcut-info-card strong { font-size: clamp(1rem, 2vw, 1.2rem); }
+    .shortcut-info-card span { color: #66717a; line-height: 1.5; }
+    .shortcut-combo { display: inline-flex; align-items: center; gap: .45rem; }
+    .shortcut-combo kbd { min-width: 42px; padding: .45rem .7rem; border: 1px solid #cbd3d9; border-bottom-width: 3px; border-radius: 7px; background: #fff; color: #263238; font: 700 .9rem/1.2 Arial, sans-serif; text-align: center; }
+    .shortcut-combo b { color: #7b8790; }
+    .keyboard-area { display: flex; min-height: 0; flex-direction: column; justify-content: center; gap: .3rem; padding: .45rem clamp(.5rem, 2vw, 1.5rem) .55rem; border-top: 1px solid #e3e7eb; background: #f1f3f5; }
+    .keyboard-caption { margin: 0; color: #66717a; font-size: .72rem; font-weight: 700; letter-spacing: .06em; text-align: center; text-transform: uppercase; }
+    .keyboard { display: flex; flex-direction: column; gap: .22rem; width: min(900px, 100%); margin: 0 auto; }
+    .keyboard-row { display: flex; justify-content: center; gap: .28rem; }
+    .keyboard-key { display: grid; flex: 1 1 0; place-items: center; min-width: 0; height: clamp(20px, 2.8vh, 30px); padding: 0 .2rem; border: 1px solid #c8d0d7; border-bottom-width: 3px; border-radius: 6px; background: #fff; color: #36434d; font: 600 clamp(.55rem, 1.1vw, .78rem)/1 Arial, sans-serif; transition: background .12s ease, color .12s ease, border-color .12s ease, box-shadow .12s ease, transform .12s ease; }
+    .keyboard-key[data-key="Shift"], .keyboard-key[data-key="Backspace"], .keyboard-key[data-key="Tab"], .keyboard-key[data-key="CapsLock"], .keyboard-key[data-key="Enter"], .keyboard-key[data-key="Control"], .keyboard-key[data-key="Alt"], .keyboard-key[data-key="Escape"] { flex-grow: 1.6; }
+    .keyboard-key[data-key="Space"] { flex-grow: 5.5; }
+    .keyboard-key.is-highlighted { z-index: 1; border-color: #c95f08; background: #e67e22; color: #fff; box-shadow: 0 0 0 3px rgba(230,126,34,.2), 0 5px 14px rgba(230,126,34,.28); transform: translateY(-2px); }
+    html.dark-mode .shortcuts-dialog { border-color: #26394d; background: #0d1a26; color: #e0e0e0; }
+    html.dark-mode .shortcuts-header, html.dark-mode .keyboard-area { border-color: #26394d; }
+    html.dark-mode .shortcuts-header { border-bottom-color: #26394d; }
+    html.dark-mode .shortcuts-close { background: #1a2a3a; }
+    html.dark-mode .shortcuts-hint, html.dark-mode .shortcut-info-card span, html.dark-mode .keyboard-caption { color: #a0aab3; }
+    html.dark-mode .shortcut-info-card { border-color: #26394d; background: #101f2e; }
+    html.dark-mode .shortcut-info-card:hover, html.dark-mode .shortcut-info-card.is-active { border-color: #e67e22; background: #2a2119; }
+    html.dark-mode .shortcut-combo kbd, html.dark-mode .keyboard-key { border-color: #425363; background: #172839; color: #e0e0e0; }
+    html.dark-mode .keyboard-area { background: #091521; }
+    html.dark-mode .keyboard-key.is-highlighted { border-color: #f39a4f; background: #e67e22; color: #fff; }
 
     .loading-screen { position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; background: #fff; }
     .loading-logo { display: none; width: 65px; height: auto; z-index: 10000; }
@@ -76,6 +115,32 @@
       .setting-copy h2 { font-size: 1rem; }
       .setting-copy p { font-size: .85rem; }
       .loading-logo { width: 35px; }
+      .shortcuts-modal { padding: 1vh 1vw; }
+      .shortcuts-dialog { width: 98vw; height: 96vh; height: 96dvh; border-radius: 14px; }
+      .shortcuts-header { min-height: 58px; padding: .65rem 1rem; }
+      .shortcuts-layout { grid-template-rows: minmax(0, 3fr) minmax(155px, 1fr); }
+      .shortcuts-information { padding: 1rem; }
+      .shortcut-list { grid-template-columns: 1fr; gap: .65rem; }
+      .shortcut-info-card { min-height: 96px; flex-direction: row; align-items: center; padding: .85rem; }
+      .shortcut-info-card span { max-width: 54%; font-size: .85rem; }
+      .shortcut-combo { gap: .25rem; }
+      .shortcut-combo kbd { min-width: 34px; padding: .38rem .45rem; font-size: .8rem; }
+      .keyboard-area { gap: .3rem; padding: .45rem .35rem .5rem; }
+      .keyboard-caption { font-size: .62rem; letter-spacing: .04em; }
+      .keyboard { gap: .2rem; }
+      .keyboard-row { gap: .22rem; }
+      .keyboard-key { height: clamp(18px, 2.5vh, 23px); padding: 0 .08rem; border-radius: 4px; font-size: clamp(.45rem, 1.6vw, .58rem); }
+    }
+    @media (max-height: 560px) {
+      .shortcuts-dialog { height: 96vh; height: 96dvh; }
+      .shortcuts-layout { grid-template-rows: minmax(0, 3fr) minmax(150px, 1fr); }
+      .shortcuts-header { min-height: 50px; padding: .4rem 1rem; }
+      .shortcuts-information { padding: .65rem 1rem; }
+      .shortcut-info-card { min-height: 78px; padding: .65rem; }
+      .keyboard-area { gap: .25rem; padding: .35rem; }
+      .keyboard { gap: .2rem; }
+      .keyboard-row { gap: .18rem; }
+      .keyboard-key { height: 18px; }
     }
   </style>
 </head>
@@ -110,8 +175,51 @@
           <option value="zh-CN">简体中文</option>
         </select>
       </div>
+      <div class="setting-row">
+        <div class="setting-copy">
+          <h2 data-i18n="shortcutsTitle">Keyboard shortcuts</h2>
+          <p data-i18n="shortcutsDescription">View available shortcuts and their keys.</p>
+        </div>
+        <button class="shortcuts-open" id="shortcutsOpen" type="button" aria-haspopup="dialog" aria-controls="shortcutsModal" data-i18n="shortcutsOpen">View shortcuts</button>
+      </div>
     </section>
   </main>
+
+  <div class="shortcuts-modal" id="shortcutsModal" aria-hidden="true">
+    <section class="shortcuts-dialog" role="dialog" aria-modal="true" aria-labelledby="shortcutsModalTitle" aria-describedby="shortcutsHint">
+      <header class="shortcuts-header">
+        <h2 id="shortcutsModalTitle" data-i18n="shortcutsModalTitle">Keyboard shortcuts</h2>
+        <button class="shortcuts-close" id="shortcutsClose" type="button" aria-label="Close shortcuts" data-i18n-aria-label="shortcutsClose">&times;</button>
+      </header>
+      <div class="shortcuts-layout">
+        <div class="shortcuts-information">
+          <p class="shortcuts-hint" id="shortcutsHint" data-i18n="shortcutsHint">Hover over or focus a shortcut to see its keys highlighted below.</p>
+          <div class="shortcut-list">
+            <button class="shortcut-info-card" type="button" data-keys="Shift A">
+              <span class="shortcut-combo"><kbd>Shift</kbd><b>+</b><kbd>A</kbd></span>
+              <strong data-i18n="shortcutToggleTitle">Toggle the side menu</strong>
+              <span data-i18n="shortcutToggleDescription">Open the menu, or close it when it is already open.</span>
+            </button>
+            <button class="shortcut-info-card" type="button" data-keys="Escape">
+              <span class="shortcut-combo"><kbd>Esc</kbd></span>
+              <strong data-i18n="shortcutEscapeTitle">Close the side menu</strong>
+              <span data-i18n="shortcutEscapeDescription">Close the open side menu and return focus to its menu button.</span>
+            </button>
+          </div>
+        </div>
+        <div class="keyboard-area">
+          <p class="keyboard-caption" data-i18n="keyboardCaption">Keyboard · highlighted keys match the selected shortcut</p>
+          <div class="keyboard" role="img" aria-label="Keyboard visualization" data-i18n-aria-label="keyboardLabel">
+            <div class="keyboard-row"><span class="keyboard-key" data-key="Escape">Esc</span><span class="keyboard-key" data-key="Backquote">`</span><span class="keyboard-key" data-key="1">1</span><span class="keyboard-key" data-key="2">2</span><span class="keyboard-key" data-key="3">3</span><span class="keyboard-key" data-key="4">4</span><span class="keyboard-key" data-key="5">5</span><span class="keyboard-key" data-key="6">6</span><span class="keyboard-key" data-key="7">7</span><span class="keyboard-key" data-key="8">8</span><span class="keyboard-key" data-key="9">9</span><span class="keyboard-key" data-key="0">0</span><span class="keyboard-key" data-key="-">-</span><span class="keyboard-key" data-key="=">=</span><span class="keyboard-key" data-key="Backspace">Bksp</span></div>
+            <div class="keyboard-row"><span class="keyboard-key" data-key="Tab">Tab</span><span class="keyboard-key" data-key="Q">Q</span><span class="keyboard-key" data-key="W">W</span><span class="keyboard-key" data-key="E">E</span><span class="keyboard-key" data-key="R">R</span><span class="keyboard-key" data-key="T">T</span><span class="keyboard-key" data-key="Y">Y</span><span class="keyboard-key" data-key="U">U</span><span class="keyboard-key" data-key="I">I</span><span class="keyboard-key" data-key="O">O</span><span class="keyboard-key" data-key="P">P</span><span class="keyboard-key" data-key="[">[</span><span class="keyboard-key" data-key="]">]</span><span class="keyboard-key" data-key="Backslash">&#92;</span></div>
+            <div class="keyboard-row"><span class="keyboard-key" data-key="CapsLock">Caps</span><span class="keyboard-key" data-key="A">A</span><span class="keyboard-key" data-key="S">S</span><span class="keyboard-key" data-key="D">D</span><span class="keyboard-key" data-key="F">F</span><span class="keyboard-key" data-key="G">G</span><span class="keyboard-key" data-key="H">H</span><span class="keyboard-key" data-key="J">J</span><span class="keyboard-key" data-key="K">K</span><span class="keyboard-key" data-key="L">L</span><span class="keyboard-key" data-key=";">;</span><span class="keyboard-key" data-key="'">'</span><span class="keyboard-key" data-key="Enter">Enter</span></div>
+            <div class="keyboard-row"><span class="keyboard-key" data-key="Shift">Shift</span><span class="keyboard-key" data-key="Z">Z</span><span class="keyboard-key" data-key="X">X</span><span class="keyboard-key" data-key="C">C</span><span class="keyboard-key" data-key="V">V</span><span class="keyboard-key" data-key="B">B</span><span class="keyboard-key" data-key="N">N</span><span class="keyboard-key" data-key="M">M</span><span class="keyboard-key" data-key=",">,</span><span class="keyboard-key" data-key=".">.</span><span class="keyboard-key" data-key="/">/</span><span class="keyboard-key" data-key="Shift">Shift</span></div>
+            <div class="keyboard-row"><span class="keyboard-key" data-key="Control">Ctrl</span><span class="keyboard-key" data-key="Alt">Alt</span><span class="keyboard-key" data-key="Space">Space</span><span class="keyboard-key" data-key="Alt">Alt</span><span class="keyboard-key" data-key="Control">Ctrl</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
 
   <div class="loading-screen" id="loadingScreen" aria-label="Loading">
     <img src="/wkjasdka/index/logo3.png" alt="Loading logo" class="loading-logo" id="loadingLogoLight">
@@ -130,7 +238,19 @@
         darkTitle: 'Dark mode',
         darkDescription: 'Use the dark color scheme on this device.',
         languageTitle: 'Language',
-        languageDescription: 'Choose the language used on this settings page.'
+        languageDescription: 'Choose the language used on this settings page.',
+        shortcutsTitle: 'Keyboard shortcuts',
+        shortcutsDescription: 'View available shortcuts and their keys.',
+        shortcutsOpen: 'View shortcuts',
+        shortcutsModalTitle: 'Keyboard shortcuts',
+        shortcutsClose: 'Close shortcuts',
+        shortcutsHint: 'Hover over or focus a shortcut to see its keys highlighted below.',
+        shortcutToggleTitle: 'Toggle the side menu',
+        shortcutToggleDescription: 'Open the menu, or close it when it is already open.',
+        shortcutEscapeTitle: 'Close the side menu',
+        shortcutEscapeDescription: 'Close the open side menu and return focus to its menu button.',
+        keyboardCaption: 'Keyboard · highlighted keys match the selected shortcut',
+        keyboardLabel: 'Keyboard visualization'
       },
       'zh-CN': {
         title: '设置',
@@ -138,13 +258,30 @@
         darkTitle: '深色模式',
         darkDescription: '在此设备上使用深色主题。',
         languageTitle: '语言',
-        languageDescription: '选择设置页面的显示语言。'
+        languageDescription: '选择设置页面的显示语言。',
+        shortcutsTitle: '快捷键',
+        shortcutsDescription: '查看可用快捷键及其对应按键。',
+        shortcutsOpen: '查看快捷键',
+        shortcutsModalTitle: '快捷键',
+        shortcutsClose: '关闭快捷键窗口',
+        shortcutsHint: '将鼠标悬停或聚焦到某项快捷键，下方键盘会高亮对应按键。',
+        shortcutToggleTitle: '切换侧边菜单',
+        shortcutToggleDescription: '展开菜单；菜单已展开时再次按下即可关闭。',
+        shortcutEscapeTitle: '关闭侧边菜单',
+        shortcutEscapeDescription: '关闭已展开的侧边菜单，并将焦点返回菜单按钮。',
+        keyboardCaption: '键盘 · 高亮按键对应所选快捷键',
+        keyboardLabel: '键盘示意图'
       }
     };
 
     const root = document.documentElement;
     const darkModeToggle = document.getElementById('darkModeToggle');
     const languageSelect = document.getElementById('languageSelect');
+    const shortcutsModal = document.getElementById('shortcutsModal');
+    const shortcutsOpen = document.getElementById('shortcutsOpen');
+    const shortcutsClose = document.getElementById('shortcutsClose');
+    let shortcutsReturnFocus = null;
+    let previousBodyOverflow = '';
     const savedTheme = localStorage.getItem('wkjasdka-dark-mode');
     const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
     const isDark = savedTheme === null ? prefersDark : savedTheme === 'true';
@@ -165,13 +302,72 @@
         const key = element.dataset.i18n;
         element.textContent = translations[selectedLanguage][key];
       });
+      document.querySelectorAll('[data-i18n-aria-label]').forEach(element => {
+        const key = element.dataset.i18nAriaLabel;
+        element.setAttribute('aria-label', translations[selectedLanguage][key]);
+      });
       if (persist) localStorage.setItem('wkjasdka-language', selectedLanguage);
+    }
+
+    function openShortcuts() {
+      shortcutsReturnFocus = document.activeElement;
+      previousBodyOverflow = document.body.style.overflow;
+      shortcutsModal.classList.add('open');
+      shortcutsModal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+      requestAnimationFrame(() => {
+        if (shortcutsModal.classList.contains('open')) shortcutsClose.focus();
+      });
+    }
+
+    function closeShortcuts() {
+      shortcutsModal.classList.remove('open');
+      shortcutsModal.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = previousBodyOverflow;
+      if (shortcutsReturnFocus && typeof shortcutsReturnFocus.focus === 'function') shortcutsReturnFocus.focus();
     }
 
     setDarkMode(isDark, false);
     setLanguage(savedLanguage || 'en', false);
     darkModeToggle.addEventListener('change', () => setDarkMode(darkModeToggle.checked));
     languageSelect.addEventListener('change', () => setLanguage(languageSelect.value));
+    shortcutsOpen.addEventListener('click', openShortcuts);
+    shortcutsClose.addEventListener('click', closeShortcuts);
+    shortcutsModal.addEventListener('click', event => {
+      if (event.target === shortcutsModal) closeShortcuts();
+    });
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && shortcutsModal.classList.contains('open')) {
+        event.preventDefault();
+        closeShortcuts();
+        return;
+      }
+      if (event.key === 'Tab' && shortcutsModal.classList.contains('open')) {
+        const focusable = [...shortcutsModal.querySelectorAll('button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])')];
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
+      }
+    });
+    document.querySelectorAll('.shortcut-info-card').forEach(card => {
+      const setHighlight = active => {
+        const keys = card.dataset.keys.split(' ');
+        card.classList.toggle('is-active', active);
+        document.querySelectorAll('.keyboard-key').forEach(key => {
+          key.classList.toggle('is-highlighted', active && keys.includes(key.dataset.key));
+        });
+      };
+      card.addEventListener('pointerenter', () => setHighlight(true));
+      card.addEventListener('pointerleave', () => setHighlight(card === document.activeElement));
+      card.addEventListener('focus', () => setHighlight(true));
+      card.addEventListener('blur', () => setHighlight(card.matches(':hover')));
+    });
 
     document.getElementById('logo').addEventListener('click', event => {
       if (event.currentTarget.href === window.location.href) {
