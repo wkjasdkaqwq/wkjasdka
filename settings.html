@@ -68,10 +68,10 @@
     .keyboard-caption { margin: 0; color: #66717a; font-size: .72rem; font-weight: 700; letter-spacing: .06em; text-align: center; text-transform: uppercase; }
     .keyboard { display: flex; flex-direction: column; gap: .22rem; width: min(900px, 100%); margin: 0 auto; }
     .keyboard-row { display: flex; justify-content: center; gap: .28rem; }
-    .keyboard-key { display: grid; flex: 1 1 0; place-items: center; min-width: 0; height: clamp(20px, 2.8vh, 30px); padding: 0 .2rem; border: 1px solid #c8d0d7; border-bottom-width: 3px; border-radius: 6px; background: #fff; color: #36434d; font: 600 clamp(.55rem, 1.1vw, .78rem)/1 Arial, sans-serif; transition: background .12s ease, color .12s ease, border-color .12s ease, box-shadow .12s ease, transform .12s ease; }
+    .keyboard-key { display: grid; flex: 1 1 0; place-items: center; min-width: 0; height: clamp(20px, 2.8vh, 30px); padding: 0 .2rem; border: 1px solid #c8d0d7; border-bottom-width: 3px; border-radius: 6px; background: #fff; color: #36434d; font: 600 clamp(.55rem, 1.1vw, .78rem)/1 Arial, sans-serif; opacity: .78; transition: background .45s ease, color .45s ease, border-color .45s ease, box-shadow .45s ease, transform .45s ease, opacity .45s ease; }
     .keyboard-key[data-key="Shift"], .keyboard-key[data-key="Backspace"], .keyboard-key[data-key="Tab"], .keyboard-key[data-key="CapsLock"], .keyboard-key[data-key="Enter"], .keyboard-key[data-key="Control"], .keyboard-key[data-key="Alt"], .keyboard-key[data-key="Escape"] { flex-grow: 1.6; }
     .keyboard-key[data-key="Space"] { flex-grow: 5.5; }
-    .keyboard-key.is-highlighted { z-index: 1; border-color: #c95f08; background: #e67e22; color: #fff; box-shadow: 0 0 0 3px rgba(230,126,34,.2), 0 5px 14px rgba(230,126,34,.28); transform: translateY(-2px); }
+    .keyboard-key.is-highlighted { z-index: 1; border-color: #c95f08; background: #e67e22; color: #fff; opacity: 1; box-shadow: 0 0 0 3px rgba(230,126,34,.2), 0 5px 14px rgba(230,126,34,.28); transform: translateY(-2px); }
     html.dark-mode .shortcuts-dialog { border-color: #26394d; background: #0d1a26; color: #e0e0e0; }
     html.dark-mode .shortcuts-header, html.dark-mode .keyboard-area { border-color: #26394d; }
     html.dark-mode .shortcuts-header { border-bottom-color: #26394d; }
@@ -112,6 +112,7 @@
       main { margin-top: 94px; }
       .settings-card { padding: .15rem 1rem; }
       .setting-row { min-height: 88px; }
+      .shortcuts-setting-row { display: none; }
       .setting-copy h2 { font-size: 1rem; }
       .setting-copy p { font-size: .85rem; }
       .loading-logo { width: 35px; }
@@ -175,7 +176,7 @@
           <option value="zh-CN">简体中文</option>
         </select>
       </div>
-      <div class="setting-row">
+      <div class="setting-row shortcuts-setting-row">
         <div class="setting-copy">
           <h2 data-i18n="shortcutsTitle">Keyboard shortcuts</h2>
           <p data-i18n="shortcutsDescription">View available shortcuts and their keys.</p>
@@ -213,7 +214,7 @@
             <div class="keyboard-row"><span class="keyboard-key" data-key="Escape">Esc</span><span class="keyboard-key" data-key="Backquote">`</span><span class="keyboard-key" data-key="1">1</span><span class="keyboard-key" data-key="2">2</span><span class="keyboard-key" data-key="3">3</span><span class="keyboard-key" data-key="4">4</span><span class="keyboard-key" data-key="5">5</span><span class="keyboard-key" data-key="6">6</span><span class="keyboard-key" data-key="7">7</span><span class="keyboard-key" data-key="8">8</span><span class="keyboard-key" data-key="9">9</span><span class="keyboard-key" data-key="0">0</span><span class="keyboard-key" data-key="-">-</span><span class="keyboard-key" data-key="=">=</span><span class="keyboard-key" data-key="Backspace">Bksp</span></div>
             <div class="keyboard-row"><span class="keyboard-key" data-key="Tab">Tab</span><span class="keyboard-key" data-key="Q">Q</span><span class="keyboard-key" data-key="W">W</span><span class="keyboard-key" data-key="E">E</span><span class="keyboard-key" data-key="R">R</span><span class="keyboard-key" data-key="T">T</span><span class="keyboard-key" data-key="Y">Y</span><span class="keyboard-key" data-key="U">U</span><span class="keyboard-key" data-key="I">I</span><span class="keyboard-key" data-key="O">O</span><span class="keyboard-key" data-key="P">P</span><span class="keyboard-key" data-key="[">[</span><span class="keyboard-key" data-key="]">]</span><span class="keyboard-key" data-key="Backslash">&#92;</span></div>
             <div class="keyboard-row"><span class="keyboard-key" data-key="CapsLock">Caps</span><span class="keyboard-key" data-key="A">A</span><span class="keyboard-key" data-key="S">S</span><span class="keyboard-key" data-key="D">D</span><span class="keyboard-key" data-key="F">F</span><span class="keyboard-key" data-key="G">G</span><span class="keyboard-key" data-key="H">H</span><span class="keyboard-key" data-key="J">J</span><span class="keyboard-key" data-key="K">K</span><span class="keyboard-key" data-key="L">L</span><span class="keyboard-key" data-key=";">;</span><span class="keyboard-key" data-key="'">'</span><span class="keyboard-key" data-key="Enter">Enter</span></div>
-            <div class="keyboard-row"><span class="keyboard-key" data-key="Shift">Shift</span><span class="keyboard-key" data-key="Z">Z</span><span class="keyboard-key" data-key="X">X</span><span class="keyboard-key" data-key="C">C</span><span class="keyboard-key" data-key="V">V</span><span class="keyboard-key" data-key="B">B</span><span class="keyboard-key" data-key="N">N</span><span class="keyboard-key" data-key="M">M</span><span class="keyboard-key" data-key=",">,</span><span class="keyboard-key" data-key=".">.</span><span class="keyboard-key" data-key="/">/</span><span class="keyboard-key" data-key="Shift">Shift</span></div>
+            <div class="keyboard-row"><span class="keyboard-key" data-key="Shift" data-side="left">Shift</span><span class="keyboard-key" data-key="Z">Z</span><span class="keyboard-key" data-key="X">X</span><span class="keyboard-key" data-key="C">C</span><span class="keyboard-key" data-key="V">V</span><span class="keyboard-key" data-key="B">B</span><span class="keyboard-key" data-key="N">N</span><span class="keyboard-key" data-key="M">M</span><span class="keyboard-key" data-key=",">,</span><span class="keyboard-key" data-key=".">.</span><span class="keyboard-key" data-key="/">/</span><span class="keyboard-key" data-key="Shift" data-side="right">Shift</span></div>
             <div class="keyboard-row"><span class="keyboard-key" data-key="Control">Ctrl</span><span class="keyboard-key" data-key="Alt">Alt</span><span class="keyboard-key" data-key="Space">Space</span><span class="keyboard-key" data-key="Alt">Alt</span><span class="keyboard-key" data-key="Control">Ctrl</span></div>
           </div>
         </div>
@@ -244,7 +245,7 @@
         shortcutsOpen: 'View shortcuts',
         shortcutsModalTitle: 'Keyboard shortcuts',
         shortcutsClose: 'Close shortcuts',
-        shortcutsHint: 'Hover over or focus a shortcut to see its keys highlighted below.',
+        shortcutsHint: 'Hover over or focus a shortcut to light up its keys; the two Shift keys alternate after 3 seconds.',
         shortcutToggleTitle: 'Toggle the side menu',
         shortcutToggleDescription: 'Open the menu, or close it when it is already open.',
         shortcutEscapeTitle: 'Close the side menu',
@@ -264,7 +265,7 @@
         shortcutsOpen: '查看快捷键',
         shortcutsModalTitle: '快捷键',
         shortcutsClose: '关闭快捷键窗口',
-        shortcutsHint: '将鼠标悬停或聚焦到某项快捷键，下方键盘会高亮对应按键。',
+        shortcutsHint: '悬停或聚焦快捷键可点亮对应按键；左右 Shift 键先同时亮起，3 秒后开始轮换。',
         shortcutToggleTitle: '切换侧边菜单',
         shortcutToggleDescription: '展开菜单；菜单已展开时再次按下即可关闭。',
         shortcutEscapeTitle: '关闭侧边菜单',
@@ -282,6 +283,8 @@
     const shortcutsClose = document.getElementById('shortcutsClose');
     let shortcutsReturnFocus = null;
     let previousBodyOverflow = '';
+    let shiftCycleTimeout = null;
+    let shiftCycleInterval = null;
     const savedTheme = localStorage.getItem('wkjasdka-dark-mode');
     const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
     const isDark = savedTheme === null ? prefersDark : savedTheme === 'true';
@@ -320,7 +323,18 @@
       });
     }
 
+    function clearShiftCycle() {
+      if (shiftCycleTimeout !== null) window.clearTimeout(shiftCycleTimeout);
+      if (shiftCycleInterval !== null) window.clearInterval(shiftCycleInterval);
+      shiftCycleTimeout = null;
+      shiftCycleInterval = null;
+    }
+
     function closeShortcuts() {
+      clearShiftCycle();
+      document.querySelectorAll('.shortcut-info-card.is-active, .keyboard-key.is-highlighted').forEach(element => {
+        element.classList.remove('is-active', 'is-highlighted');
+      });
       shortcutsModal.classList.remove('open');
       shortcutsModal.setAttribute('aria-hidden', 'true');
       document.body.style.overflow = previousBodyOverflow;
@@ -357,11 +371,27 @@
     });
     document.querySelectorAll('.shortcut-info-card').forEach(card => {
       const setHighlight = active => {
+        clearShiftCycle();
+        const shouldHighlight = active && shortcutsModal.classList.contains('open');
         const keys = card.dataset.keys.split(' ');
-        card.classList.toggle('is-active', active);
+        card.classList.toggle('is-active', shouldHighlight);
         document.querySelectorAll('.keyboard-key').forEach(key => {
-          key.classList.toggle('is-highlighted', active && keys.includes(key.dataset.key));
+          key.classList.toggle('is-highlighted', shouldHighlight && keys.includes(key.dataset.key));
         });
+        if (!shouldHighlight || !keys.includes('Shift')) return;
+
+        const leftShift = document.querySelector('.keyboard-key[data-key="Shift"][data-side="left"]');
+        const rightShift = document.querySelector('.keyboard-key[data-key="Shift"][data-side="right"]');
+        shiftCycleTimeout = window.setTimeout(() => {
+          if (!card.classList.contains('is-active') || !shortcutsModal.classList.contains('open')) return;
+          let leftIsLit = true;
+          rightShift.classList.remove('is-highlighted');
+          shiftCycleInterval = window.setInterval(() => {
+            leftIsLit = !leftIsLit;
+            leftShift.classList.toggle('is-highlighted', leftIsLit);
+            rightShift.classList.toggle('is-highlighted', !leftIsLit);
+          }, 1000);
+        }, 3000);
       };
       card.addEventListener('pointerenter', () => setHighlight(true));
       card.addEventListener('pointerleave', () => setHighlight(card === document.activeElement));
