@@ -744,16 +744,6 @@
     function isAnySubmenuExpanded() {
       return document.querySelectorAll('.sidebar-submenu.expanded').length > 0;
     }
-
-    function collapseExpandedSubmenus() {
-      document.querySelectorAll('.sidebar-item.expandable.expanded').forEach(item => {
-        item.classList.remove('expanded');
-        const submenu = document.getElementById(item.dataset.expandable);
-        if (submenu) submenu.classList.remove('expanded');
-      });
-      if (!isAnySubmenuExpanded()) enableScroll();
-    }
-
     // 菜单按钮点击事件
     menuBtn.addEventListener('click', function() {
       sidebar.classList.toggle('active');
@@ -870,13 +860,6 @@
       item.addEventListener('click', function() {
         const submenuId = this.dataset.expandable;
         const submenu = document.getElementById(submenuId);
-        
-        document.querySelectorAll('.sidebar-item.expandable.expanded').forEach(other => {
-          if (other !== this) {
-            other.classList.remove('expanded');
-            document.getElementById(other.dataset.expandable).classList.remove('expanded');
-          }
-        });
 
         this.classList.toggle('expanded');
         submenu.classList.toggle('expanded');
@@ -896,7 +879,6 @@
         const contentKey = this.dataset.content;
         const isActive = this.classList.contains('active');
         const isMobile = window.innerWidth <= 768;
-        collapseExpandedSubmenus();
 
         document.querySelectorAll('.sidebar-item, .sidebar-subitem').forEach(el => el.classList.remove('active'));
 
@@ -945,7 +927,6 @@
         const contentKey = this.dataset.content;
         const isActive = this.classList.contains('active');
         const isMobile = window.innerWidth <= 768;
-        collapseExpandedSubmenus();
 
         document.querySelectorAll('.sidebar-item, .sidebar-subitem').forEach(el => el.classList.remove('active'));
 
