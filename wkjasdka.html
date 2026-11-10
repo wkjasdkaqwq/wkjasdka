@@ -183,12 +183,53 @@
     (function(){const domain='https://wkjasdkaqwq.github.io/wkjasdka/';if(location.protocol==='file:')location.href=domain;})();
     const card1=document.getElementById('infoCard1'),card2=document.getElementById('infoCard2');[card1,card2].forEach(card=>{card.addEventListener('click',function(){if(innerWidth>600)this.classList.toggle('flipped');});let sx=0,sy=0;card.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY;},{passive:true});card.addEventListener('touchend',e=>{const x=e.changedTouches[0].clientX,y=e.changedTouches[0].clientY;if(Math.abs(x-sx)<10&&Math.abs(y-sy)<10){card.classList.toggle('flipped');if(innerWidth<=600&&!card.classList.contains('flipped')){const c=card.closest('.card-container'),t=c&&c.querySelector('.card-tooltip');setTimeout(()=>{if(c)c.classList.remove('show-tooltip');if(t)t.style.opacity='0';},420);}}},{passive:true});});
     if(innerWidth>600)['1','2'].forEach(n=>{const c=document.getElementById('cardContainer'+n),t=document.getElementById('cardTooltip'+n);c.addEventListener('mousemove',e=>{const r=c.getBoundingClientRect(),w=t.offsetWidth,h=t.offsetHeight;let l=e.clientX-r.left+12,top=e.clientY-r.top-27;if(r.left+l+w>innerWidth)l=e.clientX-r.left-w-12;if(r.left+l<0)l=12;if(r.top+top<0)top=e.clientY-r.top+12;if(r.top+top+h>innerHeight)top=e.clientY-r.top-h-12;t.style.left=l+'px';t.style.top=top+'px';});});
-    const navbar=document.getElementById('navbar');let lastScrollTop=0;window.addEventListener('scroll',()=>{const y=window.pageYOffset||document.documentElement.scrollTop;if(y>lastScrollTop&&y>50)navbar.classList.add('hidden');else navbar.classList.remove('hidden');lastScrollTop=y;});
     const menuBtn = document.getElementById('menuBtn');
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('overlay');
+    const navbar = document.getElementById('navbar');
+    let lastScrollTop = 0;
+    let navbarAutoHideHoldUntil = 0;
+    let pendingSidebarReveal = false;
+    let sidebarRevealTimer = null;
+    let sidebarRevealHandler = null;
+
+    function currentScrollTop() {
+      return window.pageYOffset || document.documentElement.scrollTop || 0;
+    }
+
+    function keepNavbarVisible(duration = 0) {
+      navbar.classList.remove('hidden');
+      navbarAutoHideHoldUntil = Math.max(navbarAutoHideHoldUntil, performance.now() + duration);
+      lastScrollTop = currentScrollTop();
+    }
+
+    function cancelPendingSidebarReveal() {
+      if (!pendingSidebarReveal) return;
+      pendingSidebarReveal = false;
+      if (sidebarRevealTimer !== null) {
+        window.clearTimeout(sidebarRevealTimer);
+        sidebarRevealTimer = null;
+      }
+      if (sidebarRevealHandler) {
+        navbar.removeEventListener('transitionend', sidebarRevealHandler);
+        sidebarRevealHandler = null;
+      }
+    }
+
+    window.addEventListener('scroll', () => {
+      const y = currentScrollTop();
+      if (pendingSidebarReveal || sidebar.classList.contains('open') || performance.now() < navbarAutoHideHoldUntil) {
+        navbar.classList.remove('hidden');
+      } else if (y > lastScrollTop && y > 50) {
+        navbar.classList.add('hidden');
+      } else {
+        navbar.classList.remove('hidden');
+      }
+      lastScrollTop = y;
+    });
 
     function closeSidebar(returnFocus = false) {
+      cancelPendingSidebarReveal();
       sidebar.classList.remove('open');
       overlay.classList.remove('open');
       menuBtn.classList.remove('rotated');
@@ -198,10 +239,13 @@
       navbar.style.width = '';
       menuBtn.style.right = '';
       document.querySelectorAll('.sidebar-submenu, .sidebar-item.has-submenu').forEach(el => el.classList.remove('open'));
+      keepNavbarVisible(650);
       if (returnFocus) menuBtn.focus();
     }
 
-    function openSidebar() {
+    function openSidebarNow() {
+      if (sidebar.classList.contains('open')) return;
+      keepNavbarVisible(650);
       menuBtn.classList.remove('rotated');
       void menuBtn.offsetWidth;
       menuBtn.classList.add('rotated');
@@ -215,25 +259,57 @@
       if (scrollbarWidth > 0) menuBtn.style.right = `calc(0.625rem + ${scrollbarWidth}px)`;
     }
 
-    function toggleSidebar() {
-      if (sidebar.classList.contains('open')) closeSidebar();
+    function finishSidebarReveal() {
+      if (!pendingSidebarReveal) return;
+      cancelPendingSidebarReveal();
+      openSidebarNow();
+    }
+
+    function openSidebar() {
+      if (sidebar.classList.contains('open') || pendingSidebarReveal) return;
+      if (!navbar.classList.contains('hidden')) {
+        openSidebarNow();
+        return;
+      }
+
+      pendingSidebarReveal = true;
+      keepNavbarVisible(650);
+      sidebarRevealHandler = event => {
+        if (event.target === navbar && event.propertyName === 'transform') finishSidebarReveal();
+      };
+      navbar.addEventListener('transitionend', sidebarRevealHandler);
+      sidebarRevealTimer = window.setTimeout(finishSidebarReveal, 450);
+    }
+
+    function toggleSidebar(returnFocus = false) {
+      if (pendingSidebarReveal) {
+        cancelPendingSidebarReveal();
+        keepNavbarVisible(650);
+        if (returnFocus) menuBtn.focus();
+      } else if (sidebar.classList.contains('open')) closeSidebar(returnFocus);
       else openSidebar();
     }
 
-    menuBtn.addEventListener('click', toggleSidebar);
+    menuBtn.addEventListener('click', () => toggleSidebar());
     overlay.addEventListener('click', () => closeSidebar());
 
     document.addEventListener('keydown', event => {
       if (event.key === 'Escape' && sidebar.classList.contains('open')) {
         event.preventDefault();
         closeSidebar(true);
+        return;
+      }
+      if (event.key === 'Escape' && pendingSidebarReveal) {
+        event.preventDefault();
+        cancelPendingSidebarReveal();
+        keepNavbarVisible(650);
+        return;
       }
 
       const isEditable = event.target instanceof HTMLElement && event.target.closest('input, textarea, select, [contenteditable="true"]');
       if (event.shiftKey && !event.altKey && !event.ctrlKey && !event.metaKey && event.key.toLowerCase() === 'a' && !isEditable) {
         event.preventDefault();
-        if (sidebar.classList.contains('open')) closeSidebar(true);
-        else openSidebar();
+        toggleSidebar(true);
       }
     });
 
