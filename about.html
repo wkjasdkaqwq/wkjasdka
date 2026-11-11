@@ -110,6 +110,13 @@
       z-index: 9999;
     }
 
+    .loading-screen,
+    .loading-screen * {
+      -webkit-user-select: none !important;
+      -moz-user-select: none !important;
+      user-select: none !important;
+    }
+
     /* 加载层内容容器，默认隐藏 */
     .loading-content {
       display: none;
@@ -162,8 +169,14 @@
 
     .loading-text {
       color: #8e8e8e;
+      font-family: "Times New Roman", Times, serif !important;
       font-size: 16px !important;
-      line-height: 18px;
+      font-weight: 400 !important;
+      line-height: 18px !important;
+      letter-spacing: normal !important;
+      font-kerning: auto !important;
+      text-shadow: none !important;
+      -webkit-font-smoothing: antialiased !important;
     }
 
     /* 页脚样式 */
