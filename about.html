@@ -167,17 +167,7 @@
       transform: translateY(-32px) !important;
     }
 
-    .loading-text {
-      color: #8e8e8e;
-      font-family: Arial, sans-serif !important;
-      font-size: 16px !important;
-      font-weight: 400 !important;
-      line-height: 18px !important;
-      letter-spacing: normal !important;
-      font-kerning: auto !important;
-      text-shadow: none !important;
-      -webkit-font-smoothing: antialiased !important;
-    }
+    .loading-footer-image { display: block; width: min(10rem, 45vw); max-height: 6rem; height: auto; object-fit: contain; }
 
     /* 页脚样式 */
     footer {
@@ -652,7 +642,7 @@
     html.dark-mode .main-content a:hover { color: #90caf9; }
     html.dark-mode footer { background-color: #0d1a26 !important; border-top-color: #1a2a3a !important; color: #a0a0a0 !important; }
     html.dark-mode .loading-screen { background-color: #07121C !important; }
-    html.dark-mode .loading-text { color: #b0b0b0 !important; }
+    html.dark-mode .loading-footer-image { filter: invert(1); }
     html.dark-mode .sidebar-overlay { background-color: rgba(0,0,0,.7) !important; }
     html.dark-mode .sidebar::-webkit-scrollbar-track { background: #0d1a26; }
     html.dark-mode .sidebar::-webkit-scrollbar-thumb { background: #1a2a3a; }
@@ -721,8 +711,7 @@
       <img src="index/logo3.png" alt="加载Logo" class="loading-logo" id="loadingLogoLight">
       <img src="index/dark_mode.png" alt="加载Logo" class="loading-logo" id="loadingLogoDark">
       <div class="loading-text-container" id="loadingTexts" aria-hidden="false">
-        <div class="loading-text">from</div>
-        <div class="loading-text">- Wkjasdka -</div>
+        <img class="loading-footer-image" src="index/under%20logo.png" alt="from - Wkjasdka -">
       </div>
     </div>
   </div>
