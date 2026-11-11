@@ -167,7 +167,7 @@
       transform: translateY(-32px) !important;
     }
 
-    .loading-footer-image { display: block; width: min(10rem, 45vw); max-height: 6rem; height: auto; object-fit: contain; }
+    .loading-footer-image { display: block; width: min(8rem, 40vw); max-height: 4.5rem; height: auto; object-fit: contain; }
 
     /* 页脚样式 */
     footer {
@@ -823,13 +823,28 @@
       loadingContent.classList.add('visible');
     }
 
-    if (activeLoadingLogo.complete && activeLoadingLogo.naturalWidth > 0) {
-      showLoadingContent();
-    } else {
-      activeLoadingLogo.addEventListener('load', () => {
-        if (activeLoadingLogo.naturalWidth > 0) showLoadingContent();
-      }, { once: true });
+    function waitForLoadingImage(image) {
+      return new Promise(resolve => {
+        if (!image) {
+          resolve(false);
+          return;
+        }
+        const finish = () => resolve(image.naturalWidth > 0);
+        if (image.complete) {
+          finish();
+          return;
+        }
+        image.addEventListener('load', finish, { once: true });
+        image.addEventListener('error', () => resolve(false), { once: true });
+      });
     }
+
+    Promise.all([
+      waitForLoadingImage(activeLoadingLogo),
+      waitForLoadingImage(loadingScreen.querySelector('.loading-footer-image'))
+    ]).then(([centerReady, footerReady]) => {
+      if (centerReady && footerReady) showLoadingContent();
+    });
 
     // 初始化页面显示逻辑
     function initializeContent() {

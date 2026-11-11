@@ -96,7 +96,7 @@
     .loading-logo { display: none; width: 65px; height: auto; z-index: 10000; }
     #loadingLogoDark { display: none; }
     .loading-text-container { position: fixed !important; bottom: env(safe-area-inset-bottom, 26px) !important; left: 0 !important; width: 100% !important; display: none !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; z-index: 10001 !important; visibility: visible !important; pointer-events: none !important; -webkit-text-size-adjust: 100% !important; transform: translateY(-32px) !important; }
-    .loading-footer-image { display: block; width: min(10rem, 45vw); max-height: 6rem; height: auto; object-fit: contain; }
+    .loading-footer-image { display: block; width: min(8rem, 40vw); max-height: 4.5rem; height: auto; object-fit: contain; }
     .loading-ready #loadingLogoLight { display: block; }
     .loading-ready .loading-text-container { display: flex !important; }
     html.dark-mode .loading-ready #loadingLogoLight { display: none; }
@@ -490,14 +490,25 @@
     const lightLoadingLogo = document.getElementById('loadingLogoLight');
     const darkLoadingLogo = document.getElementById('loadingLogoDark');
     const activeLoadingLogo = root.classList.contains('dark-mode') ? darkLoadingLogo : lightLoadingLogo;
-    const revealLoadingAfterLogoLoad = () => {
-      if (activeLoadingLogo.complete && activeLoadingLogo.naturalWidth > 0) {
-        loadingScreen.classList.add('loading-ready');
+    const footerLoadingLogo = loadingScreen.querySelector('.loading-footer-image');
+    const waitForLoadingImage = image => new Promise(resolve => {
+      if (!image) {
+        resolve(false);
+        return;
       }
-    };
+      const finish = () => resolve(image.naturalWidth > 0);
+      if (image.complete) {
+        finish();
+        return;
+      }
+      image.addEventListener('load', finish, { once: true });
+      image.addEventListener('error', () => resolve(false), { once: true });
+    });
 
-    if (activeLoadingLogo.complete) revealLoadingAfterLogoLoad();
-    else activeLoadingLogo.addEventListener('load', revealLoadingAfterLogoLoad, { once: true });
+    Promise.all([waitForLoadingImage(activeLoadingLogo), waitForLoadingImage(footerLoadingLogo)])
+      .then(([centerReady, footerReady]) => {
+        if (centerReady && footerReady) loadingScreen.classList.add('loading-ready');
+      });
 
     window.addEventListener('load', () => {
       loadingScreen.style.display = 'none';
