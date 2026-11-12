@@ -3,6 +3,39 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <script>
+    (function () {
+      const themeKey = 'wkjasdka-dark-mode';
+      const root = document.documentElement;
+      const systemTheme = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+      const savedTheme = () => {
+        try {
+          const value = localStorage.getItem(themeKey);
+          return value === 'true' ? true : value === 'false' ? false : null;
+        } catch (_) {
+          return null;
+        }
+      };
+      const applyTheme = () => {
+        const saved = savedTheme();
+        const dark = saved === null ? Boolean(systemTheme && systemTheme.matches) : saved;
+        root.classList.toggle('dark-mode', dark);
+        root.classList.toggle('light-mode', !dark);
+        root.style.colorScheme = dark ? 'dark' : 'light';
+      };
+      applyTheme();
+      window.addEventListener('storage', event => {
+        if (event.key === themeKey || event.key === null) applyTheme();
+      });
+      if (systemTheme) {
+        const onSystemThemeChange = () => {
+          if (savedTheme() === null) applyTheme();
+        };
+        if (systemTheme.addEventListener) systemTheme.addEventListener('change', onSystemThemeChange);
+        else if (systemTheme.addListener) systemTheme.addListener(onSystemThemeChange);
+      }
+    })();
+  </script>
   <title>关于 - Echo</title>
   <link rel="icon" href="/wkjasdka/index/echo logo.png" type="image/x-icon">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -650,16 +683,6 @@
     html.dark-mode .sidebar::-webkit-scrollbar-thumb { background: #1a2a3a; }
     html.dark-mode .sidebar::-webkit-scrollbar-thumb:hover { background: #2a3a4a; }
   </style>
-  <script>
-    (function () {
-      if (!window.matchMedia) return;
-      const darkPreference = window.matchMedia('(prefers-color-scheme: dark)');
-      const syncTheme = () => document.documentElement.classList.toggle('dark-mode', darkPreference.matches);
-      syncTheme();
-      if (darkPreference.addEventListener) darkPreference.addEventListener('change', syncTheme);
-      else if (darkPreference.addListener) darkPreference.addListener(syncTheme);
-    })();
-  </script>
 </head>
 <body>
   <!-- 导航栏 -->

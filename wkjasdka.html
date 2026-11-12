@@ -6,6 +6,39 @@
   <link rel="icon" href="/wkjasdka/index/echo logo.png" type="image/x-icon">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+  <script>
+    (function () {
+      const themeKey = 'wkjasdka-dark-mode';
+      const root = document.documentElement;
+      const systemTheme = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+      const savedTheme = () => {
+        try {
+          const value = localStorage.getItem(themeKey);
+          return value === 'true' ? true : value === 'false' ? false : null;
+        } catch (_) {
+          return null;
+        }
+      };
+      const applyTheme = () => {
+        const saved = savedTheme();
+        const dark = saved === null ? Boolean(systemTheme && systemTheme.matches) : saved;
+        root.classList.toggle('dark-mode', dark);
+        root.classList.toggle('light-mode', !dark);
+        root.style.colorScheme = dark ? 'dark' : 'light';
+      };
+      applyTheme();
+      window.addEventListener('storage', event => {
+        if (event.key === themeKey || event.key === null) applyTheme();
+      });
+      if (systemTheme) {
+        const onSystemThemeChange = () => {
+          if (savedTheme() === null) applyTheme();
+        };
+        if (systemTheme.addEventListener) systemTheme.addEventListener('change', onSystemThemeChange);
+        else if (systemTheme.addListener) systemTheme.addListener(onSystemThemeChange);
+      }
+    })();
+  </script>
   <style>
 ::selection {
   background: #E67E22;
@@ -162,7 +195,6 @@
       .loading-text-container { bottom: env(safe-area-inset-bottom,26px); }
     }
     .dark-mode { body { background-color: #07121C !important; color: #e0e0e0 !important; } .navbar { background-color: #0f1f2e !important; box-shadow: 0 2px 5px rgba(0,0,0,0.5) !important; } .menu-btn .line { background-color: #e0e0e0 !important; } .navbar-logo,.navbar-link { color: #e0e0e0 !important; } .navbar-logo:hover,.navbar-link:hover { color: #b0b0b0 !important; } .sidebar { background-color: #0d1a26 !important; box-shadow: -2px 0 10px rgba(0,0,0,0.7) !important; } .sidebar-item { border-bottom: 1px solid #1a2a3a !important; } .sidebar-submenu { background-color: #0a1420 !important; } .sidebar-link { color: #e0e0e0 !important; } .sidebar-link:hover { background-color: #1a2a3a !important; } .sidebar-link:active { background-color: #0f1f2e !important; } .overlay { background-color: rgba(0,0,0,0.7) !important; } .loading-screen,#mainContent { background-color: #07121C !important; } .content h1,.projects-section h2,.project-card h3 { color: #e0e0e0 !important; } .middle-line { border-top-color: #1a2a3a !important; } .project-card::before { background-color: rgba(13,26,38,0.85) !important; } .project-card p,footer p { color: #a0a0a0 !important; } .project-link { color: #64b5f6 !important; } .project-link:hover { color: #90caf9 !important; } .card-front { background-color: #0f1f2e !important; } .card-back { background-color: #1a3a4a !important; } .card-front,.card-back { color: #e0e0e0 !important; } footer { background-color: #0d1a26 !important; border-top-color: #1a2a3a !important; } .card-tooltip { background-color: #1a2a3a !important; color: #e0e0e0 !important; } .sidebar::-webkit-scrollbar-track { background: #0d1a26 !important; } .sidebar::-webkit-scrollbar-thumb { background: #1a2a3a !important; } .sidebar::-webkit-scrollbar-thumb:hover { background: #2a3a4a !important; } }
-    @media (prefers-color-scheme: dark) { body { background-color: #07121C !important; color: #e0e0e0 !important; } .navbar { background-color: #0f1f2e !important; box-shadow: 0 2px 5px rgba(0,0,0,0.5) !important; } .menu-btn .line { background-color: #e0e0e0 !important; } .navbar-logo,.navbar-link { color: #e0e0e0 !important; } .navbar-logo:hover,.navbar-link:hover { color: #b0b0b0 !important; } .sidebar { background-color: #0d1a26 !important; box-shadow: -2px 0 10px rgba(0,0,0,0.7) !important; } .sidebar-item { border-bottom: 1px solid #1a2a3a !important; } .sidebar-submenu { background-color: #0a1420 !important; } .sidebar-link { color: #e0e0e0 !important; } .sidebar-link:hover { background-color: #1a2a3a !important; } .sidebar-link:active { background-color: #0f1f2e !important; } .overlay { background-color: rgba(0,0,0,0.7) !important; } .loading-screen,#mainContent { background-color: #07121C !important; } .content h1,.projects-section h2,.project-card h3 { color: #e0e0e0 !important; } .middle-line { border-top-color: #1a2a3a !important; } .project-card::before { background-color: rgba(13,26,38,0.85) !important; } .project-card p,footer p { color: #a0a0a0 !important; } .project-link { color: #64b5f6 !important; } .project-link:hover { color: #90caf9 !important; } .card-front { background-color: #0f1f2e !important; } .card-back { background-color: #1b252b !important; } .card-front,.card-back { color: #e0e0e0 !important; } footer { background-color: #0d1a26 !important; border-top-color: #1a2a3a !important; } .card-tooltip { background-color: #1a2a3a !important; color: #e0e0e0 !important; } .sidebar::-webkit-scrollbar-track { background: #0d1a26 !important; } .sidebar::-webkit-scrollbar-thumb { background: #1a2a3a !important; } .sidebar::-webkit-scrollbar-thumb:hover { background: #2a3a4a !important; } }
   </style>
 </head>
 <body>
@@ -182,7 +214,6 @@
   <div class="loading-screen" id="loadingScreen"><img data-src="/wkjasdka/index/logo3.png" alt="加载Logo" class="loading-logo" id="loadingLogoLight"><img data-src="/wkjasdka/index/dark_mode.png" alt="加载Logo" class="loading-logo" id="loadingLogoDark"><div class="loading-text-container" id="loadingTexts" aria-hidden="false"><img class="loading-footer-image" data-src="index/under%20logo.png" alt="from - Wkjasdka -"></div></div>
   <div class="content" id="mainContent"><h1><span class="mobile-welcome-hello">Welcome come to</span><span class="mobile-welcome-break"></span><span class="mobile-welcome-url">the W.K.Jasdka Official Website!</span></h1><div class="cards-wrapper"><div class="card-container" id="cardContainer1"><div class="card-tooltip" id="cardTooltip1">What is Liuyanlin.Wkjasdka.NET?</div><div class="card" id="infoCard1"><div class="card-front">What is this?</div><div class="card-back">This is the official website of W.K.Jasdka.</div></div></div><div class="card-container" id="cardContainer2"><div class="card-tooltip" id="cardTooltip2">What is Liuyanlin.Wkjasdka.NET used for?</div><div class="card" id="infoCard2"><div class="card-front">What is it for?</div><div class="card-back">This is used to retrieve completed development projects of W.K.Jasdka.</div></div></div></div><hr class="middle-line"><section class="projects-section"><h2>Project</h2><div class="projects-container"><div class="project-card"><div class="project-image-container"><img data-src="/wkjasdka/index/untitled.png" alt="ProjectImage" class="project-image"></div><div class="project-content"><h3>Semi-rounded Corner</h3><p>Content to input</p><a href="community.html" class="project-link">View Details <i class="fas fa-arrow-right"></i></a></div></div></div></section><footer><p><span id="current-year">2025</span> Copyright (&copy;) W.K.Jasdka . All rights reserved</p></footer></div>
   <script>
-    if(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.classList.add('dark-mode');
     (function(){const domain='https://wkjasdkaqwq.github.io/wkjasdka/';if(location.protocol==='file:')location.href=domain;})();
     const card1=document.getElementById('infoCard1'),card2=document.getElementById('infoCard2');[card1,card2].forEach(card=>{card.addEventListener('click',function(){if(innerWidth>600)this.classList.toggle('flipped');});let sx=0,sy=0;card.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY;},{passive:true});card.addEventListener('touchend',e=>{const x=e.changedTouches[0].clientX,y=e.changedTouches[0].clientY;if(Math.abs(x-sx)<10&&Math.abs(y-sy)<10){card.classList.toggle('flipped');if(innerWidth<=600&&!card.classList.contains('flipped')){const c=card.closest('.card-container'),t=c&&c.querySelector('.card-tooltip');setTimeout(()=>{if(c)c.classList.remove('show-tooltip');if(t)t.style.opacity='0';},420);}}},{passive:true});});
     if(innerWidth>600)['1','2'].forEach(n=>{const c=document.getElementById('cardContainer'+n),t=document.getElementById('cardTooltip'+n);c.addEventListener('mousemove',e=>{const r=c.getBoundingClientRect(),w=t.offsetWidth,h=t.offsetHeight;let l=e.clientX-r.left+12,top=e.clientY-r.top-27;if(r.left+l+w>innerWidth)l=e.clientX-r.left-w-12;if(r.left+l<0)l=12;if(r.top+top<0)top=e.clientY-r.top+12;if(r.top+top+h>innerHeight)top=e.clientY-r.top-h-12;t.style.left=l+'px';t.style.top=top+'px';});});

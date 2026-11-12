@@ -3,6 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script>
+    (function () {
+      const themeKey = 'wkjasdka-dark-mode';
+      const root = document.documentElement;
+      const systemTheme = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+      const savedTheme = () => {
+        try {
+          const value = localStorage.getItem(themeKey);
+          return value === 'true' ? true : value === 'false' ? false : null;
+        } catch (_) {
+          return null;
+        }
+      };
+      const applyTheme = () => {
+        const saved = savedTheme();
+        const dark = saved === null ? Boolean(systemTheme && systemTheme.matches) : saved;
+        root.classList.toggle('dark-mode', dark);
+        root.classList.toggle('light-mode', !dark);
+        root.style.colorScheme = dark ? 'dark' : 'light';
+      };
+      applyTheme();
+      window.addEventListener('storage', event => {
+        if (event.key === themeKey || event.key === null) applyTheme();
+      });
+      if (systemTheme) {
+        const onSystemThemeChange = () => {
+          if (savedTheme() === null) applyTheme();
+        };
+        if (systemTheme.addEventListener) systemTheme.addEventListener('change', onSystemThemeChange);
+        else if (systemTheme.addListener) systemTheme.addListener(onSystemThemeChange);
+      }
+    })();
+  </script>
     <title>Semi-rounded Corner on Liuyanlin Community</title>
     <style>
 ::selection {
@@ -83,6 +116,23 @@
             .placeholder-grid {
                 grid-template-columns: 1fr;
             }
+        }
+        html.dark-mode,
+        html.dark-mode body {
+            background: #07121C;
+            color: #e0e0e0;
+        }
+
+        html.dark-mode .page-title {
+            color: #e0e0e0;
+        }
+
+        html.dark-mode .page-description {
+            color: #a0a0a0;
+        }
+
+        html.dark-mode .placeholder-item {
+            background: #0f1f2e;
         }
     </style>
 </head>

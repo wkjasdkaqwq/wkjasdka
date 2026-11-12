@@ -6,6 +6,39 @@
   <link rel="icon" href="/wkjasdka/index/echo logo.png" type="image/x-icon">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <script>
+    (function () {
+      const themeKey = 'wkjasdka-dark-mode';
+      const root = document.documentElement;
+      const systemTheme = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+      const savedTheme = () => {
+        try {
+          const value = localStorage.getItem(themeKey);
+          return value === 'true' ? true : value === 'false' ? false : null;
+        } catch (_) {
+          return null;
+        }
+      };
+      const applyTheme = () => {
+        const saved = savedTheme();
+        const dark = saved === null ? Boolean(systemTheme && systemTheme.matches) : saved;
+        root.classList.toggle('dark-mode', dark);
+        root.classList.toggle('light-mode', !dark);
+        root.style.colorScheme = dark ? 'dark' : 'light';
+      };
+      applyTheme();
+      window.addEventListener('storage', event => {
+        if (event.key === themeKey || event.key === null) applyTheme();
+      });
+      if (systemTheme) {
+        const onSystemThemeChange = () => {
+          if (savedTheme() === null) applyTheme();
+        };
+        if (systemTheme.addEventListener) systemTheme.addEventListener('change', onSystemThemeChange);
+        else if (systemTheme.addListener) systemTheme.addListener(onSystemThemeChange);
+      }
+    })();
+  </script>
   <style>
 ::selection {
   background: #E67E22;
@@ -177,7 +210,7 @@
       <div class="setting-row">
         <div class="setting-copy">
           <h2 data-i18n="darkTitle">Dark mode</h2>
-          <p data-i18n="darkDescription">Use the dark color scheme on this device.</p>
+          <p data-i18n="darkDescription">Use the dark color scheme across this site.</p>
         </div>
         <input class="theme-toggle" id="darkModeToggle" type="checkbox" role="switch" aria-label="Dark mode">
       </div>
@@ -250,7 +283,7 @@
         title: 'Settings',
         intro: 'Choose your preferred appearance and language.',
         darkTitle: 'Dark mode',
-        darkDescription: 'Use the dark color scheme on this device.',
+        darkDescription: 'Use the dark color scheme across this site.',
         languageTitle: 'Language',
         languageDescription: 'Choose the language used on this settings page.',
         shortcutsTitle: 'Keyboard shortcuts',
@@ -268,7 +301,7 @@
         title: '设置',
         intro: '选择你偏好的外观和语言。',
         darkTitle: '深色模式',
-        darkDescription: '在此设备上使用深色主题。',
+        darkDescription: '在本网站的所有页面使用深色主题。',
         languageTitle: '语言',
         languageDescription: '选择设置页面的显示语言。',
         shortcutsTitle: '快捷键',
@@ -299,16 +332,22 @@
     let pinnedShortcutCard = null;
     let hoveredShortcutCard = null;
     let focusedShortcutCard = null;
-    const savedTheme = localStorage.getItem('wkjasdka-dark-mode');
-    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const isDark = savedTheme === null ? prefersDark : savedTheme === 'true';
-    const savedLanguage = localStorage.getItem('wkjasdka-language');
+    const THEME_STORAGE_KEY = 'wkjasdka-dark-mode';
+    const LANGUAGE_STORAGE_KEY = 'wkjasdka-language';
+    const darkPreference = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+    function resolveDarkMode() {
+      const saved = localStorage.getItem(THEME_STORAGE_KEY);
+      return saved === null ? Boolean(darkPreference && darkPreference.matches) : saved === 'true';
+    }
+    const isDark = resolveDarkMode();
+    const savedLanguage = localStorage.getItem(LANGUAGE_STORAGE_KEY);
 
     function setDarkMode(enabled, persist = true) {
       root.classList.toggle('dark-mode', enabled);
       root.classList.toggle('light-mode', !enabled);
+      root.style.colorScheme = enabled ? 'dark' : 'light';
       darkModeToggle.checked = enabled;
-      if (persist) localStorage.setItem('wkjasdka-dark-mode', String(enabled));
+      if (persist) localStorage.setItem(THEME_STORAGE_KEY, String(enabled));
     }
 
     function setLanguage(language, persist = true) {
@@ -323,7 +362,7 @@
         const key = element.dataset.i18nAriaLabel;
         element.setAttribute('aria-label', translations[selectedLanguage][key]);
       });
-      if (persist) localStorage.setItem('wkjasdka-language', selectedLanguage);
+      if (persist) localStorage.setItem(LANGUAGE_STORAGE_KEY, selectedLanguage);
     }
 
     function openShortcuts() {
@@ -428,6 +467,19 @@
     setLanguage(savedLanguage || 'en', false);
     darkModeToggle.addEventListener('change', () => setDarkMode(darkModeToggle.checked));
     languageSelect.addEventListener('change', () => setLanguage(languageSelect.value));
+    window.addEventListener('storage', event => {
+      if (event.key === THEME_STORAGE_KEY || event.key === null) setDarkMode(resolveDarkMode(), false);
+      if (event.key === LANGUAGE_STORAGE_KEY || event.key === null) {
+        setLanguage(localStorage.getItem(LANGUAGE_STORAGE_KEY) || 'en', false);
+      }
+    });
+    if (darkPreference) {
+      const syncSystemTheme = () => {
+        if (localStorage.getItem(THEME_STORAGE_KEY) === null) setDarkMode(resolveDarkMode(), false);
+      };
+      if (darkPreference.addEventListener) darkPreference.addEventListener('change', syncSystemTheme);
+      else if (darkPreference.addListener) darkPreference.addListener(syncSystemTheme);
+    }
     shortcutsOpen.addEventListener('click', openShortcuts);
     shortcutsClose.addEventListener('click', closeShortcuts);
     shortcutsModal.addEventListener('click', event => {
