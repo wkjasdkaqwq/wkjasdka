@@ -5,18 +5,30 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <script>
     (function () {
+      const modeKey = 'wkjasdka-theme-mode';
       const themeKey = 'wkjasdka-dark-mode';
       const root = document.documentElement;
+      const systemTheme = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
       const applyTheme = () => {
-        const dark = localStorage.getItem(themeKey) === 'true';
+        const mode = localStorage.getItem(modeKey);
+        const dark = mode === 'dark' || (mode === 'system' ? Boolean(systemTheme && systemTheme.matches) : mode === 'light' ? false : localStorage.getItem(themeKey) === 'true');
         root.classList.toggle('dark-mode', dark);
         root.classList.toggle('light-mode', !dark);
         root.style.colorScheme = dark ? 'dark' : 'light';
+        const effectiveTheme = String(dark);
+        if (mode === 'system' && localStorage.getItem(themeKey) !== effectiveTheme) localStorage.setItem(themeKey, effectiveTheme);
       };
       applyTheme();
       window.addEventListener('storage', event => {
-        if (event.key === themeKey || event.key === null) applyTheme();
+        if (event.key === modeKey || event.key === themeKey || event.key === null) applyTheme();
       });
+      if (systemTheme) {
+        const onSystemThemeChange = () => {
+          if (localStorage.getItem(modeKey) === 'system') applyTheme();
+        };
+        if (systemTheme.addEventListener) systemTheme.addEventListener('change', onSystemThemeChange);
+        else if (systemTheme.addListener) systemTheme.addListener(onSystemThemeChange);
+      }
     })();
   </script>
   <title>关于 - Echo</title>
