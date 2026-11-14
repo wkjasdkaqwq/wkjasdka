@@ -3,22 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <script>
+    <script>
     (function () {
       const themeKey = 'wkjasdka-dark-mode';
       const root = document.documentElement;
-      const systemTheme = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
-      const savedTheme = () => {
-        try {
-          const value = localStorage.getItem(themeKey);
-          return value === 'true' ? true : value === 'false' ? false : null;
-        } catch (_) {
-          return null;
-        }
-      };
       const applyTheme = () => {
-        const saved = savedTheme();
-        const dark = saved === null ? Boolean(systemTheme && systemTheme.matches) : saved;
+        const dark = localStorage.getItem(themeKey) === 'true';
         root.classList.toggle('dark-mode', dark);
         root.classList.toggle('light-mode', !dark);
         root.style.colorScheme = dark ? 'dark' : 'light';
@@ -27,13 +17,6 @@
       window.addEventListener('storage', event => {
         if (event.key === themeKey || event.key === null) applyTheme();
       });
-      if (systemTheme) {
-        const onSystemThemeChange = () => {
-          if (savedTheme() === null) applyTheme();
-        };
-        if (systemTheme.addEventListener) systemTheme.addEventListener('change', onSystemThemeChange);
-        else if (systemTheme.addListener) systemTheme.addListener(onSystemThemeChange);
-      }
     })();
   </script>
   <title>关于 - Echo</title>
