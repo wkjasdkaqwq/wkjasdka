@@ -346,6 +346,7 @@
     const THEME_MODE_KEY = 'wkjasdka-theme-mode';
     const THEME_STORAGE_KEY = 'wkjasdka-dark-mode';
     const LANGUAGE_STORAGE_KEY = 'wkjasdka-language';
+    const LANGUAGE_SOURCE_KEY = 'wkjasdka-language-source';
     const darkPreference = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
     function getThemeMode() {
       const mode = localStorage.getItem(THEME_MODE_KEY);
@@ -377,7 +378,10 @@
         const key = element.dataset.i18nAriaLabel;
         element.setAttribute('aria-label', translations[selectedLanguage][key]);
       });
-      if (persist) localStorage.setItem(LANGUAGE_STORAGE_KEY, selectedLanguage);
+      if (persist) {
+        localStorage.setItem(LANGUAGE_STORAGE_KEY, selectedLanguage);
+        localStorage.setItem(LANGUAGE_SOURCE_KEY, 'manual');
+      }
     }
 
     function openShortcuts() {

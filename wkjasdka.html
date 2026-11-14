@@ -9,18 +9,69 @@
     <script>
     (function () {
       const themeKey = 'wkjasdka-dark-mode';
+      const languageKey = 'wkjasdka-language';
       const root = document.documentElement;
+      const applyLanguage = () => {
+        const language = localStorage.getItem(languageKey);
+        if (language === 'zh-CN') root.lang = 'zh-CN';
+        else if (language === 'en') root.lang = 'en-GB';
+      };
       const applyTheme = () => {
         const dark = localStorage.getItem(themeKey) === 'true';
         root.classList.toggle('dark-mode', dark);
         root.classList.toggle('light-mode', !dark);
         root.style.colorScheme = dark ? 'dark' : 'light';
       };
+      applyLanguage();
       applyTheme();
       window.addEventListener('storage', event => {
         if (event.key === themeKey || event.key === null) applyTheme();
+        if (event.key === languageKey || event.key === null) applyLanguage();
       });
     })();
+  </script>
+  <script>
+    window.addEventListener('load', () => {
+      const languageKey = 'wkjasdka-language';
+      const sourceKey = 'wkjasdka-language-source';
+      const reloadKey = 'wkjasdka-language-auto-reload';
+      const normalizeLanguage = value => {
+        const language = String(value || '').toLowerCase().replace(/_/g, '-');
+        if (/^en(?:-|$)/.test(language)) return 'en';
+        if (/^zh(?:$|-(?:cn|sg|hans)(?:-|$))/.test(language)) return 'zh-CN';
+        return null;
+      };
+
+      try {
+        const savedLanguage = localStorage.getItem(languageKey);
+        const source = localStorage.getItem(sourceKey);
+        if (source === 'manual' || (savedLanguage && source !== 'system')) return;
+
+        const candidates = [...(navigator.languages || []), navigator.language];
+        const systemLanguage = candidates.map(normalizeLanguage).find(Boolean);
+        if (!systemLanguage) {
+          if (source === 'system') {
+            localStorage.setItem(languageKey, 'en');
+            document.documentElement.lang = 'en-GB';
+          }
+          return;
+        }
+
+        const languageChanged = savedLanguage !== systemLanguage || source !== 'system';
+        if (!languageChanged) return;
+
+        localStorage.setItem(languageKey, systemLanguage);
+        localStorage.setItem(sourceKey, 'system');
+        document.documentElement.lang = systemLanguage === 'zh-CN' ? 'zh-CN' : 'en-GB';
+
+        const reloadMarker = `${savedLanguage || 'unset'}:${systemLanguage}`;
+        if (sessionStorage.getItem(reloadKey) === reloadMarker) return;
+        sessionStorage.setItem(reloadKey, reloadMarker);
+        window.location.reload();
+      } catch (_) {
+        // If browser storage is unavailable, keep the default en-GB page without reloading.
+      }
+    }, { once: true });
   </script>
   <style>
 ::selection {
