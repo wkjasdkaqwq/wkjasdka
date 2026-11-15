@@ -104,5 +104,10 @@
             updateProgress();
         });
     </script>
+    <script src="../scripts/i18n.js"></script>
+    <script>
+        SiteI18n.init({ defaultLocale: 'en' })
+            .catch(error => console.error('[load] Could not initialize language preference.', error));
+    </script>
 </body>
 </html>

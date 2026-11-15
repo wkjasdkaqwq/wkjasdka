@@ -2,7 +2,9 @@
   'use strict';
 
   const STORAGE_KEY = 'wkjasdka-language';
+  const SESSION_STORAGE_KEY = `${STORAGE_KEY}-session`;
   const DEFAULT_LOCALE = 'en';
+  const SUPPORTED_LOCALES = ['en', 'zh-CN'];
   const LOCALE_TAGS = { en: 'en-GB', 'zh-CN': 'zh-CN' };
   const scriptElement = document.currentScript;
   const localeDirectory = scriptElement && scriptElement.src
@@ -24,6 +26,7 @@
   let languageSelect = null;
   let selectChangeHandler = null;
   let storageListenerBound = false;
+  let firstVisitDetectionScheduled = false;
   let requestId = 0;
 
   function normalizeLocale(locale) {
@@ -34,7 +37,8 @@
 
   function readStoredLocale() {
     try {
-      return localStorage.getItem(STORAGE_KEY);
+      const locale = localStorage.getItem(STORAGE_KEY);
+      return SUPPORTED_LOCALES.includes(locale) ? locale : null;
     } catch (_) {
       return null;
     }
@@ -43,9 +47,74 @@
   function saveLocale(locale) {
     try {
       localStorage.setItem(STORAGE_KEY, locale);
+      return true;
     } catch (_) {
-      // The selected language still applies for this page if storage is unavailable.
+      return false;
     }
+  }
+
+  function readSessionLocale() {
+    try {
+      const locale = sessionStorage.getItem(SESSION_STORAGE_KEY);
+      return SUPPORTED_LOCALES.includes(locale) ? locale : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function saveSessionLocale(locale) {
+    try {
+      sessionStorage.setItem(SESSION_STORAGE_KEY, locale);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function detectSystemLocale() {
+    const preferences = [];
+    if (window.navigator && window.navigator.languages) preferences.push(...window.navigator.languages);
+    if (window.navigator && window.navigator.language) preferences.push(window.navigator.language);
+
+    for (const preference of preferences) {
+      const tag = String(preference || '').trim().replace(/_/g, '-').toLowerCase();
+      if (/^en(?:-|$)/.test(tag)) return 'en';
+      if (/^zh(?:-|$)/.test(tag)) {
+        const traditionalChinese = /(?:^|-)hant(?:-|$)/.test(tag) || /(?:^|-)(?:tw|hk|mo)(?:-|$)/.test(tag);
+        if (!traditionalChinese) return 'zh-CN';
+      }
+    }
+    return null;
+  }
+
+  function scheduleFirstVisitLanguageDetection(fallbackLocale) {
+    if (firstVisitDetectionScheduled) return;
+    firstVisitDetectionScheduled = true;
+
+    const detectAfterLoad = () => {
+      // A user may have changed the language while the page was loading.
+      if (readStoredLocale() || readSessionLocale()) return;
+
+      const detectedLocale = detectSystemLocale();
+      const selectedLocale = detectedLocale || fallbackLocale;
+      const savedLocally = saveLocale(selectedLocale);
+      const savedForSession = saveSessionLocale(selectedLocale);
+
+      if (!detectedLocale) return;
+      if (!savedLocally && !savedForSession) {
+        // Storage is unavailable; apply the language without risking a reload loop.
+        setLocale(detectedLocale, { persist: false }).catch(error => {
+          console.warn('[i18n] Could not apply the detected system language.', error);
+        });
+        return;
+      }
+
+      // The persisted preference is used on this single full reload, preventing a loop.
+      window.location.reload();
+    };
+
+    if (document.readyState === 'complete') window.setTimeout(detectAfterLoad, 0);
+    else window.addEventListener('load', detectAfterLoad, { once: true });
   }
 
   function loadDictionary(locale) {
@@ -154,7 +223,10 @@
     if (languageSelect) languageSelect.value = currentLocale;
     apply(document);
 
-    if (settings.persist !== false) saveLocale(currentLocale);
+    if (settings.persist !== false) {
+      saveLocale(currentLocale);
+      saveSessionLocale(currentLocale);
+    }
     window.dispatchEvent(new CustomEvent('site:languagechange', { detail: { locale: currentLocale } }));
     return currentLocale;
   }
@@ -186,7 +258,12 @@
       storageListenerBound = true;
     }
 
-    const initialLocale = readStoredLocale() || settings.defaultLocale || DEFAULT_LOCALE;
+    const storedLocale = readStoredLocale();
+    const sessionLocale = readSessionLocale();
+    const initialLocale = storedLocale || sessionLocale || settings.defaultLocale || DEFAULT_LOCALE;
+    if (!storedLocale && !sessionLocale) {
+      scheduleFirstVisitLanguageDetection(normalizeLocale(settings.defaultLocale || DEFAULT_LOCALE));
+    }
     return setLocale(initialLocale, { persist: false });
   }
 
