@@ -14,14 +14,16 @@
       const savedTheme = () => {
         try {
           const value = localStorage.getItem(themeKey);
-          return value === 'true' ? true : value === 'false' ? false : null;
+          if (value === 'dark' || value === 'true') return 'dark';
+          if (value === 'light' || value === 'false') return 'light';
+          return 'system';
         } catch (_) {
-          return null;
+          return 'system';
         }
       };
       const applyTheme = () => {
-        const saved = savedTheme();
-        const dark = saved === null ? Boolean(systemTheme && systemTheme.matches) : saved;
+        const preference = savedTheme();
+        const dark = preference === 'dark' || (preference === 'system' && Boolean(systemTheme && systemTheme.matches));
         root.classList.toggle('dark-mode', dark);
         root.classList.toggle('light-mode', !dark);
         root.style.colorScheme = dark ? 'dark' : 'light';
@@ -32,7 +34,7 @@
       });
       if (systemTheme) {
         const onSystemThemeChange = () => {
-          if (savedTheme() === null) applyTheme();
+          if (savedTheme() === 'system') applyTheme();
         };
         if (systemTheme.addEventListener) systemTheme.addEventListener('change', onSystemThemeChange);
         else if (systemTheme.addListener) systemTheme.addListener(onSystemThemeChange);
@@ -73,11 +75,12 @@
     .setting-copy { min-width: 0; }
     .setting-copy h2 { margin: 0 0 .35rem; font-size: 1.05rem; }
     .setting-copy p { margin: 0; color: #66717a; font-size: .92rem; line-height: 1.45; }
-    .theme-toggle { position: relative; flex: 0 0 52px; width: 52px; height: 30px; margin: 0; appearance: none; border: 0; border-radius: 999px; background: #aab3bb; cursor: pointer; transition: background .2s ease; }
-    .theme-toggle::before { content: ''; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; box-shadow: 0 1px 4px #0003; transition: transform .2s ease; }
-    .theme-toggle:checked { background: #2196f3; }
-    .theme-toggle:checked::before { transform: translateX(22px); }
-    .theme-toggle:focus-visible, .language-select:focus-visible, .navbar-logo:focus-visible { outline: 3px solid #64b5f6; outline-offset: 3px; }
+    .theme-options { display: flex; flex: 0 0 auto; gap: .2rem; margin: 0; padding: .25rem; border: 1px solid #c8d0d7; border-radius: 10px; background: #edf0f2; }
+    .theme-option { position: relative; display: flex; flex: 1 1 auto; align-items: center; justify-content: center; min-height: 38px; padding: .45rem .65rem; border-radius: 7px; color: #36434d; font-size: .9rem; line-height: 1.2; white-space: nowrap; cursor: pointer; transition: background .18s ease, color .18s ease, box-shadow .18s ease; }
+    .theme-option input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+    .theme-option:has(input:checked) { background: #fff; color: #263238; box-shadow: 0 1px 4px rgba(0,0,0,.14); font-weight: 650; }
+    .theme-option:has(input:focus-visible) { outline: 3px solid #64b5f6; outline-offset: 2px; }
+    .language-select:focus-visible, .navbar-logo:focus-visible { outline: 3px solid #64b5f6; outline-offset: 3px; }
     .language-select { width: min(220px, 42vw); min-height: 42px; padding: .5rem .75rem; border: 1px solid #c8d0d7; border-radius: 8px; background: #fff; color: #263238; font: inherit; }
     .shortcuts-open { min-height: 42px; padding: .65rem 1rem; border: 0; border-radius: 8px; background: #e67e22; color: #fff; font: inherit; font-weight: 700; cursor: pointer; transition: background .2s ease, transform .2s ease; }
     .shortcuts-open:hover { background: #cf6d16; transform: translateY(-1px); }
@@ -144,6 +147,9 @@
     html.dark-mode .page-heading p, html.dark-mode .setting-copy p { color: #a0aab3; }
     html.dark-mode .settings-card { background: #0d1a26; border-color: #1a2a3a; box-shadow: 0 5px 18px rgba(0,0,0,.2); }
     html.dark-mode .setting-row + .setting-row { border-color: #1a2a3a; }
+    html.dark-mode .theme-options { border-color: #34495a; background: #091521; }
+    html.dark-mode .theme-option { color: #c4ced6; }
+    html.dark-mode .theme-option:has(input:checked) { background: #26394d; color: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.35); }
     html.dark-mode .language-select { background: #0f1f2e; color: #e0e0e0; border-color: #34495a; }
     html.dark-mode .loading-screen { background: #07121C; }
     html.dark-mode .loading-footer-image { filter: invert(1); }
@@ -155,6 +161,9 @@
       main { margin-top: 94px; }
       .settings-card { padding: .15rem 1rem; }
       .setting-row { min-height: 88px; }
+      .theme-setting-row { flex-direction: column; align-items: stretch; gap: .8rem; }
+      .theme-options { width: 100%; }
+      .theme-option { padding-right: .35rem; padding-left: .35rem; font-size: .82rem; }
       .shortcuts-setting-row { display: none; }
       .setting-copy h2 { font-size: 1rem; }
       .setting-copy p { font-size: .85rem; }
@@ -207,12 +216,16 @@
     </header>
 
     <section class="settings-card" aria-label="Settings">
-      <div class="setting-row">
+      <div class="setting-row theme-setting-row">
         <div class="setting-copy">
-          <h2 data-i18n="darkTitle">Dark mode</h2>
-          <p data-i18n="darkDescription">Use the dark color scheme across this site.</p>
+          <h2 data-i18n="appearanceTitle">Appearance</h2>
+          <p data-i18n="appearanceDescription">Choose system, light, or dark appearance.</p>
         </div>
-        <input class="theme-toggle" id="darkModeToggle" type="checkbox" role="switch" aria-label="Dark mode">
+        <fieldset class="theme-options" id="themeOptions" aria-label="Appearance" data-i18n-aria-label="appearanceTitle">
+          <label class="theme-option"><input type="radio" name="themePreference" value="system"><span data-i18n="themeSystem">Follow system</span></label>
+          <label class="theme-option"><input type="radio" name="themePreference" value="light"><span data-i18n="themeLight">Light</span></label>
+          <label class="theme-option"><input type="radio" name="themePreference" value="dark"><span data-i18n="themeDark">Dark</span></label>
+        </fieldset>
       </div>
       <div class="setting-row">
         <div class="setting-copy">
@@ -282,8 +295,11 @@
       en: {
         title: 'Settings',
         intro: 'Choose your preferred appearance and language.',
-        darkTitle: 'Dark mode',
-        darkDescription: 'Use the dark color scheme across this site.',
+        appearanceTitle: 'Appearance',
+        appearanceDescription: 'Choose system, light, or dark appearance.',
+        themeSystem: 'Follow system',
+        themeLight: 'Light',
+        themeDark: 'Dark',
         languageTitle: 'Language',
         languageDescription: 'Choose the language used on this settings page.',
         shortcutsTitle: 'Keyboard shortcuts',
@@ -300,8 +316,11 @@
       'zh-CN': {
         title: '设置',
         intro: '选择你偏好的外观和语言。',
-        darkTitle: '深色模式',
-        darkDescription: '在本网站的所有页面使用深色主题。',
+        appearanceTitle: '外观',
+        appearanceDescription: '选择跟随系统、浅色模式或深色模式。',
+        themeSystem: '跟随系统',
+        themeLight: '浅色模式',
+        themeDark: '深色模式',
         languageTitle: '语言',
         languageDescription: '选择设置页面的显示语言。',
         shortcutsTitle: '快捷键',
@@ -318,7 +337,7 @@
     };
 
     const root = document.documentElement;
-    const darkModeToggle = document.getElementById('darkModeToggle');
+    const themeOptions = document.getElementById('themeOptions');
     const languageSelect = document.getElementById('languageSelect');
     const shortcutsModal = document.getElementById('shortcutsModal');
     const shortcutsDialog = shortcutsModal.querySelector('.shortcuts-dialog');
@@ -335,19 +354,25 @@
     const THEME_STORAGE_KEY = 'wkjasdka-dark-mode';
     const LANGUAGE_STORAGE_KEY = 'wkjasdka-language';
     const darkPreference = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
-    function resolveDarkMode() {
+    function resolveThemePreference() {
       const saved = localStorage.getItem(THEME_STORAGE_KEY);
-      return saved === null ? Boolean(darkPreference && darkPreference.matches) : saved === 'true';
+      if (saved === 'dark' || saved === 'true') return 'dark';
+      if (saved === 'light' || saved === 'false') return 'light';
+      return 'system';
     }
-    const isDark = resolveDarkMode();
+    const themePreference = resolveThemePreference();
     const savedLanguage = localStorage.getItem(LANGUAGE_STORAGE_KEY);
 
-    function setDarkMode(enabled, persist = true) {
+    function setThemePreference(preference, persist = true) {
+      const selectedPreference = ['system', 'light', 'dark'].includes(preference) ? preference : 'system';
+      const enabled = selectedPreference === 'dark' || (selectedPreference === 'system' && Boolean(darkPreference && darkPreference.matches));
       root.classList.toggle('dark-mode', enabled);
       root.classList.toggle('light-mode', !enabled);
       root.style.colorScheme = enabled ? 'dark' : 'light';
-      darkModeToggle.checked = enabled;
-      if (persist) localStorage.setItem(THEME_STORAGE_KEY, String(enabled));
+      themeOptions.querySelectorAll('input[name="themePreference"]').forEach(input => {
+        input.checked = input.value === selectedPreference;
+      });
+      if (persist) localStorage.setItem(THEME_STORAGE_KEY, selectedPreference);
     }
 
     function setLanguage(language, persist = true) {
@@ -463,19 +488,21 @@
       if (shortcutsReturnFocus && typeof shortcutsReturnFocus.focus === 'function') shortcutsReturnFocus.focus();
     }
 
-    setDarkMode(isDark, false);
+    setThemePreference(themePreference, false);
     setLanguage(savedLanguage || 'en', false);
-    darkModeToggle.addEventListener('change', () => setDarkMode(darkModeToggle.checked));
+    themeOptions.addEventListener('change', event => {
+      if (event.target.matches('input[name="themePreference"]')) setThemePreference(event.target.value);
+    });
     languageSelect.addEventListener('change', () => setLanguage(languageSelect.value));
     window.addEventListener('storage', event => {
-      if (event.key === THEME_STORAGE_KEY || event.key === null) setDarkMode(resolveDarkMode(), false);
+      if (event.key === THEME_STORAGE_KEY || event.key === null) setThemePreference(resolveThemePreference(), false);
       if (event.key === LANGUAGE_STORAGE_KEY || event.key === null) {
         setLanguage(localStorage.getItem(LANGUAGE_STORAGE_KEY) || 'en', false);
       }
     });
     if (darkPreference) {
       const syncSystemTheme = () => {
-        if (localStorage.getItem(THEME_STORAGE_KEY) === null) setDarkMode(resolveDarkMode(), false);
+        if (resolveThemePreference() === 'system') setThemePreference('system', false);
       };
       if (darkPreference.addEventListener) darkPreference.addEventListener('change', syncSystemTheme);
       else if (darkPreference.addListener) darkPreference.addListener(syncSystemTheme);

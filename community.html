@@ -11,14 +11,16 @@
       const savedTheme = () => {
         try {
           const value = localStorage.getItem(themeKey);
-          return value === 'true' ? true : value === 'false' ? false : null;
+          if (value === 'dark' || value === 'true') return 'dark';
+          if (value === 'light' || value === 'false') return 'light';
+          return 'system';
         } catch (_) {
-          return null;
+          return 'system';
         }
       };
       const applyTheme = () => {
-        const saved = savedTheme();
-        const dark = saved === null ? Boolean(systemTheme && systemTheme.matches) : saved;
+        const preference = savedTheme();
+        const dark = preference === 'dark' || (preference === 'system' && Boolean(systemTheme && systemTheme.matches));
         root.classList.toggle('dark-mode', dark);
         root.classList.toggle('light-mode', !dark);
         root.style.colorScheme = dark ? 'dark' : 'light';
@@ -29,7 +31,7 @@
       });
       if (systemTheme) {
         const onSystemThemeChange = () => {
-          if (savedTheme() === null) applyTheme();
+          if (savedTheme() === 'system') applyTheme();
         };
         if (systemTheme.addEventListener) systemTheme.addEventListener('change', onSystemThemeChange);
         else if (systemTheme.addListener) systemTheme.addListener(onSystemThemeChange);
