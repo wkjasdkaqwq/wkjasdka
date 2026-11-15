@@ -387,6 +387,7 @@
       }
     });
 
+    const enableMobileMenuSwipe = false;
     let menuTouchStart = null;
     function clampSidebarOffset(offset, width) {
       return Math.min(width, Math.max(0, offset));
@@ -420,7 +421,7 @@
     }
 
     document.addEventListener('touchstart', event => {
-      if (innerWidth > 600 || !event.touches.length) return;
+      if (!enableMobileMenuSwipe || innerWidth > 600 || !event.touches.length) return;
       const touch = event.touches[0];
       const startedOpen = sidebar.classList.contains('open');
       const rightEdgeSwipeWidth = 3 * parseFloat(getComputedStyle(document.documentElement).fontSize);
@@ -448,7 +449,7 @@
     }, { passive: true });
 
     document.addEventListener('touchmove', event => {
-      if (!menuTouchStart || !event.touches.length || innerWidth > 600) return;
+      if (!enableMobileMenuSwipe || !menuTouchStart || !event.touches.length || innerWidth > 600) return;
       const start = menuTouchStart;
       const touch = event.touches[0];
       const deltaX = touch.clientX - start.x;
