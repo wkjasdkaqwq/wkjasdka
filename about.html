@@ -108,7 +108,11 @@
       color: #333;
       white-space: nowrap;
       text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+      display: inline-block;
+      cursor: pointer;
     }
+
+    .logo-text:focus-visible { outline: 2px solid #64b5f6; outline-offset: 4px; border-radius: 2px; }
 
     .logo-container {
       display: flex;
@@ -711,6 +715,18 @@
     /* Keep the final option in every sidebar list free of a trailing divider. */
     .sidebar-group:last-child > .sidebar-item:last-child,
     .sidebar-submenu > .sidebar-subitem:last-child { border-bottom: none !important; }
+    @media (max-width: 768px) {
+      .logo-text.is-resetting { animation: about-title-reset 520ms cubic-bezier(.2,.8,.2,1) both; }
+      @keyframes about-title-reset {
+        0%, 100% { transform: translateY(0) scale(1); }
+        28% { transform: translateY(7px) scale(.97); }
+        58% { transform: translateY(-3px) scale(1.02); }
+        80% { transform: translateY(0) scale(1); }
+      }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .logo-text.is-resetting { animation-duration: 1ms; }
+    }
   </style>
 </head>
 <body>
@@ -719,7 +735,7 @@
     <div class="navbar-container">
       <div class="logo-container">
         <img src="index/echo logo.png" alt="Echo logo" data-i18n-alt="echoLogoAlt" class="navbar-logo" id="logo">
-        <span class="logo-text" data-i18n="pageHeading">About</span>
+        <span class="logo-text" id="aboutTitleButton" role="button" tabindex="0" data-i18n="pageHeading">About</span>
       </div>
       <button class="menu-btn" id="menuBtn" type="button" aria-label="Toggle menu" data-i18n-aria-label="menuToggle" aria-controls="sidebar" aria-expanded="false">
         <span class="line line1"></span>
@@ -1052,6 +1068,53 @@
         </div>
       </div>
     `;
+
+    const aboutTitleButton = document.getElementById('aboutTitleButton');
+    let titleResetInProgress = false;
+
+    function resetAboutView() {
+      const isMobile = window.innerWidth <= 768;
+      document.querySelectorAll('.sidebar-item, .sidebar-subitem').forEach(item => item.classList.remove('active'));
+
+      if (!isMobile) {
+        mainContent.classList.remove('fade-out');
+        mainContent.innerHTML = '';
+        window.scrollTo(0, 0);
+        return;
+      }
+
+      if (titleResetInProgress) return;
+      titleResetInProgress = true;
+      keepNavbarVisible(650);
+      if (sidebar.classList.contains('active')) closeSidebar();
+
+      aboutTitleButton.classList.remove('is-resetting');
+      void aboutTitleButton.offsetWidth;
+      aboutTitleButton.classList.add('is-resetting');
+
+      let completed = false;
+      let fallbackTimer;
+      const finishReset = () => {
+        if (completed) return;
+        completed = true;
+        clearTimeout(fallbackTimer);
+        aboutTitleButton.classList.remove('is-resetting');
+        mainContent.classList.remove('fade-out');
+        setMainContent(mobileWelcomeTemplate);
+        window.scrollTo(0, 0);
+        titleResetInProgress = false;
+      };
+      aboutTitleButton.addEventListener('animationend', finishReset, { once: true });
+      fallbackTimer = window.setTimeout(finishReset, 600);
+    }
+
+    aboutTitleButton.addEventListener('click', resetAboutView);
+    aboutTitleButton.addEventListener('keydown', event => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        resetAboutView();
+      }
+    });
 
     // 加载页 Logo 加载逻辑
     function showLoadingContent() {
