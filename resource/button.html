@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>继续跳转按钮</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .animated-btn {
+      width: 380px;
+      height: 84px;
+      border-radius: 42px;
+      border: 2px solid #FFB380;
+      font-size: 20px;
+      font-weight: 600;
+      color: #E67E22;
+      cursor: pointer;
+      background-color: #FFDAB9;
+      transition:
+        transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+        box-shadow 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+        background-color 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+        border-color 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 4px 12px rgba(255, 218, 185, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      position: fixed;
+      bottom: 50px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 999;
+    }
+
+    .animated-btn i {
+      font-size: 24px;
+      color: #E67E22;
+    }
+
+    .animated-btn:hover {
+      transform: translateX(-50%) scale(1.12);
+      box-shadow: 0 8px 20px rgba(255, 218, 185, 0.8);
+      background-color: #FFE4C4;
+      border-color: #FF9966;
+    }
+
+    .animated-btn:active {
+      transform: translateX(-50%) scale(1.08);
+      box-shadow: 0 6px 16px rgba(255, 218, 185, 0.6);
+      background-color: #FFD2B0;
+      border-color: #E67E22;
+    }
+
+    @media (max-width: 768px) {
+      .animated-btn {
+        width: 420px;
+        height: 90px;
+        font-size: 22px;
+        gap: 18px;
+        border-width: 2.5px;
+        bottom: 30px;
+      }
+
+      .animated-btn i {
+        font-size: 26px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button class="animated-btn" data-provider="google" type="button">
+    <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
+    继续跳转
+  </button>
+
+  <script>
+    // 按钮的 data-provider 属性可用于后续绑定对应的跳转逻辑。
+    const buttons = document.querySelectorAll('.animated-btn');
+
+    buttons.forEach(button => {
+      button.addEventListener('click', function () {
+        const provider = this.getAttribute('data-provider');
+        console.log('当前跳转提供商：', provider);
+        // 原文件中的 loginUrls 为空，尚未配置实际跳转地址。
+      });
+    });
+  </script>
+</body>
+</html>
