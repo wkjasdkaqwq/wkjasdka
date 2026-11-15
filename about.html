@@ -708,6 +708,9 @@
     html.dark-mode .sidebar::-webkit-scrollbar-track { background: #0d1a26; }
     html.dark-mode .sidebar::-webkit-scrollbar-thumb { background: #1a2a3a; }
     html.dark-mode .sidebar::-webkit-scrollbar-thumb:hover { background: #2a3a4a; }
+    /* Keep the final option in every sidebar list free of a trailing divider. */
+    .sidebar-group:last-child > .sidebar-item:last-child,
+    .sidebar-submenu > .sidebar-subitem:last-child { border-bottom: none !important; }
   </style>
 </head>
 <body>
