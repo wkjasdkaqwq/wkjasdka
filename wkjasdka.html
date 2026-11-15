@@ -408,7 +408,9 @@
       if (innerWidth > 600 || !event.touches.length) return;
       const touch = event.touches[0];
       const startedOpen = sidebar.classList.contains('open');
-      const canOpenFromBlank = !startedOpen && isBlankMenuSwipeArea(event.target);
+      const rightEdgeSwipeWidth = 3 * parseFloat(getComputedStyle(document.documentElement).fontSize);
+      const startsAtRightEdge = touch.clientX >= innerWidth - rightEdgeSwipeWidth;
+      const canOpenFromBlank = !startedOpen && !startsAtRightEdge && isBlankMenuSwipeArea(event.target);
       const canCloseFromPanel = startedOpen && sidebar.contains(event.target);
       if (!canOpenFromBlank && !canCloseFromPanel) {
         menuTouchStart = null;
