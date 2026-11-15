@@ -54,5 +54,30 @@
     "logoAlt": "Liuyanlin Community",
     "pageHeading": "Test",
     "pageDescription": "This is a Community front-end test page."
+  },
+  "home": {
+    "documentTitle": "W.K.Jasdka Official Website",
+    "menuToggle": "Toggle menu",
+    "menuLabel": "Site menu",
+    "topLink": "Top",
+    "socialPlatforms": "Social Platforms",
+    "contactLink": "Contact",
+    "aboutLink": "About",
+    "settingsLink": "Settings",
+    "loadingLogoAlt": "Loading logo",
+    "projectImageAlt": "Project image",
+    "welcomeLead": "Welcome to",
+    "welcomeSite": "the W.K.Jasdka Official Website!",
+    "cardOneTooltip": "What is Liuyanlin.Wkjasdka.NET?",
+    "cardOneFront": "What is this?",
+    "cardOneBack": "This is the official website of W.K.Jasdka.",
+    "cardTwoTooltip": "What is Liuyanlin.Wkjasdka.NET used for?",
+    "cardTwoFront": "What is it for?",
+    "cardTwoBack": "This is used to retrieve completed development projects of W.K.Jasdka.",
+    "projectsHeading": "Projects",
+    "projectTitle": "Semi-rounded Corner",
+    "projectDescription": "Project description coming soon.",
+    "projectLink": "View details",
+    "copyrightNotice": "Copyright © W.K.Jasdka. All rights reserved."
   }
 }

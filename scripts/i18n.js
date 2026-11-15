@@ -12,6 +12,7 @@
   const translatedAttributes = {
     'data-i18n-aria-label': 'aria-label',
     'data-i18n-title': 'title',
+    'data-i18n-tooltip': 'data-tooltip',
     'data-i18n-placeholder': 'placeholder',
     'data-i18n-alt': 'alt'
   };
@@ -86,7 +87,7 @@
 
     const settings = options || {};
     const namespace = settings.namespace === undefined ? currentNamespace : settings.namespace;
-    const selector = '[data-i18n], [data-i18n-aria-label], [data-i18n-title], [data-i18n-placeholder], [data-i18n-alt]';
+    const selector = '[data-i18n], [data-i18n-aria-label], [data-i18n-title], [data-i18n-tooltip], [data-i18n-placeholder], [data-i18n-alt]';
     const elements = [];
     if (scope.nodeType === 1 && scope.matches(selector)) elements.push(scope);
     if (typeof scope.querySelectorAll === 'function') elements.push(...scope.querySelectorAll(selector));
