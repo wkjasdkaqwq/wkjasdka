@@ -119,20 +119,37 @@
     .menu-btn {
       display: none;
       position: absolute;
-      top: 50%;
-      right: 1.25rem;
-      transform: translateY(-50%);
-      width: 1.875rem;
-      height: 1.5rem;
-      background: none;
+      top: 0;
+      right: 0.625rem;
+      bottom: 0;
+      width: 3.125rem;
+      height: 3.125rem;
+      margin: auto 0;
+      padding: 0;
       border: none;
-      font-size: 24px;
-      line-height: 1;
+      box-sizing: border-box;
+      overflow: visible;
+      background: transparent;
       color: #333;
       cursor: pointer;
-      padding: 0;
+      transform: none;
+      transform-origin: center center;
+      z-index: 9001;
       -webkit-tap-highlight-color: transparent;
     }
+
+    .menu-btn .line { position: absolute; display: block; left: 0.625rem; width: 1.875rem; height: 0.1875rem; box-sizing: border-box; background-color: #333; border-radius: 0.125rem; transform-origin: center center; }
+    .menu-btn:not(.rotated) { transition: transform 0.35s ease-out; }
+    .menu-btn:not(.rotated) .line { transition: all 0.35s ease-out; }
+    .menu-btn.rotated { transition: transform 0.25s cubic-bezier(0.215, 0.61, 0.355, 1); transform: rotate(90deg); }
+    .menu-btn.rotated .line { transition: all 0.25s cubic-bezier(0.215, 0.61, 0.355, 1); transform-origin: center; }
+    .menu-btn.dragging { transition: none !important; transform: rotate(var(--menu-open-angle, 0deg)); }
+    .menu-btn.dragging .line { transition: none !important; }
+    .menu-btn:focus-visible { outline: 2px solid #64b5f6; outline-offset: 3px; }
+    .menu-btn .line1 { top: calc(50% - 0.71875rem); transition-delay: 0.02s; }
+    .menu-btn .line2 { top: calc(50% - 0.09375rem); transition-delay: 0.04s; }
+    .menu-btn .line3 { bottom: calc(50% - 0.71875rem); transition-delay: 0.06s; }
+    .sidebar { touch-action: pan-y; }
 
     /* 加载层样式 */
     .loading-screen {
@@ -480,6 +497,8 @@
         transform: translateX(0);
       }
 
+      .sidebar.dragging { transform: translate3d(var(--sidebar-drag-offset, 100%), 0, 0); transition: none !important; }
+
       .sidebar::after {
         display: none;
       }
@@ -581,7 +600,6 @@
       }
 
       .menu-btn {
-        font-size: 1.25rem;
         padding: 0;
       }
 
@@ -647,6 +665,7 @@
       opacity: 1;
       visibility: visible;
     }
+    .sidebar-overlay.dragging { transition: none !important; }
 
     /* 首页同款系统深色主题 */
     html.dark-mode { color-scheme: dark; }
@@ -655,6 +674,7 @@
     html.dark-mode .navbar-logo { filter: brightness(0) invert(1); }
     html.dark-mode .navbar-logo:hover { opacity: .82; }
     html.dark-mode .logo-text, html.dark-mode .menu-btn { color: #e0e0e0 !important; }
+    html.dark-mode .menu-btn .line { background-color: #e0e0e0 !important; }
     html.dark-mode .sidebar { background-color: transparent !important; box-shadow: -2px 0 10px rgba(0,0,0,.7) !important; }
     html.dark-mode .sidebar::before { background-color: #07121C !important; }
     html.dark-mode .sidebar::after { top: calc(1.875rem + 0.5rem); background-color: #1a2a3a !important; }
@@ -694,8 +714,10 @@
         <img src="index/echo logo.png" alt="echoLogo" class="navbar-logo" id="logo">
         <span class="logo-text">关于</span>
       </div>
-      <button class="menu-btn" id="menuBtn">
-        <i class="fas fa-bars"></i>
+      <button class="menu-btn" id="menuBtn" type="button" aria-label="Open menu" aria-controls="sidebar" aria-expanded="false">
+        <span class="line line1"></span>
+        <span class="line line2"></span>
+        <span class="line line3"></span>
       </button>
     </div>
   </nav>
@@ -751,42 +773,225 @@
     const menuBtn = document.getElementById('menuBtn');
     const sidebarOverlay = document.getElementById('sidebarOverlay');
     let lastScrollTop = 0;
+    let navbarAutoHideHoldUntil = 0;
+    let menuTouchStart = null;
+    let suppressNextOverlayClick = false;
+    let overlayClickSuppressionTimer = null;
 
-    // 禁用/恢复页面滚动的函数
-    function disableScroll() {
-      document.body.style.overflow = 'hidden';
+    function currentScrollTop() {
+      return window.pageYOffset || document.documentElement.scrollTop || 0;
     }
 
-    function enableScroll() {
-      document.body.style.overflow = '';
+    function keepNavbarVisible(duration = 0) {
+      navbar.classList.remove('hidden');
+      navbarAutoHideHoldUntil = Math.max(navbarAutoHideHoldUntil, performance.now() + duration);
+      lastScrollTop = currentScrollTop();
     }
 
-    // 检查是否有任何二级菜单处于展开状态
     function isAnySubmenuExpanded() {
       return document.querySelectorAll('.sidebar-submenu.expanded').length > 0;
     }
-    // 菜单按钮点击事件
-    menuBtn.addEventListener('click', function() {
-      sidebar.classList.toggle('active');
-      sidebarOverlay.classList.toggle('active');
+
+    function syncPageScrollLock() {
+      document.body.style.overflow = sidebar.classList.contains('active') || isAnySubmenuExpanded() ? 'hidden' : '';
+    }
+
+    function disableScroll() {
+      syncPageScrollLock();
+    }
+
+    function enableScroll() {
+      syncPageScrollLock();
+    }
+
+    function clearSidebarDragStyles() {
+      sidebar.classList.remove('dragging');
+      sidebar.style.removeProperty('--sidebar-drag-offset');
+      sidebarOverlay.classList.remove('dragging');
+      sidebarOverlay.style.removeProperty('opacity');
+      menuBtn.classList.remove('dragging');
+      menuBtn.style.removeProperty('--menu-open-angle');
+    }
+
+    function setSidebarOpenState(isOpen) {
+      if (isOpen) {
+        menuBtn.classList.remove('rotated');
+        void menuBtn.offsetWidth;
+        menuBtn.classList.add('rotated');
+        sidebar.classList.add('active');
+        sidebarOverlay.classList.add('active');
+        menuBtn.setAttribute('aria-expanded', 'true');
+        menuBtn.setAttribute('aria-label', 'Close menu');
+      } else {
+        sidebar.classList.remove('active');
+        sidebarOverlay.classList.remove('active');
+        menuBtn.classList.remove('rotated');
+        menuBtn.setAttribute('aria-expanded', 'false');
+        menuBtn.setAttribute('aria-label', 'Open menu');
+      }
+      syncPageScrollLock();
+    }
+
+    function closeSidebar() {
+      clearSidebarDragStyles();
+      setSidebarOpenState(false);
+      keepNavbarVisible(650);
+    }
+
+    function openSidebar() {
+      if (sidebar.classList.contains('active')) return;
+      clearSidebarDragStyles();
+      keepNavbarVisible(650);
+      setSidebarOpenState(true);
+    }
+
+    function toggleSidebar() {
+      if (sidebar.classList.contains('active')) closeSidebar();
+      else openSidebar();
+    }
+
+    menuBtn.addEventListener('click', toggleSidebar);
+    sidebarOverlay.addEventListener('click', event => {
+      if (suppressNextOverlayClick) {
+        event.preventDefault();
+        suppressNextOverlayClick = false;
+        if (overlayClickSuppressionTimer !== null) window.clearTimeout(overlayClickSuppressionTimer);
+        overlayClickSuppressionTimer = null;
+        return;
+      }
+      closeSidebar();
     });
 
-    // 遮罩点击关闭菜单
-    sidebarOverlay.addEventListener('click', function() {
-      sidebar.classList.remove('active');
-      sidebarOverlay.classList.remove('active');
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && sidebar.classList.contains('active')) {
+        event.preventDefault();
+        closeSidebar();
+      }
     });
 
-    // 滚动隐藏导航栏
-    window.addEventListener('scroll', function() {
-      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-      if (scrollTop > lastScrollTop && scrollTop > 50) {
+    window.addEventListener('scroll', () => {
+      const scrollTop = currentScrollTop();
+      if (sidebar.classList.contains('active') || performance.now() < navbarAutoHideHoldUntil) {
+        navbar.classList.remove('hidden');
+      } else if (scrollTop > lastScrollTop && scrollTop > 50) {
         navbar.classList.add('hidden');
       } else {
         navbar.classList.remove('hidden');
       }
       lastScrollTop = scrollTop;
     });
+
+    function isBlankMenuSwipeArea(target) {
+      const element = target instanceof Element ? target : target && target.parentElement;
+      if (!element) return false;
+      return !element.closest('a, button, input, select, textarea, summary, [role="button"], [contenteditable="true"], h1, h2, h3, p, span, img, hr, footer, .loading-screen, .info-box, .grid-item, .sidebar, .navbar');
+    }
+
+    function clampSidebarOffset(offset, width) {
+      return Math.min(width, Math.max(0, offset));
+    }
+
+    function updateSidebarDrag(start, touch) {
+      const deltaX = touch.clientX - start.x;
+      start.offset = clampSidebarOffset(start.startedOpen ? deltaX : start.width + deltaX, start.width);
+      const progress = 1 - start.offset / start.width;
+      sidebar.style.setProperty('--sidebar-drag-offset', `${start.offset}px`);
+      sidebarOverlay.style.opacity = String(progress);
+      menuBtn.style.setProperty('--menu-open-angle', `${progress * 90}deg`);
+    }
+
+    function settleSidebarDrag(shouldOpen) {
+      setSidebarOpenState(shouldOpen);
+      keepNavbarVisible(650);
+      clearSidebarDragStyles();
+    }
+
+    document.addEventListener('touchstart', event => {
+      if (window.innerWidth > 768 || !event.touches.length) return;
+      const touch = event.touches[0];
+      const startedOpen = sidebar.classList.contains('active');
+      const rightEdgeSwipeWidth = 3 * parseFloat(getComputedStyle(document.documentElement).fontSize);
+      const startsAtRightEdge = touch.clientX >= window.innerWidth - rightEdgeSwipeWidth;
+      const canOpenFromBlank = !startedOpen && !startsAtRightEdge && isBlankMenuSwipeArea(event.target);
+      const canCloseFromOpenArea = startedOpen && (sidebar.contains(event.target) || sidebarOverlay.contains(event.target));
+      if (!canOpenFromBlank && !canCloseFromOpenArea) {
+        menuTouchStart = null;
+        return;
+      }
+
+      const width = sidebar.getBoundingClientRect().width;
+      menuTouchStart = {
+        x: touch.clientX,
+        y: touch.clientY,
+        lastX: touch.clientX,
+        lastTime: performance.now(),
+        width,
+        offset: startedOpen ? 0 : width,
+        velocity: 0,
+        startedOpen,
+        startedOnOverlay: startedOpen && sidebarOverlay.contains(event.target),
+        dragging: false
+      };
+    }, { passive: true });
+
+    document.addEventListener('touchmove', event => {
+      if (!menuTouchStart || !event.touches.length || window.innerWidth > 768) return;
+      const start = menuTouchStart;
+      const touch = event.touches[0];
+      const deltaX = touch.clientX - start.x;
+      const deltaY = touch.clientY - start.y;
+
+      if (!start.dragging) {
+        if (Math.abs(deltaX) < 6) return;
+        if (Math.abs(deltaY) > Math.abs(deltaX) * 1.15) {
+          menuTouchStart = null;
+          return;
+        }
+        const movingTowardOpen = start.startedOpen ? deltaX > 0 : deltaX < 0;
+        if (!movingTowardOpen) {
+          menuTouchStart = null;
+          return;
+        }
+
+        start.dragging = true;
+        start.width = sidebar.getBoundingClientRect().width;
+        sidebar.classList.add('dragging');
+        sidebarOverlay.classList.add('dragging', 'active');
+        menuBtn.classList.add('dragging');
+        keepNavbarVisible(650);
+      }
+
+      event.preventDefault();
+      const now = performance.now();
+      const elapsed = Math.max(1, now - start.lastTime);
+      start.velocity = (touch.clientX - start.lastX) / elapsed;
+      start.lastX = touch.clientX;
+      start.lastTime = now;
+      updateSidebarDrag(start, touch);
+    }, { passive: false });
+
+    function finishMenuTouch(event) {
+      if (!menuTouchStart) return;
+      const start = menuTouchStart;
+      menuTouchStart = null;
+      if (!start.dragging) return;
+
+      const touch = event.changedTouches && event.changedTouches[0];
+      if (touch) updateSidebarDrag(start, touch);
+      const projectedOffset = clampSidebarOffset(start.offset + start.velocity * 180, start.width);
+      settleSidebarDrag(projectedOffset < start.width * 0.5);
+      if (start.startedOnOverlay && event.type === 'touchend') {
+        suppressNextOverlayClick = true;
+        if (overlayClickSuppressionTimer !== null) window.clearTimeout(overlayClickSuppressionTimer);
+        overlayClickSuppressionTimer = window.setTimeout(() => {
+          suppressNextOverlayClick = false;
+          overlayClickSuppressionTimer = null;
+        }, 400);
+      }
+    }
+
+    document.addEventListener('touchend', finishMenuTouch, { passive: true });
+    document.addEventListener('touchcancel', finishMenuTouch, { passive: true });
 
     const contentData = {
       "echo": {
@@ -951,8 +1156,7 @@
         
         // 移动端关闭菜单
         if (isMobile) {
-          sidebar.classList.remove('active');
-          sidebarOverlay.classList.remove('active');
+          closeSidebar();
         }
       });
     });
@@ -998,8 +1202,7 @@
         
         // 移动端关闭菜单
         if (isMobile) {
-          sidebar.classList.remove('active');
-          sidebarOverlay.classList.remove('active');
+          closeSidebar();
         }
       });
     });
