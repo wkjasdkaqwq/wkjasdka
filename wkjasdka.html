@@ -61,6 +61,8 @@
     .menu-btn:not(.rotated) .line { transition: all 0.35s ease-out; }
     .menu-btn.rotated { transition: transform 0.25s cubic-bezier(0.215, 0.61, 0.355, 1); transform: rotate(90deg); }
     .menu-btn.rotated .line { transition: all 0.25s cubic-bezier(0.215, 0.61, 0.355, 1); transform-origin: center; }
+    .menu-btn.dragging { transition: none !important; transform: rotate(var(--menu-open-angle, 0deg)); }
+    .menu-btn.dragging .line { transition: none !important; }
     .menu-btn:focus-visible { outline: 2px solid #64b5f6; outline-offset: 3px; }
     .sidebar { touch-action: pan-y; }
     .menu-btn .line1 { top: calc(50% - 0.71875rem); transition-delay: 0.02s; }
@@ -271,6 +273,8 @@
       sidebar.style.removeProperty('--sidebar-drag-offset');
       overlay.classList.remove('dragging');
       overlay.style.removeProperty('opacity');
+      menuBtn.classList.remove('dragging');
+      menuBtn.style.removeProperty('--menu-open-angle');
     }
 
     function setSidebarOpenState(isOpen) {
@@ -345,18 +349,7 @@
       else openSidebar();
     }
 
-    let suppressNextMenuClick = false;
-    let suppressMenuClickTimer = null;
-    menuBtn.addEventListener('click', event => {
-      if (suppressNextMenuClick) {
-        event.preventDefault();
-        suppressNextMenuClick = false;
-        if (suppressMenuClickTimer !== null) window.clearTimeout(suppressMenuClickTimer);
-        suppressMenuClickTimer = null;
-        return;
-      }
-      toggleSidebar();
-    });
+    menuBtn.addEventListener('click', () => toggleSidebar());
     overlay.addEventListener('click', () => closeSidebar());
 
     document.addEventListener('keydown', event => {
@@ -384,12 +377,19 @@
       return Math.min(width, Math.max(0, offset));
     }
 
+    function isBlankMenuSwipeArea(target) {
+      const element = target instanceof Element ? target : target && target.parentElement;
+      if (!element) return false;
+      return !element.closest('a, button, input, select, textarea, summary, [role="button"], [contenteditable="true"], h1, h2, h3, p, span, img, hr, footer, .loading-screen, .card-container, .project-card, .sidebar, .navbar');
+    }
+
     function updateSidebarDrag(start, touch) {
       const deltaX = touch.clientX - start.x;
       start.offset = clampSidebarOffset(start.startedOpen ? deltaX : start.width + deltaX, start.width);
       const progress = 1 - start.offset / start.width;
       sidebar.style.setProperty('--sidebar-drag-offset', `${start.offset}px`);
       overlay.style.opacity = String(progress);
+      menuBtn.style.setProperty('--menu-open-angle', `${progress * 90}deg`);
     }
 
     function settleSidebarDrag(start, shouldOpen) {
@@ -408,10 +408,9 @@
       if (innerWidth > 600 || !event.touches.length) return;
       const touch = event.touches[0];
       const startedOpen = sidebar.classList.contains('open');
-      const edgeWidth = Math.max(28, Math.min(56, innerWidth * 0.14));
-      const canOpenFromEdge = !startedOpen && touch.clientX >= innerWidth - edgeWidth;
+      const canOpenFromBlank = !startedOpen && isBlankMenuSwipeArea(event.target);
       const canCloseFromPanel = startedOpen && sidebar.contains(event.target);
-      if (!canOpenFromEdge && !canCloseFromPanel) {
+      if (!canOpenFromBlank && !canCloseFromPanel) {
         menuTouchStart = null;
         return;
       }
@@ -426,7 +425,6 @@
         offset: startedOpen ? 0 : width,
         velocity: 0,
         startedOpen,
-        startedOnMenuButton: menuBtn.contains(event.target),
         dragging: false
       };
     }, { passive: true });
@@ -454,6 +452,7 @@
         start.width = sidebar.getBoundingClientRect().width;
         sidebar.classList.add('dragging');
         overlay.classList.add('dragging', 'open');
+        menuBtn.classList.add('dragging');
         keepNavbarVisible(650);
       }
 
@@ -476,15 +475,6 @@
       if (touch) updateSidebarDrag(start, touch);
       const projectedOffset = clampSidebarOffset(start.offset + start.velocity * 180, start.width);
       settleSidebarDrag(start, projectedOffset < start.width * 0.5);
-
-      if (start.startedOnMenuButton) {
-        suppressNextMenuClick = true;
-        if (suppressMenuClickTimer !== null) window.clearTimeout(suppressMenuClickTimer);
-        suppressMenuClickTimer = window.setTimeout(() => {
-          suppressNextMenuClick = false;
-          suppressMenuClickTimer = null;
-        }, 500);
-      }
     }
 
     document.addEventListener('touchend', finishMenuTouch, { passive: true });
