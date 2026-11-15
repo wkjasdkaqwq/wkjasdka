@@ -52,18 +52,43 @@
       border-color: #E67E22;
     }
 
+    /* 仅在支持鼠标悬停的设备上启用放大动画 */
+    @media (hover: hover) and (pointer: fine) {
+      .animated-btn:hover {
+        transform: translateX(-50%) scale(1.12);
+      }
+
+      .animated-btn:active {
+        transform: translateX(-50%) scale(1.08);
+      }
+    }
+
+    /* 触屏设备：按钮适配屏幕宽度，点击时不再缩放或跳动 */
     @media (max-width: 768px) {
       .animated-btn {
-        width: 420px;
-        height: 90px;
-        font-size: 22px;
-        gap: 18px;
-        border-width: 2.5px;
-        bottom: 30px;
+        width: calc(100vw - 40px);
+        max-width: 380px;
+        height: 60px;
+        border-radius: 30px;
+        font-size: 18px;
+        gap: 12px;
+        border-width: 2px;
+        bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
       }
 
       .animated-btn i {
-        font-size: 26px;
+        font-size: 22px;
+      }
+    }
+
+    /* 手机和平板触屏点击时保持位置与尺寸稳定 */
+    @media (hover: none), (pointer: coarse) {
+      .animated-btn:hover,
+      .animated-btn:active {
+        transform: translateX(-50%);
       }
     }
   </style>
