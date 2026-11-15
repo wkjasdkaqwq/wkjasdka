@@ -72,16 +72,48 @@
       }
     }
 
-    /* 手机和平板触屏点击时保持位置与尺寸稳定 */
+    /* 触屏设备：点击时播放按压动画，松开后保留高亮 */
     @media (hover: none), (pointer: coarse) {
-      .animated-btn:hover,
-      .animated-btn:active {
+      .animated-btn:hover:not(.is-highlighted) {
         transform: translateX(-50%);
+        box-shadow: 0 4px 12px rgba(255, 218, 185, 0.5);
+        background-color: #FFDAB9;
+        border-color: #FFB380;
+      }
+
+      .animated-btn.is-highlighted {
+        transform: translateX(-50%);
+        box-shadow: 0 8px 20px rgba(255, 218, 185, 0.8);
+        background-color: #FFE4C4;
+        border-color: #FF9966;
+      }
+
+      .animated-btn:active {
+        transform: translateX(-50%) scale(1.08);
+        box-shadow: 0 6px 16px rgba(255, 218, 185, 0.6);
+        background-color: #FFD2B0;
+        border-color: #E67E22;
       }
     }
   </style>
 </head>
 <body>
   <button class="animated-btn" type="button">Example</button>
+
+  <script>
+    const button = document.querySelector('.animated-btn');
+
+    // 松开后保留高亮状态。
+    button.addEventListener('click', () => {
+      button.classList.add('is-highlighted');
+    });
+
+    // 触摸或点击按钮以外的任意位置，取消高亮。
+    document.addEventListener('pointerdown', (event) => {
+      if (!button.contains(event.target)) {
+        button.classList.remove('is-highlighted');
+      }
+    });
+  </script>
 </body>
 </html>
