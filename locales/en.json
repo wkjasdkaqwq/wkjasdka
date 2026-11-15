@@ -50,8 +50,8 @@
     "termsTitle": "User agreement"
   },
   "community": {
-    "documentTitle": "Liuyanlin Community — Semi-rounded Corners",
-    "logoAlt": "Liuyanlin Community",
+    "documentTitle": "Semi-rounded Corner on Liuyanlin Community",
+    "logoAlt": "Liuyanlin Community Logo",
     "pageHeading": "Test",
     "pageDescription": "This is a Community front-end test page."
   },
@@ -78,6 +78,6 @@
     "projectTitle": "Semi-rounded Corner",
     "projectDescription": "Project description coming soon.",
     "projectLink": "View details",
-    "copyrightNotice": "Copyright © W.K.Jasdka. All rights reserved."
+    "copyrightNotice": "Copyright (C) W.K.Jasdka. All rights reserved."
   }
 }
