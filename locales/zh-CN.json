@@ -1,0 +1,23 @@
+{
+  "settings": {
+    "title": "设置",
+    "intro": "选择你偏好的外观和语言。",
+    "appearanceTitle": "外观",
+    "appearanceDescription": "选择跟随系统、浅色模式或深色模式。",
+    "themeSystem": "跟随系统",
+    "themeLight": "浅色模式",
+    "themeDark": "深色模式",
+    "languageTitle": "语言",
+    "languageDescription": "选择设置页面的显示语言。",
+    "shortcutsTitle": "快捷键",
+    "shortcutsDescription": "查看可用快捷键及其对应按键。",
+    "shortcutsOpen": "查看快捷键",
+    "shortcutsModalTitle": "快捷键",
+    "shortcutsClose": "关闭快捷键窗口",
+    "shortcutToggleTitle": "切换侧边菜单",
+    "shortcutToggleDescription": "展开菜单；菜单已展开时再次按下即可关闭。",
+    "shortcutEscapeTitle": "关闭侧边菜单",
+    "shortcutEscapeDescription": "关闭已展开的侧边菜单，并将焦点返回菜单按钮。",
+    "keyboardLabel": "键盘示意图"
+  }
+}

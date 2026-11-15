@@ -232,7 +232,7 @@
           <h2 data-i18n="languageTitle">Language</h2>
           <p data-i18n="languageDescription">Choose the language used on this settings page.</p>
         </div>
-        <select class="language-select" id="languageSelect" aria-label="Language">
+        <select class="language-select" id="languageSelect" aria-label="Language" data-i18n-aria-label="languageTitle">
           <option value="en">English</option>
           <option value="zh-CN">简体中文</option>
         </select>
@@ -290,52 +290,8 @@
     </div>
   </div>
 
+  <script src="./scripts/i18n.js"></script>
   <script>
-    const translations = {
-      en: {
-        title: 'Settings',
-        intro: 'Choose your preferred appearance and language.',
-        appearanceTitle: 'Appearance',
-        appearanceDescription: 'Choose system, light, or dark appearance.',
-        themeSystem: 'Follow system',
-        themeLight: 'Light',
-        themeDark: 'Dark',
-        languageTitle: 'Language',
-        languageDescription: 'Choose the language used on this settings page.',
-        shortcutsTitle: 'Keyboard shortcuts',
-        shortcutsDescription: 'View available shortcuts and their keys.',
-        shortcutsOpen: 'View shortcuts',
-        shortcutsModalTitle: 'Keyboard shortcuts',
-        shortcutsClose: 'Close shortcuts',
-        shortcutToggleTitle: 'Toggle the side menu',
-        shortcutToggleDescription: 'Open the menu, or close it when it is already open.',
-        shortcutEscapeTitle: 'Close the side menu',
-        shortcutEscapeDescription: 'Close the open side menu and return focus to its menu button.',
-        keyboardLabel: 'Keyboard visualization'
-      },
-      'zh-CN': {
-        title: '设置',
-        intro: '选择你偏好的外观和语言。',
-        appearanceTitle: '外观',
-        appearanceDescription: '选择跟随系统、浅色模式或深色模式。',
-        themeSystem: '跟随系统',
-        themeLight: '浅色模式',
-        themeDark: '深色模式',
-        languageTitle: '语言',
-        languageDescription: '选择设置页面的显示语言。',
-        shortcutsTitle: '快捷键',
-        shortcutsDescription: '查看可用快捷键及其对应按键。',
-        shortcutsOpen: '查看快捷键',
-        shortcutsModalTitle: '快捷键',
-        shortcutsClose: '关闭快捷键窗口',
-        shortcutToggleTitle: '切换侧边菜单',
-        shortcutToggleDescription: '展开菜单；菜单已展开时再次按下即可关闭。',
-        shortcutEscapeTitle: '关闭侧边菜单',
-        shortcutEscapeDescription: '关闭已展开的侧边菜单，并将焦点返回菜单按钮。',
-        keyboardLabel: '键盘示意图'
-      }
-    };
-
     const root = document.documentElement;
     const themeOptions = document.getElementById('themeOptions');
     const languageSelect = document.getElementById('languageSelect');
@@ -352,7 +308,6 @@
     let hoveredShortcutCard = null;
     let focusedShortcutCard = null;
     const THEME_STORAGE_KEY = 'wkjasdka-dark-mode';
-    const LANGUAGE_STORAGE_KEY = 'wkjasdka-language';
     const darkPreference = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
     function resolveThemePreference() {
       const saved = localStorage.getItem(THEME_STORAGE_KEY);
@@ -361,7 +316,6 @@
       return 'system';
     }
     const themePreference = resolveThemePreference();
-    const savedLanguage = localStorage.getItem(LANGUAGE_STORAGE_KEY);
 
     function setThemePreference(preference, persist = true) {
       const selectedPreference = ['system', 'light', 'dark'].includes(preference) ? preference : 'system';
@@ -373,21 +327,6 @@
         input.checked = input.value === selectedPreference;
       });
       if (persist) localStorage.setItem(THEME_STORAGE_KEY, selectedPreference);
-    }
-
-    function setLanguage(language, persist = true) {
-      const selectedLanguage = translations[language] ? language : 'en';
-      document.documentElement.lang = selectedLanguage === 'zh-CN' ? 'zh-CN' : 'en-GB';
-      languageSelect.value = selectedLanguage;
-      document.querySelectorAll('[data-i18n]').forEach(element => {
-        const key = element.dataset.i18n;
-        element.textContent = translations[selectedLanguage][key];
-      });
-      document.querySelectorAll('[data-i18n-aria-label]').forEach(element => {
-        const key = element.dataset.i18nAriaLabel;
-        element.setAttribute('aria-label', translations[selectedLanguage][key]);
-      });
-      if (persist) localStorage.setItem(LANGUAGE_STORAGE_KEY, selectedLanguage);
     }
 
     function openShortcuts() {
@@ -489,16 +428,13 @@
     }
 
     setThemePreference(themePreference, false);
-    setLanguage(savedLanguage || 'en', false);
+    SiteI18n.init({ namespace: 'settings', select: languageSelect, defaultLocale: 'en' })
+      .catch(error => console.error('[settings] Could not initialize translations.', error));
     themeOptions.addEventListener('change', event => {
       if (event.target.matches('input[name="themePreference"]')) setThemePreference(event.target.value);
     });
-    languageSelect.addEventListener('change', () => setLanguage(languageSelect.value));
     window.addEventListener('storage', event => {
       if (event.key === THEME_STORAGE_KEY || event.key === null) setThemePreference(resolveThemePreference(), false);
-      if (event.key === LANGUAGE_STORAGE_KEY || event.key === null) {
-        setLanguage(localStorage.getItem(LANGUAGE_STORAGE_KEY) || 'en', false);
-      }
     });
     if (darkPreference) {
       const syncSystemTheme = () => {

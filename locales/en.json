@@ -1,0 +1,23 @@
+{
+  "settings": {
+    "title": "Settings",
+    "intro": "Choose your preferred appearance and language.",
+    "appearanceTitle": "Appearance",
+    "appearanceDescription": "Choose system, light, or dark appearance.",
+    "themeSystem": "Follow system",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "languageTitle": "Language",
+    "languageDescription": "Choose the language used on this settings page.",
+    "shortcutsTitle": "Keyboard shortcuts",
+    "shortcutsDescription": "View available shortcuts and their keys.",
+    "shortcutsOpen": "View shortcuts",
+    "shortcutsModalTitle": "Keyboard shortcuts",
+    "shortcutsClose": "Close shortcuts",
+    "shortcutToggleTitle": "Toggle the side menu",
+    "shortcutToggleDescription": "Open the menu, or close it when it is already open.",
+    "shortcutEscapeTitle": "Close the side menu",
+    "shortcutEscapeDescription": "Close the open side menu and return focus to its menu button.",
+    "keyboardLabel": "Keyboard visualization"
+  }
+}
