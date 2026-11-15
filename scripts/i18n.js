@@ -3,9 +3,11 @@
 
   const STORAGE_KEY = 'wkjasdka-language';
   const SESSION_STORAGE_KEY = `${STORAGE_KEY}-session`;
+  const FULL_RELOAD_QUERY_PARAM = '_wkjasdka_full_reload';
   const DEFAULT_LOCALE = 'en';
   const SUPPORTED_LOCALES = ['en', 'zh-CN'];
   const LOCALE_TAGS = { en: 'en-GB', 'zh-CN': 'zh-CN' };
+  const fullReloadToken = new URL(window.location.href).searchParams.get(FULL_RELOAD_QUERY_PARAM);
   const scriptElement = document.currentScript;
   const localeDirectory = scriptElement && scriptElement.src
     ? new URL('../locales/', scriptElement.src)
@@ -27,6 +29,7 @@
   let selectChangeHandler = null;
   let storageListenerBound = false;
   let firstVisitDetectionScheduled = false;
+  let reloadMarkerCleanupScheduled = false;
   let requestId = 0;
 
   function normalizeLocale(locale) {
@@ -71,6 +74,29 @@
     }
   }
 
+  function cleanFullReloadMarkerAfterLoad() {
+    if (reloadMarkerCleanupScheduled) return;
+    const url = new URL(window.location.href);
+    if (!url.searchParams.has(FULL_RELOAD_QUERY_PARAM)) return;
+
+    reloadMarkerCleanupScheduled = true;
+    const cleanUrl = () => {
+      const currentUrl = new URL(window.location.href);
+      currentUrl.searchParams.delete(FULL_RELOAD_QUERY_PARAM);
+      window.history.replaceState(window.history.state, '', `${currentUrl.pathname}${currentUrl.search}${currentUrl.hash}`);
+    };
+
+    if (document.readyState === 'complete') window.setTimeout(cleanUrl, 0);
+    else window.addEventListener('load', cleanUrl, { once: true });
+  }
+
+  function forceFullPageReload() {
+    const url = new URL(window.location.href);
+    const nonce = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
+    url.searchParams.set(FULL_RELOAD_QUERY_PARAM, nonce);
+    window.location.replace(url.href);
+  }
+
   function detectSystemLocale() {
     const preferences = [];
     if (window.navigator && window.navigator.languages) preferences.push(...window.navigator.languages);
@@ -109,8 +135,8 @@
         return;
       }
 
-      // The persisted preference is used on this single full reload, preventing a loop.
-      window.location.reload();
+      // A unique document URL forces a fresh full-page request and avoids a reload loop.
+      forceFullPageReload();
     };
 
     if (document.readyState === 'complete') window.setTimeout(detectAfterLoad, 0);
@@ -120,7 +146,8 @@
   function loadDictionary(locale) {
     if (!dictionaryPromises.has(locale)) {
       const url = new URL(`${encodeURIComponent(locale)}.json`, localeDirectory);
-      const request = fetch(url, { credentials: 'same-origin' }).then(response => {
+      if (fullReloadToken) url.searchParams.set(FULL_RELOAD_QUERY_PARAM, fullReloadToken);
+      const request = fetch(url, { credentials: 'same-origin', cache: fullReloadToken ? 'reload' : 'default' }).then(response => {
         if (!response.ok) throw new Error(`Could not load locale dictionary: ${url.pathname} (${response.status})`);
         return response.json();
       });
@@ -246,6 +273,7 @@
 
   async function init(options) {
     const settings = options || {};
+    cleanFullReloadMarkerAfterLoad();
     if (settings.namespace !== undefined) currentNamespace = settings.namespace;
     if (settings.select) bindLanguageSelect(settings.select);
 
