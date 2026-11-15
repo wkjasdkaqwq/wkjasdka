@@ -39,24 +39,23 @@
     "placeholderContent": "内容",
     "echoTitle": "Echo 是什么？",
     "echoBody": "内容",
-    "statusLabel": "当前状态：",
+    "statusLabel": "当前状态:",
     "statusText": "项目正在积极开发中，核心功能不断完善。",
     "wkjasdkaTitle": "W.K.Jasdka 是什么？",
     "liuyanlinTitle": "Liuyanlin 是什么？",
     "contactTitle": "联系我们",
-    "contactIntro": "如果您有任何疑问，欢迎通过以下方式与我们联系：",
+    "contactIntro": "如果您有任何疑问，欢迎通过以下方式与我们联系:",
     "emailTitle": "📧 电子邮件",
     "privacyTitle": "隐私政策",
     "termsTitle": "用户协议"
   },
   "community": {
-    "documentTitle": "Liuyanlin 社区的半圆角",
-    "logoAlt": "Liuyanlin 社区",
+    "documentTitle": "Semi-rounded Conrner on Liuyanlin Community",
+    "logoAlt": "Liuyanlin Community Logo",
     "pageHeading": "测试",
     "pageDescription": "这是一个 Community 前端页面测试。"
   },
   "home": {
-    "documentTitle": "W.K.Jasdka 官方网站",
     "menuToggle": "切换菜单",
     "menuLabel": "网站菜单",
     "topLink": "返回顶部",
@@ -74,10 +73,7 @@
     "cardTwoTooltip": "Liuyanlin.Wkjasdka.NET 有什么用途？",
     "cardTwoFront": "用途何在？",
     "cardTwoBack": "这里用于获取 W.K.Jasdka 已完成的开发项目。",
-
-    "projectTitle": "半圆角",
     "projectDescription": "项目介绍待补充。",
     "projectLink": "查看详情",
-    "copyrightNotice": "W.K.Jasdka 版权所有。"
   }
 }
