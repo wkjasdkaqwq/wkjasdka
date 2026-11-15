@@ -1,5 +1,6 @@
 {
   "settings": {
+    "documentTitle": "设置 - W.K.Jasdka",
     "title": "设置",
     "intro": "选择你偏好的外观和语言。",
     "appearanceTitle": "外观",
@@ -8,7 +9,7 @@
     "themeLight": "浅色模式",
     "themeDark": "深色模式",
     "languageTitle": "语言",
-    "languageDescription": "选择设置页面的显示语言。",
+    "languageDescription": "选择整个网站的显示语言。",
     "shortcutsTitle": "快捷键",
     "shortcutsDescription": "查看可用快捷键及其对应按键。",
     "shortcutsOpen": "查看快捷键",
@@ -19,5 +20,39 @@
     "shortcutEscapeTitle": "关闭侧边菜单",
     "shortcutEscapeDescription": "关闭已展开的侧边菜单，并将焦点返回菜单按钮。",
     "keyboardLabel": "键盘示意图"
+  },
+  "about": {
+    "documentTitle": "关于 - Echo",
+    "pageHeading": "关于",
+    "menuToggle": "切换菜单",
+    "echoLogoAlt": "Echo 标志",
+    "contactNav": "联系方式",
+    "privacyNav": "隐私政策",
+    "termsNav": "用户协议",
+    "loadingLogoAlt": "加载 Logo",
+    "welcomeTitle": "欢迎来到 Echo",
+    "welcomeSupport": "关于 Echo 或获取帮助与支持",
+    "welcomeIntro": "欢迎使用 Echo 关于页面。",
+    "platformOverview": "Echo 负责统一运营 W.K.Jasdka 平台和 Liuyanlin 平台。",
+    "platformLegal": "两个平台由同一运营团队维护，并归属同一个法律运营主体。",
+    "placeholderTitle": "主标题",
+    "placeholderContent": "内容",
+    "echoTitle": "Echo 是什么？",
+    "echoBody": "内容",
+    "statusLabel": "当前状态：",
+    "statusText": "项目正在积极开发中，核心功能不断完善。",
+    "wkjasdkaTitle": "W.K.Jasdka 是什么？",
+    "liuyanlinTitle": "Liuyanlin 是什么？",
+    "contactTitle": "联系我们",
+    "contactIntro": "如果您有任何疑问，欢迎通过以下方式与我们联系：",
+    "emailTitle": "📧 电子邮件",
+    "privacyTitle": "隐私政策",
+    "termsTitle": "用户协议"
+  },
+  "community": {
+    "documentTitle": "Liuyanlin 社区的半圆角",
+    "logoAlt": "Liuyanlin 社区",
+    "pageHeading": "测试",
+    "pageDescription": "这是一个 Community 前端页面测试。"
   }
 }

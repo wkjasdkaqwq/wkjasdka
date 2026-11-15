@@ -1,5 +1,6 @@
 {
   "settings": {
+    "documentTitle": "Settings - W.K.Jasdka",
     "title": "Settings",
     "intro": "Choose your preferred appearance and language.",
     "appearanceTitle": "Appearance",
@@ -8,7 +9,7 @@
     "themeLight": "Light",
     "themeDark": "Dark",
     "languageTitle": "Language",
-    "languageDescription": "Choose the language used on this settings page.",
+    "languageDescription": "Choose the language used across the site.",
     "shortcutsTitle": "Keyboard shortcuts",
     "shortcutsDescription": "View available shortcuts and their keys.",
     "shortcutsOpen": "View shortcuts",
@@ -19,5 +20,39 @@
     "shortcutEscapeTitle": "Close the side menu",
     "shortcutEscapeDescription": "Close the open side menu and return focus to its menu button.",
     "keyboardLabel": "Keyboard visualization"
+  },
+  "about": {
+    "documentTitle": "About - Echo",
+    "pageHeading": "About",
+    "menuToggle": "Toggle menu",
+    "echoLogoAlt": "Echo logo",
+    "contactNav": "Contact",
+    "privacyNav": "Privacy policy",
+    "termsNav": "User agreement",
+    "loadingLogoAlt": "Loading logo",
+    "welcomeTitle": "Welcome to Echo",
+    "welcomeSupport": "About Echo or get help and support",
+    "welcomeIntro": "Welcome to the Echo About page.",
+    "platformOverview": "Echo manages the W.K.Jasdka and Liuyanlin platforms.",
+    "platformLegal": "Both platforms are maintained by the same team and belong to the same legal operating entity.",
+    "placeholderTitle": "Section title",
+    "placeholderContent": "Content",
+    "echoTitle": "What is Echo?",
+    "echoBody": "Content",
+    "statusLabel": "Current status:",
+    "statusText": "The project is actively being developed, with its core features continuously improving.",
+    "wkjasdkaTitle": "What is W.K.Jasdka?",
+    "liuyanlinTitle": "What is Liuyanlin?",
+    "contactTitle": "Contact us",
+    "contactIntro": "If you have any questions, please contact us through the following channel:",
+    "emailTitle": "📧 Email",
+    "privacyTitle": "Privacy policy",
+    "termsTitle": "User agreement"
+  },
+  "community": {
+    "documentTitle": "Liuyanlin Community — Semi-rounded Corners",
+    "logoAlt": "Liuyanlin Community",
+    "pageHeading": "Test",
+    "pageDescription": "This is a Community front-end test page."
   }
 }

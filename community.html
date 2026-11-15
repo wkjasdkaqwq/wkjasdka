@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en-GB">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -38,7 +38,7 @@
       }
     })();
   </script>
-    <title>Semi-rounded Corner on Liuyanlin Community</title>
+    <title data-i18n="documentTitle">Liuyanlin Community — Semi-rounded Corners</title>
     <style>
 ::selection {
   background: #E67E22;
@@ -144,11 +144,12 @@
             <img
                 class="community-logo"
                 src="/wkjasdka/index/community2.png"
-                alt="LIUYANLIN COMMUNITY"
+                alt="Liuyanlin Community"
+                data-i18n-alt="logoAlt"
             >
 
-            <h1 class="page-title">测试</h1>
-            <p class="page-description">这是一个 Community 前端页面测试</p>
+            <h1 class="page-title" data-i18n="pageHeading">Test</h1>
+            <p class="page-description" data-i18n="pageDescription">This is a Community front-end test page.</p>
 
             <div class="placeholder-grid">
                 <div class="placeholder-item"></div>
@@ -157,5 +158,10 @@
             </div>
         </div>
     </main>
+    <script src="./scripts/i18n.js"></script>
+    <script>
+        SiteI18n.init({ namespace: 'community', defaultLocale: 'en' })
+            .catch(error => console.error('[community] Could not initialize translations.', error));
+    </script>
 </body>
 </html>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en-GB">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -38,7 +38,7 @@
       }
     })();
   </script>
-  <title>关于 - Echo</title>
+  <title data-i18n="documentTitle">About - Echo</title>
   <link rel="icon" href="/wkjasdka/index/echo logo.png" type="image/x-icon">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
@@ -711,10 +711,10 @@
   <nav class="navbar" id="navbar">
     <div class="navbar-container">
       <div class="logo-container">
-        <img src="index/echo logo.png" alt="echoLogo" class="navbar-logo" id="logo">
-        <span class="logo-text">关于</span>
+        <img src="index/echo logo.png" alt="Echo logo" data-i18n-alt="echoLogoAlt" class="navbar-logo" id="logo">
+        <span class="logo-text" data-i18n="pageHeading">About</span>
       </div>
-      <button class="menu-btn" id="menuBtn" type="button" aria-label="Open menu" aria-controls="sidebar" aria-expanded="false">
+      <button class="menu-btn" id="menuBtn" type="button" aria-label="Toggle menu" data-i18n-aria-label="menuToggle" aria-controls="sidebar" aria-expanded="false">
         <span class="line line1"></span>
         <span class="line line2"></span>
         <span class="line line3"></span>
@@ -739,15 +739,15 @@
     </div>
 
     <div class="sidebar-group">
-      <div class="sidebar-item" data-content="contact">联系方式</div>
+      <div class="sidebar-item" data-content="contact" data-i18n="contactNav">Contact</div>
     </div>
 
     <div class="sidebar-group">
-      <div class="sidebar-item" data-content="privacy">隐私政策</div>
+      <div class="sidebar-item" data-content="privacy" data-i18n="privacyNav">Privacy policy</div>
     </div>
 
     <div class="sidebar-group">
-      <div class="sidebar-item" data-content="terms">用户协议</div>
+      <div class="sidebar-item" data-content="terms" data-i18n="termsNav">User agreement</div>
     </div>
   </div>
 
@@ -757,8 +757,8 @@
   <!-- 加载层 -->
   <div class="loading-screen" id="loadingScreen">
     <div class="loading-content" id="loadingContent">
-      <img src="index/logo3.png" alt="加载Logo" class="loading-logo" id="loadingLogoLight">
-      <img src="index/dark_mode.png" alt="加载Logo" class="loading-logo" id="loadingLogoDark">
+      <img src="index/logo3.png" alt="Loading logo" data-i18n-alt="loadingLogoAlt" class="loading-logo" id="loadingLogoLight">
+      <img src="index/dark_mode.png" alt="Loading logo" data-i18n-alt="loadingLogoAlt" class="loading-logo" id="loadingLogoDark">
       <div class="loading-text-container" id="loadingTexts" aria-hidden="false">
         <img class="loading-footer-image" src="index/under%20logo.png" alt="from - Wkjasdka -">
       </div>
@@ -767,11 +767,14 @@
 
   <footer></footer>
 
+  <script src="./scripts/i18n.js"></script>
   <script>
     const navbar = document.getElementById('navbar');
     const sidebar = document.getElementById('sidebar');
     const menuBtn = document.getElementById('menuBtn');
     const sidebarOverlay = document.getElementById('sidebarOverlay');
+    SiteI18n.init({ namespace: 'about', defaultLocale: 'en' })
+      .catch(error => console.error('[about] Could not initialize translations.', error));
     let lastScrollTop = 0;
     let navbarAutoHideHoldUntil = 0;
     let menuTouchStart = null;
@@ -821,13 +824,11 @@
         sidebar.classList.add('active');
         sidebarOverlay.classList.add('active');
         menuBtn.setAttribute('aria-expanded', 'true');
-        menuBtn.setAttribute('aria-label', 'Close menu');
       } else {
         sidebar.classList.remove('active');
         sidebarOverlay.classList.remove('active');
         menuBtn.classList.remove('rotated');
         menuBtn.setAttribute('aria-expanded', 'false');
-        menuBtn.setAttribute('aria-label', 'Open menu');
       }
       syncPageScrollLock();
     }
@@ -995,22 +996,22 @@
 
     const contentData = {
       "echo": {
-        body: `<div class="content-section"><h2>Echo 是什么？</h2><p>内容</p><div class="info-box"><p><strong>当前状态：</strong> 项目正在积极开发中，核心功能不断完善。</p></div></div>`
+        body: `<div class="content-section"><h2 data-i18n="echoTitle">What is Echo?</h2><p data-i18n="echoBody">Content</p><div class="info-box"><p><strong data-i18n="statusLabel">Current status:</strong> <span data-i18n="statusText">The project is actively being developed, with its core features continuously improving.</span></p></div></div>`
       },
       "wkjasdka": {
-        body: `<div class="content-section"><h2>W.K.Jasdka 是什么？</h2><p>内容</p><div class="content-grid"><div class="grid-item"><h3>副标题</h3><p>内容</p></div><div class="grid-item"><h3>副标题</h3><p>内容</p></div></div></div>`
+        body: `<div class="content-section"><h2 data-i18n="wkjasdkaTitle">What is W.K.Jasdka?</h2><p data-i18n="placeholderContent">Content</p><div class="content-grid"><div class="grid-item"><h3 data-i18n="placeholderTitle">Section title</h3><p data-i18n="placeholderContent">Content</p></div><div class="grid-item"><h3 data-i18n="placeholderTitle">Section title</h3><p data-i18n="placeholderContent">Content</p></div></div></div>`
       },
       "liuyanlin": {
-        body: `<div class="content-section"><h2>Liuyanlin 是什么？</h2><p>内容</p></div>`
+        body: `<div class="content-section"><h2 data-i18n="liuyanlinTitle">What is Liuyanlin?</h2><p data-i18n="placeholderContent">Content</p></div>`
       },
       "contact": {
-        body: `<div class="content-section"><h2>联系我们</h2><p>如果您有任何疑问，欢迎通过以下方式与我们联系：</p><div class="content-grid"><div class="grid-item"><h3>📧 电子邮件</h3><p><strong><a href="mailto:wkjasdkayeah@yeah.net">wkjasdkayeah@yeah.net</a></strong></p></div></div></div>`
+        body: `<div class="content-section"><h2 data-i18n="contactTitle">Contact us</h2><p data-i18n="contactIntro">If you have any questions, please contact us through the following channel:</p><div class="content-grid"><div class="grid-item"><h3 data-i18n="emailTitle">📧 Email</h3><p><strong><a href="mailto:wkjasdkayeah@yeah.net">wkjasdkayeah@yeah.net</a></strong></p></div></div></div>`
       },
       "privacy": {
-        body: `<div class="content-section"><h2>隐私政策</h2><p>内容</p></div>`
+        body: `<div class="content-section"><h2 data-i18n="privacyTitle">Privacy policy</h2><p data-i18n="placeholderContent">Content</p></div>`
       },
       "terms": {
-        body: `<div class="content-section"><h2>用户协议</h2><p>内容</p></div>`
+        body: `<div class="content-section"><h2 data-i18n="termsTitle">User agreement</h2><p data-i18n="placeholderContent">Content</p></div>`
       }
     };
 
@@ -1021,29 +1022,34 @@
     const loadingLogoDark = document.getElementById('loadingLogoDark');
     const activeLoadingLogo = document.documentElement.classList.contains('dark-mode') ? loadingLogoDark : loadingLogoLight;
 
+    function setMainContent(markup) {
+      mainContent.innerHTML = markup;
+      SiteI18n.apply(mainContent, { namespace: 'about' });
+    }
+
     // 移动端欢迎页模板
     const mobileWelcomeTemplate = `
       <div class="content-section">
-        <h2 style="text-align: center; font-size: 28px; margin-bottom: 30px; color: #E67E22;">欢迎来到 Echo</h2>
+        <h2 data-i18n="welcomeTitle" style="text-align: center; font-size: 28px; margin-bottom: 30px; color: #E67E22;">Welcome to Echo</h2>
         <div class="info-box" style="background-color: #f0f8ff; border-left-color: #E67E22; text-align: center;">
           <p style="font-size: 16px; line-height: 1.8; color: #333;">
-            <strong>关于 Echo 或者是 获取帮助与支持</strong><br><br>
-            欢迎使用 Echo 关于页面。<br>
+            <strong data-i18n="welcomeSupport">About Echo or get help and support</strong><br><br>
+            <span data-i18n="welcomeIntro">Welcome to the Echo About page.</span><br>
           </p>
         </div>
         <div class="content-grid" style="margin-top: 40px;">
           <div class="grid-item" style="text-align: center;">
             <h3 style="font-size: 18px; color: #E67E22;">Echo</h3>
-            <p>Echo 负责统一运营 Wkjasdka 平台 和 Liuyanlin 平台。
-<p>平台由同一运营团队维护，全部平台归属同一个法律运营主体。</p>
+            <p data-i18n="platformOverview">Echo manages the W.K.Jasdka and Liuyanlin platforms.</p>
+            <p data-i18n="platformLegal">Both platforms are maintained by the same team and belong to the same legal operating entity.</p>
           </div>
           <div class="grid-item" style="text-align: center;">
-            <h3 style="font-size: 18px; color: #E67E22;">主标题</h3>
-            <p>内容</p>
+            <h3 data-i18n="placeholderTitle" style="font-size: 18px; color: #E67E22;">Section title</h3>
+            <p data-i18n="placeholderContent">Content</p>
           </div>
           <div class="grid-item" style="text-align: center;">
-            <h3 style="font-size: 18px; color: #E67E22;">主标题</h3>
-            <p>内容</p>
+            <h3 data-i18n="placeholderTitle" style="font-size: 18px; color: #E67E22;">Section title</h3>
+            <p data-i18n="placeholderContent">Content</p>
           </div>
         </div>
       </div>
@@ -1084,7 +1090,7 @@
       const isMobile = window.innerWidth <= 768;
       if (isMobile) {
         // 移动端默认显示欢迎页
-        mainContent.innerHTML = mobileWelcomeTemplate;
+        setMainContent(mobileWelcomeTemplate);
       }
       // 桌面端保持空白，不执行任何操作
     }
@@ -1132,14 +1138,14 @@
           if (isActive) {
             // 重复点击：移动端返回欢迎页，桌面端保持空白
             if (isMobile) {
-              mainContent.innerHTML = mobileWelcomeTemplate;
+              setMainContent(mobileWelcomeTemplate);
             } else {
               mainContent.innerHTML = '';
             }
           } else {
             this.classList.add('active');
             this.closest('.sidebar-submenu').previousElementSibling.classList.add('active');
-            if (contentData[contentKey]) mainContent.innerHTML = contentData[contentKey].body;
+            if (contentData[contentKey]) setMainContent(contentData[contentKey].body);
           }
           
           // 移动端移除淡出效果，触发淡入
@@ -1179,13 +1185,13 @@
           if (isActive) {
             // 重复点击：移动端返回欢迎页，桌面端保持空白
             if (isMobile) {
-              mainContent.innerHTML = mobileWelcomeTemplate;
+              setMainContent(mobileWelcomeTemplate);
             } else {
               mainContent.innerHTML = '';
             }
           } else {
             this.classList.add('active');
-            if (contentData[contentKey]) mainContent.innerHTML = contentData[contentKey].body;
+            if (contentData[contentKey]) setMainContent(contentData[contentKey].body);
           }
           
           // 移动端移除淡出效果，触发淡入
