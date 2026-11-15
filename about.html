@@ -716,12 +716,12 @@
     .sidebar-group:last-child > .sidebar-item:last-child,
     .sidebar-submenu > .sidebar-subitem:last-child { border-bottom: none !important; }
     @media (max-width: 768px) {
-      .logo-text.is-resetting { animation: about-title-reset 520ms cubic-bezier(.2,.8,.2,1) both; }
+      .logo-text.is-resetting { animation: about-title-reset 280ms cubic-bezier(.2,.8,.2,1) both; }
       @keyframes about-title-reset {
-        0%, 100% { transform: translateY(0) scale(1); }
-        28% { transform: translateY(7px) scale(.97); }
-        58% { transform: translateY(-3px) scale(1.02); }
-        80% { transform: translateY(0) scale(1); }
+        0%, 100% { transform: translateY(0); }
+        32% { transform: translateY(2px); }
+        62% { transform: translateY(-.5px); }
+        82% { transform: translateY(0); }
       }
     }
     @media (prefers-reduced-motion: reduce) {
@@ -1074,38 +1074,46 @@
 
     function resetAboutView() {
       const isMobile = window.innerWidth <= 768;
-      document.querySelectorAll('.sidebar-item, .sidebar-subitem').forEach(item => item.classList.remove('active'));
 
       if (!isMobile) {
+        document.querySelectorAll('.sidebar-item, .sidebar-subitem').forEach(item => item.classList.remove('active'));
         mainContent.classList.remove('fade-out');
         mainContent.innerHTML = '';
         window.scrollTo(0, 0);
         return;
       }
 
-      if (titleResetInProgress) return;
+      const isAlreadyOnWelcome = Boolean(mainContent.querySelector('[data-i18n="welcomeTitle"]'));
+      if (isAlreadyOnWelcome || titleResetInProgress) return;
+
       titleResetInProgress = true;
       keepNavbarVisible(650);
       if (sidebar.classList.contains('active')) closeSidebar();
+      document.querySelectorAll('.sidebar-item, .sidebar-subitem').forEach(item => item.classList.remove('active'));
+
+      mainContent.classList.add('fade-out');
 
       aboutTitleButton.classList.remove('is-resetting');
       void aboutTitleButton.offsetWidth;
       aboutTitleButton.classList.add('is-resetting');
 
-      let completed = false;
-      let fallbackTimer;
-      const finishReset = () => {
-        if (completed) return;
-        completed = true;
-        clearTimeout(fallbackTimer);
+      let titleAnimationFinished = false;
+      let titleAnimationFallback;
+      const finishTitleAnimation = () => {
+        if (titleAnimationFinished) return;
+        titleAnimationFinished = true;
+        clearTimeout(titleAnimationFallback);
         aboutTitleButton.classList.remove('is-resetting');
-        mainContent.classList.remove('fade-out');
+      };
+      aboutTitleButton.addEventListener('animationend', finishTitleAnimation, { once: true });
+      titleAnimationFallback = window.setTimeout(finishTitleAnimation, 360);
+
+      window.setTimeout(() => {
         setMainContent(mobileWelcomeTemplate);
         window.scrollTo(0, 0);
+        mainContent.classList.remove('fade-out');
         titleResetInProgress = false;
-      };
-      aboutTitleButton.addEventListener('animationend', finishReset, { once: true });
-      fallbackTimer = window.setTimeout(finishReset, 600);
+      }, 500);
     }
 
     aboutTitleButton.addEventListener('click', resetAboutView);
