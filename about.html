@@ -110,6 +110,11 @@
       text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
       display: inline-block;
       cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+      touch-action: manipulation;
+      transition: transform 180ms cubic-bezier(.2,.8,.2,1);
     }
 
     .logo-text:focus-visible { outline: 2px solid #64b5f6; outline-offset: 4px; border-radius: 2px; }
@@ -716,11 +721,12 @@
     .sidebar-group:last-child > .sidebar-item:last-child,
     .sidebar-submenu > .sidebar-subitem:last-child { border-bottom: none !important; }
     @media (max-width: 768px) {
+      .logo-text:active { transform: translateY(2px) scale(.99); transition-duration: 80ms; }
       .logo-text.is-resetting { animation: about-title-reset 280ms cubic-bezier(.2,.8,.2,1) both; }
       @keyframes about-title-reset {
         0%, 100% { transform: translateY(0); }
-        32% { transform: translateY(2px); }
-        62% { transform: translateY(-.5px); }
+        32% { transform: translateY(1.5px); }
+        62% { transform: translateY(-.3px); }
         82% { transform: translateY(0); }
       }
     }
@@ -1083,15 +1089,16 @@
         return;
       }
 
+      if (titleResetInProgress) return;
       const isAlreadyOnWelcome = Boolean(mainContent.querySelector('[data-i18n="welcomeTitle"]'));
-      if (isAlreadyOnWelcome || titleResetInProgress) return;
 
       titleResetInProgress = true;
       keepNavbarVisible(650);
       if (sidebar.classList.contains('active')) closeSidebar();
-      document.querySelectorAll('.sidebar-item, .sidebar-subitem').forEach(item => item.classList.remove('active'));
-
-      mainContent.classList.add('fade-out');
+      if (!isAlreadyOnWelcome) {
+        document.querySelectorAll('.sidebar-item, .sidebar-subitem').forEach(item => item.classList.remove('active'));
+        mainContent.classList.add('fade-out');
+      }
 
       aboutTitleButton.classList.remove('is-resetting');
       void aboutTitleButton.offsetWidth;
@@ -1104,9 +1111,12 @@
         titleAnimationFinished = true;
         clearTimeout(titleAnimationFallback);
         aboutTitleButton.classList.remove('is-resetting');
+        if (isAlreadyOnWelcome) titleResetInProgress = false;
       };
       aboutTitleButton.addEventListener('animationend', finishTitleAnimation, { once: true });
       titleAnimationFallback = window.setTimeout(finishTitleAnimation, 360);
+
+      if (isAlreadyOnWelcome) return;
 
       window.setTimeout(() => {
         setMainContent(mobileWelcomeTemplate);
