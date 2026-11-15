@@ -523,7 +523,18 @@
             resolve(false);
             return;
           }
-          const finish = () => resolve(image.naturalWidth > 0);
+          const finish = async () => {
+            if (image.naturalWidth <= 0) {
+              resolve(false);
+              return;
+            }
+            try {
+              if (typeof image.decode === 'function') await image.decode();
+              requestAnimationFrame(() => resolve(image.naturalWidth > 0));
+            } catch (_) {
+              resolve(false);
+            }
+          };
           if (image.complete) {
             finish();
             return;
