@@ -76,8 +76,8 @@
     .setting-copy h2 { margin: 0 0 .35rem; font-size: 1.05rem; }
     .setting-copy p { margin: 0; color: #66717a; font-size: .92rem; line-height: 1.45; }
     /* Appearance choices: reuse the warm, rounded animated-button visual language. */
-    .theme-options { display: flex; flex: 0 0 auto; gap: .55rem; margin: 0; padding: .55rem; border: 2px solid #FFB380; border-radius: 14px; background: #FFF4EA; box-shadow: 0 4px 14px rgba(230,126,34,.08); }
-    .theme-option { position: relative; display: flex; flex: 0 1 auto; align-items: center; justify-content: center; min-width: 104px; min-height: 48px; padding: .65rem 1rem; border: 2px solid #FFB380; border-radius: 9px; background: #FFDAB9; color: #E67E22; box-shadow: 0 4px 12px rgba(255,218,185,.38); font-size: .9rem; font-weight: 600; line-height: 1.2; white-space: nowrap; cursor: pointer; -webkit-user-select: none; user-select: none; transition: transform .3s cubic-bezier(.34,1.56,.64,1), box-shadow .3s ease, background-color .3s ease, border-color .3s ease, color .3s ease; }
+    .theme-options { display: flex; flex: 0 0 auto; gap: .55rem; margin: 0; padding: 0; border: 0; background: transparent; }
+    .theme-option { position: relative; display: flex; flex: 0 1 auto; align-items: center; justify-content: center; min-width: 104px; min-height: 48px; padding: .65rem 1rem; border: 2px solid #FFB380; border-radius: 24px; background: #FFDAB9; color: #E67E22; box-shadow: 0 4px 12px rgba(255,218,185,.38); font-size: .9rem; font-weight: 600; line-height: 1.2; white-space: nowrap; cursor: pointer; -webkit-user-select: none; user-select: none; transition: transform .3s cubic-bezier(.34,1.56,.64,1), box-shadow .3s ease, background-color .3s ease, border-color .3s ease, color .3s ease; }
     .theme-option input { position: absolute; width: 1px; height: 1px; opacity: 0; }
     .theme-option:has(input:checked) { border-color: #FF9966; background: #FFE4C4; color: #B95D16; box-shadow: 0 6px 16px rgba(230,126,34,.2); font-weight: 750; }
     .theme-option:has(input:focus-visible) { outline: 3px solid #64b5f6; outline-offset: 3px; }
@@ -153,7 +153,6 @@
     html.dark-mode .page-heading p, html.dark-mode .setting-copy p { color: #a0aab3; }
     html.dark-mode .settings-card { background: #0d1a26; border-color: #1a2a3a; box-shadow: 0 5px 18px rgba(0,0,0,.2); }
     html.dark-mode .setting-row + .setting-row { border-color: #1a2a3a; }
-    html.dark-mode .theme-options { border-color: #765137; background: #171F27; box-shadow: 0 4px 14px rgba(0,0,0,.16); }
     html.dark-mode .theme-option { border-color: #9A623D; background: #30251E; color: #F2B27F; box-shadow: 0 4px 12px rgba(0,0,0,.18); }
     html.dark-mode .theme-option:has(input:checked) { border-color: #E67E22; background: #49301F; color: #FFD0A8; box-shadow: 0 6px 18px rgba(230,126,34,.16); }
     @media (hover: hover) and (pointer: fine) {
@@ -171,8 +170,8 @@
       .settings-card { padding: .15rem 1rem; }
       .setting-row { min-height: 88px; }
       .theme-setting-row { flex-direction: column; align-items: stretch; gap: .8rem; }
-      .theme-options { width: 100%; gap: .4rem; padding: .4rem; border-radius: 12px; }
-      .theme-option { flex: 1 1 0; min-width: 0; min-height: 46px; padding: .55rem .25rem; border-radius: 8px; font-size: .78rem; }
+      .theme-options { width: 100%; gap: .4rem; }
+      .theme-option { flex: 1 1 0; min-width: 0; min-height: 46px; padding: .55rem .25rem; border-radius: 23px; font-size: .78rem; }
       .shortcuts-setting-row { display: none; }
       .setting-copy h2 { font-size: 1rem; }
       .setting-copy p { font-size: .85rem; }
