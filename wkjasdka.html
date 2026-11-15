@@ -350,7 +350,18 @@
     }
 
     menuBtn.addEventListener('click', () => toggleSidebar());
-    overlay.addEventListener('click', () => closeSidebar());
+    let suppressNextOverlayClick = false;
+    let overlayClickSuppressionTimer = null;
+    overlay.addEventListener('click', event => {
+      if (suppressNextOverlayClick) {
+        event.preventDefault();
+        suppressNextOverlayClick = false;
+        if (overlayClickSuppressionTimer !== null) window.clearTimeout(overlayClickSuppressionTimer);
+        overlayClickSuppressionTimer = null;
+        return;
+      }
+      closeSidebar();
+    });
 
     document.addEventListener('keydown', event => {
       if (event.key === 'Escape' && sidebar.classList.contains('open')) {
@@ -411,8 +422,8 @@
       const rightEdgeSwipeWidth = 3 * parseFloat(getComputedStyle(document.documentElement).fontSize);
       const startsAtRightEdge = touch.clientX >= innerWidth - rightEdgeSwipeWidth;
       const canOpenFromBlank = !startedOpen && !startsAtRightEdge && isBlankMenuSwipeArea(event.target);
-      const canCloseFromPanel = startedOpen && sidebar.contains(event.target);
-      if (!canOpenFromBlank && !canCloseFromPanel) {
+      const canCloseFromOpenArea = startedOpen && (sidebar.contains(event.target) || overlay.contains(event.target));
+      if (!canOpenFromBlank && !canCloseFromOpenArea) {
         menuTouchStart = null;
         return;
       }
@@ -427,6 +438,7 @@
         offset: startedOpen ? 0 : width,
         velocity: 0,
         startedOpen,
+        startedOnOverlay: startedOpen && overlay.contains(event.target),
         dragging: false
       };
     }, { passive: true });
@@ -477,6 +489,14 @@
       if (touch) updateSidebarDrag(start, touch);
       const projectedOffset = clampSidebarOffset(start.offset + start.velocity * 180, start.width);
       settleSidebarDrag(start, projectedOffset < start.width * 0.5);
+      if (start.startedOnOverlay && event.type === 'touchend') {
+        suppressNextOverlayClick = true;
+        if (overlayClickSuppressionTimer !== null) window.clearTimeout(overlayClickSuppressionTimer);
+        overlayClickSuppressionTimer = window.setTimeout(() => {
+          suppressNextOverlayClick = false;
+          overlayClickSuppressionTimer = null;
+        }, 400);
+      }
     }
 
     document.addEventListener('touchend', finishMenuTouch, { passive: true });
