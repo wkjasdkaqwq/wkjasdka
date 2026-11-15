@@ -3,8 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>继续跳转按钮</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <title>Example Button</title>
   <style>
     .animated-btn {
       width: 380px;
@@ -25,17 +24,11 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 16px;
       position: fixed;
       bottom: 50px;
       left: 50%;
       transform: translateX(-50%);
       z-index: 999;
-    }
-
-    .animated-btn i {
-      font-size: 24px;
-      color: #E67E22;
     }
 
     .animated-btn:hover {
@@ -71,16 +64,11 @@
         height: 60px;
         border-radius: 30px;
         font-size: 18px;
-        gap: 12px;
         border-width: 2px;
         bottom: calc(20px + env(safe-area-inset-bottom, 0px));
         box-sizing: border-box;
         -webkit-tap-highlight-color: transparent;
         touch-action: manipulation;
-      }
-
-      .animated-btn i {
-        font-size: 22px;
       }
     }
 
@@ -94,22 +82,6 @@
   </style>
 </head>
 <body>
-  <button class="animated-btn" data-provider="google" type="button">
-    <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
-    继续跳转
-  </button>
-
-  <script>
-    // 按钮的 data-provider 属性可用于后续绑定对应的跳转逻辑。
-    const buttons = document.querySelectorAll('.animated-btn');
-
-    buttons.forEach(button => {
-      button.addEventListener('click', function () {
-        const provider = this.getAttribute('data-provider');
-        console.log('当前跳转提供商：', provider);
-        // 原文件中的 loginUrls 为空，尚未配置实际跳转地址。
-      });
-    });
-  </script>
+  <button class="animated-btn" type="button">Example</button>
 </body>
 </html>
