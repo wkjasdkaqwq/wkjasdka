@@ -198,15 +198,15 @@
       }
     }
 
-    /* Pressed colors are approximately 10% darker than each resting state. */
+    /* Lower lightness by about 10% while retaining each color's hue and saturation. */
     .theme-option:active,
-    .theme-option.is-touch-pressed { background-color: #E6C4A6; border-color: #E6A173; }
+    .theme-option.is-touch-pressed { background-color: #FFC38D; border-color: #FF9C5A; }
     .theme-option:has(input:checked):active,
-    .theme-option.is-touch-pressed:has(input:checked) { background-color: #E6CDB0; border-color: #E68A5C; }
+    .theme-option.is-touch-pressed:has(input:checked) { background-color: #FFCF97; border-color: #FF8142; }
     html.dark-mode .theme-option:active,
     html.dark-mode .theme-option.is-touch-pressed { background-color: #2B211B; border-color: #8B5837; }
     html.dark-mode .theme-option:has(input:checked):active,
-    html.dark-mode .theme-option.is-touch-pressed:has(input:checked) { background-color: #422B1C; border-color: #CF711F; }
+    html.dark-mode .theme-option.is-touch-pressed:has(input:checked) { background-color: #422B1C; border-color: #D57118; }
 
     @media (max-width: 600px) {
       .navbar { height: 3.75rem; }
