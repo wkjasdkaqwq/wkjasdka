@@ -146,6 +146,49 @@
     themeOptions.addEventListener('change', event => {
       if (event.target.matches('input[name="themePreference"]')) setThemePreference(event.target.value);
     });
+    const touchButtonMedia = window.matchMedia
+      ? window.matchMedia('(hover: none), (pointer: coarse)')
+      : { matches: false };
+    let pressedThemeOption = null;
+    let pressedThemePointer = null;
+    function releaseThemeTouchPress() {
+      if (pressedThemeOption) pressedThemeOption.classList.remove('is-touch-pressed');
+      pressedThemeOption = null;
+      pressedThemePointer = null;
+    }
+    function clearThemeTouchHighlights() {
+      themeOptions.querySelectorAll('.theme-option.is-touch-highlighted').forEach(option => {
+        option.classList.remove('is-touch-highlighted');
+      });
+    }
+    themeOptions.addEventListener('pointerdown', event => {
+      if (!touchButtonMedia.matches || event.pointerType === 'mouse') return;
+      const option = event.target.closest('.theme-option');
+      if (!option || !themeOptions.contains(option)) return;
+      releaseThemeTouchPress();
+      pressedThemeOption = option;
+      pressedThemePointer = event.pointerId;
+      option.classList.add('is-touch-pressed');
+    });
+    ['pointerup', 'pointercancel'].forEach(type => {
+      document.addEventListener(type, event => {
+        if (event.pointerId === pressedThemePointer) releaseThemeTouchPress();
+      });
+    });
+    themeOptions.addEventListener('click', event => {
+      if (!touchButtonMedia.matches) return;
+      const option = event.target.closest('.theme-option');
+      if (!option || !themeOptions.contains(option)) return;
+      clearThemeTouchHighlights();
+      option.classList.add('is-touch-highlighted');
+    });
+    document.addEventListener('pointerdown', event => {
+      if (!touchButtonMedia.matches || !themeOptions.isConnected) return;
+      const targetOption = event.target instanceof Element ? event.target.closest('.theme-option') : null;
+      themeOptions.querySelectorAll('.theme-option.is-touch-highlighted').forEach(option => {
+        if (option !== targetOption) option.classList.remove('is-touch-highlighted');
+      });
+    });
     window.addEventListener('storage', event => {
       if (event.key === THEME_STORAGE_KEY || event.key === null) setThemePreference(resolveThemePreference(), false);
     });
@@ -263,6 +306,8 @@
     return {
       activate,
       deactivate() {
+        releaseThemeTouchPress();
+        clearThemeTouchHighlights();
         if (shortcutsModal.classList.contains('open')) closeShortcuts();
       }
     };
