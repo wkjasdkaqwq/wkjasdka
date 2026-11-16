@@ -368,6 +368,7 @@
     });
 
     document.addEventListener('keydown', event => {
+      if (document.body.classList.contains('spa-settings-active')) return;
       if (event.key === 'Escape' && sidebar.classList.contains('open')) {
         event.preventDefault();
         closeSidebar(true);
@@ -580,5 +581,7 @@
       }, { once: true });
     })();
   </script>
+  <script src="./scripts/settings.js"></script>
+  <script src="./scripts/spa-navigation.js"></script>
 </body>
 </html>

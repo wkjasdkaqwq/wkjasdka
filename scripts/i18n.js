@@ -266,7 +266,12 @@
     languageSelect = nextSelect || null;
     selectChangeHandler = null;
     if (languageSelect) {
-      selectChangeHandler = () => setLocale(languageSelect.value);
+      selectChangeHandler = () => {
+        const selectedLocale = normalizeLocale(languageSelect.value);
+        saveLocale(selectedLocale);
+        saveSessionLocale(selectedLocale);
+        setLocale(selectedLocale).catch(error => console.error('[i18n] Could not change language.', error));
+      };
       languageSelect.addEventListener('change', selectChangeHandler);
     }
   }
@@ -275,7 +280,7 @@
     const settings = options || {};
     cleanFullReloadMarkerAfterLoad();
     if (settings.namespace !== undefined) currentNamespace = settings.namespace;
-    if (settings.select) bindLanguageSelect(settings.select);
+    if (Object.prototype.hasOwnProperty.call(settings, 'select')) bindLanguageSelect(settings.select);
 
     if (!storageListenerBound) {
       window.addEventListener('storage', event => {
