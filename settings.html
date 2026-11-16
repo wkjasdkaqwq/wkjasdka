@@ -181,10 +181,8 @@
       .theme-option.is-touch-pressed,
       .theme-option.is-touch-pressed:has(input:checked) {
         z-index: 1;
-        transform: scale(1.08);
-        background-color: #FFD2B0;
-        border-color: #E67E22;
-        box-shadow: 0 6px 16px rgba(255,218,185,.6);
+        transform: translateY(2px) scale(.98);
+        box-shadow: 0 2px 6px rgba(255,218,185,.5);
       }
       html.dark-mode .theme-option.is-touch-highlighted,
       html.dark-mode .theme-option.is-touch-highlighted:has(input:checked) {
@@ -196,11 +194,19 @@
       html.dark-mode .theme-option:has(input:checked):active,
       html.dark-mode .theme-option.is-touch-pressed,
       html.dark-mode .theme-option.is-touch-pressed:has(input:checked) {
-        background-color: #583A27;
-        border-color: #FFA45D;
-        box-shadow: 0 6px 16px rgba(230,126,34,.24);
+        box-shadow: 0 2px 6px rgba(0,0,0,.25);
       }
     }
+
+    /* Pressed colors are approximately 10% darker than each resting state. */
+    .theme-option:active,
+    .theme-option.is-touch-pressed { background-color: #E6C4A6; border-color: #E6A173; }
+    .theme-option:has(input:checked):active,
+    .theme-option.is-touch-pressed:has(input:checked) { background-color: #E6CDB0; border-color: #E68A5C; }
+    html.dark-mode .theme-option:active,
+    html.dark-mode .theme-option.is-touch-pressed { background-color: #2B211B; border-color: #8B5837; }
+    html.dark-mode .theme-option:has(input:checked):active,
+    html.dark-mode .theme-option.is-touch-pressed:has(input:checked) { background-color: #422B1C; border-color: #CF711F; }
 
     @media (max-width: 600px) {
       .navbar { height: 3.75rem; }
