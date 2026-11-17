@@ -10,11 +10,14 @@
   const LOCALE_TAGS = { en: 'en-GB', 'zh-CN': 'zh-CN', ru: 'ru', de: 'de', fr: 'fr', 'zh-HK': 'zh-HK', 'zh-TW': 'zh-TW', 'zh-MO': 'zh-MO' };
   const fullReloadToken = new URL(window.location.href).searchParams.get(FULL_RELOAD_QUERY_PARAM);
   const scriptElement = document.currentScript;
-  const dictionaryVersion = scriptElement && scriptElement.src
-    ? new URL(scriptElement.src).searchParams.get('v')
+  const scriptSource = scriptElement && scriptElement.dataset.i18nSource
+    ? new URL(scriptElement.dataset.i18nSource, document.baseURI)
+    : scriptElement && scriptElement.src ? new URL(scriptElement.src) : null;
+  const dictionaryVersion = scriptSource
+    ? scriptSource.searchParams.get('v')
     : null;
-  const localeDirectory = scriptElement && scriptElement.src
-    ? new URL('../resource/language/', scriptElement.src)
+  const localeDirectory = scriptSource
+    ? new URL('../resource/language/', scriptSource)
     : new URL('./resource/language/', document.baseURI);
   const dictionaryPromises = new Map();
   const translatedAttributes = {
@@ -156,6 +159,34 @@
     else window.addEventListener('load', detectAfterLoad, { once: true });
   }
 
+  async function parseDictionaryResponse(response, locale) {
+    const reportProgress = window.__communityProgressObserver;
+    if (typeof reportProgress !== 'function' || !response.body || !response.body.getReader || typeof TextDecoder !== 'function') {
+      const dictionary = await response.json();
+      if (typeof reportProgress === 'function') reportProgress(locale, 1);
+      return dictionary;
+    }
+
+    const encoding = response.headers.get('content-encoding');
+    const length = Number(response.headers.get('content-length'));
+    const measurable = length > 0 && (!encoding || encoding.toLowerCase() === 'identity');
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder('utf-8');
+    let text = '';
+    let received = 0;
+    while (true) {
+      const part = await reader.read();
+      if (part.done) break;
+      text += decoder.decode(part.value, { stream: true });
+      received += part.value.byteLength;
+      if (measurable) reportProgress(locale, Math.min(0.99, received / length));
+    }
+    text += decoder.decode();
+    const dictionary = JSON.parse(text);
+    reportProgress(locale, 1);
+    return dictionary;
+  }
+
   function loadDictionary(locale) {
     if (!dictionaryPromises.has(locale)) {
       // Keep locale IDs stable for stored preferences and article translations.
@@ -175,7 +206,7 @@
       if (controller) fetchOptions.signal = controller.signal;
       const responsePromise = fetch(url, fetchOptions).then(response => {
         if (!response.ok) throw new Error(`Could not load locale dictionary: ${url.pathname} (${response.status})`);
-        return response.json();
+        return parseDictionaryResponse(response, locale);
       });
       const request = Promise.race([responsePromise, deadline]).finally(() => window.clearTimeout(timeoutId));
       dictionaryPromises.set(locale, request);

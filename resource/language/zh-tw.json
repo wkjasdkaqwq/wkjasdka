@@ -49,6 +49,9 @@
     "articleLoading": "正在載入文章…"
   },
   "community": {
+    "loadingProgress": "正在載入頁面",
+    "loadingError": "頁面載入失敗，請檢查網路連線。",
+    "loadingRetry": "重試",
     "documentTitle": "Liuyanlin Community 上的 Semi-rounded Corner",
     "logoAlt": "Liuyanlin Community 標誌",
     "pageHeading": "測試",

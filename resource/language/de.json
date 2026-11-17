@@ -49,6 +49,9 @@
     "articleLoading": "Artikel wird geladen…"
   },
   "community": {
+    "loadingProgress": "Seite wird geladen",
+    "loadingError": "Die Seite konnte nicht geladen werden. Bitte überprüfe deine Verbindung.",
+    "loadingRetry": "Erneut versuchen",
     "documentTitle": "Semi-rounded Corner in der Liuyanlin Community",
     "logoAlt": "Logo der Liuyanlin Community",
     "pageHeading": "Test",

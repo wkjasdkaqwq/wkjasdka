@@ -49,6 +49,9 @@
     "articleLoading": "Загрузка статьи…"
   },
   "community": {
+    "loadingProgress": "Загрузка страницы",
+    "loadingError": "Не удалось загрузить страницу. Проверьте подключение.",
+    "loadingRetry": "Повторить",
     "documentTitle": "Semi-rounded Corner в Liuyanlin Community",
     "logoAlt": "Логотип Liuyanlin Community",
     "pageHeading": "Тест",

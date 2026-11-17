@@ -49,6 +49,9 @@
     "articleLoading": "正在加载文章…"
   },
   "community": {
+    "loadingProgress": "正在加载页面",
+    "loadingError": "页面加载失败，请检查网络连接。",
+    "loadingRetry": "重试",
     "documentTitle": "Liuyanlin Community 上的 Semi-rounded Corner",
     "logoAlt": "Liuyanlin Community 标志",
     "pageHeading": "测试",

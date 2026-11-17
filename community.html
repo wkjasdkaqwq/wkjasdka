@@ -81,6 +81,52 @@
         html.dark-mode .loading-footer-image { filter: invert(1); }
         html.dark-mode .loading-screen { background-color: #07121C !important; }
 
+        .loading-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 10002;
+            width: 100%;
+            height: 8px;
+            overflow: hidden;
+            pointer-events: none;
+            opacity: 1;
+            transition: opacity .3s ease;
+        }
+        .loading-progress.is-fading { opacity: 0; }
+        .loading-progress-fill {
+            width: 0%;
+            min-width: 4px;
+            height: 8px;
+            border-radius: 4px;
+            background: #ff8000;
+            transition: width .15s linear;
+        }
+        .loading-error {
+            position: absolute;
+            z-index: 10003;
+            top: calc(50% + 95px);
+            left: 50%;
+            width: min(85vw, 320px);
+            transform: translateX(-50%);
+            text-align: center;
+            font-size: .9rem;
+        }
+        .loading-error[hidden] { display: none; }
+        .loading-retry {
+            margin-top: 12px;
+            padding: 8px 24px;
+            border: 1px solid #ffb380;
+            border-radius: 20px;
+            background: #ffdab9;
+            color: #a64d00;
+            font: inherit;
+            cursor: pointer;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .loading-progress, .loading-progress-fill { transition: none; }
+        }
+
         .content-box {
             width: min(800px, 100%);
             text-align: center;
@@ -152,7 +198,13 @@
     </style>
 </head>
 <body>
-    <div class="loading-screen" id="loadingScreen"><img data-src="/wkjasdka/index/logo3.png" alt="Loading logo" data-i18n-alt="home.loadingLogoAlt" class="loading-logo" id="loadingLogoLight"><img data-src="/wkjasdka/index/dark_mode.png" alt="Loading logo" data-i18n-alt="home.loadingLogoAlt" class="loading-logo" id="loadingLogoDark"><div class="loading-text-container" id="loadingTexts" aria-hidden="false"><img class="loading-footer-image" data-src="index/under%20logo.png" alt="from - Wkjasdka -"></div></div>
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-progress" id="loadingProgress" role="progressbar" aria-label="Loading page" data-i18n-aria-label="loadingProgress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="loading-progress-fill" id="loadingProgressFill"></div></div>
+        <img data-src="/wkjasdka/index/logo3.png" alt="Loading logo" data-i18n-alt="home.loadingLogoAlt" class="loading-logo" id="loadingLogoLight">
+        <img data-src="/wkjasdka/index/dark_mode.png" alt="Loading logo" data-i18n-alt="home.loadingLogoAlt" class="loading-logo" id="loadingLogoDark">
+        <div class="loading-text-container" id="loadingTexts" aria-hidden="false"><img class="loading-footer-image" data-src="index/under%20logo.png" alt="from - Wkjasdka -"></div>
+        <div class="loading-error" id="loadingError" hidden><div role="alert" data-i18n="loadingError">Unable to load the page. Please check your connection.</div><button class="loading-retry" id="loadingRetry" type="button" data-i18n="loadingRetry">Retry</button></div>
+    </div>
     <main id="mainContent">
         <div class="content-box">
             <img
@@ -172,86 +224,276 @@
             </div>
         </div>
     </main>
-    <script src="./scripts/i18n.js?v=20261117-language-directory"></script>
     <script>
-        if (window.SiteI18n) {
-            SiteI18n.init({ namespace: 'community', defaultLocale: 'en' })
-                .catch(error => console.error('[community] Could not initialize translations.', error));
-        }
-
         (function () {
+            'use strict';
             const loading = document.getElementById('loadingScreen');
             const main = document.getElementById('mainContent');
-            const root = document.documentElement;
-            const light = document.getElementById('loadingLogoLight');
-            const dark = document.getElementById('loadingLogoDark');
-            const footer = document.querySelector('.loading-footer-image');
-
-            function setImageSource(image) {
-                if (!image) return;
-                const source = image.getAttribute('data-src');
-                if (source) {
-                    image.src = source;
-                    image.removeAttribute('data-src');
+            const progress = document.getElementById('loadingProgress');
+            const fill = document.getElementById('loadingProgressFill');
+            const error = document.getElementById('loadingError');
+            const logoImages = [
+                document.getElementById('loadingLogoLight'),
+                document.getElementById('loadingLogoDark'),
+                document.querySelector('.loading-footer-image')
+            ];
+            const contentImages = Array.from(main.querySelectorAll('img[data-src]'));
+            const objectUrls = new Set();
+            const timeoutMs = 45000;
+            const dictionaryProgress = new Map();
+            const supportedLocales = ['en', 'zh-CN', 'ru', 'de', 'fr', 'zh-HK', 'zh-TW', 'zh-MO'];
+            function dictionaryTaskCount() {
+                try {
+                    const stored = localStorage.getItem('wkjasdka-language');
+                    return supportedLocales.includes(stored) && stored !== 'en' ? 2 : 1;
+                } catch (_) {
+                    return 1;
                 }
             }
+            const expectedDictionaryCount = dictionaryTaskCount();
+            let value = 0;
 
-            function waitForImage(image) {
-                return new Promise(resolve => {
-                    if (!image) {
-                        resolve(false);
-                        return;
+            // Percentages represent the two stages, with equal weight per item.
+            // For responses without a usable length, an item advances on completion.
+            function setProgress(next) {
+                value = Math.max(value, Math.min(100, next));
+                fill.style.width = `${value}%`;
+                progress.setAttribute('aria-valuenow', String(Math.floor(value)));
+            }
+
+            function loadImageSource(image, source) {
+                return new Promise((resolve, reject) => {
+                    let settled = false;
+                    const timer = window.setTimeout(() => finish(new Error('Image load timed out')), timeoutMs);
+                    function finish(failure) {
+                        if (settled) return;
+                        settled = true;
+                        window.clearTimeout(timer);
+                        image.removeEventListener('load', onLoad);
+                        image.removeEventListener('error', onError);
+                        if (failure) reject(failure);
+                        else resolve();
                     }
-                    const finish = async () => {
-                        if (image.naturalWidth <= 0) {
-                            resolve(false);
-                            return;
-                        }
+                    async function onLoad() {
                         try {
+                            if (!image.naturalWidth) throw new Error('Image is empty');
                             if (typeof image.decode === 'function') await image.decode();
-                            requestAnimationFrame(() => resolve(image.naturalWidth > 0));
-                        } catch (_) {
-                            resolve(false);
+                            finish();
+                        } catch (failure) {
+                            finish(failure);
                         }
-                    };
-                    if (image.complete) {
-                        finish();
-                        return;
                     }
-                    image.addEventListener('load', finish, { once: true });
-                    image.addEventListener('error', () => resolve(false), { once: true });
+                    function onError() { finish(new Error(`Could not load image: ${source}`)); }
+                    image.addEventListener('load', onLoad, { once: true });
+                    image.addEventListener('error', onError, { once: true });
+                    image.src = source;
+                    if (image.complete && image.naturalWidth) onLoad();
                 });
             }
 
-            function loadContentImages() {
-                document.querySelectorAll('img[data-src]:not(.loading-logo)').forEach(setImageSource);
+            async function loadImage(image, report) {
+                const source = image.getAttribute('data-src');
+                if (!source) throw new Error('Missing image source');
+                let blobUrl = null;
+                let controller = null;
+                let timer = null;
+                try {
+                    if (typeof window.fetch !== 'function' || !window.URL || !URL.createObjectURL) {
+                        throw new Error('Streaming is unavailable');
+                    }
+                    controller = typeof AbortController === 'function' ? new AbortController() : null;
+                    if (controller) timer = window.setTimeout(() => controller.abort(), timeoutMs);
+                    const options = { credentials: 'same-origin' };
+                    if (controller) options.signal = controller.signal;
+                    const response = await fetch(source, options);
+                    if (!response.ok) throw new Error(`Image request failed: ${response.status}`);
+
+                    const encoding = response.headers.get('content-encoding');
+                    const length = Number(response.headers.get('content-length'));
+                    const measurable = length > 0 && (!encoding || encoding.toLowerCase() === 'identity');
+                    let blob;
+                    if (response.body && response.body.getReader) {
+                        const reader = response.body.getReader();
+                        const chunks = [];
+                        let received = 0;
+                        while (true) {
+                            const part = await reader.read();
+                            if (part.done) break;
+                            chunks.push(part.value);
+                            received += part.value.byteLength;
+                            if (measurable && received <= length) report(Math.min(.99, received / length));
+                        }
+                        blob = new Blob(chunks, { type: response.headers.get('content-type') || 'application/octet-stream' });
+                    } else {
+                        blob = await response.blob();
+                    }
+                    blobUrl = URL.createObjectURL(blob);
+                    await loadImageSource(image, blobUrl);
+                    objectUrls.add(blobUrl);
+                } catch (failure) {
+                    if (blobUrl) URL.revokeObjectURL(blobUrl);
+                    // Native image loading is also a fallback for browsers or CSPs
+                    // that do not permit streaming or blob-backed image sources.
+                    console.warn('[community] Loading image without byte progress.', failure);
+                    await loadImageSource(image, source);
+                } finally {
+                    if (timer !== null) window.clearTimeout(timer);
+                }
+                image.removeAttribute('data-src');
+                report(1);
             }
 
-            const pageLoad = new Promise(resolve => {
-                if (document.readyState === 'complete') resolve();
-                else window.addEventListener('load', resolve, { once: true });
+            function loadI18nScript() {
+                const source = new URL('./scripts/i18n.js?v=20261117-community-progress', document.baseURI).href;
+                function injectScript(scriptSource, blobUrl) {
+                    return new Promise((resolve, reject) => {
+                        const script = document.createElement('script');
+                        script.dataset.i18nSource = source;
+                        let settled = false;
+                        const timer = window.setTimeout(() => finish(new Error('Language script load timed out')), timeoutMs);
+                        function finish(failure) {
+                            if (settled) return;
+                            settled = true;
+                            window.clearTimeout(timer);
+                            script.onload = null;
+                            script.onerror = null;
+                            script.remove();
+                            if (blobUrl) URL.revokeObjectURL(blobUrl);
+                            if (failure) reject(failure);
+                            else resolve();
+                        }
+                        script.onload = () => finish();
+                        script.onerror = () => finish(new Error('Language script failed to load'));
+                        script.src = scriptSource;
+                        document.head.appendChild(script);
+                    });
+                }
+                return (async () => {
+                    let blobUrl = null;
+                    let controller = null;
+                    let timer = null;
+                    try {
+                        if (typeof window.fetch !== 'function' || !URL.createObjectURL) throw new Error('Streaming is unavailable');
+                        controller = typeof AbortController === 'function' ? new AbortController() : null;
+                        if (controller) timer = window.setTimeout(() => controller.abort(), timeoutMs);
+                        const options = { credentials: 'same-origin' };
+                        if (controller) options.signal = controller.signal;
+                        const response = await fetch(source, options);
+                        if (!response.ok) throw new Error(`Language script request failed: ${response.status}`);
+                        const encoding = response.headers.get('content-encoding');
+                        const length = Number(response.headers.get('content-length'));
+                        const measurable = length > 0 && (!encoding || encoding.toLowerCase() === 'identity');
+                        let blob;
+                        if (response.body && response.body.getReader) {
+                            const reader = response.body.getReader();
+                            const chunks = [];
+                            let received = 0;
+                            while (true) {
+                                const part = await reader.read();
+                                if (part.done) break;
+                                chunks.push(part.value);
+                                received += part.value.byteLength;
+                                if (measurable) setProgress(20 + 80 * (0.5 + 0.25 * Math.min(0.99, received / length)));
+                            }
+                            blob = new Blob(chunks, { type: response.headers.get('content-type') || 'text/javascript' });
+                        } else {
+                            blob = await response.blob();
+                        }
+                        blobUrl = URL.createObjectURL(blob);
+                        await injectScript(blobUrl, blobUrl);
+                    } catch (failure) {
+                        if (blobUrl) URL.revokeObjectURL(blobUrl);
+                        console.warn('[community] Falling back to native language script loading.', failure);
+                        await injectScript(source, null);
+                    } finally {
+                        if (timer !== null) window.clearTimeout(timer);
+                    }
+                    setProgress(20 + 80 * 0.75);
+                })();
+            }
+
+            async function initializeLanguage() {
+                window.__communityProgressObserver = (locale, fraction) => {
+                    dictionaryProgress.set(locale, Math.max(dictionaryProgress.get(locale) || 0, fraction));
+                    const aggregate = Array.from(dictionaryProgress.values()).reduce((sum, part) => sum + part, 0) / expectedDictionaryCount;
+                    setProgress(20 + 80 * (0.75 + 0.25 * Math.min(1, aggregate)));
+                };
+                await loadI18nScript();
+                if (!window.SiteI18n) throw new Error('Language script did not initialize');
+                // A first-visit language detection may supersede the initial
+                // request; wait until a language was actually applied.
+                let applied;
+                let timer;
+                const ready = new Promise((resolve, reject) => {
+                    applied = () => resolve();
+                    window.addEventListener('site:languagechange', applied, { once: true });
+                    timer = window.setTimeout(() => reject(new Error('Language application timed out')), timeoutMs * 3);
+                });
+                try {
+                    await Promise.all([SiteI18n.init({ namespace: 'community', defaultLocale: 'en' }), ready]);
+                } finally {
+                    window.clearTimeout(timer);
+                    window.removeEventListener('site:languagechange', applied);
+                }
+            }
+
+            function waitForFade() {
+                return new Promise(resolve => {
+                    let done = false;
+                    const timer = window.setTimeout(finish, 500);
+                    function finish(event) {
+                        if (event && (event.target !== progress || event.propertyName !== 'opacity')) return;
+                        if (done) return;
+                        done = true;
+                        window.clearTimeout(timer);
+                        progress.removeEventListener('transitionend', finish);
+                        progress.removeEventListener('transitioncancel', finish);
+                        resolve();
+                    }
+                    progress.addEventListener('transitionend', finish);
+                    progress.addEventListener('transitioncancel', finish);
+                    progress.classList.add('is-fading');
+                });
+            }
+
+            async function start() {
+                try {
+                    // Phase one: load both theme logos and the footer in order;
+                    // only reveal them once all three have decoded.
+                    for (let i = 0; i < logoImages.length; i++) {
+                        await loadImage(logoImages[i], fraction => setProgress(20 * (i + fraction) / logoImages.length));
+                    }
+                    loading.classList.add('loading-ready');
+
+                    // Phase two: page images, then the language script and its
+                    // dictionaries. Nothing in this phase starts before the logos.
+                    for (let i = 0; i < contentImages.length; i++) {
+                        await loadImage(contentImages[i], fraction => setProgress(20 + 80 * 0.5 * (i + fraction) / contentImages.length));
+                    }
+                    await initializeLanguage();
+                    setProgress(100);
+
+                    const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+                    if (!reduceMotion) {
+                        // Let the width reach 100% before the separate opacity fade.
+                        await new Promise(resolve => window.setTimeout(resolve, 180));
+                        await waitForFade();
+                    }
+                    loading.style.display = 'none';
+                    main.style.display = 'flex';
+                } catch (failure) {
+                    console.error('[community] Page loading failed.', failure);
+                    error.hidden = false;
+                }
+            }
+
+            document.getElementById('loadingRetry').addEventListener('click', () => window.location.reload());
+            window.addEventListener('pagehide', event => {
+                if (event.persisted) return;
+                objectUrls.forEach(url => URL.revokeObjectURL(url));
+                objectUrls.clear();
             });
-
-            document.addEventListener('DOMContentLoaded', async () => {
-                setImageSource(light);
-                setImageSource(dark);
-                setImageSource(footer);
-
-                const [lightReady, darkReady, footerReady] = await Promise.all([
-                    waitForImage(light),
-                    waitForImage(dark),
-                    waitForImage(footer)
-                ]);
-
-                const centerReady = root.classList.contains('dark-mode') ? darkReady : lightReady;
-                if (centerReady && footerReady && loading) loading.classList.add('loading-ready');
-
-                loadContentImages();
-                await pageLoad;
-                await Promise.all(Array.from(document.images, waitForImage));
-                if (loading) loading.style.display = 'none';
-                if (main) main.style.display = 'flex';
-            }, { once: true });
+            document.addEventListener('DOMContentLoaded', start, { once: true });
         })();
     </script>
 </body>
