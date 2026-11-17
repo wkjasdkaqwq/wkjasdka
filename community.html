@@ -70,12 +70,9 @@
 
         .loading-screen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: #fff; display: flex; justify-content: center; align-items: center; z-index: 9999; opacity: 1; visibility: visible; }
         .loading-screen, .loading-screen * { -webkit-user-select: none !important; -moz-user-select: none !important; user-select: none !important; }
-        .loading-logo { width: 65px; height: auto; z-index: 10000; display: none; }
-        #loadingLogoDark { display: none; }
+        .loading-logo { width: min(240px, 62vw); height: auto; z-index: 10000; display: none; }
         .loading-text-container { position: fixed !important; bottom: env(safe-area-inset-bottom, 26px) !important; left: 0 !important; width: 100% !important; display: none !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; z-index: 10001 !important; visibility: visible !important; pointer-events: none !important; -webkit-text-size-adjust: 100% !important; transform: translateY(-32px) !important; }
-        .loading-ready #loadingLogoLight { display: block !important; }
-        html.dark-mode .loading-ready #loadingLogoLight { display: none !important; }
-        html.dark-mode .loading-ready #loadingLogoDark { display: block !important; }
+        .loading-ready #loadingLogo { display: block !important; }
         .loading-ready .loading-text-container { display: flex !important; }
         .loading-footer-image { display: block; width: 5.85rem; max-width: 54vw; max-height: 2.6625rem; height: auto; object-fit: contain; }
         html.dark-mode .loading-footer-image { filter: invert(1); }
@@ -200,8 +197,7 @@
 <body>
     <div class="loading-screen" id="loadingScreen">
         <div class="loading-progress" id="loadingProgress" role="progressbar" aria-label="Loading page" data-i18n-aria-label="loadingProgress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="loading-progress-fill" id="loadingProgressFill"></div></div>
-        <img data-src="/wkjasdka/index/logo3.png" alt="Loading logo" data-i18n-alt="home.loadingLogoAlt" class="loading-logo" id="loadingLogoLight">
-        <img data-src="/wkjasdka/index/dark_mode.png" alt="Loading logo" data-i18n-alt="home.loadingLogoAlt" class="loading-logo" id="loadingLogoDark">
+        <img data-src="/wkjasdka/index/community2.png" alt="Liuyanlin Community" data-i18n-alt="logoAlt" class="loading-logo" id="loadingLogo">
         <div class="loading-text-container" id="loadingTexts" aria-hidden="false"><img class="loading-footer-image" data-src="index/under%20logo.png" alt="from - Wkjasdka -"></div>
         <div class="loading-error" id="loadingError" hidden><div role="alert" data-i18n="loadingError">Unable to load the page. Please check your connection.</div><button class="loading-retry" id="loadingRetry" type="button" data-i18n="loadingRetry">Retry</button></div>
     </div>
@@ -232,12 +228,16 @@
             const progress = document.getElementById('loadingProgress');
             const fill = document.getElementById('loadingProgressFill');
             const error = document.getElementById('loadingError');
+            const loadingLogo = document.getElementById('loadingLogo');
+            const contentLogo = main.querySelector('.community-logo');
             const logoImages = [
-                document.getElementById('loadingLogoLight'),
-                document.getElementById('loadingLogoDark'),
+                loadingLogo,
                 document.querySelector('.loading-footer-image')
             ];
-            const contentImages = Array.from(main.querySelectorAll('img[data-src]'));
+            const contentImages = Array.from(main.querySelectorAll('img[data-src]')).filter(image => image !== contentLogo);
+            const contentImageProgressShare = contentImages.length ? 0.5 : 0;
+            const scriptProgressShare = contentImages.length ? 0.25 : 0.5;
+            const dictionaryProgressShare = 1 - contentImageProgressShare - scriptProgressShare;
             const objectUrls = new Set();
             const timeoutMs = 45000;
             const dictionaryProgress = new Map();
@@ -393,7 +393,7 @@
                                 if (part.done) break;
                                 chunks.push(part.value);
                                 received += part.value.byteLength;
-                                if (measurable) setProgress(20 + 80 * (0.5 + 0.25 * Math.min(0.99, received / length)));
+                                if (measurable) setProgress(20 + 80 * (contentImageProgressShare + scriptProgressShare * Math.min(0.99, received / length)));
                             }
                             blob = new Blob(chunks, { type: response.headers.get('content-type') || 'text/javascript' });
                         } else {
@@ -408,7 +408,7 @@
                     } finally {
                         if (timer !== null) window.clearTimeout(timer);
                     }
-                    setProgress(20 + 80 * 0.75);
+                    setProgress(20 + 80 * (contentImageProgressShare + scriptProgressShare));
                 })();
             }
 
@@ -416,7 +416,7 @@
                 window.__communityProgressObserver = (locale, fraction) => {
                     dictionaryProgress.set(locale, Math.max(dictionaryProgress.get(locale) || 0, fraction));
                     const aggregate = Array.from(dictionaryProgress.values()).reduce((sum, part) => sum + part, 0) / expectedDictionaryCount;
-                    setProgress(20 + 80 * (0.75 + 0.25 * Math.min(1, aggregate)));
+                    setProgress(20 + 80 * (contentImageProgressShare + scriptProgressShare + dictionaryProgressShare * Math.min(1, aggregate)));
                 };
                 await loadI18nScript();
                 if (!window.SiteI18n) throw new Error('Language script did not initialize');
@@ -463,12 +463,18 @@
                     for (let i = 0; i < logoImages.length; i++) {
                         await loadImage(logoImages[i], fraction => setProgress(20 * (i + fraction) / logoImages.length));
                     }
+                    // The page uses the same community mark; reuse its completed
+                    // loader image rather than downloading it again in phase two.
+                    if (contentLogo && loadingLogo) {
+                        contentLogo.src = loadingLogo.src;
+                        contentLogo.removeAttribute('data-src');
+                    }
                     loading.classList.add('loading-ready');
 
                     // Phase two: page images, then the language script and its
                     // dictionaries. Nothing in this phase starts before the logos.
                     for (let i = 0; i < contentImages.length; i++) {
-                        await loadImage(contentImages[i], fraction => setProgress(20 + 80 * 0.5 * (i + fraction) / contentImages.length));
+                        await loadImage(contentImages[i], fraction => setProgress(20 + 80 * contentImageProgressShare * (i + fraction) / contentImages.length));
                     }
                     await initializeLanguage();
                     setProgress(100);
