@@ -7,26 +7,114 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { min-height: 100vh; padding-top: 50px; }
-        .animation-control {
-            min-width: 110px;
-            margin-top: 20px;
-            padding: 10px 24px;
-            border: 2px solid #FFB380;
-            border-radius: 999px;
-            background: #FFDAB9;
-            color: #7B3D00;
-            font: 600 16px/1.25 system-ui, sans-serif;
-            cursor: pointer;
-            touch-action: manipulation;
-            -webkit-tap-highlight-color: transparent;
-            transition: transform .2s ease, background-color .2s ease, border-color .2s ease;
-        }
-        @media (hover: hover) and (pointer: fine) {
-            .animation-control:hover { background: #FFE4C4; border-color: #FF9966; }
-        }
-        .animation-control:active { transform: translateY(2px) scale(.98); background: #FFC38D; border-color: #FF9C5A; }
-        .animation-control:focus-visible { outline: 3px solid #7B3D00; outline-offset: 3px; }
-        @media (prefers-reduced-motion: reduce) { .animation-control { transition: none; } }
+    .animated-btn {
+      width: 380px;
+      height: 84px;
+      border-radius: 42px;
+      border: 2px solid #FFB380;
+      font-size: 20px;
+      font-family: system-ui, sans-serif;
+      font-weight: 600;
+      color: #E67E22;
+      cursor: pointer;
+      -webkit-user-select: none;
+      user-select: none;
+      background-color: #FFDAB9;
+      transition:
+        transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+        box-shadow 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+        background-color 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+        border-color 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 4px 12px rgba(255, 218, 185, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: fixed;
+      bottom: 50px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 999;
+    }
+
+    .animated-btn:hover {
+      transform: translateX(-50%) scale(1.12);
+      box-shadow: 0 8px 20px rgba(255, 218, 185, 0.8);
+      background-color: #FFE4C4;
+      border-color: #FF9966;
+    }
+
+    .animated-btn:active {
+      transform: translateX(-50%) scale(1.08);
+      box-shadow: 0 6px 16px rgba(255, 218, 185, 0.6);
+      background-color: #FFC38D;
+      border-color: #FF9C5A;
+    }
+
+    .animated-btn.is-highlighted:active {
+      background-color: #FFCF97;
+      border-color: #FF8142;
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      .animated-btn:hover {
+        transform: translateX(-50%) scale(1.12);
+      }
+
+      .animated-btn:active {
+        transform: translateX(-50%) scale(1.08);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .animated-btn {
+        width: calc(100vw - 40px);
+        max-width: 380px;
+        height: 60px;
+        border-radius: 30px;
+        font-size: 18px;
+        border-width: 2px;
+        bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+      }
+    }
+
+    @media (hover: none), (pointer: coarse) {
+      .animated-btn:hover:not(.is-highlighted) {
+        transform: translateX(-50%);
+        box-shadow: 0 4px 12px rgba(255, 218, 185, 0.5);
+        background-color: #FFDAB9;
+        border-color: #FFB380;
+      }
+
+      .animated-btn.is-highlighted {
+        transform: translateX(-50%);
+        box-shadow: 0 8px 20px rgba(255, 218, 185, 0.8);
+        background-color: #FFE4C4;
+        border-color: #FF9966;
+      }
+
+      .animated-btn:active,
+      .animated-btn:active:hover,
+      .animated-btn.is-touch-pressed,
+      .animated-btn.is-touch-pressed:hover {
+        transform: translateX(-50%) translateY(2px) scale(.98);
+        box-shadow: 0 2px 6px rgba(255, 218, 185, 0.5);
+        background-color: #FFC38D;
+        border-color: #FF9C5A;
+      }
+
+      .animated-btn.is-highlighted:active,
+      .animated-btn.is-highlighted:active:hover,
+      .animated-btn.is-highlighted.is-touch-pressed,
+      .animated-btn.is-highlighted.is-touch-pressed:hover {
+        background-color: #FFCF97;
+        border-color: #FF8142;
+      }
+    }
+    .animated-btn:focus-visible { outline: 3px solid #7B3D00; outline-offset: 3px; }
+    @media (prefers-reduced-motion: reduce) { .animated-btn { transition: none; } }
     </style>
 </head>
 <body>
@@ -34,7 +122,7 @@
 
     <h1>Loading Animation</h1>
     <p>-from-<br>Wkjasdka</p>
-    <button class="animation-control" id="animationControl" type="button">Start</button>
+    <button class="animated-btn" id="animationControl" type="button">Start</button>
 
     <!-- Shared animation styles and timing: ../scripts/loading-animation.js -->
     <script src="../scripts/loading-animation.js?v=20261117-mobile-speed"></script>
@@ -42,6 +130,26 @@
         const animationContainer = document.querySelector('.animation-container');
         const animationControl = document.getElementById('animationControl');
         let loadingAnimation = null;
+        const touchMedia = window.matchMedia('(hover: none), (pointer: coarse)');
+        let pressedPointer = null;
+
+        animationControl.addEventListener('pointerdown', (event) => {
+            if (!touchMedia.matches || event.pointerType === 'mouse') return;
+            pressedPointer = event.pointerId;
+            animationControl.classList.add('is-touch-pressed');
+        });
+        ['pointerup', 'pointercancel'].forEach((type) => {
+            document.addEventListener(type, (event) => {
+                if (event.pointerId !== pressedPointer) return;
+                animationControl.classList.remove('is-touch-pressed');
+                pressedPointer = null;
+            });
+        });
+        document.addEventListener('pointerdown', (event) => {
+            if (!animationControl.contains(event.target)) {
+                animationControl.classList.remove('is-highlighted');
+            }
+        });
 
         function resetAnimation() {
             if (loadingAnimation) {
@@ -52,6 +160,7 @@
         }
 
         animationControl.addEventListener('click', () => {
+            animationControl.classList.add('is-highlighted');
             if (loadingAnimation) {
                 resetAnimation();
                 return;
@@ -62,7 +171,11 @@
             });
             animationControl.textContent = 'Reset';
         });
-        window.addEventListener('pagehide', resetAnimation);
+        window.addEventListener('pagehide', () => {
+            resetAnimation();
+            animationControl.classList.remove('is-touch-pressed');
+            pressedPointer = null;
+        });
         window.addEventListener('pageshow', (event) => {
             if (event.persisted) resetAnimation();
         });
