@@ -183,9 +183,6 @@
             .placeholder-grid {
                 grid-template-columns: 1fr;
             }
-            #mainContent.is-loading-reveal .placeholder-grid > .placeholder-item:first-child {
-                background: linear-gradient(to bottom, #f5f5f5 calc(100% - 14px), transparent);
-            }
         }
         html.dark-mode,
         html.dark-mode body {
@@ -537,7 +534,6 @@
                         await loadImage(contentImages[i], fraction => setProgress(20 + 80 * contentImageProgressShare * (i + fraction) / contentImages.length));
                     }
                     await initializeLanguage();
-                    main.classList.add('is-loading-reveal');
                     main.style.display = 'flex';
                     setProgress(100);
 
@@ -549,7 +545,6 @@
                     }
                     await revealCenter(reduceMotion);
                     loading.style.display = 'none';
-                    main.classList.remove('is-loading-reveal');
                 } catch (failure) {
                     console.error('[community] Page loading failed.', failure);
                     error.hidden = false;
