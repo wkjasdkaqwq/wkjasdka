@@ -1056,6 +1056,7 @@
     let menuTouchStart = null;
     let suppressNextOverlayClick = false;
     let overlayClickSuppressionTimer = null;
+    let sidebarViewportWidth = window.innerWidth;
 
     function currentScrollTop() {
       return window.pageYOffset || document.documentElement.scrollTop || 0;
@@ -1067,20 +1068,10 @@
       lastScrollTop = currentScrollTop();
     }
 
-    function isAnySubmenuExpanded() {
-      return document.querySelectorAll('.sidebar-submenu.expanded').length > 0;
-    }
-
     function syncPageScrollLock() {
-      document.body.style.overflow = sidebar.classList.contains('active') || isAnySubmenuExpanded() ? 'hidden' : '';
-    }
-
-    function disableScroll() {
-      syncPageScrollLock();
-    }
-
-    function enableScroll() {
-      syncPageScrollLock();
+      // An expanded submenu can remain selected while the mobile drawer is closed.
+      const mobileDrawerOpen = window.innerWidth <= 768 && sidebar.classList.contains('active');
+      document.body.style.overflow = mobileDrawerOpen ? 'hidden' : '';
     }
 
     function clearSidebarDragStyles() {
@@ -1110,6 +1101,7 @@
     }
 
     function closeSidebar() {
+      menuTouchStart = null;
       clearSidebarDragStyles();
       setSidebarOpenState(false);
       keepNavbarVisible(650);
@@ -1127,6 +1119,23 @@
       else openSidebar();
     }
 
+    function syncSidebarViewport() {
+      if (window.innerWidth !== sidebarViewportWidth) cancelSidebarDrag();
+      sidebarViewportWidth = window.innerWidth;
+      if (window.innerWidth > 768) {
+        if (sidebar.classList.contains('active') || sidebar.classList.contains('dragging') || sidebarOverlay.classList.contains('active')) {
+          closeSidebar();
+          return;
+        }
+      }
+      syncPageScrollLock();
+    }
+
+    window.addEventListener('resize', syncSidebarViewport);
+    window.addEventListener('pageshow', () => {
+      cancelSidebarDrag();
+      syncSidebarViewport();
+    });
     menuBtn.addEventListener('click', toggleSidebar);
     sidebarOverlay.addEventListener('click', event => {
       if (suppressNextOverlayClick) {
@@ -1177,8 +1186,28 @@
       clearSidebarDragStyles();
     }
 
+    function cancelSidebarDrag() {
+      const start = menuTouchStart;
+      menuTouchStart = null;
+      if (start && start.dragging) {
+        settleSidebarDrag(start.startedOpen);
+      } else if (sidebar.classList.contains('dragging') || sidebarOverlay.classList.contains('dragging')) {
+        setSidebarOpenState(sidebar.classList.contains('active'));
+        clearSidebarDragStyles();
+      }
+    }
+
     document.addEventListener('touchstart', event => {
+      if (suppressNextOverlayClick) {
+        suppressNextOverlayClick = false;
+        if (overlayClickSuppressionTimer !== null) window.clearTimeout(overlayClickSuppressionTimer);
+        overlayClickSuppressionTimer = null;
+      }
       if (window.innerWidth > 768 || !event.touches.length) return;
+      if (event.touches.length > 1) {
+        cancelSidebarDrag();
+        return;
+      }
       const touch = event.touches[0];
       const startedOpen = sidebar.classList.contains('active');
       const canCloseFromOpenArea = startedOpen && (sidebar.contains(event.target) || sidebarOverlay.contains(event.target));
@@ -1259,7 +1288,8 @@
     }
 
     document.addEventListener('touchend', finishMenuTouch, { passive: true });
-    document.addEventListener('touchcancel', finishMenuTouch, { passive: true });
+    document.addEventListener('touchcancel', cancelSidebarDrag, { passive: true });
+    window.addEventListener('pagehide', cancelSidebarDrag);
 
     const mainContent = document.getElementById('mainContent');
     const loadingScreen = document.getElementById('loadingScreen');
@@ -1323,10 +1353,7 @@
     function showArticleWait(operation) {
       if (operation !== articleLoading || operation.suspended || operation.transitionId !== contentTransitionId) return;
       fadingArticleWaits.forEach(ui => disposeArticleWait(ui));
-      if (menuTouchStart && menuTouchStart.dragging) {
-        settleSidebarDrag(menuTouchStart.offset < menuTouchStart.width * 0.5);
-      }
-      menuTouchStart = null;
+      cancelSidebarDrag();
       const overlay = document.createElement('div');
       overlay.className = 'article-wait-overlay';
       overlay.setAttribute('role', 'status');
@@ -1713,12 +1740,7 @@
         this.classList.toggle('expanded');
         submenu.classList.toggle('expanded');
 
-        // 根据是否有任何展开的二级菜单来控制滚动
-        if (isAnySubmenuExpanded()) {
-          disableScroll();
-        } else {
-          enableScroll();
-        }
+        syncPageScrollLock();
       });
     });
 
