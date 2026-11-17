@@ -71,16 +71,15 @@
         }
         .loading-screen { position: fixed; inset: 0; width: auto; height: auto; background-color: transparent; display: flex; justify-content: center; align-items: center; z-index: 9999; opacity: 1; visibility: visible; }
         @keyframes community-loader-zoom {
-            0% { transform: scale(1); animation-timing-function: cubic-bezier(.55, 0, .8, .4); }
-            20% { transform: scale(var(--community-loader-scale-20)); animation-timing-function: linear; }
-            80% { transform: scale(var(--community-loader-scale-80)); animation-timing-function: cubic-bezier(.3, .36, .6, 1); }
+            0% { transform: scale(1); animation-timing-function: cubic-bezier(.55, 0, .8, .3714286); }
+            30% { transform: scale(var(--community-loader-scale-30)); animation-timing-function: linear; }
             100% { transform: scale(var(--community-loader-clear-scale)); }
         }
         /* The marker fires on the same animation timeline at the 80% boundary. */
         @keyframes community-unlock-marker { from, to { opacity: 1; } }
         .loading-screen.is-zooming-into-content {
             transform-origin: 50% 50%;
-            animation: community-loader-zoom var(--community-zoom-duration, 1.15s) linear forwards, community-unlock-marker 1ms linear var(--community-unlock-delay, .92s) both;
+            animation: community-loader-zoom var(--community-zoom-duration, .8s) linear forwards, community-unlock-marker 1ms linear var(--community-unlock-delay, .64s) both;
             will-change: transform;
         }
         .loading-screen.is-zoom-settled { transform: scale(var(--community-loader-clear-scale)); transform-origin: 50% 50%; transition: transform .28s ease-out; }
@@ -583,7 +582,7 @@
                 });
             }
 
-            const zoomDurationMs = 1150;
+            const zoomDurationMs = 800;
             const interactionUnlockProgress = 0.8;
             const clearOpeningWidthFraction = 599 / 743;
             const clearOpeningHeightFraction = 85 / 215;
@@ -687,8 +686,7 @@
                 loading.style.setProperty('--community-zoom-duration', `${zoomDurationMs}ms`);
                 loading.style.setProperty('--community-unlock-delay', `${zoomDurationMs * interactionUnlockProgress}ms`);
                 loading.style.setProperty('--community-loader-clear-scale', String(clearScale));
-                loading.style.setProperty('--community-loader-scale-20', String(1 + (clearScale - 1) * 0.08));
-                loading.style.setProperty('--community-loader-scale-80', String(1 + (clearScale - 1) * 0.8));
+                loading.style.setProperty('--community-loader-scale-30', String(1 + (clearScale - 1) * 0.12));
                 await waitForZoomAnimation();
                 loading.classList.add('is-zoom-settled');
                 loading.classList.remove('is-zooming-into-content');
