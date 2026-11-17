@@ -14,8 +14,8 @@
     ? new URL(scriptElement.src).searchParams.get('v')
     : null;
   const localeDirectory = scriptElement && scriptElement.src
-    ? new URL('../locales/', scriptElement.src)
-    : new URL('./locales/', document.baseURI);
+    ? new URL('../resource/language/', scriptElement.src)
+    : new URL('./resource/language/', document.baseURI);
   const dictionaryPromises = new Map();
   const translatedAttributes = {
     'data-i18n-aria-label': 'aria-label',
@@ -158,7 +158,9 @@
 
   function loadDictionary(locale) {
     if (!dictionaryPromises.has(locale)) {
-      const url = new URL(`${encodeURIComponent(locale)}.json`, localeDirectory);
+      // Keep locale IDs stable for stored preferences and article translations.
+      const filenameLocale = locale === 'en' ? 'en-gb' : locale.toLowerCase();
+      const url = new URL(`${encodeURIComponent(filenameLocale)}.json`, localeDirectory);
       if (dictionaryVersion) url.searchParams.set('v', dictionaryVersion);
       if (fullReloadToken) url.searchParams.set(FULL_RELOAD_QUERY_PARAM, fullReloadToken);
       const controller = typeof AbortController === 'function' ? new AbortController() : null;
