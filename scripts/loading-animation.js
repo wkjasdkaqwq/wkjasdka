@@ -16,6 +16,11 @@
     .wkjasdka-loading-animation .ball { animation: wkLoadingSlideBall .9s linear forwards; }
     .wkjasdka-loading-animation .ball-slow { opacity: 0; }
     .wkjasdka-loading-animation .ball-slow.active { opacity: 1; }
+    /* Each mobile duration and delay is divided by 1.1 for a 10% faster cycle. */
+    @media (pointer: coarse) {
+      .wkjasdka-loading-animation .ball { animation-duration: .818182s; }
+      .wkjasdka-loading-animation .progress-bar.active { animation-duration: .454545s, .727273s, .545455s; animation-delay: 0s, .727273s, .636364s; }
+    }
     @keyframes wkLoadingSlideBall { 0% { left: -20px; } 100% { left: calc(100% + 8px); } }
     @keyframes wkLoadingSlideProgress { 0% { left: -100%; } 100% { left: 0; } }
     @keyframes wkLoadingStayProgress { 0%, 100% { left: 0; width: 100%; } }
@@ -39,6 +44,7 @@
     container.setAttribute('aria-hidden', 'true');
     if (!container.isConnected) parent.appendChild(container);
     const mobileLayout = window.matchMedia('(max-width: 768px), (max-width: 1024px) and (pointer: coarse)');
+    const mobileSpeed = window.matchMedia('(pointer: coarse)');
     const activeCycles = new Set();
     let stopped = false;
     let finishing = false;
@@ -50,7 +56,8 @@
     function updateGeometry() {
       const containerWidth = Math.max(document.documentElement.clientWidth, 1);
       const scale = mobileLayout.matches ? containerWidth / 1440 : 1;
-      const baseSpeed = 2.5 * scale;
+      const speedFactor = mobileSpeed.matches ? 1.1 : 1;
+      const baseSpeed = 2.5 * scale * speedFactor;
       const fixedDistance = 170 * scale;
       const ballStart = mobileLayout.matches ? -Math.max(8, 30 * scale) : -30;
       const ballEnd = containerWidth + 8;
@@ -60,7 +67,7 @@
       const barEnd = containerWidth + barWidth;
       const barDistance = barEnd - barStart;
       geometry = {
-        containerWidth, triggerDistance: 430 * scale,
+        containerWidth, speedFactor, triggerDistance: 430 * scale,
         ballStart, ballDistance, ballDuration: ballDistance / baseSpeed,
         barWidth, barStart, barDistance, barDuration: barDistance / baseSpeed
       };
@@ -169,7 +176,7 @@
         if (stopped || state.completed || slowBallTriggered) return;
         const width = parseFloat(window.getComputedStyle(progressBar).width);
         const fullWidth = parseFloat(window.getComputedStyle(layer.querySelector('.progress-container')).width);
-        if ((fullWidth > 0 && width < fullWidth * .4) || performance.now() - shrinkStartedAt > 1600) {
+        if ((fullWidth > 0 && width < fullWidth * .4) || performance.now() - shrinkStartedAt > 1600 / geometry.speedFactor) {
           state.checkFrameId = null;
           ballSlow.classList.add('active');
           slowBallTriggered = true;
@@ -180,7 +187,7 @@
       function checkBallPosition() {
         if (stopped || state.completed || progressTriggered) return;
         const ballLeft = parseFloat(window.getComputedStyle(ball).left);
-        if (geometry.containerWidth - ballLeft < geometry.triggerDistance || performance.now() - state.startedAt > 1200) {
+        if (geometry.containerWidth - ballLeft < geometry.triggerDistance || performance.now() - state.startedAt > 1200 / geometry.speedFactor) {
           state.checkFrameId = null;
           progressBar.classList.add('active');
           progressTriggered = true;
