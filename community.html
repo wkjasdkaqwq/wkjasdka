@@ -68,11 +68,11 @@
             padding: 40px;
         }
 
-        .loading-screen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: transparent; display: flex; justify-content: center; align-items: center; z-index: 9999; opacity: 1; visibility: visible; }
+        .loading-screen { position: fixed; inset: 0; width: auto; height: auto; background-color: transparent; display: flex; justify-content: center; align-items: center; z-index: 9999; opacity: 1; visibility: visible; }
         .loading-screen, .loading-screen * { -webkit-user-select: none !important; -moz-user-select: none !important; user-select: none !important; }
-        .loading-backdrop { position: fixed; inset: 0; z-index: 0; display: grid; grid-template-columns: 1fr min(300px, 62vw) 1fr; grid-template-rows: 1fr auto 1fr; pointer-events: none; }
+        .loading-backdrop { position: absolute; inset: 0; z-index: 0; display: grid; grid-template-columns: 1fr min(300px, 62vw) 1fr; grid-template-rows: 1fr auto 1fr; pointer-events: none; }
         .loading-backdrop-cell, .loading-backdrop-center { background-color: #fff; }
-        .loading-backdrop-center { width: 100%; aspect-ratio: 743 / 215; -webkit-mask-size: 100% 100%, 100% 100%; -webkit-mask-repeat: no-repeat, no-repeat; -webkit-mask-position: center, center; mask-mode: alpha; mask-size: 100% 100%, 100% 100%; mask-repeat: no-repeat, no-repeat; mask-position: center, center; }
+        .loading-backdrop-center { width: 100%; aspect-ratio: 743 / 215; -webkit-mask-size: 100% 100%; -webkit-mask-repeat: no-repeat; -webkit-mask-position: center; mask-mode: alpha; mask-size: 100% 100%; mask-repeat: no-repeat; mask-position: center; }
         .loading-logo { width: min(300px, 62vw); height: auto; z-index: 10000; display: none; opacity: 1; transition: opacity .7s ease; }
         .loading-screen.is-center-revealing .loading-logo { opacity: 0; }
         .loading-text-container { position: fixed !important; bottom: env(safe-area-inset-bottom, 26px) !important; left: 0 !important; width: 100% !important; display: none !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; z-index: 10001 !important; visibility: visible !important; pointer-events: none !important; -webkit-text-size-adjust: 100% !important; transform: translateY(-32px) !important; }
@@ -300,6 +300,35 @@
                 });
             }
 
+            async function createInverseAlphaMask(image) {
+                if (!image.naturalWidth || !image.naturalHeight) throw new Error('Logo image is not decoded');
+                const canvas = document.createElement('canvas');
+                canvas.width = image.naturalWidth;
+                canvas.height = image.naturalHeight;
+                const context = canvas.getContext('2d', { willReadFrequently: true });
+                if (!context || typeof canvas.toBlob !== 'function') throw new Error('Canvas mask generation is unavailable');
+                context.drawImage(image, 0, 0);
+                const pixels = context.getImageData(0, 0, canvas.width, canvas.height);
+                for (let index = 3; index < pixels.data.length; index += 4) {
+                    pixels.data[index] = 255 - pixels.data[index];
+                }
+                context.putImageData(pixels, 0, 0);
+                const blob = await new Promise((resolve, reject) => {
+                    canvas.toBlob(result => result ? resolve(result) : reject(new Error('Could not encode the logo mask')), 'image/png');
+                });
+                const maskUrl = URL.createObjectURL(blob);
+                objectUrls.add(maskUrl);
+                try {
+                    const maskImage = new Image();
+                    await loadImageSource(maskImage, maskUrl);
+                } catch (failure) {
+                    objectUrls.delete(maskUrl);
+                    URL.revokeObjectURL(maskUrl);
+                    throw failure;
+                }
+                return maskUrl;
+            }
+
             async function loadImage(image, report) {
                 const source = image.getAttribute('data-src');
                 if (!source) throw new Error('Missing image source');
@@ -508,12 +537,22 @@
                     }
                     const centerBackdrop = loading.querySelector('.loading-backdrop-center');
                     if (loadingLogo && centerBackdrop) {
-                        const logoAlphaMask = `url("${loadingLogo.src}")`;
-                        const inverseAlphaMask = `linear-gradient(#000 0 0), ${logoAlphaMask}`;
-                        centerBackdrop.style.webkitMaskImage = inverseAlphaMask;
-                        centerBackdrop.style.webkitMaskComposite = 'xor';
-                        centerBackdrop.style.maskImage = inverseAlphaMask;
-                        centerBackdrop.style.maskComposite = 'exclude';
+                        try {
+                            const maskUrl = await createInverseAlphaMask(loadingLogo);
+                            const inverseAlphaMask = `url("${maskUrl}")`;
+                            centerBackdrop.style.webkitMaskImage = inverseAlphaMask;
+                            centerBackdrop.style.webkitMaskComposite = 'source-over';
+                            centerBackdrop.style.maskImage = inverseAlphaMask;
+                            centerBackdrop.style.maskComposite = 'add';
+                        } catch (failure) {
+                            console.warn('[community] Falling back to layered logo mask.', failure);
+                            const logoAlphaMask = `url("${loadingLogo.src}")`;
+                            const inverseAlphaMask = `linear-gradient(#000 0 0), ${logoAlphaMask}`;
+                            centerBackdrop.style.webkitMaskImage = inverseAlphaMask;
+                            centerBackdrop.style.webkitMaskComposite = 'xor';
+                            centerBackdrop.style.maskImage = inverseAlphaMask;
+                            centerBackdrop.style.maskComposite = 'exclude';
+                        }
                     }
                     // The page uses the same community mark; reuse its completed
                     // loader image rather than downloading it again in phase two.
