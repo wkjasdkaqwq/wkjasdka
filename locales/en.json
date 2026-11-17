@@ -10,6 +10,8 @@
     "themeDark": "Dark",
     "languageTitle": "Language",
     "languageDescription": "Choose the language used across the site.",
+    "languageNameEnglish": "English",
+    "languageNameSimplifiedChinese": "Simplified Chinese",
     "languageModalTitle": "Search languages",
     "languageNoResults": "No languages found.",
     "languageClose": "Close language dialog",

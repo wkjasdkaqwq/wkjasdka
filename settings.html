@@ -119,8 +119,11 @@
     .language-options { display: grid; gap: .45rem; max-height: min(160px, 32vh); max-height: min(160px, 32dvh); overflow-y: auto; overscroll-behavior: contain; padding: 3px; }
     @keyframes language-options-in { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
     .language-options .language-choice { width: 100%; min-height: 44px; flex: 0 0 auto; justify-content: space-between; gap: .75rem; padding: .55rem 1rem; font-size: .9rem; text-align: left; }
+    .language-choice-name { display: inline-flex; align-items: baseline; gap: .35rem; min-width: 0; overflow: hidden; }
+    .language-choice-local-name { position: relative; top: .2em; flex: 0 1 auto; overflow: hidden; font-size: .5em; line-height: 1.1; opacity: .85; text-overflow: ellipsis; }
+    .language-choice-local-name[hidden] { display: none; }
     .language-choice.is-active:not([aria-selected="true"]) { outline: 2px solid #e67e22; outline-offset: 1px; }
-    .language-choice-check { font-size: 1rem; font-weight: 800; opacity: 0; }
+    .language-choice-check { flex: 0 0 auto; font-size: 1rem; font-weight: 800; opacity: 0; }
     .language-choice[aria-selected="true"] .language-choice-check { opacity: 1; }
     .language-no-results { margin: .4rem .45rem; color: #765b4a; font-size: .9rem; }
     .language-error { margin: .75rem 0 0; color: #b42318; font-size: .9rem; }
@@ -254,12 +257,8 @@
     html.dark-mode .theme-option.is-touch-pressed { background-color: #2B211B; border-color: #8B5837; }
     html.dark-mode .theme-option:has(input:checked):active,
     html.dark-mode .theme-option.is-touch-pressed:has(input:checked) { background-color: #422B1C; border-color: #D57118; }
-    .language-choice[aria-selected="true"] { border-color: #FF9966; background: #FFE4C4; color: #B95D16; box-shadow: 0 6px 16px rgba(230,126,34,.2); }
-    html.dark-mode .language-choice[aria-selected="true"] { border-color: #E67E22; background: #49301F; color: #FFD0A8; box-shadow: 0 6px 18px rgba(230,126,34,.16); }
-    .language-choice[aria-selected="true"]:active,
-    .language-choice[aria-selected="true"].is-touch-pressed { background-color: #FFCF97; border-color: #FF8142; }
-    html.dark-mode .language-choice[aria-selected="true"]:active,
-    html.dark-mode .language-choice[aria-selected="true"].is-touch-pressed { background-color: #422B1C; border-color: #D57118; }
+    .language-options .language-choice[aria-selected="true"] { transform: translateY(2px) scale(.98); border-color: #b2b2b2; background: #dedede; color: #4c4c4c; box-shadow: inset 0 2px 5px rgba(0,0,0,.16); }
+    html.dark-mode .language-options .language-choice[aria-selected="true"] { border-color: #6b6b6b; background: #3a3a3a; color: #dedede; box-shadow: inset 0 2px 6px rgba(0,0,0,.32); }
     @media (prefers-reduced-motion: reduce) { .language-dropdown { animation: none; } }
 
     @media (max-width: 600px) {
@@ -375,8 +374,8 @@
             <div class="language-dropdown" id="languageDropdown" hidden>
               <div class="language-divider" aria-hidden="true"></div>
               <div class="language-options" id="languageOptions" role="listbox" aria-labelledby="languagePickerLabel">
-                <div class="theme-option language-choice" id="languageOptionEn" role="option" data-value="en" aria-selected="true"><span class="language-choice-text" lang="en">English</span><span class="language-choice-check" aria-hidden="true">✓</span></div>
-                <div class="theme-option language-choice" id="languageOptionZhCN" role="option" data-value="zh-CN" aria-selected="false"><span class="language-choice-text" lang="zh-CN">简体中文</span><span class="language-choice-check" aria-hidden="true">✓</span></div>
+                <div class="theme-option language-choice" id="languageOptionEn" role="option" data-value="en" aria-selected="true"><span class="language-choice-name"><span class="language-choice-text" lang="en">English</span><span class="language-choice-local-name" data-i18n="languageNameEnglish" hidden>English</span></span><span class="language-choice-check" aria-hidden="true">✓</span></div>
+                <div class="theme-option language-choice" id="languageOptionZhCN" role="option" data-value="zh-CN" aria-selected="false"><span class="language-choice-name"><span class="language-choice-text" lang="zh-CN">简体中文</span><span class="language-choice-local-name" data-i18n="languageNameSimplifiedChinese">Simplified Chinese</span></span><span class="language-choice-check" aria-hidden="true">✓</span></div>
               </div>
               <p class="language-no-results" id="languageNoResults" role="status" data-i18n="languageNoResults" hidden>No languages found.</p>
             </div>

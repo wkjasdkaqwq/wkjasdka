@@ -10,6 +10,8 @@
     "themeDark": "深色模式",
     "languageTitle": "语言",
     "languageDescription": "选择整个网站的显示语言。",
+    "languageNameEnglish": "英语",
+    "languageNameSimplifiedChinese": "简体中文",
     "languageModalTitle": "搜索语言",
     "languageNoResults": "未找到匹配的语言。",
     "languageClose": "关闭语言选择窗口",

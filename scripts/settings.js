@@ -76,7 +76,12 @@
     function syncLanguageDisplay(locale = SiteI18n.locale) {
       const choice = languageChoice(locale);
       if (choice) languageCurrent.textContent = choice.querySelector('.language-choice-text').textContent;
+      languageChoices.forEach(item => {
+        const localName = item.querySelector('.language-choice-local-name');
+        if (localName) localName.hidden = item.dataset.value === locale;
+      });
       if (!languageModal.classList.contains('open')) setLanguageDraft(locale);
+      if (!languageDropdown.hidden) filterLanguageChoices();
     }
 
     function setActiveLanguageChoice(choice) {
@@ -94,7 +99,9 @@
       const query = languageSelect.value.trim().toLocaleLowerCase();
       languageChoices.forEach(choice => {
         const name = choice.querySelector('.language-choice-text').textContent.toLocaleLowerCase();
-        choice.hidden = Boolean(query) && !name.includes(query) && !choice.dataset.value.toLocaleLowerCase().includes(query);
+        const localName = choice.querySelector('.language-choice-local-name');
+        const translatedName = localName ? localName.textContent.toLocaleLowerCase() : '';
+        choice.hidden = Boolean(query) && !name.includes(query) && !translatedName.includes(query) && !choice.dataset.value.toLocaleLowerCase().includes(query);
       });
       const visible = languageChoices.filter(choice => !choice.hidden);
       languageNoResults.hidden = visible.length > 0;
