@@ -37,6 +37,8 @@
     let languageSaving = false;
     let languageDraft = 'en';
     let activeLanguageChoice = null;
+    let languageInputIsPreview = false;
+    let languageComposing = false;
     let suppressLanguageFocusOpen = false;
     const THEME_STORAGE_KEY = 'wkjasdka-dark-mode';
     const darkPreference = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
@@ -63,6 +65,10 @@
       return languageChoices.find(choice => choice.dataset.value === locale);
     }
 
+    function orderedLanguageChoices() {
+      return [...languageOptions.querySelectorAll('[role="option"]')];
+    }
+
     function setLanguageDraft(locale) {
       const choice = languageChoice(locale) || languageChoices[0];
       if (!choice) return;
@@ -75,13 +81,16 @@
 
     function syncLanguageDisplay(locale = SiteI18n.locale) {
       const choice = languageChoice(locale);
-      if (choice) languageCurrent.textContent = choice.querySelector('.language-choice-text').textContent;
+      if (choice) {
+        languageCurrent.textContent = choice.querySelector('.language-choice-text').textContent;
+        if (languageOptions.firstElementChild !== choice) languageOptions.prepend(choice);
+      }
       languageChoices.forEach(item => {
         const localName = item.querySelector('.language-choice-local-name');
         if (localName) localName.hidden = item.dataset.value === locale;
       });
       if (!languageModal.classList.contains('open')) setLanguageDraft(locale);
-      if (!languageDropdown.hidden) filterLanguageChoices();
+      if (!languageDropdown.hidden && !languageComposing) filterLanguageChoices();
     }
 
     function setActiveLanguageChoice(choice) {
@@ -96,14 +105,14 @@
     }
 
     function filterLanguageChoices() {
-      const query = languageSelect.value.trim().toLocaleLowerCase();
+      const query = languageInputIsPreview ? '' : languageSelect.value.trim().toLocaleLowerCase();
       languageChoices.forEach(choice => {
         const name = choice.querySelector('.language-choice-text').textContent.toLocaleLowerCase();
         const localName = choice.querySelector('.language-choice-local-name');
         const translatedName = localName ? localName.textContent.toLocaleLowerCase() : '';
         choice.hidden = Boolean(query) && !name.includes(query) && !translatedName.includes(query) && !choice.dataset.value.toLocaleLowerCase().includes(query);
       });
-      const visible = languageChoices.filter(choice => !choice.hidden);
+      const visible = orderedLanguageChoices().filter(choice => !choice.hidden);
       languageNoResults.hidden = visible.length > 0;
       if (!visible.includes(activeLanguageChoice)) {
         setActiveLanguageChoice(visible.find(choice => choice.dataset.value === languageDraft) || visible[0] || null);
@@ -116,6 +125,7 @@
       languageSelect.readOnly = false;
       languageSelect.placeholder = choice.querySelector('.language-choice-text').textContent;
       languageSelect.value = '';
+      languageInputIsPreview = false;
       languageDropdown.hidden = false;
       languagePicker.classList.add('is-open');
       languageSelect.setAttribute('aria-expanded', 'true');
@@ -132,6 +142,8 @@
       languageSelect.removeAttribute('aria-activedescendant');
       languageSelect.readOnly = true;
       languageSelect.placeholder = '';
+      languageInputIsPreview = false;
+      languageComposing = false;
       setLanguageDraft(languageDraft);
       languageChoices.forEach(choice => {
         choice.hidden = false;
@@ -150,7 +162,8 @@
       if (!choice || choice.hidden || languageSelect.disabled) return;
       setLanguageDraft(choice.dataset.value);
       languageError.hidden = true;
-      languageSelect.value = '';
+      languageSelect.value = choice.querySelector('.language-choice-text').textContent;
+      languageInputIsPreview = true;
       activeLanguageChoice = choice;
       filterLanguageChoices();
       setActiveLanguageChoice(choice);
@@ -346,11 +359,12 @@
       languageSelect.focus({ preventScroll: true });
     });
     languageSelect.addEventListener('keydown', event => {
+      if (event.isComposing || languageComposing || event.keyCode === 229) return;
       if (['ArrowDown', 'ArrowUp'].includes(event.key)) {
         event.preventDefault();
         const wasClosed = languageDropdown.hidden;
         if (wasClosed) openLanguageOptions();
-        const visible = languageChoices.filter(choice => !choice.hidden);
+        const visible = orderedLanguageChoices().filter(choice => !choice.hidden);
         if (!wasClosed && visible.length) {
           const currentIndex = visible.indexOf(activeLanguageChoice);
           const nextIndex = Math.max(0, Math.min(visible.length - 1, currentIndex + (event.key === 'ArrowDown' ? 1 : -1)));
@@ -364,8 +378,23 @@
         openLanguageOptions();
       }
     });
-    languageSelect.addEventListener('input', () => {
+    const prepareLanguageSearch = () => {
+      if (!languageInputIsPreview) return;
+      languageInputIsPreview = false;
+      languageSelect.value = '';
+    };
+    languageSelect.addEventListener('beforeinput', prepareLanguageSearch);
+    languageSelect.addEventListener('compositionstart', () => {
+      prepareLanguageSearch();
+      languageComposing = true;
+    });
+    languageSelect.addEventListener('compositionend', () => {
+      languageComposing = false;
       if (!languageDropdown.hidden) filterLanguageChoices();
+    });
+    languageSelect.addEventListener('input', event => {
+      languageInputIsPreview = false;
+      if (!languageDropdown.hidden && !languageComposing && !event.isComposing) filterLanguageChoices();
     });
     languageOptions.addEventListener('click', event => {
       const choice = event.target instanceof Element ? event.target.closest('[role="option"]') : null;
@@ -450,6 +479,7 @@
     });
     document.addEventListener('keydown', event => {
       if (languageModal.classList.contains('open')) {
+        if (event.isComposing || languageComposing || event.keyCode === 229) return;
         if (event.key === 'Escape') {
           event.preventDefault();
           if (!languageDropdown.hidden) closeLanguageOptions(true);
