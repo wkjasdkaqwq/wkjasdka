@@ -1,0 +1,40 @@
+{
+  "html": [
+    "<div class=\"content-section\">",
+    "  <h2 data-i18n=\"article.title\"></h2>",
+    "  <p data-i18n=\"article.intro\"></p>",
+    "  <div class=\"content-grid\">",
+    "    <div class=\"grid-item\">",
+    "      <h3 data-i18n=\"article.sectionOneTitle\"></h3>",
+    "      <p data-i18n=\"article.sectionOneContent\"></p>",
+    "    </div>",
+    "    <div class=\"grid-item\">",
+    "      <h3 data-i18n=\"article.sectionTwoTitle\"></h3>",
+    "      <p data-i18n=\"article.sectionTwoContent\"></p>",
+    "    </div>",
+    "  </div>",
+    "</div>"
+  ],
+  "translations": {
+    "en": {
+      "article": {
+        "title": "What is W.K.Jasdka?",
+        "intro": "Content",
+        "sectionOneTitle": "Section title",
+        "sectionOneContent": "Content",
+        "sectionTwoTitle": "Section title",
+        "sectionTwoContent": "Content"
+      }
+    },
+    "zh-CN": {
+      "article": {
+        "title": "W.K.Jasdka 是什么？",
+        "intro": "内容",
+        "sectionOneTitle": "主标题",
+        "sectionOneContent": "内容",
+        "sectionTwoTitle": "主标题",
+        "sectionTwoContent": "内容"
+      }
+    }
+  }
+}

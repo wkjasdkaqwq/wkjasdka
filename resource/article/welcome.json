@@ -1,0 +1,56 @@
+{
+  "html": [
+    "<div class=\"content-section\">",
+    "  <h2 data-i18n=\"article.title\" style=\"text-align: center; font-size: 28px; margin-bottom: 30px; color: #E67E22;\"></h2>",
+    "  <div class=\"info-box\" style=\"background-color: #f0f8ff; border-left-color: #E67E22; text-align: center;\">",
+    "    <p style=\"font-size: 16px; line-height: 1.8; color: #333;\">",
+    "      <strong data-i18n=\"article.support\"></strong><br><br>",
+    "      <span data-i18n=\"article.intro\"></span><br>",
+    "    </p>",
+    "  </div>",
+    "  <div class=\"content-grid\" style=\"margin-top: 40px;\">",
+    "    <div class=\"grid-item\" style=\"text-align: center;\">",
+    "      <h3 style=\"font-size: 18px; color: #E67E22;\">Echo</h3>",
+    "      <p data-i18n=\"article.platformOverview\"></p>",
+    "      <p data-i18n=\"article.platformLegal\"></p>",
+    "    </div>",
+    "    <div class=\"grid-item\" style=\"text-align: center;\">",
+    "      <h3 data-i18n=\"article.sectionOneTitle\" style=\"font-size: 18px; color: #E67E22;\"></h3>",
+    "      <p data-i18n=\"article.sectionOneContent\"></p>",
+    "    </div>",
+    "    <div class=\"grid-item\" style=\"text-align: center;\">",
+    "      <h3 data-i18n=\"article.sectionTwoTitle\" style=\"font-size: 18px; color: #E67E22;\"></h3>",
+    "      <p data-i18n=\"article.sectionTwoContent\"></p>",
+    "    </div>",
+    "  </div>",
+    "</div>"
+  ],
+  "translations": {
+    "en": {
+      "article": {
+        "title": "Welcome to Echo",
+        "support": "About Echo or get help and support",
+        "intro": "Welcome to the Echo About page.",
+        "platformOverview": "Echo manages the W.K.Jasdka and Liuyanlin platforms.",
+        "platformLegal": "Both platforms are maintained by the same team and belong to the same legal operating entity.",
+        "sectionOneTitle": "Section title",
+        "sectionOneContent": "Content",
+        "sectionTwoTitle": "Section title",
+        "sectionTwoContent": "Content"
+      }
+    },
+    "zh-CN": {
+      "article": {
+        "title": "欢迎来到 Echo",
+        "support": "关于 Echo 或获取帮助与支持",
+        "intro": "欢迎使用 Echo 关于页面。",
+        "platformOverview": "Echo 负责统一运营 W.K.Jasdka 平台和 Liuyanlin 平台。",
+        "platformLegal": "两个平台由同一运营团队维护，并归属同一个法律运营主体。",
+        "sectionOneTitle": "主标题",
+        "sectionOneContent": "内容",
+        "sectionTwoTitle": "主标题",
+        "sectionTwoContent": "内容"
+      }
+    }
+  }
+}

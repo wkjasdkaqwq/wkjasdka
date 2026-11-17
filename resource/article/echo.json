@@ -1,0 +1,29 @@
+{
+  "html": [
+    "<div class=\"content-section\">",
+    "  <h2 data-i18n=\"article.title\"></h2>",
+    "  <p data-i18n=\"article.description\"></p>",
+    "  <div class=\"info-box\">",
+    "    <p><strong data-i18n=\"article.statusLabel\"></strong> <span data-i18n=\"article.statusText\"></span></p>",
+    "  </div>",
+    "</div>"
+  ],
+  "translations": {
+    "en": {
+      "article": {
+        "title": "What is Echo?",
+        "description": "Content",
+        "statusLabel": "Current status:",
+        "statusText": "The project is actively being developed, with its core features continuously improving."
+      }
+    },
+    "zh-CN": {
+      "article": {
+        "title": "Echo 是什么？",
+        "description": "内容",
+        "statusLabel": "当前状态：",
+        "statusText": "项目正在积极开发中，核心功能不断完善。"
+      }
+    }
+  }
+}

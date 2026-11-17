@@ -1,0 +1,30 @@
+{
+  "html": [
+    "<div class=\"content-section\">",
+    "  <h2 data-i18n=\"article.title\"></h2>",
+    "  <p data-i18n=\"article.intro\"></p>",
+    "  <div class=\"content-grid\">",
+    "    <div class=\"grid-item\">",
+    "      <h3 data-i18n=\"article.emailTitle\"></h3>",
+    "      <p><strong><a href=\"mailto:wkjasdkayeah@yeah.net\">wkjasdkayeah@yeah.net</a></strong></p>",
+    "    </div>",
+    "  </div>",
+    "</div>"
+  ],
+  "translations": {
+    "en": {
+      "article": {
+        "title": "Contact us",
+        "intro": "If you have any questions, please contact us through the following channel:",
+        "emailTitle": "📧 Email"
+      }
+    },
+    "zh-CN": {
+      "article": {
+        "title": "联系我们",
+        "intro": "如果您有任何疑问，欢迎通过以下方式与我们联系：",
+        "emailTitle": "📧 电子邮件"
+      }
+    }
+  }
+}

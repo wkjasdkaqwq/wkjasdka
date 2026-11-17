@@ -1,0 +1,22 @@
+{
+  "html": [
+    "<div class=\"content-section\">",
+    "  <h2 data-i18n=\"article.title\"></h2>",
+    "  <p data-i18n=\"article.content\"></p>",
+    "</div>"
+  ],
+  "translations": {
+    "en": {
+      "article": {
+        "title": "Privacy policy",
+        "content": "Content"
+      }
+    },
+    "zh-CN": {
+      "article": {
+        "title": "隐私政策",
+        "content": "内容"
+      }
+    }
+  }
+}

@@ -183,6 +183,15 @@
 
     const settings = options || {};
     const namespace = settings.namespace === undefined ? currentNamespace : settings.namespace;
+    const dictionaries = settings.dictionaries;
+    const getTranslation = key => {
+      if (!dictionaries) return translatedValue(key, namespace);
+      const fullKey = resolveKey(key, namespace);
+      const value = getValue(dictionaries[currentLocale] || {}, fullKey);
+      return value !== undefined && value !== null
+        ? value
+        : getValue(dictionaries[DEFAULT_LOCALE] || {}, fullKey);
+    };
     const selector = '[data-i18n], [data-i18n-aria-label], [data-i18n-title], [data-i18n-tooltip], [data-i18n-placeholder], [data-i18n-alt]';
     const elements = [];
     if (scope.nodeType === 1 && scope.matches(selector)) elements.push(scope);
@@ -192,7 +201,7 @@
     for (const element of elements) {
       const textKey = element.dataset.i18n;
       if (textKey) {
-        const value = translatedValue(textKey, namespace);
+        const value = getTranslation(textKey);
         if (value !== undefined && value !== null) {
           element.textContent = String(value);
           applied += 1;
@@ -202,7 +211,7 @@
       for (const [dataAttribute, htmlAttribute] of Object.entries(translatedAttributes)) {
         const key = element.getAttribute(dataAttribute);
         if (!key) continue;
-        const value = translatedValue(key, namespace);
+        const value = getTranslation(key);
         if (value !== undefined && value !== null) {
           element.setAttribute(htmlAttribute, String(value));
           applied += 1;
