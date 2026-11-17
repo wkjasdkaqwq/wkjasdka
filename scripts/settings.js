@@ -43,6 +43,7 @@
     let activeLanguageChoice = null;
     let languageInputIsPreview = false;
     let languageComposing = false;
+    let suppressCompositionSubmit = false;
     let suppressLanguageFocusOpen = false;
     let languageDialogLift = 0;
     const THEME_STORAGE_KEY = 'wkjasdka-dark-mode';
@@ -166,43 +167,14 @@
       }
     }
 
-    function avoidLanguageConfirm() {
-      if (languageDropdown.hidden) return;
-      languageChoices.forEach(choice => {
-        choice.classList.remove('avoids-confirm');
-        choice.style.removeProperty('--language-choice-width');
-      });
-      const button = languageActions.getBoundingClientRect();
-      languageChoices.filter(choice => !choice.hidden).forEach(choice => {
-        const row = choice.getBoundingClientRect();
-        if (row.top + 6 < button.bottom + 2 && row.bottom - 6 > button.top - 2 &&
-            row.left < button.right && row.right > button.left) {
-          choice.style.setProperty('--language-choice-width', `${Math.max(1, button.left - row.left - 6)}px`);
-          choice.classList.add('avoids-confirm');
-        }
-      });
-    }
-
     function fitLanguageDropdown(event) {
       if (languageDropdown.hidden || !languageModal.classList.contains('open')) return;
       const viewport = window.visualViewport;
       const topLimit = (viewport ? viewport.offsetTop : 0) + 12;
       const bottomLimit = (viewport ? viewport.offsetTop + viewport.height : window.innerHeight) - 12;
       languageOptions.style.maxHeight = '204px';
-      languageError.style.removeProperty('margin-top');
       const viewportChanged = event && (event.type === 'resize' || event.type === 'scroll');
       for (let pass = 0; pass < 3; pass += 1) {
-        // A short or empty result list can place the error beside the fixed
-        // button; move only the error below it so the message stays readable.
-        if (!languageError.hidden) {
-          const notice = languageError.getBoundingClientRect();
-          const button = languageActions.getBoundingClientRect();
-          if (notice.top < button.bottom + 6 && notice.bottom > button.top - 6 &&
-              notice.left < button.right && notice.right > button.left) {
-            const margin = parseFloat(window.getComputedStyle(languageError).marginTop) || 0;
-            languageError.style.marginTop = `${margin + button.bottom + 6 - notice.top}px`;
-          }
-        }
         const dialog = languageDialog.getBoundingClientRect();
         const list = languageOptions.getBoundingClientRect();
         const dropdown = languageDropdown.getBoundingClientRect();
@@ -222,7 +194,6 @@
         languageDialog.style.setProperty('--language-dialog-lift', `${languageDialogLift}px`);
         if (!overflow || nextHeight >= list.height || list.height <= 1) break;
       }
-      avoidLanguageConfirm();
     }
 
     function filterLanguageChoices() {
@@ -250,7 +221,6 @@
       languageInputIsPreview = false;
       languageDropdown.hidden = false;
       languagePicker.classList.add('is-open');
-      languageModal.classList.add('is-picker-open');
       languageDropdown.append(languageError);
       languageSelect.setAttribute('aria-expanded', 'true');
       activeLanguageChoice = choice;
@@ -264,12 +234,6 @@
       languageForm.insertBefore(languageError, languageActions);
       languageDropdown.hidden = true;
       languageOptions.style.removeProperty('max-height');
-      languageError.style.removeProperty('margin-top');
-      languageChoices.forEach(choice => {
-        choice.classList.remove('avoids-confirm');
-        choice.style.removeProperty('--language-choice-width');
-      });
-      languageModal.classList.remove('is-picker-open');
       languagePicker.classList.remove('is-open');
       languageSelect.setAttribute('aria-expanded', 'false');
       languageSelect.removeAttribute('aria-activedescendant');
@@ -300,12 +264,8 @@
       activeLanguageChoice = choice;
       filterLanguageChoices();
       setActiveLanguageChoice(choice);
-      const viewport = window.visualViewport;
-      const viewportBottom = viewport ? viewport.offsetTop + viewport.height : window.innerHeight;
-      const confirmObscured = languageConfirm.getBoundingClientRect().bottom > viewportBottom - 4;
-      const hasTouchPointer = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
-      if (hasTouchPointer && confirmObscured) languageSelect.blur();
-      else languageSelect.focus({ preventScroll: true });
+      // Keep the search input focused so the on-screen return key can confirm.
+      languageSelect.focus({ preventScroll: true });
       previewLanguage(languageDraft);
     }
 
@@ -353,7 +313,15 @@
 
     async function confirmLanguage(event) {
       event.preventDefault();
-      if (languageSaving) return;
+      if (languageSaving || languageComposing || suppressCompositionSubmit) return;
+      // Some mobile keyboards submit the form directly without a normal
+      // keydown. A search must select an option before it can be applied.
+      if (!languageDropdown.hidden && document.activeElement === languageSelect &&
+          (!languageInputIsPreview || !activeLanguageChoice || activeLanguageChoice.hidden ||
+           activeLanguageChoice.dataset.value !== languageDraft)) {
+        chooseLanguage(activeLanguageChoice);
+        return;
+      }
       const selectedLocale = languageDraft;
       const dialogVersion = languageDialogVersion;
       languagePreviewRequest += 1;
@@ -503,7 +471,12 @@
       languageSelect.focus({ preventScroll: true });
     });
     languageSelect.addEventListener('keydown', event => {
-      if (event.isComposing || languageComposing || event.keyCode === 229) return;
+      if (event.isComposing || languageComposing || event.keyCode === 229) {
+        // Do not cancel the IME's key event; only block a same-event implicit submit.
+        suppressCompositionSubmit = true;
+        window.setTimeout(() => { suppressCompositionSubmit = false; }, 0);
+        return;
+      }
       if (['ArrowDown', 'ArrowUp'].includes(event.key)) {
         event.preventDefault();
         const wasClosed = languageDropdown.hidden;
@@ -514,10 +487,14 @@
           const nextIndex = Math.max(0, Math.min(visible.length - 1, currentIndex + (event.key === 'ArrowDown' ? 1 : -1)));
           setActiveLanguageChoice(visible[nextIndex]);
         }
-      } else if (event.key === 'Enter') {
+      } else if (event.key === 'Enter' || event.keyCode === 13) {
         event.preventDefault();
+        if (event.repeat) return;
         if (languageDropdown.hidden) openLanguageOptions();
-        else chooseLanguage(activeLanguageChoice);
+        else if (languageInputIsPreview && activeLanguageChoice && !activeLanguageChoice.hidden && activeLanguageChoice.dataset.value === languageDraft) {
+          if (languageForm.requestSubmit) languageForm.requestSubmit(languageConfirm);
+          else languageConfirm.click();
+        } else chooseLanguage(activeLanguageChoice);
       } else if (languageDropdown.hidden && !event.ctrlKey && !event.metaKey && !event.altKey && (event.key.length === 1 || event.key === 'Backspace' || event.key === 'Delete')) {
         openLanguageOptions();
       }
@@ -544,9 +521,9 @@
       const choice = event.target instanceof Element ? event.target.closest('[role="option"]') : null;
       if (choice && languageOptions.contains(choice)) chooseLanguage(choice);
     });
-    languageOptions.addEventListener('scroll', avoidLanguageConfirm, { passive: true });
     document.addEventListener('click', event => {
-      if (!languageDropdown.hidden && !languagePicker.contains(event.target)) closeLanguageOptions();
+      const inputSubmit = event.detail === 0 && document.activeElement === languageSelect && languageConfirm.contains(event.target);
+      if (!languageComposing && !suppressCompositionSubmit && !inputSubmit && !languageDropdown.hidden && !languagePicker.contains(event.target)) closeLanguageOptions();
     });
     languageForm.addEventListener('submit', confirmLanguage);
     languageModal.addEventListener('click', event => {

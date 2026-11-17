@@ -122,8 +122,6 @@
     .language-options { display: grid; gap: 0; max-height: 204px; overflow-y: auto; overscroll-behavior: contain; padding: 3px; scrollbar-width: thin; scrollbar-color: #cc8b60 transparent; }
     @keyframes language-options-in { from { opacity: 0; } to { opacity: 1; } }
     .language-options .language-choice { display: flex; align-items: center; justify-content: space-between; width: 100%; min-width: 0; height: 44px; min-height: 44px; gap: .25rem; padding: 0 .5rem; border: 0; border-radius: 6px; background: transparent; color: #ae5c20; font-size: .9rem; font-weight: 600; line-height: 1.2; text-align: left; cursor: pointer; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
-    .language-options .language-choice.avoids-confirm { position: relative; width: var(--language-choice-width); padding: 0 .25rem; }
-    .language-options .language-choice.avoids-confirm .language-choice-check { position: absolute; right: 2px; bottom: 1px; font-size: .7rem; line-height: 1; }
     .language-options .language-choice[hidden] { display: none; }
     @media (hover: hover) and (pointer: fine) { .language-choice:not([aria-selected="true"]):hover { background: rgba(185,93,22,.1); } }
     .language-choice-name { display: inline-flex; flex-wrap: wrap; align-items: baseline; column-gap: .35rem; min-width: 0; }
@@ -135,8 +133,7 @@
     .language-choice[aria-selected="true"] .language-choice-check { display: block; }
     .language-no-results { margin: .4rem .45rem; color: #765b4a; font-size: .9rem; }
     .language-error { margin: .75rem 0 0; color: #b42318; font-size: .9rem; }
-    .language-actions { position: absolute; z-index: 4; right: 1.35rem; bottom: .65rem; display: flex; justify-content: flex-end; }
-    .language-modal.is-picker-open .language-actions::before { content: ''; position: absolute; z-index: -1; inset: -4px; border-radius: 25px; background: #fff; }
+    .language-actions { position: absolute; z-index: 2; right: 1.35rem; bottom: .65rem; display: flex; justify-content: flex-end; }
     .language-confirm { flex: 0 0 auto; width: 110px; min-width: 110px; }
     .language-confirm:disabled { cursor: wait; opacity: .6; }
     .shortcuts-open { min-height: 42px; padding: .65rem 1rem; border: 0; border-radius: 8px; background: #e67e22; color: #fff; font: inherit; font-weight: 700; cursor: pointer; transition: background .2s ease, transform .2s ease; }
@@ -210,7 +207,6 @@
       html.dark-mode .theme-option:hover { border-color: #E67E22; background: #49301F; box-shadow: 0 8px 20px rgba(0,0,0,.28); }
     }
     html.dark-mode .language-dialog { background: #0d1a26; border-color: #26394d; color: #e0e0e0; }
-    html.dark-mode .language-modal.is-picker-open .language-actions::before { background: #0d1a26; }
     html.dark-mode .language-header { border-color: #26394d; }
     html.dark-mode .language-close { background: #1a2a3a; }
     html.dark-mode .language-picker.is-open .language-select-card { border-color: #9A623D; background: #30251E; color: #F2B27F; }
@@ -386,7 +382,7 @@
           <span class="language-label" id="languagePickerLabel" data-i18n="languageTitle">Language</span>
           <div class="language-picker" id="languagePicker">
             <div class="theme-option language-select-card" id="languageSelectCard">
-              <input class="language-select" id="languageSelect" type="search" role="combobox" value="English" readonly autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" aria-autocomplete="list" aria-haspopup="listbox" aria-expanded="false" aria-controls="languageOptions" aria-labelledby="languagePickerLabel">
+              <input class="language-select" id="languageSelect" type="search" role="combobox" value="English" readonly autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="enter" aria-autocomplete="list" aria-haspopup="listbox" aria-expanded="false" aria-controls="languageOptions" aria-labelledby="languagePickerLabel">
               <svg class="language-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="m16 16 4.5 4.5"></path></svg>
             </div>
             <div class="language-dropdown" id="languageDropdown" hidden>
@@ -457,7 +453,7 @@
   </div>
 
   <script src="./scripts/i18n.js?v=20261117-multilingual"></script>
-  <script src="./scripts/settings.js?v=20261117-lift-language-dialog"></script>
+  <script src="./scripts/settings.js?v=20261117-language-enter-confirm"></script>
   <script>window.SettingsPage.init(document);</script>
 </body>
 </html>
