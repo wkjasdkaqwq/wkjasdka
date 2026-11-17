@@ -76,7 +76,7 @@
     }
 
     function setLanguageDraft(locale) {
-      const choice = languageChoice(locale) || languageChoices[0];
+      const choice = languageChoice(locale) || languageChoice('en') || languageChoices[0];
       if (!choice) return;
       languageDraft = choice.dataset.value;
       const label = choice.querySelector('.language-choice-text').textContent;
@@ -137,7 +137,6 @@
       const choice = languageChoice(locale);
       if (choice) {
         languageCurrent.textContent = choice.querySelector('.language-choice-text').textContent;
-        if (languageOptions.firstElementChild !== choice) languageOptions.prepend(choice);
       }
       updateLanguageNames(locale);
       languageModal.lang = locale;
@@ -214,7 +213,7 @@
 
     function openLanguageOptions() {
       if (languageSelect.disabled || !languageChoices.length || !languageDropdown.hidden) return;
-      const choice = languageChoice(languageDraft) || languageChoices[0];
+      const choice = languageChoice(languageDraft) || languageChoice('en') || languageChoices[0];
       languageSelect.readOnly = false;
       languageSelect.placeholder = choice.querySelector('.language-choice-text').textContent;
       languageSelect.value = '';

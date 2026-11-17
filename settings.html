@@ -89,7 +89,7 @@
     .theme-option:has(input:checked):active { transform: scale(.98); }
     .navbar-logo:focus-visible { outline: 3px solid #64b5f6; outline-offset: 3px; }
     .language-open { flex: 0 0 auto; min-width: 140px; max-width: 48%; gap: .55rem; }
-    .language-current { overflow: hidden; text-overflow: ellipsis; }
+    .language-current { min-width: 0; white-space: normal; overflow-wrap: anywhere; text-align: center; }
     .language-open::after { content: ''; width: .45rem; height: .45rem; flex: 0 0 auto; margin-top: -.25rem; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg); }
     .language-open:focus-visible, .language-confirm:focus-visible, .language-close:focus-visible { outline: 3px solid #64b5f6; outline-offset: 3px; }
     .language-close:focus { outline: 3px solid #64b5f6; outline-offset: 3px; }
@@ -118,15 +118,15 @@
     .language-dropdown { position: absolute; z-index: 3; top: calc(100% - 2px); left: 0; right: 0; padding: 0 .55rem .55rem; border: 2px solid #FFB380; border-top: 0; border-radius: 0 0 22px 22px; background: #FFDAB9; box-shadow: 0 8px 20px rgba(255,218,185,.4); animation: language-options-in .22s ease both; }
     .language-dropdown[hidden], .language-choice[hidden], .language-no-results[hidden] { display: none; }
     .language-divider { height: 1px; margin: 0 .4rem .45rem; background: #FFB380; }
-    /* Four full 44px rows plus half a row signal that the list can scroll. */
+    /* Show four and a half standard rows; unusually long names may use more height. */
     .language-options { display: grid; gap: 0; max-height: 204px; overflow-y: auto; overscroll-behavior: contain; padding: 3px; scrollbar-width: thin; scrollbar-color: #cc8b60 transparent; }
     @keyframes language-options-in { from { opacity: 0; } to { opacity: 1; } }
-    .language-options .language-choice { display: flex; align-items: center; justify-content: space-between; width: 100%; min-width: 0; height: 44px; min-height: 44px; gap: .25rem; padding: 0 .5rem; border: 0; border-radius: 6px; background: transparent; color: #ae5c20; font-size: .9rem; font-weight: 600; line-height: 1.2; text-align: left; cursor: pointer; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+    .language-options .language-choice { display: flex; align-items: center; justify-content: space-between; width: 100%; min-width: 0; min-height: 44px; gap: .25rem; padding: .2rem .5rem; border: 0; border-radius: 6px; background: transparent; color: #ae5c20; font-size: .9rem; font-weight: 600; line-height: 1.2; text-align: left; cursor: pointer; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
     .language-options .language-choice[hidden] { display: none; }
     @media (hover: hover) and (pointer: fine) { .language-choice:not([aria-selected="true"]):hover { background: rgba(185,93,22,.1); } }
-    .language-choice-name { display: inline-flex; flex-wrap: wrap; align-items: baseline; column-gap: .35rem; min-width: 0; }
-    .language-choice-text { white-space: nowrap; }
-    .language-choice-local-name { position: relative; top: .2em; flex: 0 0 auto; max-width: 100%; margin-left: auto; font-size: .5em; line-height: 1.1; opacity: .85; overflow-wrap: anywhere; }
+    .language-choice-name { display: inline-flex; flex: 1 1 auto; flex-wrap: wrap; align-items: baseline; column-gap: .35rem; row-gap: .12rem; min-width: 0; }
+    .language-choice-text { max-width: 100%; overflow-wrap: anywhere; }
+    .language-choice-local-name { flex: 0 0 auto; max-width: 100%; font-size: .5em; line-height: 1.1; opacity: .85; overflow-wrap: anywhere; }
     .language-choice-local-name[hidden] { display: none; }
     .language-choice.is-active:not([aria-selected="true"]) { outline: 2px solid #e67e22; outline-offset: 1px; }
     .language-choice-check { display: none; flex: 0 0 auto; font-size: 1rem; font-weight: 800; }
@@ -388,11 +388,11 @@
             <div class="language-dropdown" id="languageDropdown" hidden>
               <div class="language-divider" aria-hidden="true"></div>
               <div class="language-options" id="languageOptions" role="listbox" aria-labelledby="languagePickerLabel">
-                <div class="language-choice" id="languageOptionEn" role="option" data-value="en" aria-selected="true"><span class="language-choice-name"><span class="language-choice-text" lang="en">English</span><span class="language-choice-local-name" data-i18n="languageNameEnglish" hidden>English</span></span><span class="language-choice-check" aria-hidden="true">✓</span></div>
-                <div class="language-choice" id="languageOptionZhCN" role="option" data-value="zh-CN" aria-selected="false"><span class="language-choice-name"><span class="language-choice-text" lang="zh-CN">简体中文</span><span class="language-choice-local-name" data-i18n="languageNameSimplifiedChinese">Simplified Chinese</span></span><span class="language-choice-check" aria-hidden="true">✓</span></div>
-                <div class="language-choice" id="languageOptionRu" role="option" data-value="ru" aria-selected="false"><span class="language-choice-name"><span class="language-choice-text" lang="ru">Русский</span><span class="language-choice-local-name" data-i18n="languageNameRussian">Russian</span></span><span class="language-choice-check" aria-hidden="true">✓</span></div>
                 <div class="language-choice" id="languageOptionDe" role="option" data-value="de" aria-selected="false"><span class="language-choice-name"><span class="language-choice-text" lang="de">Deutsch</span><span class="language-choice-local-name" data-i18n="languageNameGerman">German</span></span><span class="language-choice-check" aria-hidden="true">✓</span></div>
+                <div class="language-choice" id="languageOptionEn" role="option" data-value="en" aria-selected="true"><span class="language-choice-name"><span class="language-choice-text" lang="en">English</span><span class="language-choice-local-name" data-i18n="languageNameEnglish" hidden>English</span></span><span class="language-choice-check" aria-hidden="true">✓</span></div>
                 <div class="language-choice" id="languageOptionFr" role="option" data-value="fr" aria-selected="false"><span class="language-choice-name"><span class="language-choice-text" lang="fr">Français</span><span class="language-choice-local-name" data-i18n="languageNameFrench">French</span></span><span class="language-choice-check" aria-hidden="true">✓</span></div>
+                <div class="language-choice" id="languageOptionRu" role="option" data-value="ru" aria-selected="false"><span class="language-choice-name"><span class="language-choice-text" lang="ru">Русский</span><span class="language-choice-local-name" data-i18n="languageNameRussian">Russian</span></span><span class="language-choice-check" aria-hidden="true">✓</span></div>
+                <div class="language-choice" id="languageOptionZhCN" role="option" data-value="zh-CN" aria-selected="false"><span class="language-choice-name"><span class="language-choice-text" lang="zh-CN">简体中文</span><span class="language-choice-local-name" data-i18n="languageNameSimplifiedChinese">Simplified Chinese</span></span><span class="language-choice-check" aria-hidden="true">✓</span></div>
                 <div class="language-choice" id="languageOptionZhHK" role="option" data-value="zh-HK" aria-selected="false"><span class="language-choice-name"><span class="language-choice-text" lang="zh-HK">繁體中文 (香港)</span><span class="language-choice-local-name" data-i18n="languageNameTraditionalChineseHK">Traditional Chinese (Hong Kong)</span></span><span class="language-choice-check" aria-hidden="true">✓</span></div>
                 <div class="language-choice" id="languageOptionZhTW" role="option" data-value="zh-TW" aria-selected="false"><span class="language-choice-name"><span class="language-choice-text" lang="zh-TW">繁體中文 (台灣)</span><span class="language-choice-local-name" data-i18n="languageNameTraditionalChineseTW">Traditional Chinese (Taiwan)</span></span><span class="language-choice-check" aria-hidden="true">✓</span></div>
                 <div class="language-choice" id="languageOptionZhMO" role="option" data-value="zh-MO" aria-selected="false"><span class="language-choice-name"><span class="language-choice-text" lang="zh-MO">繁體中文 (澳門)</span><span class="language-choice-local-name" data-i18n="languageNameTraditionalChineseMO">Traditional Chinese (Macau)</span></span><span class="language-choice-check" aria-hidden="true">✓</span></div>
@@ -453,7 +453,7 @@
   </div>
 
   <script src="./scripts/i18n.js?v=20261117-multilingual"></script>
-  <script src="./scripts/settings.js?v=20261117-language-enter-confirm"></script>
+  <script src="./scripts/settings.js?v=20261117-language-script-order"></script>
   <script>window.SettingsPage.init(document);</script>
 </body>
 </html>
