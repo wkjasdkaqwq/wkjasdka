@@ -146,12 +146,15 @@
       }
     }
 
-    function chooseLanguage(choice, focusConfirm = false) {
+    function chooseLanguage(choice) {
       if (!choice || choice.hidden || languageSelect.disabled) return;
       setLanguageDraft(choice.dataset.value);
       languageError.hidden = true;
-      closeLanguageOptions(!focusConfirm);
-      if (focusConfirm) languageConfirm.focus({ preventScroll: true });
+      languageSelect.value = '';
+      activeLanguageChoice = choice;
+      filterLanguageChoices();
+      setActiveLanguageChoice(choice);
+      languageSelect.focus({ preventScroll: true });
     }
 
     function openLanguage() {
@@ -366,7 +369,7 @@
     });
     languageOptions.addEventListener('click', event => {
       const choice = event.target instanceof Element ? event.target.closest('[role="option"]') : null;
-      if (choice && languageOptions.contains(choice)) chooseLanguage(choice, touchButtonMedia.matches);
+      if (choice && languageOptions.contains(choice)) chooseLanguage(choice);
     });
     document.addEventListener('click', event => {
       if (!languageDropdown.hidden && !languagePicker.contains(event.target)) closeLanguageOptions();
@@ -395,7 +398,7 @@
         option.classList.remove('is-touch-highlighted');
       });
     }
-    [themeOptions, languageOpen, languageSelectCard, languageOptions, languageConfirm].forEach(container => {
+    [themeOptions, languageOpen, languageSelectCard, languageConfirm].forEach(container => {
       container.addEventListener('pointerdown', event => {
         if (!touchButtonMedia.matches || event.pointerType === 'mouse') return;
         const option = event.target.closest('.theme-option');

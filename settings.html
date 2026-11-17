@@ -116,9 +116,11 @@
     .language-dropdown { position: absolute; z-index: 3; top: calc(100% - 2px); left: 0; right: 0; padding: 0 .55rem .55rem; border: 2px solid #FFB380; border-top: 0; border-radius: 0 0 22px 22px; background: #FFDAB9; box-shadow: 0 8px 20px rgba(255,218,185,.4); animation: language-options-in .22s ease both; }
     .language-dropdown[hidden], .language-choice[hidden], .language-no-results[hidden] { display: none; }
     .language-divider { height: 1px; margin: 0 .4rem .45rem; background: #FFB380; }
-    .language-options { display: grid; gap: .45rem; max-height: min(160px, 32vh); max-height: min(160px, 32dvh); overflow-y: auto; overscroll-behavior: contain; padding: 3px; }
+    .language-options { display: grid; gap: .12rem; max-height: min(160px, 32vh); max-height: min(160px, 32dvh); overflow-y: auto; overscroll-behavior: contain; padding: 3px; }
     @keyframes language-options-in { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
-    .language-options .language-choice { width: 100%; min-height: 44px; flex: 0 0 auto; justify-content: space-between; gap: .75rem; padding: .55rem 1rem; font-size: .9rem; text-align: left; }
+    .language-options .language-choice { display: flex; align-items: center; justify-content: space-between; width: 100%; min-width: 0; min-height: 44px; gap: .75rem; padding: .55rem 1rem; border: 0; border-radius: 6px; background: transparent; color: #ae5c20; font-size: .9rem; font-weight: 600; line-height: 1.2; text-align: left; white-space: nowrap; cursor: pointer; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+    .language-options .language-choice[hidden] { display: none; }
+    @media (hover: hover) and (pointer: fine) { .language-choice:not([aria-selected="true"]):hover { background: rgba(185,93,22,.1); } }
     .language-choice-name { display: inline-flex; align-items: baseline; gap: .35rem; min-width: 0; overflow: hidden; }
     .language-choice-local-name { position: relative; top: .2em; flex: 0 1 auto; overflow: hidden; font-size: .5em; line-height: 1.1; opacity: .85; text-overflow: ellipsis; }
     .language-choice-local-name[hidden] { display: none; }
@@ -205,6 +207,8 @@
     html.dark-mode .language-close { background: #1a2a3a; }
     html.dark-mode .language-picker.is-open .language-select-card { border-color: #9A623D; background: #30251E; color: #F2B27F; }
     html.dark-mode .language-dropdown { border-color: #9A623D; background: #30251E; box-shadow: 0 8px 20px rgba(0,0,0,.28); }
+    html.dark-mode .language-options .language-choice { color: #F2B27F; }
+    @media (hover: hover) and (pointer: fine) { html.dark-mode .language-choice:not([aria-selected="true"]):hover { background: rgba(255,255,255,.07); } }
     html.dark-mode .language-divider { background: #9A623D; }
     html.dark-mode .language-select::placeholder { color: #a8a8a8; }
     html.dark-mode .language-no-results { color: #d1b19a; }
@@ -257,8 +261,8 @@
     html.dark-mode .theme-option.is-touch-pressed { background-color: #2B211B; border-color: #8B5837; }
     html.dark-mode .theme-option:has(input:checked):active,
     html.dark-mode .theme-option.is-touch-pressed:has(input:checked) { background-color: #422B1C; border-color: #D57118; }
-    .language-options .language-choice[aria-selected="true"] { transform: translateY(2px) scale(.98); border-color: #b2b2b2; background: #dedede; color: #4c4c4c; box-shadow: inset 0 2px 5px rgba(0,0,0,.16); }
-    html.dark-mode .language-options .language-choice[aria-selected="true"] { border-color: #6b6b6b; background: #3a3a3a; color: #dedede; box-shadow: inset 0 2px 6px rgba(0,0,0,.32); }
+    .language-options .language-choice[aria-selected="true"] { background: #dedede; color: #4c4c4c; }
+    html.dark-mode .language-options .language-choice[aria-selected="true"] { background: #3a3a3a; color: #dedede; }
     @media (prefers-reduced-motion: reduce) { .language-dropdown { animation: none; } }
 
     @media (max-width: 600px) {
@@ -374,8 +378,8 @@
             <div class="language-dropdown" id="languageDropdown" hidden>
               <div class="language-divider" aria-hidden="true"></div>
               <div class="language-options" id="languageOptions" role="listbox" aria-labelledby="languagePickerLabel">
-                <div class="theme-option language-choice" id="languageOptionEn" role="option" data-value="en" aria-selected="true"><span class="language-choice-name"><span class="language-choice-text" lang="en">English</span><span class="language-choice-local-name" data-i18n="languageNameEnglish" hidden>English</span></span><span class="language-choice-check" aria-hidden="true">✓</span></div>
-                <div class="theme-option language-choice" id="languageOptionZhCN" role="option" data-value="zh-CN" aria-selected="false"><span class="language-choice-name"><span class="language-choice-text" lang="zh-CN">简体中文</span><span class="language-choice-local-name" data-i18n="languageNameSimplifiedChinese">Simplified Chinese</span></span><span class="language-choice-check" aria-hidden="true">✓</span></div>
+                <div class="language-choice" id="languageOptionEn" role="option" data-value="en" aria-selected="true"><span class="language-choice-name"><span class="language-choice-text" lang="en">English</span><span class="language-choice-local-name" data-i18n="languageNameEnglish" hidden>English</span></span><span class="language-choice-check" aria-hidden="true">✓</span></div>
+                <div class="language-choice" id="languageOptionZhCN" role="option" data-value="zh-CN" aria-selected="false"><span class="language-choice-name"><span class="language-choice-text" lang="zh-CN">简体中文</span><span class="language-choice-local-name" data-i18n="languageNameSimplifiedChinese">Simplified Chinese</span></span><span class="language-choice-check" aria-hidden="true">✓</span></div>
               </div>
               <p class="language-no-results" id="languageNoResults" role="status" data-i18n="languageNoResults" hidden>No languages found.</p>
             </div>
