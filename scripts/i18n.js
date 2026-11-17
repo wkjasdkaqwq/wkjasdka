@@ -5,6 +5,7 @@
   const SESSION_STORAGE_KEY = `${STORAGE_KEY}-session`;
   const FULL_RELOAD_QUERY_PARAM = '_wkjasdka_full_reload';
   const DEFAULT_LOCALE = 'en';
+  const DICTIONARY_TIMEOUT_MS = 45000;
   const SUPPORTED_LOCALES = ['en', 'zh-CN', 'ru', 'de', 'fr', 'zh-HK', 'zh-TW', 'zh-MO'];
   const LOCALE_TAGS = { en: 'en-GB', 'zh-CN': 'zh-CN', ru: 'ru', de: 'de', fr: 'fr', 'zh-HK': 'zh-HK', 'zh-TW': 'zh-TW', 'zh-MO': 'zh-MO' };
   const fullReloadToken = new URL(window.location.href).searchParams.get(FULL_RELOAD_QUERY_PARAM);
@@ -34,6 +35,7 @@
   let firstVisitDetectionScheduled = false;
   let reloadMarkerCleanupScheduled = false;
   let requestId = 0;
+  let optimisticLocaleWrite = null;
 
   function matchSupportedLocale(locale) {
     const tag = String(locale || '').trim().replace(/_/g, '-').toLowerCase();
@@ -159,10 +161,21 @@
       const url = new URL(`${encodeURIComponent(locale)}.json`, localeDirectory);
       if (dictionaryVersion) url.searchParams.set('v', dictionaryVersion);
       if (fullReloadToken) url.searchParams.set(FULL_RELOAD_QUERY_PARAM, fullReloadToken);
-      const request = fetch(url, { credentials: 'same-origin', cache: fullReloadToken ? 'reload' : 'default' }).then(response => {
+      const controller = typeof AbortController === 'function' ? new AbortController() : null;
+      let timeoutId;
+      const deadline = new Promise((_, reject) => {
+        timeoutId = window.setTimeout(() => {
+          if (controller) controller.abort();
+          reject(new Error(`Locale dictionary request timed out: ${url.pathname}`));
+        }, DICTIONARY_TIMEOUT_MS);
+      });
+      const fetchOptions = { credentials: 'same-origin', cache: fullReloadToken ? 'reload' : 'default' };
+      if (controller) fetchOptions.signal = controller.signal;
+      const responsePromise = fetch(url, fetchOptions).then(response => {
         if (!response.ok) throw new Error(`Could not load locale dictionary: ${url.pathname} (${response.status})`);
         return response.json();
       });
+      const request = Promise.race([responsePromise, deadline]).finally(() => window.clearTimeout(timeoutId));
       dictionaryPromises.set(locale, request);
       request.catch(() => dictionaryPromises.delete(locale));
     }
@@ -259,10 +272,18 @@
     const persistBeforeLoad = settings.persistBeforeLoad && settings.persist !== false;
     const previousStoredLocale = persistBeforeLoad ? readStoredLocale() : null;
     const previousSessionLocale = persistBeforeLoad ? readSessionLocale() : null;
+    const optimisticWrite = persistBeforeLoad
+      ? { locale: selectedLocale, previousStoredLocale, previousSessionLocale, previousCurrentLocale: currentLocale }
+      : null;
     if (persistBeforeLoad) {
+      optimisticLocaleWrite = optimisticWrite;
       saveLocale(selectedLocale);
       saveSessionLocale(selectedLocale);
     }
+    // Initializations started during this save may observe its provisional value.
+    // Keep the transaction they saw even if the save later rolls back.
+    const observedWrite = optimisticLocaleWrite && optimisticLocaleWrite.locale === selectedLocale
+      ? optimisticLocaleWrite : null;
     const thisRequest = ++requestId;
     let activeDictionary;
     let defaultDictionary;
@@ -273,9 +294,17 @@
         activeDictionary = await loadDictionary(selectedLocale);
       } catch (error) {
         if (selectedLocale === DEFAULT_LOCALE || settings.strictLocale) throw error;
-        console.warn('[i18n] Falling back to the default language.', error);
-        resolvedLocale = DEFAULT_LOCALE;
-        activeDictionary = await loadDictionary(DEFAULT_LOCALE);
+        const previousLocale = observedWrite && [observedWrite.previousCurrentLocale, observedWrite.previousStoredLocale, observedWrite.previousSessionLocale]
+          .find(candidate => candidate && candidate !== selectedLocale);
+        resolvedLocale = previousLocale || DEFAULT_LOCALE;
+        console.warn('[i18n] Falling back after a language load failure.', error);
+        try {
+          activeDictionary = await loadDictionary(resolvedLocale);
+        } catch (fallbackError) {
+          if (resolvedLocale === DEFAULT_LOCALE) throw fallbackError;
+          resolvedLocale = DEFAULT_LOCALE;
+          activeDictionary = await loadDictionary(DEFAULT_LOCALE);
+        }
       }
 
       if (resolvedLocale === DEFAULT_LOCALE) {
@@ -289,15 +318,20 @@
         }
       }
     } catch (error) {
-      if (persistBeforeLoad && thisRequest === requestId) {
+      if (optimisticWrite && optimisticLocaleWrite === optimisticWrite) {
         try {
-          if (previousStoredLocale) localStorage.setItem(STORAGE_KEY, previousStoredLocale);
-          else localStorage.removeItem(STORAGE_KEY);
+          if (readStoredLocale() === selectedLocale) {
+            if (previousStoredLocale) localStorage.setItem(STORAGE_KEY, previousStoredLocale);
+            else localStorage.removeItem(STORAGE_KEY);
+          }
         } catch (_) {}
         try {
-          if (previousSessionLocale) sessionStorage.setItem(SESSION_STORAGE_KEY, previousSessionLocale);
-          else sessionStorage.removeItem(SESSION_STORAGE_KEY);
+          if (readSessionLocale() === selectedLocale) {
+            if (previousSessionLocale) sessionStorage.setItem(SESSION_STORAGE_KEY, previousSessionLocale);
+            else sessionStorage.removeItem(SESSION_STORAGE_KEY);
+          }
         } catch (_) {}
+        optimisticLocaleWrite = null;
       }
       throw error;
     }
@@ -315,6 +349,7 @@
       saveLocale(currentLocale);
       saveSessionLocale(currentLocale);
     }
+    if (optimisticLocaleWrite && (optimisticLocaleWrite === optimisticWrite || optimisticLocaleWrite.locale === currentLocale)) optimisticLocaleWrite = null;
     window.dispatchEvent(new CustomEvent('site:languagechange', { detail: { locale: currentLocale } }));
     return currentLocale;
   }

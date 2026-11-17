@@ -10,6 +10,7 @@
     "themeDark": "深色",
     "languageTitle": "語言",
     "languageDescription": "選擇整個網站使用的語言。",
+    "languageLoading": "載入語言中…",
     "languageNameEnglish": "英文",
     "languageNameSimplifiedChinese": "簡體中文",
     "languageNameRussian": "俄文",

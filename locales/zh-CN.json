@@ -10,6 +10,7 @@
     "themeDark": "深色模式",
     "languageTitle": "语言",
     "languageDescription": "选择整个网站的显示语言。",
+    "languageLoading": "正在加载语言…",
     "languageNameEnglish": "英语",
     "languageNameSimplifiedChinese": "简体中文",
     "languageNameRussian": "俄语",

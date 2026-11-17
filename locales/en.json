@@ -10,6 +10,7 @@
     "themeDark": "Dark",
     "languageTitle": "Language",
     "languageDescription": "Choose the language used across the site.",
+    "languageLoading": "Loading language…",
     "languageNameEnglish": "English",
     "languageNameSimplifiedChinese": "Simplified Chinese",
     "languageNameRussian": "Russian",

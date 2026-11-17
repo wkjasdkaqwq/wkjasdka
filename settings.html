@@ -138,6 +138,13 @@
     .language-actions { position: absolute; z-index: 2; right: 1.35rem; bottom: .65rem; display: flex; justify-content: flex-end; }
     .language-confirm { flex: 0 0 auto; width: 110px; min-width: 110px; }
     .language-confirm:disabled { cursor: wait; opacity: .6; }
+    .language-wait-overlay { position: fixed; inset: 0; z-index: 2147483000; overflow: hidden; background: rgba(255,255,255,.42); opacity: 0; pointer-events: none; touch-action: none; cursor: wait; transition: opacity .55s ease; }
+    .language-wait-overlay.is-visible { opacity: 1; pointer-events: auto; }
+    .language-wait-overlay iframe { position: absolute; top: 0; left: 0; width: 100%; height: 8px; border: 0; overflow: hidden; pointer-events: none; }
+    .language-wait-static { position: absolute; top: 0; left: 0; width: 35%; height: 8px; border-radius: 0 4px 4px 0; background: #ff8000; }
+    .language-wait-fallback { position: absolute; top: 0; width: 8px; height: 8px; border-radius: 50%; background: #ff8000; animation: language-wait-fallback .9s linear infinite; }
+    @keyframes language-wait-fallback { from { left: -35px; } to { left: calc(100% + 35px); } }
+    .language-wait-status { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
     .shortcuts-open { min-height: 42px; padding: .65rem 1rem; border: 0; border-radius: 8px; background: #e67e22; color: #fff; font: inherit; font-weight: 700; cursor: pointer; transition: background .2s ease, transform .2s ease; }
     .shortcuts-open:hover { background: #cf6d16; transform: translateY(-1px); }
     .shortcuts-open:focus-visible, .shortcuts-close:focus-visible, .shortcut-info-card:focus-visible { outline: 3px solid #64b5f6; outline-offset: 3px; }
@@ -269,7 +276,7 @@
     html.dark-mode .theme-option.is-touch-pressed:has(input:checked) { background-color: #422B1C; border-color: #D57118; }
     .language-options .language-choice[aria-selected="true"] { background: #dedede; color: #4c4c4c; }
     html.dark-mode .language-options .language-choice[aria-selected="true"] { background: #3a3a3a; color: #dedede; }
-    @media (prefers-reduced-motion: reduce) { .language-dialog { transition: none; } .language-dropdown { animation: none; } }
+    @media (prefers-reduced-motion: reduce) { .language-dialog, .language-wait-overlay { transition: none; } .language-dropdown { animation: none; } }
 
     @media (max-width: 600px) {
       .navbar { height: 3.75rem; }
@@ -454,8 +461,8 @@
     </div>
   </div>
 
-  <script src="./scripts/i18n.js?v=20261117-multilingual"></script>
-  <script src="./scripts/settings.js?v=20261117-restore-home-v2"></script>
+  <script src="./scripts/i18n.js?v=20261117-language-wait"></script>
+  <script src="./scripts/settings.js?v=20261117-language-wait"></script>
   <script>window.SettingsPage.init(document);</script>
 </body>
 </html>

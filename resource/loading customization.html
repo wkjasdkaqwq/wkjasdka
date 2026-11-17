@@ -216,6 +216,7 @@
                     barAnimationFrameId = requestAnimationFrame(animate);
                 } else {
                     progressNew.style.left = '100%';
+                    window.dispatchEvent(new Event('wkjasdka:loading-finished'));
                 }
             }
             

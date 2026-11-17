@@ -10,6 +10,7 @@
     "themeDark": "Sombre",
     "languageTitle": "Langue",
     "languageDescription": "Choisissez la langue utilisée sur l’ensemble du site.",
+    "languageLoading": "Chargement de la langue…",
     "languageNameEnglish": "Anglais",
     "languageNameSimplifiedChinese": "Chinois simplifié",
     "languageNameRussian": "Russe",

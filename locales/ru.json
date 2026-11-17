@@ -10,6 +10,7 @@
     "themeDark": "Тёмное",
     "languageTitle": "Язык",
     "languageDescription": "Выберите язык, используемый на сайте.",
+    "languageLoading": "Загрузка языка…",
     "languageNameEnglish": "Английский",
     "languageNameSimplifiedChinese": "Китайский (упрощённое письмо)",
     "languageNameRussian": "Русский",
