@@ -96,6 +96,7 @@
 
     function showLanguageWait(operation) {
       if (operation !== languageLoading || operation.suspended || !operation.pending.size || (page !== document && !page.isConnected)) return;
+      fadingLanguageWaits.forEach(ui => disposeLanguageWait(ui));
       const overlay = document.createElement('div');
       overlay.className = 'language-wait-overlay';
       overlay.setAttribute('role', 'status');
@@ -126,7 +127,15 @@
         if (previous) previous.remove();
         try {
           if (!(motion && motion.matches) && window.SiteLoadingAnimation) {
-            ui.animation = window.SiteLoadingAnimation.start(overlay, { loop: true });
+            ui.animation = window.SiteLoadingAnimation.start(overlay, {
+              loop: true,
+              onCycle() {
+                if (!fadingLanguageWaits.has(ui)) return;
+                if (ui.fadeTimer !== null) window.clearTimeout(ui.fadeTimer);
+                // Dispose after the animation callback has finished scheduling.
+                ui.fadeTimer = window.setTimeout(() => disposeLanguageWait(ui), 0);
+              }
+            });
             return;
           }
         } catch (error) {
@@ -138,6 +147,7 @@
           indicator.setAttribute('aria-hidden', 'true');
           overlay.appendChild(indicator);
         }
+        if (fadingLanguageWaits.has(ui)) scheduleLanguageWaitDisposal(ui, Math.max(0, 800 - (performance.now() - ui.shownAt)));
       }
       ui.motionHandler = showIndicator;
       if (motion && motion.addEventListener) motion.addEventListener('change', ui.motionHandler);
@@ -159,6 +169,11 @@
       else if (ui.motion && ui.motion.removeListener) ui.motion.removeListener(ui.motionHandler);
       ui.overlay.remove();
       fadingLanguageWaits.delete(ui);
+    }
+
+    function scheduleLanguageWaitDisposal(ui, delay) {
+      if (ui.fadeTimer !== null) window.clearTimeout(ui.fadeTimer);
+      ui.fadeTimer = window.setTimeout(() => disposeLanguageWait(ui), delay);
     }
 
     function hideLanguageWait(immediate = false, restoreFocus = true) {
@@ -186,18 +201,13 @@
       ui.overlay.setAttribute('aria-hidden', 'true');
       if (immediate) disposeLanguageWait(ui);
       else {
-        // Avoid losing the animation when a request finishes just after three seconds.
+        // Finish the current animation even when a request ends just after the
+        // threshold; the veil fades and controls unlock without waiting for it.
         fadingLanguageWaits.add(ui);
-        const hold = Math.max(0, 800 - (performance.now() - ui.shownAt));
-        const reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        ui.fadeTimer = window.setTimeout(() => {
-          if (reducedMotion) {
-            disposeLanguageWait(ui);
-            return;
-          }
-          ui.overlay.classList.remove('is-visible');
-          ui.fadeTimer = window.setTimeout(() => disposeLanguageWait(ui), 600);
-        }, hold);
+        ui.overlay.classList.add('is-finishing');
+        const hold = ui.animation ? 5000 : Math.max(0, 800 - (performance.now() - ui.shownAt));
+        // A bounded fallback also cleans up if the browser suspends animations.
+        scheduleLanguageWaitDisposal(ui, hold);
       }
     }
 
@@ -208,19 +218,19 @@
     }
 
     function scheduleLanguageWait(operation) {
-      const delay = Math.max(0, 3000 - (Date.now() - operation.startedAt));
+      const delay = Math.max(0, 3000 - (performance.now() - operation.startedAt));
       operation.timer = window.setTimeout(() => {
         operation.timer = null;
         showLanguageWait(operation);
       }, delay);
     }
 
-    function suspendLanguageLoading() {
+    function suspendLanguageLoading(preservePreview = false) {
       fadingLanguageWaits.forEach(ui => disposeLanguageWait(ui));
       fadingLanguageWaits.clear();
       if (!languageLoading) return;
-      languageLoading.pending.delete('preview');
-      if (!languageLoading.pending.has('apply')) {
+      if (!preservePreview) languageLoading.pending.delete('preview');
+      if (!languageLoading.pending.size) {
         stopLanguageLoading(true, false);
         return;
       }
@@ -240,7 +250,7 @@
     function beginLanguageLoading(kind, locale) {
       if (!languageLoading || languageLoading.locale !== locale) {
         stopLanguageLoading();
-        const operation = { locale, pending: new Map(), timer: null, startedAt: Date.now(), suspended: false };
+        const operation = { locale, pending: new Map(), timer: null, startedAt: performance.now(), suspended: false };
         languageLoading = operation;
         scheduleLanguageWait(operation);
       }
@@ -252,6 +262,14 @@
 
     function endLanguageLoading(handle) {
       if (!handle || handle.operation !== languageLoading || handle.operation.pending.get(handle.kind) !== handle.token) return;
+      // A busy page or throttled timer can delay its callback until after the
+      // response. Still show the indicator for an operation that exceeded the
+      // threshold, without doing this for cancelled or superseded operations.
+      if (handle.operation.pending.size === 1 && !handle.operation.suspended && !languageWaitUi &&
+          performance.now() - handle.operation.startedAt >= 3000) {
+        try { showLanguageWait(handle.operation); }
+        catch (error) { console.warn('[settings] Could not display the language loading indicator.', error); }
+      }
       handle.operation.pending.delete(handle.kind);
       if (!handle.operation.pending.size) stopLanguageLoading();
     }
@@ -324,6 +342,9 @@
         if (request !== languagePreviewRequest || dialogVersion !== languageDialogVersion ||
             !languageModal.classList.contains('open') || languageDraft !== locale) return;
         console.warn('[settings] Could not load the language preview.', error);
+        // Finish the valid request before resetting the preview, so a delayed
+        // three-second timer cannot be mistaken for a user cancellation.
+        endLanguageLoading(loading);
         resetLanguagePreview();
         setLanguageError('languagePreviewError');
         if (!languageDropdown.hidden && !languageComposing) filterLanguageChoices();
@@ -1002,10 +1023,11 @@
       if (!options.spa && backNavigationPending) returnToHomeFallback();
       else resetBackNavigation();
     });
-    window.addEventListener('pagehide', () => {
+    window.addEventListener('pagehide', event => {
       if (backFallbackTimer !== null) window.clearTimeout(backFallbackTimer);
       backFallbackTimer = null;
-      suspendLanguageLoading();
+      // A BFCache restore preserves the open dialog and its pending preview.
+      suspendLanguageLoading(event.persisted);
     });
     window.addEventListener('pageshow', event => {
       if (event.persisted) {

@@ -17,6 +17,7 @@
   let settingsView = null;
   let settingsStyle = null;
   let settingsController = null;
+  let settingsAnimationInstalled = false;
   let activeView = 'home';
   let navigationToken = 0;
   let homeSnapshot = null;
@@ -39,7 +40,21 @@
           const main = parsed.querySelector('body > main');
           const modal = parsed.querySelector('body > .shortcuts-modal');
           const style = parsed.querySelector('head > style');
-          if (!navbar || !main || !modal || !style) throw new Error('Settings page is missing required content');
+          const animation = parsed.querySelector('script#settings-loading-animation');
+          if (!navbar || !main || !modal || !style || !animation || !animation.textContent.trim()) {
+            throw new Error('Settings page is missing required content');
+          }
+
+          // DOMParser does not execute scripts. Install only the known animation
+          // embedded in the fetched settings page, without a separate request.
+          if (!settingsAnimationInstalled) {
+            const inlineScript = document.createElement('script');
+            inlineScript.textContent = animation.textContent;
+            document.head.appendChild(inlineScript);
+            inlineScript.remove();
+            if (!window.SiteLoadingAnimation) throw new Error('Could not initialize the settings loading animation');
+            settingsAnimationInstalled = true;
+          }
 
           settingsView = document.createElement('div');
           settingsView.id = 'spa-settings-view';
