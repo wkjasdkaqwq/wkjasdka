@@ -1,4 +1,4 @@
-/* Shared implementation of resource/loading customization.html. */
+/* Shared implementation of resource/loading animation.html. */
 (function (window, document) {
   'use strict';
 
