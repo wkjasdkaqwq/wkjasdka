@@ -95,16 +95,15 @@
     .language-close:focus { outline: 3px solid #64b5f6; outline-offset: 3px; }
     .language-modal { position: fixed; inset: 0; z-index: 9500; display: grid; place-items: center; padding: 1rem; background: rgba(5,12,20,.68); opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .2s ease, visibility .2s ease; }
     .language-modal.open { opacity: 1; visibility: visible; pointer-events: auto; }
-    .language-modal.is-viewport-constrained { align-items: start; }
-    .language-dialog { display: flex; flex-direction: column; width: min(440px, 100%); height: min(250px, calc(100vh - 2rem)); height: min(250px, calc(100dvh - 2rem)); overflow: visible; border: 1px solid #dfe4e8; border-radius: 18px; background: #fff; color: #263238; box-shadow: 0 24px 80px rgba(0,0,0,.32); transform: translateY(-18px) scale(.985); transition: transform .2s ease; }
+    .language-dialog { position: relative; display: flex; flex-direction: column; width: min(440px, 100%); height: min(250px, calc(100vh - 2rem)); height: min(250px, calc(100dvh - 2rem)); overflow: visible; border: 1px solid #dfe4e8; border-radius: 18px; background: #fff; color: #263238; box-shadow: 0 24px 80px rgba(0,0,0,.32); transform: translateY(-18px) scale(.985); transition: transform .2s ease; }
     .language-modal.open .language-dialog { transform: translateY(-30px) scale(1); }
-    .language-modal.open.is-viewport-constrained .language-dialog { transform: translateY(calc(var(--language-visual-top, 0px) - 4px)) scale(1); transition: none; }
     .language-header { display: flex; flex: 0 0 auto; align-items: center; justify-content: space-between; gap: 1rem; padding: .65rem 1.35rem; border-bottom: 1px solid #e3e7eb; }
     .language-header h2 { margin: 0; font-size: 1.2rem; }
-    .language-close { display: grid; flex: 0 0 38px; place-items: center; width: 38px; height: 38px; padding: 0; border: 0; border-radius: 50%; background: #edf0f2; color: inherit; font-size: 1.6rem; line-height: 1; cursor: pointer; }
+    .language-close { position: relative; z-index: 5; display: grid; flex: 0 0 38px; place-items: center; width: 38px; height: 38px; padding: 0; border: 0; border-radius: 50%; background: #edf0f2; color: inherit; font-size: 1.6rem; line-height: 1; cursor: pointer; }
     .language-form { display: flex; flex: 1 1 auto; flex-direction: column; min-height: 0; padding: .5rem 1.35rem .65rem; }
     .language-label { display: block; margin-bottom: .4rem; font-size: .9rem; font-weight: 700; }
     .language-picker { position: relative; }
+    .language-picker.is-open { z-index: 3; width: var(--language-picker-width, 100%); transform: translateY(var(--language-picker-shift, 0px)); }
     .language-picker .language-select-card { width: 100%; min-height: 46px; flex: 0 0 auto; justify-content: space-between; gap: .8rem; padding: .65rem 1rem; font-size: .95rem; text-align: left; }
     .language-select-card .language-select { position: static; width: 100%; min-width: 0; height: auto; padding: 0; border: 0; outline: 0; background: transparent; color: inherit; font: inherit; line-height: 1.2; opacity: 1; -webkit-appearance: none; appearance: none; -webkit-user-select: text; user-select: text; }
     .language-select[readonly] { cursor: pointer; }
@@ -121,7 +120,7 @@
     .language-divider { height: 1px; margin: 0 .4rem .45rem; background: #FFB380; }
     /* Four full 44px rows plus half a row signal that the list can scroll. */
     .language-options { display: grid; gap: 0; max-height: 204px; overflow-y: auto; overscroll-behavior: contain; padding: 3px; scrollbar-width: thin; scrollbar-color: #cc8b60 transparent; }
-    @keyframes language-options-in { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes language-options-in { from { opacity: 0; } to { opacity: 1; } }
     .language-options .language-choice { display: flex; align-items: center; justify-content: space-between; width: 100%; min-width: 0; height: 44px; min-height: 44px; gap: .25rem; padding: 0 .5rem; border: 0; border-radius: 6px; background: transparent; color: #ae5c20; font-size: .9rem; font-weight: 600; line-height: 1.2; text-align: left; cursor: pointer; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
     .language-options .language-choice[hidden] { display: none; }
     @media (hover: hover) and (pointer: fine) { .language-choice:not([aria-selected="true"]):hover { background: rgba(185,93,22,.1); } }
@@ -134,9 +133,8 @@
     .language-choice[aria-selected="true"] .language-choice-check { display: block; }
     .language-no-results { margin: .4rem .45rem; color: #765b4a; font-size: .9rem; }
     .language-error { margin: .75rem 0 0; color: #b42318; font-size: .9rem; }
-    .language-actions { display: flex; justify-content: flex-end; margin-top: auto; padding-top: .5rem; }
-    .language-dropdown .language-actions { margin-top: .5rem; padding-top: 0; }
-    .language-confirm { flex: 0 0 auto; min-width: 110px; }
+    .language-actions { position: absolute; z-index: 4; right: 1.35rem; bottom: .65rem; display: flex; justify-content: flex-end; }
+    .language-confirm { flex: 0 0 auto; width: 110px; min-width: 110px; }
     .language-confirm:disabled { cursor: wait; opacity: .6; }
     .shortcuts-open { min-height: 42px; padding: .65rem 1rem; border: 0; border-radius: 8px; background: #e67e22; color: #fff; font: inherit; font-weight: 700; cursor: pointer; transition: background .2s ease, transform .2s ease; }
     .shortcuts-open:hover { background: #cf6d16; transform: translateY(-1px); }
@@ -283,6 +281,7 @@
       .theme-option { flex: 1 1 0; min-width: 0; min-height: 46px; padding: .55rem .25rem; border-radius: 23px; font-size: .78rem; }
       .language-open, .language-confirm { flex: 0 0 auto; min-width: 110px; padding: .55rem .8rem; }
       .language-open { max-width: 60%; }
+      .language-select-card .language-select { font-size: 1rem; }
       .shortcuts-setting-row { display: none; }
       .setting-copy h2 { font-size: 1rem; }
       .setting-copy p { font-size: .85rem; }
@@ -454,7 +453,7 @@
   </div>
 
   <script src="./scripts/i18n.js?v=20261117-multilingual"></script>
-  <script src="./scripts/settings.js?v=20261117-short-language-dialog"></script>
+  <script src="./scripts/settings.js?v=20261117-fixed-language-confirm"></script>
   <script>window.SettingsPage.init(document);</script>
 </body>
 </html>

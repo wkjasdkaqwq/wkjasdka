@@ -44,6 +44,8 @@
     let languageInputIsPreview = false;
     let languageComposing = false;
     let suppressLanguageFocusOpen = false;
+    let languagePickerLift = 0;
+    let languagePickerAvoidClose = false;
     const THEME_STORAGE_KEY = 'wkjasdka-dark-mode';
     const darkPreference = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
     function resolveThemePreference() {
@@ -167,20 +169,44 @@
 
     function fitLanguageDropdown() {
       if (languageDropdown.hidden || !languageModal.classList.contains('open')) return;
-      // Preserve four and a half rows where possible, reserving room for the
-      // confirm button and any error message in the visible viewport.
       const viewport = window.visualViewport;
-      const viewportConstrained = Boolean(viewport && viewport.height + 120 < window.innerHeight);
-      languageModal.classList.toggle('is-viewport-constrained', viewportConstrained);
-      if (viewportConstrained) languageModal.style.setProperty('--language-visual-top', `${viewport.offsetTop}px`);
-      else languageModal.style.removeProperty('--language-visual-top');
-      languageOptions.style.maxHeight = '204px';
+      const viewportTop = viewport ? viewport.offsetTop : 0;
       const viewportBottom = viewport ? viewport.offsetTop + viewport.height : window.innerHeight;
-      const list = languageOptions.getBoundingClientRect();
+      const bottomLimit = Math.min(viewportBottom - 12, languageConfirm.getBoundingClientRect().top - 8);
+      const topLimit = viewportTop + 12;
+      languagePicker.style.setProperty('--language-picker-shift', '0px');
+      languagePicker.style.removeProperty('--language-picker-width');
+
+      // Measure from the original picker position so opening it never moves
+      // the dialog or its confirm button. Keep the previous lift while typing.
+      function positionPicker() {
+        languageOptions.style.maxHeight = '204px';
+        const picker = languagePicker.getBoundingClientRect();
+        const list = languageOptions.getBoundingClientRect();
+        const dropdown = languageDropdown.getBoundingClientRect();
+        const chrome = (list.top - picker.top) + (dropdown.bottom - list.bottom);
+        const available = bottomLimit - topLimit - chrome;
+        languageOptions.style.maxHeight = `${Math.max(1, Math.min(204, available))}px`;
+        const naturalBottom = languageDropdown.getBoundingClientRect().bottom;
+        const maxLift = Math.max(0, picker.top - topLimit);
+        languagePickerLift = Math.min(maxLift, Math.max(languagePickerLift, naturalBottom - bottomLimit, 0));
+        languagePicker.style.setProperty('--language-picker-shift', `${-languagePickerLift}px`);
+      }
+
+      positionPicker();
+      const picker = languagePicker.getBoundingClientRect();
       const dropdown = languageDropdown.getBoundingClientRect();
-      const afterList = Math.max(0, dropdown.bottom - list.bottom);
-      const available = viewportBottom - 12 - list.top - afterList;
-      languageOptions.style.maxHeight = `${Math.max(1, Math.min(204, available))}px`;
+      const close = languageClose.getBoundingClientRect();
+      if (picker.top < close.bottom + 6 && dropdown.bottom > close.top - 6) {
+        languagePickerAvoidClose = true;
+      }
+      if (languagePickerAvoidClose) {
+        // Leave a clear lane for the close button rather than covering a row.
+        const width = Math.max(1, Math.min(picker.width, close.left - picker.left - 8));
+        languagePicker.style.setProperty('--language-picker-width', `${width}px`);
+        languagePicker.style.setProperty('--language-picker-shift', '0px');
+        positionPicker();
+      }
     }
 
     function filterLanguageChoices() {
@@ -208,9 +234,7 @@
       languageInputIsPreview = false;
       languageDropdown.hidden = false;
       languagePicker.classList.add('is-open');
-      // Keep the button below the expanded list instead of obscuring an item;
-      // the compact dialog itself keeps its fixed dimensions.
-      languageDropdown.append(languageError, languageActions);
+      languageDropdown.append(languageError);
       languageSelect.setAttribute('aria-expanded', 'true');
       activeLanguageChoice = choice;
       filterLanguageChoices();
@@ -220,12 +244,13 @@
 
     function closeLanguageOptions(restoreFocus = false) {
       if (languageDropdown.hidden) return;
-      const confirmHadFocus = document.activeElement === languageConfirm;
-      languageForm.append(languageError, languageActions);
+      languageForm.insertBefore(languageError, languageActions);
       languageDropdown.hidden = true;
       languageOptions.style.removeProperty('max-height');
-      languageModal.classList.remove('is-viewport-constrained');
-      languageModal.style.removeProperty('--language-visual-top');
+      languagePicker.style.removeProperty('--language-picker-width');
+      languagePicker.style.removeProperty('--language-picker-shift');
+      languagePickerLift = 0;
+      languagePickerAvoidClose = false;
       languagePicker.classList.remove('is-open');
       languageSelect.setAttribute('aria-expanded', 'false');
       languageSelect.removeAttribute('aria-activedescendant');
@@ -240,7 +265,6 @@
       });
       languageNoResults.hidden = true;
       activeLanguageChoice = null;
-      if (confirmHadFocus && !languageConfirm.disabled) languageConfirm.focus({ preventScroll: true });
       if (restoreFocus && !languageSelect.disabled && languageModal.classList.contains('open')) {
         suppressLanguageFocusOpen = true;
         languageSelect.focus({ preventScroll: true });
@@ -257,7 +281,12 @@
       activeLanguageChoice = choice;
       filterLanguageChoices();
       setActiveLanguageChoice(choice);
-      languageSelect.focus({ preventScroll: true });
+      const viewport = window.visualViewport;
+      const viewportBottom = viewport ? viewport.offsetTop + viewport.height : window.innerHeight;
+      const confirmObscured = languageConfirm.getBoundingClientRect().bottom > viewportBottom - 4;
+      const hasTouchPointer = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+      if (hasTouchPointer && confirmObscured) languageSelect.blur();
+      else languageSelect.focus({ preventScroll: true });
       previewLanguage(languageDraft);
     }
 
