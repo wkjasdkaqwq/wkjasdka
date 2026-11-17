@@ -130,10 +130,10 @@
           if (!(motion && motion.matches) && window.SiteLoadingAnimation) {
             ui.animation = window.SiteLoadingAnimation.start(overlay, {
               loop: true,
-              onCycle() {
+              onIdle() {
                 if (!fadingLanguageWaits.has(ui)) return;
                 if (ui.fadeTimer !== null) window.clearTimeout(ui.fadeTimer);
-                // Dispose after the animation callback has finished scheduling.
+                // Dispose after all overlapping animation cycles finish.
                 ui.fadeTimer = window.setTimeout(() => disposeLanguageWait(ui), 0);
               }
             });
@@ -209,6 +209,7 @@
         const hold = ui.animation ? 5000 : Math.max(0, 800 - (performance.now() - ui.shownAt));
         // A bounded fallback also cleans up if the browser suspends animations.
         scheduleLanguageWaitDisposal(ui, hold);
+        if (ui.animation && typeof ui.animation.finish === 'function') ui.animation.finish();
       }
     }
 
