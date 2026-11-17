@@ -125,7 +125,7 @@
             cursor: pointer;
         }
         @media (prefers-reduced-motion: reduce) {
-            .loading-progress, .loading-progress-fill, .loading-backdrop-center, .loading-logo, .placeholder-grid { transition: none; }
+            .loading-progress, .loading-progress-fill, .loading-backdrop-center, .loading-logo { transition: none; }
         }
 
         .content-box {
@@ -158,12 +158,10 @@
             gap: 20px;
             width: 100%;
             margin-top: 40px;
-            opacity: 1;
-            transition: opacity .18s ease;
         }
 
-        #mainContent.is-loading-reveal .placeholder-grid {
-            opacity: 0;
+        #mainContent.is-loading-reveal .placeholder-item {
+            background: linear-gradient(to bottom, #f5f5f5 calc(100% - 8px), transparent);
         }
 
         .placeholder-item {
