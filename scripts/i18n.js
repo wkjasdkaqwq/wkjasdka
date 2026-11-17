@@ -216,29 +216,50 @@
     const settings = options || {};
     if (settings.namespace !== undefined) currentNamespace = settings.namespace;
     const selectedLocale = normalizeLocale(locale);
+    const persistBeforeLoad = settings.persistBeforeLoad && settings.persist !== false;
+    const previousStoredLocale = persistBeforeLoad ? readStoredLocale() : null;
+    const previousSessionLocale = persistBeforeLoad ? readSessionLocale() : null;
+    if (persistBeforeLoad) {
+      saveLocale(selectedLocale);
+      saveSessionLocale(selectedLocale);
+    }
     const thisRequest = ++requestId;
     let activeDictionary;
     let defaultDictionary;
     let resolvedLocale = selectedLocale;
 
     try {
-      activeDictionary = await loadDictionary(selectedLocale);
-    } catch (error) {
-      if (selectedLocale === DEFAULT_LOCALE) throw error;
-      console.warn('[i18n] Falling back to the default language.', error);
-      resolvedLocale = DEFAULT_LOCALE;
-      activeDictionary = await loadDictionary(DEFAULT_LOCALE);
-    }
-
-    if (resolvedLocale === DEFAULT_LOCALE) {
-      defaultDictionary = activeDictionary;
-    } else {
       try {
-        defaultDictionary = await loadDictionary(DEFAULT_LOCALE);
+        activeDictionary = await loadDictionary(selectedLocale);
       } catch (error) {
-        console.warn('[i18n] Default fallback dictionary could not be loaded.', error);
-        defaultDictionary = {};
+        if (selectedLocale === DEFAULT_LOCALE) throw error;
+        console.warn('[i18n] Falling back to the default language.', error);
+        resolvedLocale = DEFAULT_LOCALE;
+        activeDictionary = await loadDictionary(DEFAULT_LOCALE);
       }
+
+      if (resolvedLocale === DEFAULT_LOCALE) {
+        defaultDictionary = activeDictionary;
+      } else {
+        try {
+          defaultDictionary = await loadDictionary(DEFAULT_LOCALE);
+        } catch (error) {
+          console.warn('[i18n] Default fallback dictionary could not be loaded.', error);
+          defaultDictionary = {};
+        }
+      }
+    } catch (error) {
+      if (persistBeforeLoad && thisRequest === requestId) {
+        try {
+          if (previousStoredLocale) localStorage.setItem(STORAGE_KEY, previousStoredLocale);
+          else localStorage.removeItem(STORAGE_KEY);
+        } catch (_) {}
+        try {
+          if (previousSessionLocale) sessionStorage.setItem(SESSION_STORAGE_KEY, previousSessionLocale);
+          else sessionStorage.removeItem(SESSION_STORAGE_KEY);
+        } catch (_) {}
+      }
+      throw error;
     }
 
     if (thisRequest !== requestId) return currentLocale;

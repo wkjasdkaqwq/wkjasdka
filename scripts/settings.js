@@ -6,6 +6,13 @@
     const root = document.documentElement;
     const themeOptions = page.querySelector('#themeOptions');
     const languageSelect = page.querySelector('#languageSelect');
+    const languageOpen = page.querySelector('#languageOpen');
+    const languageCurrent = page.querySelector('#languageCurrent');
+    const languageModal = page.querySelector('#languageModal');
+    const languageClose = page.querySelector('#languageClose');
+    const languageForm = page.querySelector('#languageForm');
+    const languageConfirm = page.querySelector('#languageConfirm');
+    const languageError = page.querySelector('#languageError');
     const shortcutsModal = page.querySelector('#shortcutsModal');
     const shortcutsDialog = shortcutsModal.querySelector('.shortcuts-dialog');
     const shortcutsOpen = page.querySelector('#shortcutsOpen');
@@ -18,6 +25,10 @@
     let pinnedShortcutCard = null;
     let hoveredShortcutCard = null;
     let focusedShortcutCard = null;
+    let languageReturnFocus = null;
+    let languagePreviousBodyOverflow = '';
+    let languageDialogVersion = 0;
+    let languageSaving = false;
     const THEME_STORAGE_KEY = 'wkjasdka-dark-mode';
     const darkPreference = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
     function resolveThemePreference() {
@@ -37,6 +48,74 @@
         input.checked = input.value === selectedPreference;
       });
       if (persist) localStorage.setItem(THEME_STORAGE_KEY, selectedPreference);
+    }
+
+    function syncLanguageDisplay(locale = SiteI18n.locale) {
+      const option = [...languageSelect.options].find(item => item.value === locale);
+      if (option) languageCurrent.textContent = option.textContent;
+      if (!languageModal.classList.contains('open')) languageSelect.value = locale;
+    }
+
+    function openLanguage() {
+      if (languageModal.classList.contains('open')) return;
+      languageDialogVersion += 1;
+      languageReturnFocus = document.activeElement;
+      languagePreviousBodyOverflow = document.body.style.overflow;
+      languageSelect.value = SiteI18n.locale;
+      languageError.hidden = true;
+      languageModal.classList.add('open');
+      languageModal.setAttribute('aria-hidden', 'false');
+      languageOpen.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
+      const dialogVersion = languageDialogVersion;
+      const focusLanguageSelect = () => {
+        if (dialogVersion === languageDialogVersion && languageModal.classList.contains('open') && !languageModal.contains(document.activeElement)) {
+          languageSelect.focus({ preventScroll: true });
+        }
+      };
+      requestAnimationFrame(() => requestAnimationFrame(focusLanguageSelect));
+      window.setTimeout(focusLanguageSelect, 220);
+    }
+
+    function closeLanguage(restoreFocus = true) {
+      if (!languageModal.classList.contains('open')) return;
+      languageDialogVersion += 1;
+      languageModal.classList.remove('open');
+      languageModal.setAttribute('aria-hidden', 'true');
+      languageOpen.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = languagePreviousBodyOverflow;
+      languageError.hidden = true;
+      syncLanguageDisplay();
+      if (restoreFocus && languageReturnFocus && languageReturnFocus.isConnected) {
+        languageReturnFocus.focus({ preventScroll: true });
+      }
+      languageReturnFocus = null;
+    }
+
+    async function confirmLanguage(event) {
+      event.preventDefault();
+      if (languageSaving) return;
+      const selectedLocale = languageSelect.value;
+      const dialogVersion = languageDialogVersion;
+      languageSaving = true;
+      languageConfirm.disabled = true;
+      languageSelect.disabled = true;
+      languageModal.setAttribute('aria-busy', 'true');
+      languageError.hidden = true;
+      try {
+        const appliedLocale = await SiteI18n.setLocale(selectedLocale, { persistBeforeLoad: true });
+        if (dialogVersion !== languageDialogVersion || !languageModal.classList.contains('open')) return;
+        if (appliedLocale === selectedLocale) closeLanguage();
+        else languageError.hidden = false;
+      } catch (error) {
+        console.error('[settings] Could not apply the selected language.', error);
+        if (dialogVersion === languageDialogVersion && languageModal.classList.contains('open')) languageError.hidden = false;
+      } finally {
+        languageSaving = false;
+        languageConfirm.disabled = false;
+        languageSelect.disabled = false;
+        languageModal.removeAttribute('aria-busy');
+      }
     }
 
     function openShortcuts() {
@@ -139,9 +218,18 @@
 
     function activate() {
       setThemePreference(resolveThemePreference(), false);
-      return SiteI18n.init({ namespace: 'settings', select: languageSelect, defaultLocale: 'en' })
+      return SiteI18n.init({ namespace: 'settings', select: null, defaultLocale: 'en' })
+        .then(() => syncLanguageDisplay())
         .catch(error => console.error('[settings] Could not initialize translations.', error));
     }
+    languageOpen.setAttribute('aria-expanded', 'false');
+    languageOpen.addEventListener('click', openLanguage);
+    languageClose.addEventListener('click', () => closeLanguage());
+    languageForm.addEventListener('submit', confirmLanguage);
+    languageModal.addEventListener('click', event => {
+      if (event.target === languageModal) closeLanguage();
+    });
+    window.addEventListener('site:languagechange', event => syncLanguageDisplay(event.detail.locale));
     activate();
     themeOptions.addEventListener('change', event => {
       if (event.target.matches('input[name="themePreference"]')) setThemePreference(event.target.value);
@@ -157,35 +245,37 @@
       pressedThemePointer = null;
     }
     function clearThemeTouchHighlights() {
-      themeOptions.querySelectorAll('.theme-option.is-touch-highlighted').forEach(option => {
+      page.querySelectorAll('.theme-option.is-touch-highlighted').forEach(option => {
         option.classList.remove('is-touch-highlighted');
       });
     }
-    themeOptions.addEventListener('pointerdown', event => {
-      if (!touchButtonMedia.matches || event.pointerType === 'mouse') return;
-      const option = event.target.closest('.theme-option');
-      if (!option || !themeOptions.contains(option)) return;
-      releaseThemeTouchPress();
-      pressedThemeOption = option;
-      pressedThemePointer = event.pointerId;
-      option.classList.add('is-touch-pressed');
+    [themeOptions, languageOpen, languageConfirm].forEach(container => {
+      container.addEventListener('pointerdown', event => {
+        if (!touchButtonMedia.matches || event.pointerType === 'mouse') return;
+        const option = event.target.closest('.theme-option');
+        if (!option || !container.contains(option)) return;
+        releaseThemeTouchPress();
+        pressedThemeOption = option;
+        pressedThemePointer = event.pointerId;
+        option.classList.add('is-touch-pressed');
+      });
+      container.addEventListener('click', event => {
+        if (!touchButtonMedia.matches) return;
+        const option = event.target.closest('.theme-option');
+        if (!option || !container.contains(option)) return;
+        clearThemeTouchHighlights();
+        option.classList.add('is-touch-highlighted');
+      });
     });
     ['pointerup', 'pointercancel'].forEach(type => {
       document.addEventListener(type, event => {
         if (event.pointerId === pressedThemePointer) releaseThemeTouchPress();
       });
     });
-    themeOptions.addEventListener('click', event => {
-      if (!touchButtonMedia.matches) return;
-      const option = event.target.closest('.theme-option');
-      if (!option || !themeOptions.contains(option)) return;
-      clearThemeTouchHighlights();
-      option.classList.add('is-touch-highlighted');
-    });
     document.addEventListener('pointerdown', event => {
       if (!touchButtonMedia.matches || !themeOptions.isConnected) return;
       const targetOption = event.target instanceof Element ? event.target.closest('.theme-option') : null;
-      themeOptions.querySelectorAll('.theme-option.is-touch-highlighted').forEach(option => {
+      page.querySelectorAll('.theme-option.is-touch-highlighted').forEach(option => {
         if (option !== targetOption) option.classList.remove('is-touch-highlighted');
       });
     });
@@ -210,6 +300,26 @@
       if (event.target === shortcutsModal) closeShortcuts();
     });
     document.addEventListener('keydown', event => {
+      if (languageModal.classList.contains('open')) {
+        if (event.key === 'Escape') {
+          event.preventDefault();
+          closeLanguage();
+          return;
+        }
+        if (event.key === 'Tab') {
+          const focusable = [...languageModal.querySelectorAll('button:not([disabled]), select:not([disabled])')];
+          const first = focusable[0];
+          const last = focusable[focusable.length - 1];
+          if (first && event.shiftKey && (document.activeElement === first || !focusable.includes(document.activeElement))) {
+            event.preventDefault();
+            last.focus();
+          } else if (first && !event.shiftKey && (document.activeElement === last || !focusable.includes(document.activeElement))) {
+            event.preventDefault();
+            first.focus();
+          }
+        }
+        return;
+      }
       if (event.key === 'Escape' && shortcutsModal.classList.contains('open')) {
         event.preventDefault();
         closeShortcuts();
@@ -308,6 +418,7 @@
       deactivate() {
         releaseThemeTouchPress();
         clearThemeTouchHighlights();
+        closeLanguage(false);
         if (shortcutsModal.classList.contains('open')) closeShortcuts();
       }
     };
