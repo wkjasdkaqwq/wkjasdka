@@ -44,8 +44,7 @@
     let languageInputIsPreview = false;
     let languageComposing = false;
     let suppressLanguageFocusOpen = false;
-    let languagePickerLift = 0;
-    let languagePickerAvoidClose = false;
+    let languageDialogLift = 0;
     const THEME_STORAGE_KEY = 'wkjasdka-dark-mode';
     const darkPreference = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
     function resolveThemePreference() {
@@ -167,46 +166,63 @@
       }
     }
 
-    function fitLanguageDropdown() {
+    function avoidLanguageConfirm() {
+      if (languageDropdown.hidden) return;
+      languageChoices.forEach(choice => {
+        choice.classList.remove('avoids-confirm');
+        choice.style.removeProperty('--language-choice-width');
+      });
+      const button = languageActions.getBoundingClientRect();
+      languageChoices.filter(choice => !choice.hidden).forEach(choice => {
+        const row = choice.getBoundingClientRect();
+        if (row.top + 6 < button.bottom + 2 && row.bottom - 6 > button.top - 2 &&
+            row.left < button.right && row.right > button.left) {
+          choice.style.setProperty('--language-choice-width', `${Math.max(1, button.left - row.left - 6)}px`);
+          choice.classList.add('avoids-confirm');
+        }
+      });
+    }
+
+    function fitLanguageDropdown(event) {
       if (languageDropdown.hidden || !languageModal.classList.contains('open')) return;
       const viewport = window.visualViewport;
-      const viewportTop = viewport ? viewport.offsetTop : 0;
-      const viewportBottom = viewport ? viewport.offsetTop + viewport.height : window.innerHeight;
-      const bottomLimit = Math.min(viewportBottom - 12, languageConfirm.getBoundingClientRect().top - 8);
-      const topLimit = viewportTop + 12;
-      languagePicker.style.setProperty('--language-picker-shift', '0px');
-      languagePicker.style.removeProperty('--language-picker-width');
-
-      // Measure from the original picker position so opening it never moves
-      // the dialog or its confirm button. Keep the previous lift while typing.
-      function positionPicker() {
-        languageOptions.style.maxHeight = '204px';
-        const picker = languagePicker.getBoundingClientRect();
+      const topLimit = (viewport ? viewport.offsetTop : 0) + 12;
+      const bottomLimit = (viewport ? viewport.offsetTop + viewport.height : window.innerHeight) - 12;
+      languageOptions.style.maxHeight = '204px';
+      languageError.style.removeProperty('margin-top');
+      const viewportChanged = event && (event.type === 'resize' || event.type === 'scroll');
+      for (let pass = 0; pass < 3; pass += 1) {
+        // A short or empty result list can place the error beside the fixed
+        // button; move only the error below it so the message stays readable.
+        if (!languageError.hidden) {
+          const notice = languageError.getBoundingClientRect();
+          const button = languageActions.getBoundingClientRect();
+          if (notice.top < button.bottom + 6 && notice.bottom > button.top - 6 &&
+              notice.left < button.right && notice.right > button.left) {
+            const margin = parseFloat(window.getComputedStyle(languageError).marginTop) || 0;
+            languageError.style.marginTop = `${margin + button.bottom + 6 - notice.top}px`;
+          }
+        }
+        const dialog = languageDialog.getBoundingClientRect();
         const list = languageOptions.getBoundingClientRect();
         const dropdown = languageDropdown.getBoundingClientRect();
-        const chrome = (list.top - picker.top) + (dropdown.bottom - list.bottom);
-        const available = bottomLimit - topLimit - chrome;
-        languageOptions.style.maxHeight = `${Math.max(1, Math.min(204, available))}px`;
-        const naturalBottom = languageDropdown.getBoundingClientRect().bottom;
-        const maxLift = Math.max(0, picker.top - topLimit);
-        languagePickerLift = Math.min(maxLift, Math.max(languagePickerLift, naturalBottom - bottomLimit, 0));
-        languagePicker.style.setProperty('--language-picker-shift', `${-languagePickerLift}px`);
+        const transform = window.getComputedStyle(languageDialog).transform;
+        const actualY = transform === 'none' ? 0 : new DOMMatrixReadOnly(transform).m42;
+        const baseY = window.matchMedia('(max-height: 420px)').matches ? -8 : -30;
+        const currentLift = baseY - actualY;
+        const naturalTop = dialog.top + currentLift;
+        const naturalBottom = Math.max(dialog.bottom, dropdown.bottom) + currentLift;
+        const maxLift = Math.max(0, naturalTop - topLimit);
+        const needed = Math.max(0, naturalBottom - bottomLimit);
+        // Move the entire popup; only constrain the list if it still will not fit.
+        const overflow = Math.max(0, needed - maxLift);
+        const nextHeight = Math.max(1, list.height - overflow);
+        if (overflow) languageOptions.style.maxHeight = `${nextHeight}px`;
+        languageDialogLift = Math.min(maxLift, viewportChanged ? needed : Math.max(languageDialogLift, needed));
+        languageDialog.style.setProperty('--language-dialog-lift', `${languageDialogLift}px`);
+        if (!overflow || nextHeight >= list.height || list.height <= 1) break;
       }
-
-      positionPicker();
-      const picker = languagePicker.getBoundingClientRect();
-      const dropdown = languageDropdown.getBoundingClientRect();
-      const close = languageClose.getBoundingClientRect();
-      if (picker.top < close.bottom + 6 && dropdown.bottom > close.top - 6) {
-        languagePickerAvoidClose = true;
-      }
-      if (languagePickerAvoidClose) {
-        // Leave a clear lane for the close button rather than covering a row.
-        const width = Math.max(1, Math.min(picker.width, close.left - picker.left - 8));
-        languagePicker.style.setProperty('--language-picker-width', `${width}px`);
-        languagePicker.style.setProperty('--language-picker-shift', '0px');
-        positionPicker();
-      }
+      avoidLanguageConfirm();
     }
 
     function filterLanguageChoices() {
@@ -234,6 +250,7 @@
       languageInputIsPreview = false;
       languageDropdown.hidden = false;
       languagePicker.classList.add('is-open');
+      languageModal.classList.add('is-picker-open');
       languageDropdown.append(languageError);
       languageSelect.setAttribute('aria-expanded', 'true');
       activeLanguageChoice = choice;
@@ -247,10 +264,12 @@
       languageForm.insertBefore(languageError, languageActions);
       languageDropdown.hidden = true;
       languageOptions.style.removeProperty('max-height');
-      languagePicker.style.removeProperty('--language-picker-width');
-      languagePicker.style.removeProperty('--language-picker-shift');
-      languagePickerLift = 0;
-      languagePickerAvoidClose = false;
+      languageError.style.removeProperty('margin-top');
+      languageChoices.forEach(choice => {
+        choice.classList.remove('avoids-confirm');
+        choice.style.removeProperty('--language-choice-width');
+      });
+      languageModal.classList.remove('is-picker-open');
       languagePicker.classList.remove('is-open');
       languageSelect.setAttribute('aria-expanded', 'false');
       languageSelect.removeAttribute('aria-activedescendant');
@@ -318,6 +337,8 @@
       languageDialogVersion += 1;
       closeLanguageOptions();
       languageModal.classList.remove('open');
+      languageDialog.style.removeProperty('--language-dialog-lift');
+      languageDialogLift = 0;
       languageModal.setAttribute('aria-hidden', 'true');
       languageOpen.setAttribute('aria-expanded', 'false');
       document.body.style.overflow = languagePreviousBodyOverflow;
@@ -523,6 +544,7 @@
       const choice = event.target instanceof Element ? event.target.closest('[role="option"]') : null;
       if (choice && languageOptions.contains(choice)) chooseLanguage(choice);
     });
+    languageOptions.addEventListener('scroll', avoidLanguageConfirm, { passive: true });
     document.addEventListener('click', event => {
       if (!languageDropdown.hidden && !languagePicker.contains(event.target)) closeLanguageOptions();
     });
