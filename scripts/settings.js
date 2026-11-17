@@ -48,10 +48,14 @@
     let suppressLanguageFocusOpen = false;
     let languageDialogLift = 0;
     let backNavigationPending = false;
+    let backFallbackOnly = false;
+    let backFallbackTimer = null;
     const THEME_STORAGE_KEY = 'wkjasdka-dark-mode';
     const darkPreference = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
     function resolveThemePreference() {
-      const saved = localStorage.getItem(THEME_STORAGE_KEY);
+      let saved;
+      try { saved = localStorage.getItem(THEME_STORAGE_KEY); }
+      catch (_) { return 'system'; }
       if (saved === 'dark' || saved === 'true') return 'dark';
       if (saved === 'light' || saved === 'false') return 'light';
       return 'system';
@@ -66,7 +70,10 @@
       themeOptions.querySelectorAll('input[name="themePreference"]').forEach(input => {
         input.checked = input.value === selectedPreference;
       });
-      if (persist) localStorage.setItem(THEME_STORAGE_KEY, selectedPreference);
+      if (persist) {
+        try { localStorage.setItem(THEME_STORAGE_KEY, selectedPreference); }
+        catch (_) { /* Keep the current theme if browser storage is unavailable. */ }
+      }
     }
 
     function languageChoice(locale) {
@@ -456,9 +463,24 @@
     }
 
     function resetBackNavigation() {
+      if (backFallbackTimer !== null) window.clearTimeout(backFallbackTimer);
+      backFallbackTimer = null;
       backNavigationPending = false;
+      backFallbackOnly = false;
       backLink.removeAttribute('aria-disabled');
       backLink.removeAttribute('aria-busy');
+    }
+
+    function returnToHomeFallback() {
+      if (!backNavigationPending || !backLink.isConnected) return;
+      if (backFallbackTimer !== null) window.clearTimeout(backFallbackTimer);
+      backFallbackTimer = null;
+      backNavigationPending = false;
+      backFallbackOnly = true;
+      backLink.removeAttribute('aria-disabled');
+      backLink.removeAttribute('aria-busy');
+      try { window.location.replace(backLink.href); }
+      catch (error) { console.error('[settings] Could not open the homepage.', error); }
     }
 
     function activate() {
@@ -702,22 +724,40 @@
 
     backLink.addEventListener('click', event => {
       if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      if (backFallbackOnly && backLink.isConnected) return;
       event.preventDefault();
       if (backNavigationPending || !backLink.isConnected) return;
-      // A slow history traversal can still complete later, so do not unlock on a timer.
       backNavigationPending = true;
       backLink.setAttribute('aria-disabled', 'true');
       backLink.setAttribute('aria-busy', 'true');
       try {
         if (typeof options.onBack === 'function') options.onBack();
-        else if (window.history.length > 1) window.history.back();
-        else window.location.assign(backLink.href);
+        else if (window.history.length > 1) {
+          // history.length also counts forward entries; back() can be a no-op.
+          // Fall back to the home URL without ever issuing a second back().
+          backFallbackTimer = window.setTimeout(returnToHomeFallback, 1500);
+          window.history.back();
+        } else window.location.assign(backLink.href);
       } catch (error) {
         resetBackNavigation();
         console.error('[settings] Could not return to the previous page.', error);
+        if (!options.spa) {
+          backFallbackOnly = true;
+          try { window.location.replace(backLink.href); }
+          catch (fallbackError) { console.error('[settings] Could not open the homepage.', fallbackError); }
+        }
       }
     });
-    window.addEventListener('popstate', resetBackNavigation);
+    window.addEventListener('popstate', () => {
+      // A popstate in this standalone document is only a same-document move;
+      // it did not leave settings, so finish via the home URL instead.
+      if (!options.spa && backNavigationPending) returnToHomeFallback();
+      else resetBackNavigation();
+    });
+    window.addEventListener('pagehide', () => {
+      if (backFallbackTimer !== null) window.clearTimeout(backFallbackTimer);
+      backFallbackTimer = null;
+    });
     window.addEventListener('pageshow', event => {
       if (event.persisted) resetBackNavigation();
     });

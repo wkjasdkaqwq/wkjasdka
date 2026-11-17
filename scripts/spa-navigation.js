@@ -20,6 +20,11 @@
   let activeView = 'home';
   let navigationToken = 0;
   let homeSnapshot = null;
+  let homeUrl = window.location.href;
+  let returningHome = false;
+  let backTraversalOutstanding = false;
+  let returnFallbackTimer = null;
+  let reopenSettingsAfterReturn = false;
 
   function loadSettings() {
     if (!settingsPromise) {
@@ -61,7 +66,10 @@
   function restoreHome() {
     if (activeView !== 'settings') return;
 
-    if (settingsController) settingsController.deactivate();
+    if (settingsController) {
+      try { settingsController.deactivate(); }
+      catch (error) { console.error('[spa] Could not fully clean up settings.', error); }
+    }
     settingsView.remove();
     settingsStyle.remove();
     homeMarker.parentNode.insertBefore(homeFragment, homeMarker.nextSibling);
@@ -69,8 +77,12 @@
     document.body.style.overflow = homeSnapshot ? homeSnapshot.overflow : '';
     activeView = 'home';
 
-    window.SiteI18n.init({ namespace: 'home', select: null, defaultLocale: 'en' })
-      .catch(error => console.error('[spa] Could not restore homepage translations.', error));
+    try {
+      Promise.resolve(window.SiteI18n.init({ namespace: 'home', select: null, defaultLocale: 'en' }))
+        .catch(error => console.error('[spa] Could not restore homepage translations.', error));
+    } catch (error) {
+      console.error('[spa] Could not restore homepage translations.', error);
+    }
     if (homeSnapshot) {
       window.scrollTo(homeSnapshot.x, homeSnapshot.y);
       if (homeSnapshot.focus && homeSnapshot.focus.isConnected) {
@@ -79,12 +91,63 @@
     }
   }
 
+  function isSettingsLocation() {
+    const currentUrl = new URL(window.location.href);
+    return currentUrl.origin === settingsUrl.origin && currentUrl.pathname === settingsUrl.pathname;
+  }
+
+  function finishReturnFallback() {
+    if (!returningHome) return;
+    returningHome = false;
+    if (returnFallbackTimer !== null) window.clearTimeout(returnFallbackTimer);
+    returnFallbackTimer = null;
+    if (activeView === 'home' && isSettingsLocation()) {
+      // Do not issue another history.back(): the first traversal may still arrive.
+      // Replace only the stalled settings entry so the visible home and URL agree.
+      try { window.history.replaceState(stateWithView('home'), '', homeUrl); }
+      catch (error) {
+        console.error('[spa] Could not repair the homepage history entry.', error);
+        window.location.replace(homeUrl);
+        return;
+      }
+    }
+    if (reopenSettingsAfterReturn) {
+      reopenSettingsAfterReturn = false;
+      showSettings(true);
+    }
+  }
+
+  function returnToHome() {
+    if (returningHome || activeView !== 'settings') return;
+    returningHome = true;
+    // The homepage nodes were kept alive; restore them without waiting for I/O.
+    restoreHome();
+    if (backTraversalOutstanding) {
+      // A previous traversal did not acknowledge completion; never queue another.
+      finishReturnFallback();
+      return;
+    }
+    backTraversalOutstanding = true;
+    returnFallbackTimer = window.setTimeout(finishReturnFallback, 1500);
+    try { window.history.back(); }
+    catch (error) {
+      console.error('[spa] Could not traverse back to the homepage.', error);
+      backTraversalOutstanding = false;
+      window.clearTimeout(returnFallbackTimer);
+      finishReturnFallback();
+    }
+  }
+
   async function showSettings(pushHistory) {
     if (activeView === 'settings') return;
     const token = ++navigationToken;
+    const sourceUrl = window.location.href;
     try {
       await loadSettings();
-      if (token !== navigationToken) return;
+      if (token !== navigationToken || activeView !== 'home') return;
+      const current = window.history.state && window.history.state[historyKey];
+      if (pushHistory && (window.location.href !== sourceUrl || (current && current.view === 'settings'))) return;
+      if (!pushHistory && (!current || current.view !== 'settings')) return;
 
       homeSnapshot = {
         x: window.scrollX,
@@ -93,6 +156,7 @@
         focus: document.activeElement
       };
       if (pushHistory) {
+        homeUrl = window.location.href;
         window.history.replaceState(stateWithView('home'), '', window.location.href);
         window.history.pushState({ [historyKey]: { view: 'settings' } }, '', settingsUrl.href);
       }
@@ -108,7 +172,7 @@
       if (!settingsController) {
         settingsController = window.SettingsPage.init(settingsView, {
           spa: true,
-          onBack: () => window.history.back()
+          onBack: returnToHome
         });
       } else {
         settingsController.activate();
@@ -125,13 +189,30 @@
   settingsLink.addEventListener('click', event => {
     if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || settingsLink.target || settingsLink.hasAttribute('download')) return;
     event.preventDefault();
-    showSettings(true);
+    if (returningHome) {
+      reopenSettingsAfterReturn = true;
+      return;
+    }
+    const current = window.history.state && window.history.state[historyKey];
+    showSettings(!(current && current.view === 'settings'));
   });
 
   window.addEventListener('popstate', event => {
     navigationToken += 1;
+    backTraversalOutstanding = false;
+    if (returningHome && isSettingsLocation()) {
+      // A same-document entry still points at settings: do not remount it.
+      finishReturnFallback();
+      return;
+    }
+    if (returnFallbackTimer !== null) window.clearTimeout(returnFallbackTimer);
+    returnFallbackTimer = null;
+    const reopen = returningHome && reopenSettingsAfterReturn;
+    returningHome = false;
+    reopenSettingsAfterReturn = false;
     const view = event.state && event.state[historyKey] && event.state[historyKey].view;
     if (view === 'settings') showSettings(false);
     else restoreHome();
+    if (reopen && view !== 'settings') showSettings(true);
   });
 })(window, document);
