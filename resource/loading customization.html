@@ -138,36 +138,51 @@
         const ballSlow = document.querySelector('.ball-slow');
         const progressBar = document.querySelector('.progress-bar');
         const progressNew = document.querySelector('.progress-bar-new');
-        const containerWidth = document.documentElement.clientWidth;
+        const mobileLayout = window.matchMedia('(max-width: 768px), (max-width: 1024px) and (pointer: coarse)');
         let progressTriggered = false;
         let slowBallTriggered = false;
         let newProgressTriggered = false;
         let slowBallStartPos = -20;
         let animationFrameId = null;
         let barAnimationFrameId = null;
-        
-        const baseSpeed = 2.5;
-        const fixedDistance = 170;
-        
-        const ballStart = -30;
-        const ballEnd = containerWidth + 8;
-        const ballDistance = ballEnd - ballStart;
-        const ballDuration = ballDistance / baseSpeed;
-        
-        const barWidth = 600;
-        const barStart = ballStart - fixedDistance - barWidth;
-        const barEnd = containerWidth + barWidth;
-        const barDistance = barEnd - barStart;
-        const barDuration = barDistance / baseSpeed;
+
+        // Scale the desktop proportions and pixel speed together on smaller
+        // touch screens, preserving the same pacing and gap behind the ball.
+        function getAnimationGeometry() {
+            const containerWidth = Math.max(document.documentElement.clientWidth, 1);
+            const scale = mobileLayout.matches ? containerWidth / 1440 : 1;
+            const baseSpeed = 2.5 * scale;
+            const fixedDistance = 170 * scale;
+            const ballStart = mobileLayout.matches ? -Math.max(8, 30 * scale) : -30;
+            const ballEnd = containerWidth + 8;
+            const ballDistance = ballEnd - ballStart;
+            const barWidth = 600 * scale;
+            const barStart = ballStart - fixedDistance - barWidth;
+            const barEnd = containerWidth + barWidth;
+            const barDistance = barEnd - barStart;
+            return {
+                containerWidth, triggerDistance: 430 * scale,
+                ballStart, ballDistance, ballDuration: ballDistance / baseSpeed,
+                barWidth, barStart, barDistance, barDuration: barDistance / baseSpeed
+            };
+        }
+
+        let geometry = getAnimationGeometry();
+        function updateAnimationGeometry() {
+            geometry = getAnimationGeometry();
+            progressNew.style.width = `${geometry.barWidth}px`;
+        }
+        updateAnimationGeometry();
+        window.addEventListener('resize', updateAnimationGeometry);
         
         function startBallAnimation() {
             const startTime = performance.now();
-            ballSlow.style.left = `${ballStart}px`;
+            ballSlow.style.left = `${geometry.ballStart}px`;
             
             function animate(currentTime) {
                 const elapsed = currentTime - startTime;
-                const progress = Math.min(elapsed / ballDuration, 1);
-                const currentPos = ballStart + (ballDistance * progress);
+                const progress = Math.min(elapsed / geometry.ballDuration, 1);
+                const currentPos = geometry.ballStart + (geometry.ballDistance * progress);
                 
                 ballSlow.style.left = `${currentPos}px`;
                 
@@ -178,6 +193,9 @@
                 
                 if (progress < 1) {
                     animationFrameId = requestAnimationFrame(animate);
+                } else {
+                    // Keep the finished element outside even if the viewport grows.
+                    ballSlow.style.left = 'calc(100% + 8px)';
                 }
             }
             
@@ -185,17 +203,19 @@
         }
         
         function startBarAnimation(startTime) {
-            progressNew.style.left = `${barStart}px`;
+            progressNew.style.left = `${geometry.barStart}px`;
             
             function animate(currentTime) {
                 const elapsed = currentTime - startTime;
-                const progress = Math.min(elapsed / barDuration, 1);
-                const currentPos = barStart + (barDistance * progress);
+                const progress = Math.min(elapsed / geometry.barDuration, 1);
+                const currentPos = geometry.barStart + (geometry.barDistance * progress);
                 
                 progressNew.style.left = `${currentPos}px`;
                 
                 if (progress < 1) {
                     barAnimationFrameId = requestAnimationFrame(animate);
+                } else {
+                    progressNew.style.left = '100%';
                 }
             }
             
@@ -207,15 +227,15 @@
             
             const ball = document.querySelector('.ball');
             const ballLeft = parseFloat(getComputedStyle(ball).left);
-            const distanceToEnd = containerWidth - ballLeft;
+            const distanceToEnd = geometry.containerWidth - ballLeft;
             
-            if (distanceToEnd < 430) {
+            if (distanceToEnd < geometry.triggerDistance) {
                 progressBar.classList.add('active');
                 progressTriggered = true;
                 monitorProgressShrink();
             }
             
-            if (ballLeft < containerWidth + 8) {
+            if (ballLeft < geometry.containerWidth + 8) {
                 requestAnimationFrame(checkBallPosition);
             }
         }
