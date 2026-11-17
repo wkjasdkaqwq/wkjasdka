@@ -15,9 +15,11 @@
     const languageOpen = page.querySelector('#languageOpen');
     const languageCurrent = page.querySelector('#languageCurrent');
     const languageModal = page.querySelector('#languageModal');
+    const languageDialog = languageModal.querySelector('.language-dialog');
     const languageClose = page.querySelector('#languageClose');
     const languageForm = page.querySelector('#languageForm');
     const languageConfirm = page.querySelector('#languageConfirm');
+    const languageActions = page.querySelector('.language-actions');
     const languageError = page.querySelector('#languageError');
     const shortcutsModal = page.querySelector('#shortcutsModal');
     const shortcutsDialog = shortcutsModal.querySelector('.shortcuts-dialog');
@@ -95,6 +97,7 @@
         const translations = languagePreviewTranslations || {};
         SiteI18n.apply(languageError, { ...translations, namespace: 'settings' });
       }
+      fitLanguageDropdown();
     }
 
     function resetLanguagePreview() {
@@ -150,10 +153,34 @@
       languageChoices.forEach(item => item.classList.toggle('is-active', item === activeLanguageChoice));
       if (activeLanguageChoice) {
         languageSelect.setAttribute('aria-activedescendant', activeLanguageChoice.id);
-        activeLanguageChoice.scrollIntoView({ block: 'nearest' });
+        const item = activeLanguageChoice.getBoundingClientRect();
+        const list = languageOptions.getBoundingClientRect();
+        const styles = window.getComputedStyle(languageOptions);
+        const top = list.top + parseFloat(styles.paddingTop);
+        const bottom = list.bottom - parseFloat(styles.paddingBottom);
+        if (item.top < top) languageOptions.scrollTop += item.top - top;
+        else if (item.bottom > bottom) languageOptions.scrollTop += item.bottom - bottom;
       } else {
         languageSelect.removeAttribute('aria-activedescendant');
       }
+    }
+
+    function fitLanguageDropdown() {
+      if (languageDropdown.hidden || !languageModal.classList.contains('open')) return;
+      // Preserve four and a half rows where possible, reserving room for the
+      // confirm button and any error message in the visible viewport.
+      const viewport = window.visualViewport;
+      const viewportConstrained = Boolean(viewport && viewport.height + 120 < window.innerHeight);
+      languageModal.classList.toggle('is-viewport-constrained', viewportConstrained);
+      if (viewportConstrained) languageModal.style.setProperty('--language-visual-top', `${viewport.offsetTop}px`);
+      else languageModal.style.removeProperty('--language-visual-top');
+      languageOptions.style.maxHeight = '204px';
+      const viewportBottom = viewport ? viewport.offsetTop + viewport.height : window.innerHeight;
+      const list = languageOptions.getBoundingClientRect();
+      const dropdown = languageDropdown.getBoundingClientRect();
+      const afterList = Math.max(0, dropdown.bottom - list.bottom);
+      const available = viewportBottom - 12 - list.top - afterList;
+      languageOptions.style.maxHeight = `${Math.max(1, Math.min(204, available))}px`;
     }
 
     function filterLanguageChoices() {
@@ -166,6 +193,7 @@
       });
       const visible = orderedLanguageChoices().filter(choice => !choice.hidden);
       languageNoResults.hidden = visible.length > 0;
+      fitLanguageDropdown();
       if (!visible.includes(activeLanguageChoice)) {
         setActiveLanguageChoice(visible.find(choice => choice.dataset.value === languageDraft) || visible[0] || null);
       }
@@ -180,15 +208,24 @@
       languageInputIsPreview = false;
       languageDropdown.hidden = false;
       languagePicker.classList.add('is-open');
+      // Keep the button below the expanded list instead of obscuring an item;
+      // the compact dialog itself keeps its fixed dimensions.
+      languageDropdown.append(languageError, languageActions);
       languageSelect.setAttribute('aria-expanded', 'true');
       activeLanguageChoice = choice;
       filterLanguageChoices();
       setActiveLanguageChoice(activeLanguageChoice);
+      window.setTimeout(fitLanguageDropdown, 240);
     }
 
     function closeLanguageOptions(restoreFocus = false) {
       if (languageDropdown.hidden) return;
+      const confirmHadFocus = document.activeElement === languageConfirm;
+      languageForm.append(languageError, languageActions);
       languageDropdown.hidden = true;
+      languageOptions.style.removeProperty('max-height');
+      languageModal.classList.remove('is-viewport-constrained');
+      languageModal.style.removeProperty('--language-visual-top');
       languagePicker.classList.remove('is-open');
       languageSelect.setAttribute('aria-expanded', 'false');
       languageSelect.removeAttribute('aria-activedescendant');
@@ -203,6 +240,7 @@
       });
       languageNoResults.hidden = true;
       activeLanguageChoice = null;
+      if (confirmHadFocus && !languageConfirm.disabled) languageConfirm.focus({ preventScroll: true });
       if (restoreFocus && !languageSelect.disabled && languageModal.classList.contains('open')) {
         suppressLanguageFocusOpen = true;
         languageSelect.focus({ preventScroll: true });
@@ -463,6 +501,14 @@
     languageModal.addEventListener('click', event => {
       if (event.target === languageModal) closeLanguage();
     });
+    languageDialog.addEventListener('transitionend', event => {
+      if (event.target === languageDialog && event.propertyName === 'transform') fitLanguageDropdown();
+    });
+    window.addEventListener('resize', fitLanguageDropdown);
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', fitLanguageDropdown);
+      window.visualViewport.addEventListener('scroll', fitLanguageDropdown);
+    }
     window.addEventListener('site:languagechange', event => syncLanguageDisplay(event.detail.locale));
     activate();
     themeOptions.addEventListener('change', event => {
