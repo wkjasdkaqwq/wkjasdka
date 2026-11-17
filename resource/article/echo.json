@@ -24,6 +24,54 @@
         "statusLabel": "当前状态：",
         "statusText": "项目正在积极开发中，核心功能不断完善。"
       }
+    },
+    "ru": {
+      "article": {
+        "title": "Что такое Echo?",
+        "description": "Содержание",
+        "statusLabel": "Текущий статус:",
+        "statusText": "Проект активно разрабатывается, а его основные функции постоянно совершенствуются."
+      }
+    },
+    "de": {
+      "article": {
+        "title": "Was ist Echo?",
+        "description": "Inhalt",
+        "statusLabel": "Aktueller Status:",
+        "statusText": "Das Projekt wird aktiv entwickelt und seine Kernfunktionen werden laufend verbessert."
+      }
+    },
+    "fr": {
+      "article": {
+        "title": "Qu’est-ce qu’Echo ?",
+        "description": "Contenu",
+        "statusLabel": "État actuel :",
+        "statusText": "Le projet est en cours de développement actif et ses fonctionnalités principales sont continuellement améliorées."
+      }
+    },
+    "zh-HK": {
+      "article": {
+        "title": "Echo 是甚麼？",
+        "description": "內容",
+        "statusLabel": "目前狀態：",
+        "statusText": "項目正積極開發中，核心功能亦在持續完善。"
+      }
+    },
+    "zh-TW": {
+      "article": {
+        "title": "Echo 是什麼？",
+        "description": "內容",
+        "statusLabel": "目前狀態：",
+        "statusText": "專案正積極開發中，核心功能也持續完善。"
+      }
+    },
+    "zh-MO": {
+      "article": {
+        "title": "Echo 是甚麼？",
+        "description": "內容",
+        "statusLabel": "目前狀態：",
+        "statusText": "項目正積極開發中，核心功能持續完善。"
+      }
     }
   }
 }

@@ -78,6 +78,7 @@
     /* Appearance choices: reuse the warm, rounded animated-button visual language. */
     .theme-options { display: flex; flex: 0 0 auto; gap: .55rem; margin: 0; padding: 0; border: 0; background: transparent; }
     .theme-option { position: relative; display: flex; flex: 0 1 auto; align-items: center; justify-content: center; min-width: 104px; min-height: 48px; padding: .65rem 1rem; border: 2px solid #FFB380; border-radius: 24px; background: #FFDAB9; color: #E67E22; box-shadow: 0 4px 12px rgba(255,218,185,.38); font-size: .9rem; font-weight: 600; line-height: 1.2; white-space: nowrap; cursor: pointer; -webkit-user-select: none; user-select: none; transition: transform .3s cubic-bezier(.34,1.56,.64,1), box-shadow .3s ease, background-color .3s ease, border-color .3s ease, color .3s ease; }
+    .theme-options .theme-option { white-space: normal; text-align: center; overflow-wrap: anywhere; }
     .theme-option input { position: absolute; width: 1px; height: 1px; opacity: 0; }
     .theme-option:has(input:checked) { border-color: #FF9966; background: #FFE4C4; color: #B95D16; box-shadow: 0 6px 16px rgba(230,126,34,.2); font-weight: 750; }
     .theme-option:has(input:focus-visible) { outline: 3px solid #64b5f6; outline-offset: 3px; }
@@ -116,13 +117,14 @@
     .language-dropdown { position: absolute; z-index: 3; top: calc(100% - 2px); left: 0; right: 0; padding: 0 .55rem .55rem; border: 2px solid #FFB380; border-top: 0; border-radius: 0 0 22px 22px; background: #FFDAB9; box-shadow: 0 8px 20px rgba(255,218,185,.4); animation: language-options-in .22s ease both; }
     .language-dropdown[hidden], .language-choice[hidden], .language-no-results[hidden] { display: none; }
     .language-divider { height: 1px; margin: 0 .4rem .45rem; background: #FFB380; }
-    .language-options { display: grid; gap: .12rem; max-height: min(160px, 32vh); max-height: min(160px, 32dvh); overflow-y: auto; overscroll-behavior: contain; padding: 3px; }
+    .language-options { display: grid; gap: .12rem; max-height: min(96px, 32vh); max-height: min(96px, 32dvh); overflow-y: auto; overscroll-behavior: contain; padding: 3px; scrollbar-width: thin; scrollbar-color: #cc8b60 transparent; }
     @keyframes language-options-in { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
-    .language-options .language-choice { display: flex; align-items: center; justify-content: space-between; width: 100%; min-width: 0; min-height: 44px; gap: .75rem; padding: .55rem 1rem; border: 0; border-radius: 6px; background: transparent; color: #ae5c20; font-size: .9rem; font-weight: 600; line-height: 1.2; text-align: left; white-space: nowrap; cursor: pointer; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+    .language-options .language-choice { display: flex; align-items: center; justify-content: space-between; width: 100%; min-width: 0; min-height: 44px; gap: .75rem; padding: .55rem 1rem; border: 0; border-radius: 6px; background: transparent; color: #ae5c20; font-size: .9rem; font-weight: 600; line-height: 1.2; text-align: left; cursor: pointer; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
     .language-options .language-choice[hidden] { display: none; }
     @media (hover: hover) and (pointer: fine) { .language-choice:not([aria-selected="true"]):hover { background: rgba(185,93,22,.1); } }
-    .language-choice-name { display: inline-flex; align-items: baseline; gap: .35rem; min-width: 0; overflow: hidden; }
-    .language-choice-local-name { position: relative; top: .2em; flex: 0 1 auto; overflow: hidden; font-size: .5em; line-height: 1.1; opacity: .85; text-overflow: ellipsis; }
+    .language-choice-name { display: inline-flex; flex-wrap: wrap; align-items: baseline; column-gap: .35rem; min-width: 0; }
+    .language-choice-text { white-space: nowrap; }
+    .language-choice-local-name { position: relative; top: .2em; flex: 0 0 auto; max-width: 100%; margin-left: auto; font-size: .5em; line-height: 1.1; opacity: .85; overflow-wrap: anywhere; }
     .language-choice-local-name[hidden] { display: none; }
     .language-choice.is-active:not([aria-selected="true"]) { outline: 2px solid #e67e22; outline-offset: 1px; }
     .language-choice-check { flex: 0 0 auto; font-size: 1rem; font-weight: 800; opacity: 0; }
@@ -276,6 +278,7 @@
       .theme-options { width: 100%; gap: .4rem; }
       .theme-option { flex: 1 1 0; min-width: 0; min-height: 46px; padding: .55rem .25rem; border-radius: 23px; font-size: .78rem; }
       .language-open, .language-confirm { flex: 0 0 auto; min-width: 110px; padding: .55rem .8rem; }
+      .language-open { max-width: 60%; }
       .shortcuts-setting-row { display: none; }
       .setting-copy h2 { font-size: 1rem; }
       .setting-copy p { font-size: .85rem; }
@@ -380,6 +383,12 @@
               <div class="language-options" id="languageOptions" role="listbox" aria-labelledby="languagePickerLabel">
                 <div class="language-choice" id="languageOptionEn" role="option" data-value="en" aria-selected="true"><span class="language-choice-name"><span class="language-choice-text" lang="en">English</span><span class="language-choice-local-name" data-i18n="languageNameEnglish" hidden>English</span></span><span class="language-choice-check" aria-hidden="true">✓</span></div>
                 <div class="language-choice" id="languageOptionZhCN" role="option" data-value="zh-CN" aria-selected="false"><span class="language-choice-name"><span class="language-choice-text" lang="zh-CN">简体中文</span><span class="language-choice-local-name" data-i18n="languageNameSimplifiedChinese">Simplified Chinese</span></span><span class="language-choice-check" aria-hidden="true">✓</span></div>
+                <div class="language-choice" id="languageOptionRu" role="option" data-value="ru" aria-selected="false"><span class="language-choice-name"><span class="language-choice-text" lang="ru">Русский</span><span class="language-choice-local-name" data-i18n="languageNameRussian">Russian</span></span><span class="language-choice-check" aria-hidden="true">✓</span></div>
+                <div class="language-choice" id="languageOptionDe" role="option" data-value="de" aria-selected="false"><span class="language-choice-name"><span class="language-choice-text" lang="de">Deutsch</span><span class="language-choice-local-name" data-i18n="languageNameGerman">German</span></span><span class="language-choice-check" aria-hidden="true">✓</span></div>
+                <div class="language-choice" id="languageOptionFr" role="option" data-value="fr" aria-selected="false"><span class="language-choice-name"><span class="language-choice-text" lang="fr">Français</span><span class="language-choice-local-name" data-i18n="languageNameFrench">French</span></span><span class="language-choice-check" aria-hidden="true">✓</span></div>
+                <div class="language-choice" id="languageOptionZhHK" role="option" data-value="zh-HK" aria-selected="false"><span class="language-choice-name"><span class="language-choice-text" lang="zh-HK">繁體中文 (香港)</span><span class="language-choice-local-name" data-i18n="languageNameTraditionalChineseHK">Traditional Chinese (Hong Kong)</span></span><span class="language-choice-check" aria-hidden="true">✓</span></div>
+                <div class="language-choice" id="languageOptionZhTW" role="option" data-value="zh-TW" aria-selected="false"><span class="language-choice-name"><span class="language-choice-text" lang="zh-TW">繁體中文 (台灣)</span><span class="language-choice-local-name" data-i18n="languageNameTraditionalChineseTW">Traditional Chinese (Taiwan)</span></span><span class="language-choice-check" aria-hidden="true">✓</span></div>
+                <div class="language-choice" id="languageOptionZhMO" role="option" data-value="zh-MO" aria-selected="false"><span class="language-choice-name"><span class="language-choice-text" lang="zh-MO">繁體中文 (澳門)</span><span class="language-choice-local-name" data-i18n="languageNameTraditionalChineseMO">Traditional Chinese (Macau)</span></span><span class="language-choice-check" aria-hidden="true">✓</span></div>
               </div>
               <p class="language-no-results" id="languageNoResults" role="status" data-i18n="languageNoResults" hidden>No languages found.</p>
             </div>
@@ -436,8 +445,8 @@
     </div>
   </div>
 
-  <script src="./scripts/i18n.js?v=20261117-dialog-preview"></script>
-  <script src="./scripts/settings.js?v=20261117-dialog-preview"></script>
+  <script src="./scripts/i18n.js?v=20261117-multilingual"></script>
+  <script src="./scripts/settings.js?v=20261117-multilingual"></script>
   <script>window.SettingsPage.init(document);</script>
 </body>
 </html>

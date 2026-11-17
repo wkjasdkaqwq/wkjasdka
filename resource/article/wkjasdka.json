@@ -35,6 +35,66 @@
         "sectionTwoTitle": "主标题",
         "sectionTwoContent": "内容"
       }
+    },
+    "ru": {
+      "article": {
+        "title": "Что такое W.K.Jasdka?",
+        "intro": "Содержание",
+        "sectionOneTitle": "Заголовок раздела",
+        "sectionOneContent": "Содержание",
+        "sectionTwoTitle": "Заголовок раздела",
+        "sectionTwoContent": "Содержание"
+      }
+    },
+    "de": {
+      "article": {
+        "title": "Was ist W.K.Jasdka?",
+        "intro": "Inhalt",
+        "sectionOneTitle": "Abschnittstitel",
+        "sectionOneContent": "Inhalt",
+        "sectionTwoTitle": "Abschnittstitel",
+        "sectionTwoContent": "Inhalt"
+      }
+    },
+    "fr": {
+      "article": {
+        "title": "Qu’est-ce que W.K.Jasdka ?",
+        "intro": "Contenu",
+        "sectionOneTitle": "Titre de la section",
+        "sectionOneContent": "Contenu",
+        "sectionTwoTitle": "Titre de la section",
+        "sectionTwoContent": "Contenu"
+      }
+    },
+    "zh-HK": {
+      "article": {
+        "title": "W.K.Jasdka 是甚麼？",
+        "intro": "內容",
+        "sectionOneTitle": "段落標題",
+        "sectionOneContent": "內容",
+        "sectionTwoTitle": "段落標題",
+        "sectionTwoContent": "內容"
+      }
+    },
+    "zh-TW": {
+      "article": {
+        "title": "W.K.Jasdka 是什麼？",
+        "intro": "內容",
+        "sectionOneTitle": "章節標題",
+        "sectionOneContent": "內容",
+        "sectionTwoTitle": "章節標題",
+        "sectionTwoContent": "內容"
+      }
+    },
+    "zh-MO": {
+      "article": {
+        "title": "W.K.Jasdka 是甚麼？",
+        "intro": "內容",
+        "sectionOneTitle": "區段標題",
+        "sectionOneContent": "內容",
+        "sectionTwoTitle": "區段標題",
+        "sectionTwoContent": "內容"
+      }
     }
   }
 }

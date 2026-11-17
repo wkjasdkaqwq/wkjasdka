@@ -17,6 +17,42 @@
         "title": "用户协议",
         "content": "内容"
       }
+    },
+    "ru": {
+      "article": {
+        "title": "Пользовательское соглашение",
+        "content": "Содержание"
+      }
+    },
+    "de": {
+      "article": {
+        "title": "Nutzungsvereinbarung",
+        "content": "Inhalt"
+      }
+    },
+    "fr": {
+      "article": {
+        "title": "Conditions d’utilisation",
+        "content": "Contenu"
+      }
+    },
+    "zh-HK": {
+      "article": {
+        "title": "用戶協議",
+        "content": "內容"
+      }
+    },
+    "zh-TW": {
+      "article": {
+        "title": "使用者協議",
+        "content": "內容"
+      }
+    },
+    "zh-MO": {
+      "article": {
+        "title": "用戶協議",
+        "content": "內容"
+      }
     }
   }
 }

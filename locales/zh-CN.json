@@ -12,6 +12,12 @@
     "languageDescription": "选择整个网站的显示语言。",
     "languageNameEnglish": "英语",
     "languageNameSimplifiedChinese": "简体中文",
+    "languageNameRussian": "俄语",
+    "languageNameGerman": "德语",
+    "languageNameFrench": "法语",
+    "languageNameTraditionalChineseHK": "繁体中文（香港）",
+    "languageNameTraditionalChineseTW": "繁体中文（台湾）",
+    "languageNameTraditionalChineseMO": "繁体中文（澳门）",
     "languageModalTitle": "搜索语言",
     "languageNoResults": "未找到匹配的语言。",
     "languageClose": "关闭语言选择窗口",
@@ -42,16 +48,21 @@
   },
   "community": {
     "documentTitle": "Liuyanlin Community 上的 Semi-rounded Corner",
+    "logoAlt": "Liuyanlin Community 标志",
     "pageHeading": "测试",
     "pageDescription": "这是一个 Community 前端页面测试。"
   },
   "home": {
     "documentTitle": "W.K.Jasdka 官方网站",
+    "menuToggle": "切换菜单",
+    "menuLabel": "网站菜单",
     "topLink": "返回顶部",
     "socialPlatforms": "社交平台",
     "contactLink": "联系",
     "aboutLink": "关于",
     "settingsLink": "设置",
+    "loadingLogoAlt": "加载标志",
+    "projectImageAlt": "项目图片",
     "welcomeLead": "欢迎来到",
     "welcomeSite": "W.K.Jasdka 官方网站！",
     "cardOneTooltip": "Liuyanlin.Wkjasdka.NET 是什么？",
@@ -60,7 +71,10 @@
     "cardTwoTooltip": "Liuyanlin.Wkjasdka.NET 有什么用途？",
     "cardTwoFront": "有何用途？",
     "cardTwoBack": "这里用于获取 W.K.Jasdka 已完成的开发项目。",
+    "projectsHeading": "项目",
+    "projectTitle": "Semi-rounded Corner",
     "projectDescription": "项目介绍待补充。",
-    "projectLink": "查看详情"
+    "projectLink": "查看详情",
+    "copyrightNotice": "版权所有 © W.K.Jasdka。保留所有权利。"
   }
 }

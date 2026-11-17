@@ -17,6 +17,42 @@
         "title": "隐私政策",
         "content": "内容"
       }
+    },
+    "ru": {
+      "article": {
+        "title": "Политика конфиденциальности",
+        "content": "Содержание"
+      }
+    },
+    "de": {
+      "article": {
+        "title": "Datenschutzerklärung",
+        "content": "Inhalt"
+      }
+    },
+    "fr": {
+      "article": {
+        "title": "Politique de confidentialité",
+        "content": "Contenu"
+      }
+    },
+    "zh-HK": {
+      "article": {
+        "title": "私隱政策",
+        "content": "內容"
+      }
+    },
+    "zh-TW": {
+      "article": {
+        "title": "隱私權政策",
+        "content": "內容"
+      }
+    },
+    "zh-MO": {
+      "article": {
+        "title": "私隱政策",
+        "content": "內容"
+      }
     }
   }
 }

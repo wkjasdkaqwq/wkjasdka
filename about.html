@@ -796,7 +796,7 @@
 
   <footer></footer>
 
-  <script src="./scripts/i18n.js"></script>
+  <script src="./scripts/i18n.js?v=20261117-multilingual"></script>
   <script>
     const navbar = document.getElementById('navbar');
     const sidebar = document.getElementById('sidebar');
@@ -1041,6 +1041,7 @@
       if (!articleKeys.has(key)) return Promise.reject(new Error(`Unknown article: ${key}`));
       if (!articleCache.has(key)) {
         const url = new URL(`./resource/article/${key}.json`, document.baseURI);
+        url.searchParams.set('v', '20261117-multilingual');
         if (articleReloadToken) url.searchParams.set('_wkjasdka_full_reload', articleReloadToken);
         const controller = new AbortController();
         const timeout = window.setTimeout(() => controller.abort(), 10000);

@@ -17,6 +17,42 @@
         "title": "Liuyanlin 是什么？",
         "content": "内容"
       }
+    },
+    "ru": {
+      "article": {
+        "title": "Что такое Liuyanlin?",
+        "content": "Содержание"
+      }
+    },
+    "de": {
+      "article": {
+        "title": "Was ist Liuyanlin?",
+        "content": "Inhalt"
+      }
+    },
+    "fr": {
+      "article": {
+        "title": "Qu’est-ce que Liuyanlin ?",
+        "content": "Contenu"
+      }
+    },
+    "zh-HK": {
+      "article": {
+        "title": "Liuyanlin 是甚麼？",
+        "content": "內容"
+      }
+    },
+    "zh-TW": {
+      "article": {
+        "title": "Liuyanlin 是什麼？",
+        "content": "內容"
+      }
+    },
+    "zh-MO": {
+      "article": {
+        "title": "Liuyanlin 是甚麼？",
+        "content": "內容"
+      }
     }
   }
 }

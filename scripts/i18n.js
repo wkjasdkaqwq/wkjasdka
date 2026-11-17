@@ -5,8 +5,8 @@
   const SESSION_STORAGE_KEY = `${STORAGE_KEY}-session`;
   const FULL_RELOAD_QUERY_PARAM = '_wkjasdka_full_reload';
   const DEFAULT_LOCALE = 'en';
-  const SUPPORTED_LOCALES = ['en', 'zh-CN'];
-  const LOCALE_TAGS = { en: 'en-GB', 'zh-CN': 'zh-CN' };
+  const SUPPORTED_LOCALES = ['en', 'zh-CN', 'ru', 'de', 'fr', 'zh-HK', 'zh-TW', 'zh-MO'];
+  const LOCALE_TAGS = { en: 'en-GB', 'zh-CN': 'zh-CN', ru: 'ru', de: 'de', fr: 'fr', 'zh-HK': 'zh-HK', 'zh-TW': 'zh-TW', 'zh-MO': 'zh-MO' };
   const fullReloadToken = new URL(window.location.href).searchParams.get(FULL_RELOAD_QUERY_PARAM);
   const scriptElement = document.currentScript;
   const dictionaryVersion = scriptElement && scriptElement.src
@@ -35,10 +35,22 @@
   let reloadMarkerCleanupScheduled = false;
   let requestId = 0;
 
+  function matchSupportedLocale(locale) {
+    const tag = String(locale || '').trim().replace(/_/g, '-').toLowerCase();
+    const parts = tag.split('-');
+    if (parts[0] === 'zh') {
+      // An explicit simplified script takes precedence over the region.
+      if (parts.includes('hans')) return 'zh-CN';
+      for (const region of ['hk', 'tw', 'mo']) {
+        if (parts.includes(region)) return `zh-${region.toUpperCase()}`;
+      }
+      return parts.includes('hant') ? 'zh-TW' : 'zh-CN';
+    }
+    return ['en', 'ru', 'de', 'fr'].includes(parts[0]) ? parts[0] : null;
+  }
+
   function normalizeLocale(locale) {
-    if (locale === 'zh-CN' || /^zh(?:-|_|$)/i.test(String(locale || ''))) return 'zh-CN';
-    if (locale === 'en' || /^en(?:-|_|$)/i.test(String(locale || ''))) return 'en';
-    return DEFAULT_LOCALE;
+    return matchSupportedLocale(locale) || DEFAULT_LOCALE;
   }
 
   function readStoredLocale() {
@@ -106,12 +118,8 @@
     if (window.navigator && window.navigator.language) preferences.push(window.navigator.language);
 
     for (const preference of preferences) {
-      const tag = String(preference || '').trim().replace(/_/g, '-').toLowerCase();
-      if (/^en(?:-|$)/.test(tag)) return 'en';
-      if (/^zh(?:-|$)/.test(tag)) {
-        const traditionalChinese = /(?:^|-)hant(?:-|$)/.test(tag) || /(?:^|-)(?:tw|hk|mo)(?:-|$)/.test(tag);
-        if (!traditionalChinese) return 'zh-CN';
-      }
+      const locale = matchSupportedLocale(preference);
+      if (locale) return locale;
     }
     return null;
   }

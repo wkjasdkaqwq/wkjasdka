@@ -51,6 +51,84 @@
         "sectionTwoTitle": "主标题",
         "sectionTwoContent": "内容"
       }
+    },
+    "ru": {
+      "article": {
+        "title": "Добро пожаловать в Echo",
+        "support": "Узнайте об Echo или получите помощь и поддержку",
+        "intro": "Добро пожаловать на страницу «О проекте» Echo.",
+        "platformOverview": "Echo управляет платформами W.K.Jasdka и Liuyanlin.",
+        "platformLegal": "Обе платформы поддерживаются одной командой и принадлежат одному юридическому лицу, осуществляющему их деятельность.",
+        "sectionOneTitle": "Заголовок раздела",
+        "sectionOneContent": "Содержание",
+        "sectionTwoTitle": "Заголовок раздела",
+        "sectionTwoContent": "Содержание"
+      }
+    },
+    "de": {
+      "article": {
+        "title": "Willkommen bei Echo",
+        "support": "Erfahren Sie mehr über Echo oder erhalten Sie Hilfe und Unterstützung.",
+        "intro": "Willkommen auf der Informationsseite zu Echo.",
+        "platformOverview": "Echo verwaltet die Plattformen W.K.Jasdka und Liuyanlin.",
+        "platformLegal": "Beide Plattformen werden vom selben Team betreut und sind demselben rechtlichen Betreiber zugeordnet.",
+        "sectionOneTitle": "Abschnittstitel",
+        "sectionOneContent": "Inhalt",
+        "sectionTwoTitle": "Abschnittstitel",
+        "sectionTwoContent": "Inhalt"
+      }
+    },
+    "fr": {
+      "article": {
+        "title": "Bienvenue sur Echo",
+        "support": "En savoir plus sur Echo ou obtenir de l’aide et de l’assistance",
+        "intro": "Bienvenue sur la page À propos d’Echo.",
+        "platformOverview": "Echo gère les plateformes W.K.Jasdka et Liuyanlin.",
+        "platformLegal": "Les deux plateformes sont maintenues par la même équipe et relèvent de la même entité juridique exploitante.",
+        "sectionOneTitle": "Titre de la section",
+        "sectionOneContent": "Contenu",
+        "sectionTwoTitle": "Titre de la section",
+        "sectionTwoContent": "Contenu"
+      }
+    },
+    "zh-HK": {
+      "article": {
+        "title": "歡迎來到 Echo",
+        "support": "了解 Echo，或取得協助和支援",
+        "intro": "歡迎來到 Echo 的關於頁面。",
+        "platformOverview": "Echo 管理 W.K.Jasdka 和 Liuyanlin 平台。",
+        "platformLegal": "兩個平台由同一團隊維護，並屬於同一法律營運實體。",
+        "sectionOneTitle": "段落標題",
+        "sectionOneContent": "內容",
+        "sectionTwoTitle": "段落標題",
+        "sectionTwoContent": "內容"
+      }
+    },
+    "zh-TW": {
+      "article": {
+        "title": "歡迎來到 Echo",
+        "support": "關於 Echo 或取得協助與支援",
+        "intro": "歡迎來到 Echo 的關於頁面。",
+        "platformOverview": "Echo 管理 W.K.Jasdka 和 Liuyanlin 平台。",
+        "platformLegal": "兩個平台由同一團隊維護，並屬於同一法律營運主體。",
+        "sectionOneTitle": "章節標題",
+        "sectionOneContent": "內容",
+        "sectionTwoTitle": "章節標題",
+        "sectionTwoContent": "內容"
+      }
+    },
+    "zh-MO": {
+      "article": {
+        "title": "歡迎來到 Echo",
+        "support": "了解 Echo 或獲取協助與支援",
+        "intro": "歡迎來到 Echo 的關於頁面。",
+        "platformOverview": "Echo 管理 W.K.Jasdka 和 Liuyanlin 平台。",
+        "platformLegal": "兩個平台均由同一團隊維護，並屬於同一個法定營運實體。",
+        "sectionOneTitle": "區段標題",
+        "sectionOneContent": "內容",
+        "sectionTwoTitle": "區段標題",
+        "sectionTwoContent": "內容"
+      }
     }
   }
 }

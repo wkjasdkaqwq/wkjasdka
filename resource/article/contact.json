@@ -25,6 +25,48 @@
         "intro": "如果您有任何疑问，欢迎通过以下方式与我们联系：",
         "emailTitle": "📧 电子邮件"
       }
+    },
+    "ru": {
+      "article": {
+        "title": "Связаться с нами",
+        "intro": "Если у вас есть вопросы, свяжитесь с нами следующим способом:",
+        "emailTitle": "📧 Электронная почта"
+      }
+    },
+    "de": {
+      "article": {
+        "title": "Kontaktieren Sie uns",
+        "intro": "Bei Fragen können Sie uns auf folgendem Weg kontaktieren:",
+        "emailTitle": "📧 E-Mail"
+      }
+    },
+    "fr": {
+      "article": {
+        "title": "Nous contacter",
+        "intro": "Si vous avez des questions, contactez-nous par le moyen suivant :",
+        "emailTitle": "📧 E-mail"
+      }
+    },
+    "zh-HK": {
+      "article": {
+        "title": "聯絡我們",
+        "intro": "如有任何疑問，請透過以下方式與我們聯絡：",
+        "emailTitle": "📧 電子郵件"
+      }
+    },
+    "zh-TW": {
+      "article": {
+        "title": "聯絡我們",
+        "intro": "如有任何疑問，歡迎透過以下方式與我們聯絡：",
+        "emailTitle": "📧 電子郵件"
+      }
+    },
+    "zh-MO": {
+      "article": {
+        "title": "聯絡我們",
+        "intro": "如有任何疑問，請透過以下途徑與我們聯絡：",
+        "emailTitle": "📧 電子郵件"
+      }
     }
   }
 }
