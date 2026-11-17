@@ -90,31 +90,41 @@
     .language-open { flex: 0 0 auto; min-width: 140px; max-width: 48%; gap: .55rem; }
     .language-current { overflow: hidden; text-overflow: ellipsis; }
     .language-open::after { content: ''; width: .45rem; height: .45rem; flex: 0 0 auto; margin-top: -.25rem; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg); }
-    .language-open:focus-visible, .language-confirm:focus-visible, .language-close:focus-visible, .language-select:focus-visible { outline: 3px solid #64b5f6; outline-offset: 3px; }
+    .language-open:focus-visible, .language-confirm:focus-visible, .language-close:focus-visible { outline: 3px solid #64b5f6; outline-offset: 3px; }
     .language-close:focus { outline: 3px solid #64b5f6; outline-offset: 3px; }
     .language-modal { position: fixed; inset: 0; z-index: 9500; display: grid; place-items: center; padding: 1rem; background: rgba(5,12,20,.68); opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .2s ease, visibility .2s ease; }
     .language-modal.open { opacity: 1; visibility: visible; pointer-events: auto; }
-    .language-dialog { width: min(440px, 100%); max-height: calc(100dvh - 2rem); overflow: auto; border: 1px solid #dfe4e8; border-radius: 18px; background: #fff; color: #263238; box-shadow: 0 24px 80px rgba(0,0,0,.32); transform: translateY(12px) scale(.985); transition: transform .2s ease; }
+    .language-dialog { display: flex; flex-direction: column; width: min(440px, 100%); height: min(335px, calc(100vh - 2rem)); height: min(335px, calc(100dvh - 2rem)); overflow: auto; border: 1px solid #dfe4e8; border-radius: 18px; background: #fff; color: #263238; box-shadow: 0 24px 80px rgba(0,0,0,.32); transform: translateY(12px) scale(.985); transition: transform .2s ease; }
     .language-modal.open .language-dialog { transform: translateY(0) scale(1); }
-    .language-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1.25rem 1.35rem; border-bottom: 1px solid #e3e7eb; }
+    .language-header { display: flex; flex: 0 0 auto; align-items: center; justify-content: space-between; gap: 1rem; padding: .65rem 1.35rem; border-bottom: 1px solid #e3e7eb; }
     .language-header h2 { margin: 0; font-size: 1.2rem; }
     .language-close { display: grid; flex: 0 0 38px; place-items: center; width: 38px; height: 38px; padding: 0; border: 0; border-radius: 50%; background: #edf0f2; color: inherit; font-size: 1.6rem; line-height: 1; cursor: pointer; }
-    .language-form { padding: 1.35rem; }
-    .language-description { margin: 0 0 1.1rem; color: #66717a; line-height: 1.5; }
+    .language-form { display: flex; flex: 1 0 auto; flex-direction: column; min-height: 235px; padding: .8rem 1.35rem; }
     .language-label { display: block; margin-bottom: .5rem; font-size: .9rem; font-weight: 700; }
-    .language-picker .language-select { width: 100%; min-height: 46px; flex: 0 0 auto; justify-content: space-between; gap: .8rem; padding: .65rem 1rem; font-size: .95rem; text-align: left; }
-    .language-select-text { overflow: hidden; text-overflow: ellipsis; }
-    .language-select-arrow { width: .5rem; height: .5rem; flex: 0 0 auto; margin: -.25rem .2rem 0 0; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg); transition: transform .25s ease, margin .25s ease; }
-    .language-select[aria-expanded="true"] .language-select-arrow { margin-top: .25rem; transform: rotate(225deg); }
-    .language-options { display: grid; gap: .45rem; max-height: min(224px, 32vh); max-height: min(224px, 32dvh); overflow-y: auto; overscroll-behavior: contain; margin-top: .55rem; padding: 3px; animation: language-options-in .22s ease both; }
-    .language-options[hidden] { display: none; }
+    .language-picker { position: relative; }
+    .language-picker .language-select-card { width: 100%; min-height: 46px; flex: 0 0 auto; justify-content: space-between; gap: .8rem; padding: .65rem 1rem; font-size: .95rem; text-align: left; }
+    .language-select-card .language-select { position: static; width: 100%; min-width: 0; height: auto; padding: 0; border: 0; outline: 0; background: transparent; color: inherit; font: inherit; line-height: 1.2; opacity: 1; -webkit-appearance: none; appearance: none; -webkit-user-select: text; user-select: text; }
+    .language-select[readonly] { cursor: pointer; }
+    .language-select::placeholder { color: #888; opacity: 1; }
+    .language-select::-webkit-search-cancel-button, .language-select::-webkit-search-decoration { -webkit-appearance: none; appearance: none; }
+    .language-select-card:has(.language-select:focus-visible) { outline: 3px solid #64b5f6; outline-offset: 3px; }
+    .language-select-card:has(.language-select:disabled) { cursor: wait; opacity: .6; }
+    .language-picker.is-open .language-select-card:has(.language-select:focus-visible) { outline: none; }
+    .language-picker.is-open .language-select:focus-visible { box-shadow: inset 0 -2px 0 #64b5f6; }
+    .language-search-icon { width: 19px; height: 19px; flex: 0 0 auto; pointer-events: none; }
+    .language-picker.is-open .language-select-card { z-index: 2; border-color: #FFB380; border-radius: 24px 24px 0 0; background: #FFDAB9; color: #E67E22; box-shadow: none; transform: none; }
+    .language-dropdown { position: absolute; z-index: 3; top: calc(100% - 2px); left: 0; right: 0; padding: 0 .55rem .55rem; border: 2px solid #FFB380; border-top: 0; border-radius: 0 0 22px 22px; background: #FFDAB9; box-shadow: 0 8px 20px rgba(255,218,185,.4); animation: language-options-in .22s ease both; }
+    .language-dropdown[hidden], .language-choice[hidden], .language-no-results[hidden] { display: none; }
+    .language-divider { height: 1px; margin: 0 .4rem .45rem; background: #FFB380; }
+    .language-options { display: grid; gap: .45rem; max-height: min(160px, 32vh); max-height: min(160px, 32dvh); overflow-y: auto; overscroll-behavior: contain; padding: 3px; }
     @keyframes language-options-in { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
     .language-options .language-choice { width: 100%; min-height: 44px; flex: 0 0 auto; justify-content: space-between; gap: .75rem; padding: .55rem 1rem; font-size: .9rem; text-align: left; }
     .language-choice.is-active:not([aria-selected="true"]) { outline: 2px solid #e67e22; outline-offset: 1px; }
     .language-choice-check { font-size: 1rem; font-weight: 800; opacity: 0; }
     .language-choice[aria-selected="true"] .language-choice-check { opacity: 1; }
+    .language-no-results { margin: .4rem .45rem; color: #765b4a; font-size: .9rem; }
     .language-error { margin: .75rem 0 0; color: #b42318; font-size: .9rem; }
-    .language-actions { display: flex; justify-content: flex-end; margin-top: 1.5rem; }
+    .language-actions { display: flex; justify-content: flex-end; margin-top: auto; padding-top: 1rem; }
     .language-confirm { flex: 0 0 auto; min-width: 110px; }
     .language-confirm:disabled { cursor: wait; opacity: .6; }
     .shortcuts-open { min-height: 42px; padding: .65rem 1rem; border: 0; border-radius: 8px; background: #e67e22; color: #fff; font: inherit; font-weight: 700; cursor: pointer; transition: background .2s ease, transform .2s ease; }
@@ -190,7 +200,11 @@
     html.dark-mode .language-dialog { background: #0d1a26; border-color: #26394d; color: #e0e0e0; }
     html.dark-mode .language-header { border-color: #26394d; }
     html.dark-mode .language-close { background: #1a2a3a; }
-    html.dark-mode .language-description { color: #a0aab3; }
+    html.dark-mode .language-picker.is-open .language-select-card { border-color: #9A623D; background: #30251E; color: #F2B27F; }
+    html.dark-mode .language-dropdown { border-color: #9A623D; background: #30251E; box-shadow: 0 8px 20px rgba(0,0,0,.28); }
+    html.dark-mode .language-divider { background: #9A623D; }
+    html.dark-mode .language-select::placeholder { color: #a8a8a8; }
+    html.dark-mode .language-no-results { color: #d1b19a; }
     html.dark-mode .language-error { color: #ffb4a9; }
     html.dark-mode .loading-screen { background: #07121C; }
     html.dark-mode .loading-footer-image { filter: invert(1); }
@@ -246,7 +260,7 @@
     .language-choice[aria-selected="true"].is-touch-pressed { background-color: #FFCF97; border-color: #FF8142; }
     html.dark-mode .language-choice[aria-selected="true"]:active,
     html.dark-mode .language-choice[aria-selected="true"].is-touch-pressed { background-color: #422B1C; border-color: #D57118; }
-    @media (prefers-reduced-motion: reduce) { .language-options { animation: none; } }
+    @media (prefers-reduced-motion: reduce) { .language-dropdown { animation: none; } }
 
     @media (max-width: 600px) {
       .navbar { height: 3.75rem; }
@@ -283,6 +297,11 @@
       .keyboard-backspace-short { display: inline; }
       .keyboard-function-full { display: none; }
       .keyboard-function-short { display: inline; }
+    }
+    @media (max-height: 420px) {
+      .language-header { padding: .7rem 1.35rem; }
+      .language-form { min-height: 240px; padding: .85rem 1.35rem .5rem; }
+      .language-label { margin-bottom: .35rem; }
     }
     @media (max-height: 560px) {
       .shortcuts-dialog { height: 96vh; height: 96dvh; }
@@ -341,22 +360,25 @@
     </section>
 
     <div class="language-modal" id="languageModal" aria-hidden="true">
-      <section class="language-dialog" role="dialog" aria-modal="true" aria-labelledby="languageModalTitle" aria-describedby="languageModalDescription">
+      <section class="language-dialog" role="dialog" aria-modal="true" aria-labelledby="languageModalTitle">
         <header class="language-header">
-          <h2 id="languageModalTitle" data-i18n="languageModalTitle">Choose a language</h2>
+          <h2 id="languageModalTitle" data-i18n="languageModalTitle">Search languages</h2>
           <button class="language-close" id="languageClose" type="button" aria-label="Close language dialog" data-i18n-aria-label="languageClose">&times;</button>
         </header>
         <form class="language-form" id="languageForm">
-          <p class="language-description" id="languageModalDescription" data-i18n="languageModalDescription">Select a language and confirm to apply it across the site.</p>
           <span class="language-label" id="languagePickerLabel" data-i18n="languageTitle">Language</span>
           <div class="language-picker" id="languagePicker">
-            <button class="theme-option language-select" id="languageSelect" type="button" role="combobox" value="en" aria-haspopup="listbox" aria-expanded="false" aria-controls="languageOptions" aria-labelledby="languagePickerLabel languageSelectedText">
-              <span class="language-select-text" id="languageSelectedText">English</span>
-              <span class="language-select-arrow" aria-hidden="true"></span>
-            </button>
-            <div class="language-options" id="languageOptions" role="listbox" aria-labelledby="languagePickerLabel" hidden>
-              <div class="theme-option language-choice" id="languageOptionEn" role="option" data-value="en" aria-selected="true"><span class="language-choice-text" lang="en">English</span><span class="language-choice-check" aria-hidden="true">✓</span></div>
-              <div class="theme-option language-choice" id="languageOptionZhCN" role="option" data-value="zh-CN" aria-selected="false"><span class="language-choice-text" lang="zh-CN">简体中文</span><span class="language-choice-check" aria-hidden="true">✓</span></div>
+            <div class="theme-option language-select-card" id="languageSelectCard">
+              <input class="language-select" id="languageSelect" type="search" role="combobox" value="English" readonly autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" aria-autocomplete="list" aria-haspopup="listbox" aria-expanded="false" aria-controls="languageOptions" aria-labelledby="languagePickerLabel">
+              <svg class="language-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="m16 16 4.5 4.5"></path></svg>
+            </div>
+            <div class="language-dropdown" id="languageDropdown" hidden>
+              <div class="language-divider" aria-hidden="true"></div>
+              <div class="language-options" id="languageOptions" role="listbox" aria-labelledby="languagePickerLabel">
+                <div class="theme-option language-choice" id="languageOptionEn" role="option" data-value="en" aria-selected="true"><span class="language-choice-text" lang="en">English</span><span class="language-choice-check" aria-hidden="true">✓</span></div>
+                <div class="theme-option language-choice" id="languageOptionZhCN" role="option" data-value="zh-CN" aria-selected="false"><span class="language-choice-text" lang="zh-CN">简体中文</span><span class="language-choice-check" aria-hidden="true">✓</span></div>
+              </div>
+              <p class="language-no-results" id="languageNoResults" role="status" data-i18n="languageNoResults" hidden>No languages found.</p>
             </div>
           </div>
           <p class="language-error" id="languageError" role="alert" data-i18n="languageSaveError" hidden>Could not apply the language. Please try again.</p>
