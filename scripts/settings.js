@@ -117,26 +117,22 @@
       busyElement.setAttribute('aria-busy', 'true');
       document.body.appendChild(overlay);
       const motion = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
-      const ui = { overlay, focus, wasInputEditing, inertElements, busyElement, previousBusy, animation: null, fadeTimer: null, shownAt: performance.now(), motion, motionHandler: null };
+      const ui = { overlay, focus, wasInputEditing, inertElements, busyElement, previousBusy, animation: null, fadeTimer: null, fadeHandler: null, motion, motionHandler: null };
       languageWaitUi = ui;
       overlay.focus({ preventScroll: true });
       function showIndicator() {
-        if (languageWaitUi !== ui && !(motion && motion.matches)) return;
+        if (fadingLanguageWaits.has(ui)) {
+          if (motion && motion.matches) disposeLanguageWait(ui);
+          return;
+        }
+        if (languageWaitUi !== ui) return;
         if (ui.animation) ui.animation.stop();
         ui.animation = null;
         const previous = overlay.querySelector('.language-wait-static');
         if (previous) previous.remove();
         try {
           if (!(motion && motion.matches) && window.SiteLoadingAnimation) {
-            ui.animation = window.SiteLoadingAnimation.start(overlay, {
-              loop: true,
-              onIdle() {
-                if (!fadingLanguageWaits.has(ui)) return;
-                if (ui.fadeTimer !== null) window.clearTimeout(ui.fadeTimer);
-                // Dispose after all overlapping animation cycles finish.
-                ui.fadeTimer = window.setTimeout(() => disposeLanguageWait(ui), 0);
-              }
-            });
+            ui.animation = window.SiteLoadingAnimation.start(overlay, { loop: true });
             return;
           }
         } catch (error) {
@@ -148,7 +144,6 @@
           indicator.setAttribute('aria-hidden', 'true');
           overlay.appendChild(indicator);
         }
-        if (fadingLanguageWaits.has(ui)) scheduleLanguageWaitDisposal(ui, Math.max(0, 800 - (performance.now() - ui.shownAt)));
       }
       ui.motionHandler = showIndicator;
       if (motion && motion.addEventListener) motion.addEventListener('change', ui.motionHandler);
@@ -165,6 +160,7 @@
 
     function disposeLanguageWait(ui) {
       if (ui.fadeTimer !== null) window.clearTimeout(ui.fadeTimer);
+      if (ui.fadeHandler) ui.overlay.removeEventListener('transitionend', ui.fadeHandler);
       if (ui.animation) ui.animation.stop();
       if (ui.motion && ui.motion.removeEventListener) ui.motion.removeEventListener('change', ui.motionHandler);
       else if (ui.motion && ui.motion.removeListener) ui.motion.removeListener(ui.motionHandler);
@@ -172,9 +168,13 @@
       fadingLanguageWaits.delete(ui);
     }
 
-    function scheduleLanguageWaitDisposal(ui, delay) {
-      if (ui.fadeTimer !== null) window.clearTimeout(ui.fadeTimer);
-      ui.fadeTimer = window.setTimeout(() => disposeLanguageWait(ui), delay);
+    function scheduleLanguageWaitDisposal(ui) {
+      ui.fadeHandler = event => {
+        if (event.target === ui.overlay && event.propertyName === 'opacity') disposeLanguageWait(ui);
+      };
+      ui.overlay.addEventListener('transitionend', ui.fadeHandler);
+      // Covers an interrupted or unstarted transition, including a hidden tab.
+      ui.fadeTimer = window.setTimeout(() => disposeLanguageWait(ui), 700);
     }
 
     function hideLanguageWait(immediate = false, restoreFocus = true) {
@@ -202,14 +202,18 @@
       ui.overlay.setAttribute('aria-hidden', 'true');
       if (immediate) disposeLanguageWait(ui);
       else {
-        // Finish the current animation even when a request ends just after the
-        // threshold; the veil fades and controls unlock without waiting for it.
+        // Fade the veil and its indicator together, while controls unlock now.
         fadingLanguageWaits.add(ui);
+        if (ui.motion && ui.motion.matches) {
+          disposeLanguageWait(ui);
+          return;
+        }
+        scheduleLanguageWaitDisposal(ui);
         ui.overlay.classList.add('is-finishing');
-        const hold = ui.animation ? 5000 : Math.max(0, 800 - (performance.now() - ui.shownAt));
-        // A bounded fallback also cleans up if the browser suspends animations.
-        scheduleLanguageWaitDisposal(ui, hold);
         if (ui.animation && typeof ui.animation.finish === 'function') ui.animation.finish();
+        requestAnimationFrame(() => {
+          if (fadingLanguageWaits.has(ui) && parseFloat(getComputedStyle(ui.overlay).opacity) === 0) disposeLanguageWait(ui);
+        });
       }
     }
 

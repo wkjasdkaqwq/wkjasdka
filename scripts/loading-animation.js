@@ -114,8 +114,6 @@
         activeCycles.delete(state);
         if (options.loop) layer.remove();
         else retainedCycle = state;
-        // The first run finishes completely before the second one starts.
-        if (options.loop && state.index === 1 && !finishing) cycle();
         notifyIdle();
       }
 
@@ -131,7 +129,7 @@
           // Include the earlier ball and bar phases when measuring the whole
           // animation, rather than starting the next run at 80% of just the tail.
           const fullDuration = startTime - state.startedAt + barDuration;
-          if (options.loop && state.index > 1 && !finishing && !state.nextStarted &&
+          if (options.loop && !finishing && !state.nextStarted &&
               currentTime - state.startedAt >= fullDuration * REPLAY_PROGRESS) {
             state.nextStarted = true;
             cycle();

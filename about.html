@@ -733,7 +733,7 @@
     /* Match the settings-page slow-loading veil without delaying short requests. */
     .article-wait-overlay { position: fixed; inset: 0; z-index: 2147483000; overflow: hidden; background: rgba(255,255,255,.42); opacity: 0; pointer-events: none; touch-action: none; cursor: wait; transition: opacity .55s ease, background-color .55s ease; }
     .article-wait-overlay.is-visible { opacity: 1; pointer-events: auto; }
-    .article-wait-overlay.is-finishing { background: transparent; }
+    .article-wait-overlay.is-finishing { opacity: 0; pointer-events: none; }
     .article-wait-static { position: absolute; top: 0; left: 0; width: 35%; height: 8px; border-radius: 0 4px 4px 0; background: #ff8000; }
     .article-wait-status { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
     @media (prefers-reduced-motion: reduce) { .article-wait-overlay { transition: none; } }
@@ -923,8 +923,6 @@
         activeCycles.delete(state);
         if (options.loop) layer.remove();
         else retainedCycle = state;
-        // The first run finishes completely before the second one starts.
-        if (options.loop && state.index === 1 && !finishing) cycle();
         notifyIdle();
       }
 
@@ -940,7 +938,7 @@
           // Include the earlier ball and bar phases when measuring the whole
           // animation, rather than starting the next run at 80% of just the tail.
           const fullDuration = startTime - state.startedAt + barDuration;
-          if (options.loop && state.index > 1 && !finishing && !state.nextStarted &&
+          if (options.loop && !finishing && !state.nextStarted &&
               currentTime - state.startedAt >= fullDuration * REPLAY_PROGRESS) {
             state.nextStarted = true;
             cycle();
@@ -1297,6 +1295,7 @@
 
     function disposeArticleWait(ui) {
       if (ui.fadeTimer !== null) window.clearTimeout(ui.fadeTimer);
+      if (ui.fadeHandler) ui.overlay.removeEventListener('transitionend', ui.fadeHandler);
       if (ui.animation) ui.animation.stop();
       if (ui.motion && ui.motion.removeEventListener) ui.motion.removeEventListener('change', ui.motionHandler);
       else if (ui.motion && ui.motion.removeListener) ui.motion.removeListener(ui.motionHandler);
@@ -1304,9 +1303,13 @@
       fadingArticleWaits.delete(ui);
     }
 
-    function scheduleArticleWaitDisposal(ui, delay) {
-      if (ui.fadeTimer !== null) window.clearTimeout(ui.fadeTimer);
-      ui.fadeTimer = window.setTimeout(() => disposeArticleWait(ui), delay);
+    function scheduleArticleWaitDisposal(ui) {
+      ui.fadeHandler = event => {
+        if (event.target === ui.overlay && event.propertyName === 'opacity') disposeArticleWait(ui);
+      };
+      ui.overlay.addEventListener('transitionend', ui.fadeHandler);
+      // Covers an interrupted or unstarted transition, including a hidden tab.
+      ui.fadeTimer = window.setTimeout(() => disposeArticleWait(ui), 700);
     }
 
     function showArticleWait(operation) {
@@ -1335,25 +1338,22 @@
       mainContent.setAttribute('aria-busy', 'true');
       document.body.appendChild(overlay);
       const motion = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
-      const ui = { overlay, focus, inertElements, previousBusy, animation: null, fadeTimer: null, shownAt: performance.now(), motion, motionHandler: null };
+      const ui = { overlay, focus, inertElements, previousBusy, animation: null, fadeTimer: null, fadeHandler: null, motion, motionHandler: null };
       articleWaitUi = ui;
       overlay.focus({ preventScroll: true });
       function showIndicator() {
-        if (articleWaitUi !== ui && !(motion && motion.matches)) return;
+        if (fadingArticleWaits.has(ui)) {
+          if (motion && motion.matches) disposeArticleWait(ui);
+          return;
+        }
+        if (articleWaitUi !== ui) return;
         if (ui.animation) ui.animation.stop();
         ui.animation = null;
         const previous = overlay.querySelector('.article-wait-static');
         if (previous) previous.remove();
         try {
           if (!(motion && motion.matches) && window.SiteLoadingAnimation) {
-            ui.animation = window.SiteLoadingAnimation.start(overlay, {
-              loop: true,
-              onIdle() {
-                if (!fadingArticleWaits.has(ui)) return;
-                if (ui.fadeTimer !== null) window.clearTimeout(ui.fadeTimer);
-                ui.fadeTimer = window.setTimeout(() => disposeArticleWait(ui), 0);
-              }
-            });
+            ui.animation = window.SiteLoadingAnimation.start(overlay, { loop: true });
             return;
           }
         } catch (error) {
@@ -1363,7 +1363,6 @@
         indicator.className = 'article-wait-static';
         indicator.setAttribute('aria-hidden', 'true');
         overlay.appendChild(indicator);
-        if (fadingArticleWaits.has(ui)) scheduleArticleWaitDisposal(ui, Math.max(0, 800 - (performance.now() - ui.shownAt)));
       }
       ui.motionHandler = showIndicator;
       if (motion && motion.addEventListener) motion.addEventListener('change', ui.motionHandler);
@@ -1400,10 +1399,16 @@
       if (immediate) disposeArticleWait(ui);
       else {
         fadingArticleWaits.add(ui);
+        if (ui.motion && ui.motion.matches) {
+          disposeArticleWait(ui);
+          return;
+        }
+        scheduleArticleWaitDisposal(ui);
         ui.overlay.classList.add('is-finishing');
-        const hold = ui.animation ? 5000 : Math.max(0, 800 - (performance.now() - ui.shownAt));
-        scheduleArticleWaitDisposal(ui, hold);
         if (ui.animation && typeof ui.animation.finish === 'function') ui.animation.finish();
+        requestAnimationFrame(() => {
+          if (fadingArticleWaits.has(ui) && parseFloat(getComputedStyle(ui.overlay).opacity) === 0) disposeArticleWait(ui);
+        });
       }
     }
 
