@@ -68,15 +68,20 @@
             padding: 40px;
         }
 
-        .loading-screen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: #fff; display: flex; justify-content: center; align-items: center; z-index: 9999; opacity: 1; visibility: visible; }
+        .loading-screen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: transparent; display: flex; justify-content: center; align-items: center; z-index: 9999; opacity: 1; visibility: visible; }
         .loading-screen, .loading-screen * { -webkit-user-select: none !important; -moz-user-select: none !important; user-select: none !important; }
-        .loading-logo { width: min(240px, 62vw); height: auto; z-index: 10000; display: none; }
+        .loading-backdrop { position: fixed; inset: 0; z-index: 0; display: grid; grid-template-columns: 1fr min(280px, 90vw) 1fr; grid-template-rows: 1fr 110px 1fr; pointer-events: none; }
+        .loading-backdrop-cell, .loading-backdrop-center { background-color: #fff; }
+        .loading-backdrop-center { transition: opacity .7s ease; }
+        .loading-screen.is-center-revealing .loading-backdrop-center { opacity: 0; }
+        .loading-logo { width: min(240px, 62vw); height: auto; z-index: 10000; display: none; opacity: 1; transition: opacity .7s ease; }
+        .loading-screen.is-center-revealing .loading-logo { opacity: 0; }
         .loading-text-container { position: fixed !important; bottom: env(safe-area-inset-bottom, 26px) !important; left: 0 !important; width: 100% !important; display: none !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; z-index: 10001 !important; visibility: visible !important; pointer-events: none !important; -webkit-text-size-adjust: 100% !important; transform: translateY(-32px) !important; }
         .loading-ready #loadingLogo { display: block !important; }
         .loading-ready .loading-text-container { display: flex !important; }
         .loading-footer-image { display: block; width: 5.85rem; max-width: 54vw; max-height: 2.6625rem; height: auto; object-fit: contain; }
         html.dark-mode .loading-footer-image { filter: invert(1); }
-        html.dark-mode .loading-screen { background-color: #07121C !important; }
+        html.dark-mode .loading-backdrop-cell, html.dark-mode .loading-backdrop-center { background-color: #07121C; }
 
         .loading-progress {
             position: fixed;
@@ -121,7 +126,7 @@
             cursor: pointer;
         }
         @media (prefers-reduced-motion: reduce) {
-            .loading-progress, .loading-progress-fill { transition: none; }
+            .loading-progress, .loading-progress-fill, .loading-backdrop-center, .loading-logo { transition: none; }
         }
 
         .content-box {
@@ -196,6 +201,11 @@
 </head>
 <body>
     <div class="loading-screen" id="loadingScreen">
+        <div class="loading-backdrop" aria-hidden="true">
+            <div class="loading-backdrop-cell"></div><div class="loading-backdrop-cell"></div><div class="loading-backdrop-cell"></div>
+            <div class="loading-backdrop-cell"></div><div class="loading-backdrop-center"></div><div class="loading-backdrop-cell"></div>
+            <div class="loading-backdrop-cell"></div><div class="loading-backdrop-cell"></div><div class="loading-backdrop-cell"></div>
+        </div>
         <div class="loading-progress" id="loadingProgress" role="progressbar" aria-label="Loading page" data-i18n-aria-label="loadingProgress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="loading-progress-fill" id="loadingProgressFill"></div></div>
         <img data-src="/wkjasdka/index/community2.png" alt="Liuyanlin Community" data-i18n-alt="logoAlt" class="loading-logo" id="loadingLogo">
         <div class="loading-text-container" id="loadingTexts" aria-hidden="false"><img class="loading-footer-image" data-src="index/under%20logo.png" alt="from - Wkjasdka -"></div>
@@ -456,10 +466,45 @@
                 });
             }
 
+            function revealCenter(reduceMotion) {
+                return new Promise(resolve => {
+                    const center = loading.querySelector('.loading-backdrop-center');
+                    const targets = [center, loadingLogo].filter(Boolean);
+                    if (reduceMotion || targets.length === 0) {
+                        loading.classList.add('is-center-revealing');
+                        resolve();
+                        return;
+                    }
+                    const pending = new Set(targets);
+                    let done = false;
+                    const timer = window.setTimeout(finish, 900);
+                    function finish() {
+                        if (done) return;
+                        done = true;
+                        window.clearTimeout(timer);
+                        targets.forEach(target => {
+                            target.removeEventListener('transitionend', onTransition);
+                            target.removeEventListener('transitioncancel', onTransition);
+                        });
+                        resolve();
+                    }
+                    function onTransition(event) {
+                        if (event.propertyName !== 'opacity' || !pending.has(event.currentTarget)) return;
+                        pending.delete(event.currentTarget);
+                        if (pending.size === 0) finish();
+                    }
+                    targets.forEach(target => {
+                        target.addEventListener('transitionend', onTransition);
+                        target.addEventListener('transitioncancel', onTransition);
+                    });
+                    loading.classList.add('is-center-revealing');
+                });
+            }
+
             async function start() {
                 try {
-                    // Phase one: load both theme logos and the footer in order;
-                    // only reveal them once all three have decoded.
+                    // Phase one: load the community logo and footer in order;
+                    // only reveal them once both have decoded.
                     for (let i = 0; i < logoImages.length; i++) {
                         await loadImage(logoImages[i], fraction => setProgress(20 * (i + fraction) / logoImages.length));
                     }
@@ -477,16 +522,17 @@
                         await loadImage(contentImages[i], fraction => setProgress(20 + 80 * contentImageProgressShare * (i + fraction) / contentImages.length));
                     }
                     await initializeLanguage();
+                    main.style.display = 'flex';
                     setProgress(100);
 
                     const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
                     if (!reduceMotion) {
-                        // Let the width reach 100% before the separate opacity fade.
+                        // Fade the bar first, then open a transparent center window.
                         await new Promise(resolve => window.setTimeout(resolve, 180));
                         await waitForFade();
                     }
+                    await revealCenter(reduceMotion);
                     loading.style.display = 'none';
-                    main.style.display = 'flex';
                 } catch (failure) {
                     console.error('[community] Page loading failed.', failure);
                     error.hidden = false;
