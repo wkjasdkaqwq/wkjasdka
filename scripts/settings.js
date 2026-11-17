@@ -6,6 +6,10 @@
     const root = document.documentElement;
     const themeOptions = page.querySelector('#themeOptions');
     const languageSelect = page.querySelector('#languageSelect');
+    const languagePicker = page.querySelector('#languagePicker');
+    const languageOptions = page.querySelector('#languageOptions');
+    const languageSelectedText = page.querySelector('#languageSelectedText');
+    const languageChoices = [...languageOptions.querySelectorAll('[role="option"]')];
     const languageOpen = page.querySelector('#languageOpen');
     const languageCurrent = page.querySelector('#languageCurrent');
     const languageModal = page.querySelector('#languageModal');
@@ -29,6 +33,7 @@
     let languagePreviousBodyOverflow = '';
     let languageDialogVersion = 0;
     let languageSaving = false;
+    let activeLanguageChoice = 0;
     const THEME_STORAGE_KEY = 'wkjasdka-dark-mode';
     const darkPreference = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
     function resolveThemePreference() {
@@ -50,10 +55,58 @@
       if (persist) localStorage.setItem(THEME_STORAGE_KEY, selectedPreference);
     }
 
+    function languageChoice(locale) {
+      return languageChoices.find(choice => choice.dataset.value === locale);
+    }
+
+    function setLanguageDraft(locale) {
+      const choice = languageChoice(locale) || languageChoices[0];
+      if (!choice) return;
+      languageSelect.value = choice.dataset.value;
+      languageSelectedText.textContent = choice.querySelector('.language-choice-text').textContent;
+      languageChoices.forEach(item => item.setAttribute('aria-selected', String(item === choice)));
+    }
+
     function syncLanguageDisplay(locale = SiteI18n.locale) {
-      const option = [...languageSelect.options].find(item => item.value === locale);
-      if (option) languageCurrent.textContent = option.textContent;
-      if (!languageModal.classList.contains('open')) languageSelect.value = locale;
+      const choice = languageChoice(locale);
+      if (choice) languageCurrent.textContent = choice.querySelector('.language-choice-text').textContent;
+      if (!languageModal.classList.contains('open')) setLanguageDraft(locale);
+    }
+
+    function setActiveLanguageChoice(index) {
+      activeLanguageChoice = Math.max(0, Math.min(index, languageChoices.length - 1));
+      const activeChoice = languageChoices[activeLanguageChoice];
+      languageChoices.forEach(choice => choice.classList.toggle('is-active', choice === activeChoice));
+      if (activeChoice) {
+        languageSelect.setAttribute('aria-activedescendant', activeChoice.id);
+        activeChoice.scrollIntoView({ block: 'nearest' });
+      }
+    }
+
+    function openLanguageOptions() {
+      if (languageSelect.disabled || !languageChoices.length) return;
+      languageOptions.hidden = false;
+      languageSelect.setAttribute('aria-expanded', 'true');
+      const selectedIndex = languageChoices.findIndex(choice => choice.dataset.value === languageSelect.value);
+      setActiveLanguageChoice(Math.max(0, selectedIndex));
+    }
+
+    function closeLanguageOptions(restoreFocus = false) {
+      if (languageOptions.hidden) return;
+      languageOptions.hidden = true;
+      languageSelect.setAttribute('aria-expanded', 'false');
+      languageSelect.removeAttribute('aria-activedescendant');
+      languageChoices.forEach(choice => choice.classList.remove('is-active'));
+      if (restoreFocus && !languageSelect.disabled && languageModal.classList.contains('open')) {
+        languageSelect.focus({ preventScroll: true });
+      }
+    }
+
+    function chooseLanguage(choice) {
+      if (!choice || languageSelect.disabled) return;
+      setLanguageDraft(choice.dataset.value);
+      languageError.hidden = true;
+      closeLanguageOptions(true);
     }
 
     function openLanguage() {
@@ -61,25 +114,27 @@
       languageDialogVersion += 1;
       languageReturnFocus = document.activeElement;
       languagePreviousBodyOverflow = document.body.style.overflow;
-      languageSelect.value = SiteI18n.locale;
+      setLanguageDraft(SiteI18n.locale);
+      closeLanguageOptions();
       languageError.hidden = true;
       languageModal.classList.add('open');
       languageModal.setAttribute('aria-hidden', 'false');
       languageOpen.setAttribute('aria-expanded', 'true');
       document.body.style.overflow = 'hidden';
       const dialogVersion = languageDialogVersion;
-      const focusLanguageSelect = () => {
+      const focusLanguageClose = () => {
         if (dialogVersion === languageDialogVersion && languageModal.classList.contains('open') && !languageModal.contains(document.activeElement)) {
-          languageSelect.focus({ preventScroll: true });
+          languageClose.focus({ preventScroll: true });
         }
       };
-      requestAnimationFrame(() => requestAnimationFrame(focusLanguageSelect));
-      window.setTimeout(focusLanguageSelect, 220);
+      requestAnimationFrame(() => requestAnimationFrame(focusLanguageClose));
+      window.setTimeout(focusLanguageClose, 220);
     }
 
     function closeLanguage(restoreFocus = true) {
       if (!languageModal.classList.contains('open')) return;
       languageDialogVersion += 1;
+      closeLanguageOptions();
       languageModal.classList.remove('open');
       languageModal.setAttribute('aria-hidden', 'true');
       languageOpen.setAttribute('aria-expanded', 'false');
@@ -97,6 +152,7 @@
       if (languageSaving) return;
       const selectedLocale = languageSelect.value;
       const dialogVersion = languageDialogVersion;
+      closeLanguageOptions();
       languageSaving = true;
       languageConfirm.disabled = true;
       languageSelect.disabled = true;
@@ -225,6 +281,31 @@
     languageOpen.setAttribute('aria-expanded', 'false');
     languageOpen.addEventListener('click', openLanguage);
     languageClose.addEventListener('click', () => closeLanguage());
+    languageSelect.addEventListener('click', () => {
+      if (languageOptions.hidden) openLanguageOptions();
+      else closeLanguageOptions();
+    });
+    languageSelect.addEventListener('keydown', event => {
+      if (['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) {
+        event.preventDefault();
+        const wasClosed = languageOptions.hidden;
+        if (wasClosed) openLanguageOptions();
+        if (languageOptions.hidden) return;
+        if (event.key === 'Home') setActiveLanguageChoice(0);
+        else if (event.key === 'End') setActiveLanguageChoice(languageChoices.length - 1);
+        else if (!wasClosed) setActiveLanguageChoice(activeLanguageChoice + (event.key === 'ArrowDown' ? 1 : -1));
+      } else if (!languageOptions.hidden && (event.key === 'Enter' || event.key === ' ')) {
+        event.preventDefault();
+        chooseLanguage(languageChoices[activeLanguageChoice]);
+      }
+    });
+    languageOptions.addEventListener('click', event => {
+      const choice = event.target instanceof Element ? event.target.closest('[role="option"]') : null;
+      if (choice && languageOptions.contains(choice)) chooseLanguage(choice);
+    });
+    document.addEventListener('click', event => {
+      if (!languageOptions.hidden && !languagePicker.contains(event.target)) closeLanguageOptions();
+    });
     languageForm.addEventListener('submit', confirmLanguage);
     languageModal.addEventListener('click', event => {
       if (event.target === languageModal) closeLanguage();
@@ -249,7 +330,7 @@
         option.classList.remove('is-touch-highlighted');
       });
     }
-    [themeOptions, languageOpen, languageConfirm].forEach(container => {
+    [themeOptions, languageOpen, languageSelect, languageOptions, languageConfirm].forEach(container => {
       container.addEventListener('pointerdown', event => {
         if (!touchButtonMedia.matches || event.pointerType === 'mouse') return;
         const option = event.target.closest('.theme-option');
@@ -303,11 +384,13 @@
       if (languageModal.classList.contains('open')) {
         if (event.key === 'Escape') {
           event.preventDefault();
-          closeLanguage();
+          if (!languageOptions.hidden) closeLanguageOptions(true);
+          else closeLanguage();
           return;
         }
         if (event.key === 'Tab') {
-          const focusable = [...languageModal.querySelectorAll('button:not([disabled]), select:not([disabled])')];
+          if (!languageOptions.hidden) closeLanguageOptions();
+          const focusable = [...languageModal.querySelectorAll('button:not([disabled])')];
           const first = focusable[0];
           const last = focusable[focusable.length - 1];
           if (first && event.shiftKey && (document.activeElement === first || !focusable.includes(document.activeElement))) {

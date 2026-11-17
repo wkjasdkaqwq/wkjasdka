@@ -86,11 +86,12 @@
       .theme-option:active { transform: scale(.97); box-shadow: 0 3px 9px rgba(255,218,185,.45); }
     }
     .theme-option:has(input:checked):active { transform: scale(.98); }
-    .language-select:focus-visible, .navbar-logo:focus-visible { outline: 3px solid #64b5f6; outline-offset: 3px; }
+    .navbar-logo:focus-visible { outline: 3px solid #64b5f6; outline-offset: 3px; }
     .language-open { flex: 0 0 auto; min-width: 140px; max-width: 48%; gap: .55rem; }
     .language-current { overflow: hidden; text-overflow: ellipsis; }
     .language-open::after { content: ''; width: .45rem; height: .45rem; flex: 0 0 auto; margin-top: -.25rem; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg); }
-    .language-open:focus-visible, .language-confirm:focus-visible, .language-close:focus-visible { outline: 3px solid #64b5f6; outline-offset: 3px; }
+    .language-open:focus-visible, .language-confirm:focus-visible, .language-close:focus-visible, .language-select:focus-visible { outline: 3px solid #64b5f6; outline-offset: 3px; }
+    .language-close:focus { outline: 3px solid #64b5f6; outline-offset: 3px; }
     .language-modal { position: fixed; inset: 0; z-index: 9500; display: grid; place-items: center; padding: 1rem; background: rgba(5,12,20,.68); opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .2s ease, visibility .2s ease; }
     .language-modal.open { opacity: 1; visibility: visible; pointer-events: auto; }
     .language-dialog { width: min(440px, 100%); max-height: calc(100dvh - 2rem); overflow: auto; border: 1px solid #dfe4e8; border-radius: 18px; background: #fff; color: #263238; box-shadow: 0 24px 80px rgba(0,0,0,.32); transform: translateY(12px) scale(.985); transition: transform .2s ease; }
@@ -101,7 +102,17 @@
     .language-form { padding: 1.35rem; }
     .language-description { margin: 0 0 1.1rem; color: #66717a; line-height: 1.5; }
     .language-label { display: block; margin-bottom: .5rem; font-size: .9rem; font-weight: 700; }
-    .language-select { width: 100%; min-height: 46px; padding: .6rem .75rem; border: 1px solid #c8d0d7; border-radius: 8px; background: #fff; color: #263238; font: inherit; }
+    .language-picker .language-select { width: 100%; min-height: 46px; flex: 0 0 auto; justify-content: space-between; gap: .8rem; padding: .65rem 1rem; font-size: .95rem; text-align: left; }
+    .language-select-text { overflow: hidden; text-overflow: ellipsis; }
+    .language-select-arrow { width: .5rem; height: .5rem; flex: 0 0 auto; margin: -.25rem .2rem 0 0; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg); transition: transform .25s ease, margin .25s ease; }
+    .language-select[aria-expanded="true"] .language-select-arrow { margin-top: .25rem; transform: rotate(225deg); }
+    .language-options { display: grid; gap: .45rem; max-height: min(224px, 32vh); max-height: min(224px, 32dvh); overflow-y: auto; overscroll-behavior: contain; margin-top: .55rem; padding: 3px; animation: language-options-in .22s ease both; }
+    .language-options[hidden] { display: none; }
+    @keyframes language-options-in { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+    .language-options .language-choice { width: 100%; min-height: 44px; flex: 0 0 auto; justify-content: space-between; gap: .75rem; padding: .55rem 1rem; font-size: .9rem; text-align: left; }
+    .language-choice.is-active:not([aria-selected="true"]) { outline: 2px solid #e67e22; outline-offset: 1px; }
+    .language-choice-check { font-size: 1rem; font-weight: 800; opacity: 0; }
+    .language-choice[aria-selected="true"] .language-choice-check { opacity: 1; }
     .language-error { margin: .75rem 0 0; color: #b42318; font-size: .9rem; }
     .language-actions { display: flex; justify-content: flex-end; margin-top: 1.5rem; }
     .language-confirm { flex: 0 0 auto; min-width: 110px; }
@@ -181,7 +192,6 @@
     html.dark-mode .language-close { background: #1a2a3a; }
     html.dark-mode .language-description { color: #a0aab3; }
     html.dark-mode .language-error { color: #ffb4a9; }
-    html.dark-mode .language-select { background: #0f1f2e; color: #e0e0e0; border-color: #34495a; }
     html.dark-mode .loading-screen { background: #07121C; }
     html.dark-mode .loading-footer-image { filter: invert(1); }
 
@@ -230,6 +240,13 @@
     html.dark-mode .theme-option.is-touch-pressed { background-color: #2B211B; border-color: #8B5837; }
     html.dark-mode .theme-option:has(input:checked):active,
     html.dark-mode .theme-option.is-touch-pressed:has(input:checked) { background-color: #422B1C; border-color: #D57118; }
+    .language-choice[aria-selected="true"] { border-color: #FF9966; background: #FFE4C4; color: #B95D16; box-shadow: 0 6px 16px rgba(230,126,34,.2); }
+    html.dark-mode .language-choice[aria-selected="true"] { border-color: #E67E22; background: #49301F; color: #FFD0A8; box-shadow: 0 6px 18px rgba(230,126,34,.16); }
+    .language-choice[aria-selected="true"]:active,
+    .language-choice[aria-selected="true"].is-touch-pressed { background-color: #FFCF97; border-color: #FF8142; }
+    html.dark-mode .language-choice[aria-selected="true"]:active,
+    html.dark-mode .language-choice[aria-selected="true"].is-touch-pressed { background-color: #422B1C; border-color: #D57118; }
+    @media (prefers-reduced-motion: reduce) { .language-options { animation: none; } }
 
     @media (max-width: 600px) {
       .navbar { height: 3.75rem; }
@@ -331,11 +348,17 @@
         </header>
         <form class="language-form" id="languageForm">
           <p class="language-description" id="languageModalDescription" data-i18n="languageModalDescription">Select a language and confirm to apply it across the site.</p>
-          <label class="language-label" for="languageSelect" data-i18n="languageTitle">Language</label>
-          <select class="language-select" id="languageSelect">
-            <option value="en">English</option>
-            <option value="zh-CN">简体中文</option>
-          </select>
+          <span class="language-label" id="languagePickerLabel" data-i18n="languageTitle">Language</span>
+          <div class="language-picker" id="languagePicker">
+            <button class="theme-option language-select" id="languageSelect" type="button" role="combobox" value="en" aria-haspopup="listbox" aria-expanded="false" aria-controls="languageOptions" aria-labelledby="languagePickerLabel languageSelectedText">
+              <span class="language-select-text" id="languageSelectedText">English</span>
+              <span class="language-select-arrow" aria-hidden="true"></span>
+            </button>
+            <div class="language-options" id="languageOptions" role="listbox" aria-labelledby="languagePickerLabel" hidden>
+              <div class="theme-option language-choice" id="languageOptionEn" role="option" data-value="en" aria-selected="true"><span class="language-choice-text" lang="en">English</span><span class="language-choice-check" aria-hidden="true">✓</span></div>
+              <div class="theme-option language-choice" id="languageOptionZhCN" role="option" data-value="zh-CN" aria-selected="false"><span class="language-choice-text" lang="zh-CN">简体中文</span><span class="language-choice-check" aria-hidden="true">✓</span></div>
+            </div>
+          </div>
           <p class="language-error" id="languageError" role="alert" data-i18n="languageSaveError" hidden>Could not apply the language. Please try again.</p>
           <div class="language-actions">
             <button class="theme-option language-confirm" id="languageConfirm" type="submit" data-i18n="languageConfirm">Confirm</button>
