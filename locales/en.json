@@ -16,6 +16,7 @@
     "languageNoResults": "No languages found.",
     "languageClose": "Close language dialog",
     "languageConfirm": "Confirm",
+    "languagePreviewError": "Could not load the language preview. Please try again.",
     "languageSaveError": "Could not apply the language. Please try again.",
     "shortcutsTitle": "Keyboard shortcuts",
     "shortcutsDescription": "View available shortcuts and their keys.",

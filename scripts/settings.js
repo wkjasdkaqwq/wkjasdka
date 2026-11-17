@@ -34,6 +34,8 @@
     let languageReturnFocus = null;
     let languagePreviousBodyOverflow = '';
     let languageDialogVersion = 0;
+    let languagePreviewRequest = 0;
+    let languagePreviewTranslations = null;
     let languageSaving = false;
     let languageDraft = 'en';
     let activeLanguageChoice = null;
@@ -79,17 +81,67 @@
       languageChoices.forEach(item => item.setAttribute('aria-selected', String(item === choice)));
     }
 
+    function updateLanguageNames(locale) {
+      languageChoices.forEach(item => {
+        const localName = item.querySelector('.language-choice-local-name');
+        if (localName) localName.hidden = item.dataset.value === locale;
+      });
+    }
+
+    function setLanguageError(key) {
+      languageError.hidden = !key;
+      languageError.dataset.i18n = key || 'languageSaveError';
+      if (key) {
+        const translations = languagePreviewTranslations || {};
+        SiteI18n.apply(languageError, { ...translations, namespace: 'settings' });
+      }
+    }
+
+    function resetLanguagePreview() {
+      languagePreviewRequest += 1;
+      languagePreviewTranslations = null;
+      SiteI18n.apply(languageModal, { namespace: 'settings' });
+      languageModal.lang = SiteI18n.locale;
+      updateLanguageNames(SiteI18n.locale);
+    }
+
+    async function previewLanguage(locale) {
+      const request = ++languagePreviewRequest;
+      const dialogVersion = languageDialogVersion;
+      languagePreviewTranslations = null;
+      try {
+        const translations = await SiteI18n.loadLocale(locale);
+        if (request !== languagePreviewRequest || dialogVersion !== languageDialogVersion ||
+            !languageModal.classList.contains('open') || languageDraft !== locale) return;
+        languagePreviewTranslations = translations;
+        SiteI18n.apply(languageModal, { ...translations, namespace: 'settings' });
+        languageModal.lang = translations.locale;
+        updateLanguageNames(translations.locale);
+        if (!languageDropdown.hidden && !languageComposing) filterLanguageChoices();
+      } catch (error) {
+        if (request !== languagePreviewRequest || dialogVersion !== languageDialogVersion ||
+            !languageModal.classList.contains('open') || languageDraft !== locale) return;
+        console.warn('[settings] Could not load the language preview.', error);
+        resetLanguagePreview();
+        setLanguageError('languagePreviewError');
+        if (!languageDropdown.hidden && !languageComposing) filterLanguageChoices();
+      }
+    }
+
     function syncLanguageDisplay(locale = SiteI18n.locale) {
       const choice = languageChoice(locale);
       if (choice) {
         languageCurrent.textContent = choice.querySelector('.language-choice-text').textContent;
         if (languageOptions.firstElementChild !== choice) languageOptions.prepend(choice);
       }
-      languageChoices.forEach(item => {
-        const localName = item.querySelector('.language-choice-local-name');
-        if (localName) localName.hidden = item.dataset.value === locale;
-      });
+      updateLanguageNames(locale);
+      languageModal.lang = locale;
       if (!languageModal.classList.contains('open')) setLanguageDraft(locale);
+      else if (!languageSaving) previewLanguage(languageDraft);
+      else {
+        languagePreviewRequest += 1;
+        languagePreviewTranslations = null;
+      }
       if (!languageDropdown.hidden && !languageComposing) filterLanguageChoices();
     }
 
@@ -161,13 +213,14 @@
     function chooseLanguage(choice) {
       if (!choice || choice.hidden || languageSelect.disabled) return;
       setLanguageDraft(choice.dataset.value);
-      languageError.hidden = true;
+      setLanguageError(null);
       languageSelect.value = choice.querySelector('.language-choice-text').textContent;
       languageInputIsPreview = true;
       activeLanguageChoice = choice;
       filterLanguageChoices();
       setActiveLanguageChoice(choice);
       languageSelect.focus({ preventScroll: true });
+      previewLanguage(languageDraft);
     }
 
     function openLanguage() {
@@ -177,7 +230,8 @@
       languagePreviousBodyOverflow = document.body.style.overflow;
       setLanguageDraft(SiteI18n.locale);
       closeLanguageOptions();
-      languageError.hidden = true;
+      setLanguageError(null);
+      resetLanguagePreview();
       languageModal.classList.add('open');
       languageModal.setAttribute('aria-hidden', 'false');
       languageOpen.setAttribute('aria-expanded', 'true');
@@ -200,7 +254,8 @@
       languageModal.setAttribute('aria-hidden', 'true');
       languageOpen.setAttribute('aria-expanded', 'false');
       document.body.style.overflow = languagePreviousBodyOverflow;
-      languageError.hidden = true;
+      setLanguageError(null);
+      resetLanguagePreview();
       syncLanguageDisplay();
       if (restoreFocus && languageReturnFocus && languageReturnFocus.isConnected) {
         languageReturnFocus.focus({ preventScroll: true });
@@ -213,20 +268,21 @@
       if (languageSaving) return;
       const selectedLocale = languageDraft;
       const dialogVersion = languageDialogVersion;
+      languagePreviewRequest += 1;
       closeLanguageOptions();
       languageSaving = true;
       languageConfirm.disabled = true;
       languageSelect.disabled = true;
       languageModal.setAttribute('aria-busy', 'true');
-      languageError.hidden = true;
+      setLanguageError(null);
       try {
-        const appliedLocale = await SiteI18n.setLocale(selectedLocale, { persistBeforeLoad: true });
+        const appliedLocale = await SiteI18n.setLocale(selectedLocale, { persistBeforeLoad: true, strictLocale: true });
         if (dialogVersion !== languageDialogVersion || !languageModal.classList.contains('open')) return;
         if (appliedLocale === selectedLocale) closeLanguage();
-        else languageError.hidden = false;
+        else setLanguageError('languageSaveError');
       } catch (error) {
         console.error('[settings] Could not apply the selected language.', error);
-        if (dialogVersion === languageDialogVersion && languageModal.classList.contains('open')) languageError.hidden = false;
+        if (dialogVersion === languageDialogVersion && languageModal.classList.contains('open')) setLanguageError('languageSaveError');
       } finally {
         // A reopened dialog could not be edited while this save was pending.
         if (dialogVersion !== languageDialogVersion && languageModal.classList.contains('open')) setLanguageDraft(SiteI18n.locale);

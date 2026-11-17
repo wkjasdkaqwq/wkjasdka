@@ -16,6 +16,7 @@
     "languageNoResults": "未找到匹配的语言。",
     "languageClose": "关闭语言选择窗口",
     "languageConfirm": "确认",
+    "languagePreviewError": "无法加载语言预览，请重试。",
     "languageSaveError": "语言应用失败，请重试。",
     "shortcutsTitle": "快捷键",
     "shortcutsDescription": "查看可用快捷键及其对应按键。",

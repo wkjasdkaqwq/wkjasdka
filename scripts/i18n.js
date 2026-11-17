@@ -9,6 +9,9 @@
   const LOCALE_TAGS = { en: 'en-GB', 'zh-CN': 'zh-CN' };
   const fullReloadToken = new URL(window.location.href).searchParams.get(FULL_RELOAD_QUERY_PARAM);
   const scriptElement = document.currentScript;
+  const dictionaryVersion = scriptElement && scriptElement.src
+    ? new URL(scriptElement.src).searchParams.get('v')
+    : null;
   const localeDirectory = scriptElement && scriptElement.src
     ? new URL('../locales/', scriptElement.src)
     : new URL('./locales/', document.baseURI);
@@ -146,6 +149,7 @@
   function loadDictionary(locale) {
     if (!dictionaryPromises.has(locale)) {
       const url = new URL(`${encodeURIComponent(locale)}.json`, localeDirectory);
+      if (dictionaryVersion) url.searchParams.set('v', dictionaryVersion);
       if (fullReloadToken) url.searchParams.set(FULL_RELOAD_QUERY_PARAM, fullReloadToken);
       const request = fetch(url, { credentials: 'same-origin', cache: fullReloadToken ? 'reload' : 'default' }).then(response => {
         if (!response.ok) throw new Error(`Could not load locale dictionary: ${url.pathname} (${response.status})`);
@@ -155,6 +159,24 @@
       request.catch(() => dictionaryPromises.delete(locale));
     }
     return dictionaryPromises.get(locale);
+  }
+
+  // Load a locale for a scoped preview without changing or persisting the site locale.
+  async function loadLocale(locale) {
+    const selectedLocale = normalizeLocale(locale);
+    const dictionary = await loadDictionary(selectedLocale);
+    let defaultDictionary = dictionary;
+    if (selectedLocale !== DEFAULT_LOCALE) {
+      try {
+        defaultDictionary = await loadDictionary(DEFAULT_LOCALE);
+      } catch (_) {
+        defaultDictionary = {};
+      }
+    }
+    return {
+      locale: selectedLocale,
+      dictionaries: { [DEFAULT_LOCALE]: defaultDictionary, [selectedLocale]: dictionary }
+    };
   }
 
   function getValue(dictionary, key) {
@@ -184,10 +206,11 @@
     const settings = options || {};
     const namespace = settings.namespace === undefined ? currentNamespace : settings.namespace;
     const dictionaries = settings.dictionaries;
+    const locale = settings.locale === undefined ? currentLocale : normalizeLocale(settings.locale);
     const getTranslation = key => {
       if (!dictionaries) return translatedValue(key, namespace);
       const fullKey = resolveKey(key, namespace);
-      const value = getValue(dictionaries[currentLocale] || {}, fullKey);
+      const value = getValue(dictionaries[locale] || {}, fullKey);
       return value !== undefined && value !== null
         ? value
         : getValue(dictionaries[DEFAULT_LOCALE] || {}, fullKey);
@@ -241,7 +264,7 @@
       try {
         activeDictionary = await loadDictionary(selectedLocale);
       } catch (error) {
-        if (selectedLocale === DEFAULT_LOCALE) throw error;
+        if (selectedLocale === DEFAULT_LOCALE || settings.strictLocale) throw error;
         console.warn('[i18n] Falling back to the default language.', error);
         resolvedLocale = DEFAULT_LOCALE;
         activeDictionary = await loadDictionary(DEFAULT_LOCALE);
@@ -334,6 +357,7 @@
     init,
     setLocale,
     apply,
+    loadLocale,
     get locale() { return currentLocale; },
     get storageKey() { return STORAGE_KEY; }
   });
