@@ -4,6 +4,7 @@
 
   function init(page = document, options = {}) {
     const root = document.documentElement;
+    const backLink = page.querySelector('#logo');
     const themeOptions = page.querySelector('#themeOptions');
     const languageSelect = page.querySelector('#languageSelect');
     const languageSelectCard = page.querySelector('#languageSelectCard');
@@ -46,6 +47,7 @@
     let suppressCompositionSubmit = false;
     let suppressLanguageFocusOpen = false;
     let languageDialogLift = 0;
+    let backNavigationPending = false;
     const THEME_STORAGE_KEY = 'wkjasdka-dark-mode';
     const darkPreference = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
     function resolveThemePreference() {
@@ -453,7 +455,14 @@
       if (shortcutsReturnFocus && typeof shortcutsReturnFocus.focus === 'function') shortcutsReturnFocus.focus();
     }
 
+    function resetBackNavigation() {
+      backNavigationPending = false;
+      backLink.removeAttribute('aria-disabled');
+      backLink.removeAttribute('aria-busy');
+    }
+
     function activate() {
+      resetBackNavigation();
       setThemePreference(resolveThemePreference(), false);
       return SiteI18n.init({ namespace: 'settings', select: null, defaultLocale: 'en' })
         .then(() => syncLanguageDisplay())
@@ -691,12 +700,26 @@
       });
     });
 
-    page.querySelector('#logo').addEventListener('click', event => {
+    backLink.addEventListener('click', event => {
       if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
       event.preventDefault();
-      if (typeof options.onBack === 'function') options.onBack();
-      else if (window.history.length > 1) window.history.back();
-      else window.location.assign(event.currentTarget.href);
+      if (backNavigationPending || !backLink.isConnected) return;
+      // A slow history traversal can still complete later, so do not unlock on a timer.
+      backNavigationPending = true;
+      backLink.setAttribute('aria-disabled', 'true');
+      backLink.setAttribute('aria-busy', 'true');
+      try {
+        if (typeof options.onBack === 'function') options.onBack();
+        else if (window.history.length > 1) window.history.back();
+        else window.location.assign(backLink.href);
+      } catch (error) {
+        resetBackNavigation();
+        console.error('[settings] Could not return to the previous page.', error);
+      }
+    });
+    window.addEventListener('popstate', resetBackNavigation);
+    window.addEventListener('pageshow', event => {
+      if (event.persisted) resetBackNavigation();
     });
 
     if (!options.spa) {
