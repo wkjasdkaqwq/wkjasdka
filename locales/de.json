@@ -45,7 +45,8 @@
     "privacyNav": "Datenschutzerklärung",
     "termsNav": "Nutzungsvereinbarung",
     "loadingLogoAlt": "Ladelogo",
-    "articleLoadError": "Dieser Artikel konnte nicht geladen werden. Bitte versuchen Sie es erneut."
+    "articleLoadError": "Dieser Artikel konnte nicht geladen werden. Bitte versuchen Sie es erneut.",
+    "articleLoading": "Artikel wird geladen…"
   },
   "community": {
     "documentTitle": "Semi-rounded Corner in der Liuyanlin Community",

@@ -45,7 +45,8 @@
     "privacyNav": "Privacy policy",
     "termsNav": "User agreement",
     "loadingLogoAlt": "Loading logo",
-    "articleLoadError": "Could not load this article. Please try again."
+    "articleLoadError": "Could not load this article. Please try again.",
+    "articleLoading": "Loading article…"
   },
   "community": {
     "documentTitle": "Semi-rounded Corner on Liuyanlin Community",

@@ -45,7 +45,8 @@
     "privacyNav": "私隱政策",
     "termsNav": "用戶協議",
     "loadingLogoAlt": "載入中標誌",
-    "articleLoadError": "無法載入此文章，請再試一次。"
+    "articleLoadError": "無法載入此文章，請再試一次。",
+    "articleLoading": "載入文章中…"
   },
   "community": {
     "documentTitle": "Liuyanlin Community 的 Semi-rounded Corner",

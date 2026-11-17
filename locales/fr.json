@@ -45,7 +45,8 @@
     "privacyNav": "Politique de confidentialité",
     "termsNav": "Conditions d’utilisation",
     "loadingLogoAlt": "Logo de chargement",
-    "articleLoadError": "Impossible de charger cet article. Veuillez réessayer."
+    "articleLoadError": "Impossible de charger cet article. Veuillez réessayer.",
+    "articleLoading": "Chargement de l’article…"
   },
   "community": {
     "documentTitle": "Semi-rounded Corner sur Liuyanlin Community",

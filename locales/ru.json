@@ -45,7 +45,8 @@
     "privacyNav": "Политика конфиденциальности",
     "termsNav": "Пользовательское соглашение",
     "loadingLogoAlt": "Логотип загрузки",
-    "articleLoadError": "Не удалось загрузить статью. Попробуйте ещё раз."
+    "articleLoadError": "Не удалось загрузить статью. Попробуйте ещё раз.",
+    "articleLoading": "Загрузка статьи…"
   },
   "community": {
     "documentTitle": "Semi-rounded Corner в Liuyanlin Community",

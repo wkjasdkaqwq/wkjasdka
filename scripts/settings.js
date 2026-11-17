@@ -56,6 +56,7 @@
     let languageLoading = null;
     let languageWaitUi = null;
     const fadingLanguageWaits = new Set();
+    const LANGUAGE_WAIT_DELAY_MS = 2000;
     const THEME_STORAGE_KEY = 'wkjasdka-dark-mode';
     const darkPreference = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
     function resolveThemePreference() {
@@ -218,7 +219,7 @@
     }
 
     function scheduleLanguageWait(operation) {
-      const delay = Math.max(0, 3000 - (performance.now() - operation.startedAt));
+      const delay = Math.max(0, LANGUAGE_WAIT_DELAY_MS - (performance.now() - operation.startedAt));
       operation.timer = window.setTimeout(() => {
         operation.timer = null;
         showLanguageWait(operation);
@@ -266,7 +267,7 @@
       // response. Still show the indicator for an operation that exceeded the
       // threshold, without doing this for cancelled or superseded operations.
       if (handle.operation.pending.size === 1 && !handle.operation.suspended && !languageWaitUi &&
-          performance.now() - handle.operation.startedAt >= 3000) {
+          performance.now() - handle.operation.startedAt >= LANGUAGE_WAIT_DELAY_MS) {
         try { showLanguageWait(handle.operation); }
         catch (error) { console.warn('[settings] Could not display the language loading indicator.', error); }
       }
@@ -343,7 +344,7 @@
             !languageModal.classList.contains('open') || languageDraft !== locale) return;
         console.warn('[settings] Could not load the language preview.', error);
         // Finish the valid request before resetting the preview, so a delayed
-        // three-second timer cannot be mistaken for a user cancellation.
+        // wait timer cannot be mistaken for a user cancellation.
         endLanguageLoading(loading);
         resetLanguagePreview();
         setLanguageError('languagePreviewError');

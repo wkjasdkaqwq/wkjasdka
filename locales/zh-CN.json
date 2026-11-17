@@ -45,7 +45,8 @@
     "privacyNav": "隐私政策",
     "termsNav": "用户协议",
     "loadingLogoAlt": "加载 Logo",
-    "articleLoadError": "无法加载此文章，请重试。"
+    "articleLoadError": "无法加载此文章，请重试。",
+    "articleLoading": "正在加载文章…"
   },
   "community": {
     "documentTitle": "Liuyanlin Community 上的 Semi-rounded Corner",
