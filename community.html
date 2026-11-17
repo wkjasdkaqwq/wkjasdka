@@ -125,7 +125,7 @@
             cursor: pointer;
         }
         @media (prefers-reduced-motion: reduce) {
-            .loading-progress, .loading-progress-fill, .loading-backdrop-center, .loading-logo { transition: none; }
+            .loading-progress, .loading-progress-fill, .loading-backdrop-center, .loading-logo, .placeholder-grid { transition: none; }
         }
 
         .content-box {
@@ -158,6 +158,12 @@
             gap: 20px;
             width: 100%;
             margin-top: 40px;
+            opacity: 1;
+            transition: opacity .18s ease;
+        }
+
+        #mainContent.is-loading-reveal .placeholder-grid {
+            opacity: 0;
         }
 
         .placeholder-item {
@@ -534,6 +540,7 @@
                         await loadImage(contentImages[i], fraction => setProgress(20 + 80 * contentImageProgressShare * (i + fraction) / contentImages.length));
                     }
                     await initializeLanguage();
+                    main.classList.add('is-loading-reveal');
                     main.style.display = 'flex';
                     setProgress(100);
 
@@ -545,6 +552,7 @@
                     }
                     await revealCenter(reduceMotion);
                     loading.style.display = 'none';
+                    main.classList.remove('is-loading-reveal');
                 } catch (failure) {
                     console.error('[community] Page loading failed.', failure);
                     error.hidden = false;
