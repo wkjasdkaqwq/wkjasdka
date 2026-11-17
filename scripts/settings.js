@@ -2,10 +2,6 @@
 (function (window, document) {
   'use strict';
 
-  const settingsScript = document.currentScript;
-  const loadingAnimationUrl = new URL('../resource/loading customization.html', settingsScript && settingsScript.src ? settingsScript.src : document.baseURI);
-  loadingAnimationUrl.searchParams.set('v', '20261117-language-wait');
-
   function init(page = document, options = {}) {
     const root = document.documentElement;
     const backLink = page.querySelector('#logo');
@@ -98,21 +94,6 @@
     ['keydown', 'keyup', 'keypress', 'beforeinput', 'submit', 'click', 'pointerdown', 'pointerup', 'touchstart', 'wheel', 'focusin']
       .forEach(type => document.addEventListener(type, blockLanguageWaitEvent, { capture: true, passive: false }));
 
-    function languageWaitTopBackground() {
-      // The reference is an iframe, whose default canvas is opaque. Match its
-      // background to the veiled navbar so only the orange animation stands out.
-      let color = [255, 255, 255];
-      const elements = document.elementsFromPoint(1, Math.min(10, Math.max(0, window.innerHeight - 1))).reverse();
-      elements.forEach(element => {
-        const style = window.getComputedStyle(element);
-        const parts = style.backgroundColor.match(/[\d.]+/g);
-        if (!parts || parts.length < 3) return;
-        const alpha = (parts.length > 3 ? Number(parts[3]) : 1) * Number(style.opacity);
-        color = color.map((channel, index) => Number(parts[index]) * alpha + channel * (1 - alpha));
-      });
-      return `rgb(${color.map(channel => Math.round(channel * .58 + 255 * .42)).join(', ')})`;
-    }
-
     function showLanguageWait(operation) {
       if (operation !== languageLoading || operation.suspended || !operation.pending.size || (page !== document && !page.isConnected)) return;
       const overlay = document.createElement('div');
@@ -127,105 +108,96 @@
 
       const focus = document.activeElement;
       const wasInputEditing = focus === languageSelect && languageKeyboardVisible();
-      const frameBackground = languageWaitTopBackground();
       const inertElements = [...document.body.children].map(element => [element, element.getAttribute('inert')]);
       const busyElement = page === document ? page.querySelector('main') : page;
       const previousBusy = busyElement.getAttribute('aria-busy');
       inertElements.forEach(([element]) => element.setAttribute('inert', ''));
       busyElement.setAttribute('aria-busy', 'true');
       document.body.appendChild(overlay);
-      const ui = { overlay, focus, wasInputEditing, inertElements, busyElement, previousBusy, frameBackground, animationTimer: null, repeatTimer: null };
+      const motion = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
+      const ui = { overlay, focus, wasInputEditing, inertElements, busyElement, previousBusy, animation: null, fadeTimer: null, shownAt: performance.now(), motion, motionHandler: null };
       languageWaitUi = ui;
       overlay.focus({ preventScroll: true });
+      function showIndicator() {
+        if (languageWaitUi !== ui && !(motion && motion.matches)) return;
+        if (ui.animation) ui.animation.stop();
+        ui.animation = null;
+        const previous = overlay.querySelector('.language-wait-static');
+        if (previous) previous.remove();
+        try {
+          if (!(motion && motion.matches) && window.SiteLoadingAnimation) {
+            ui.animation = window.SiteLoadingAnimation.start(overlay, { loop: true });
+            return;
+          }
+        } catch (error) {
+          console.warn('[settings] Could not start the loading animation.', error);
+        }
+        if (!overlay.querySelector('.language-wait-static')) {
+          const indicator = document.createElement('div');
+          indicator.className = 'language-wait-static';
+          indicator.setAttribute('aria-hidden', 'true');
+          overlay.appendChild(indicator);
+        }
+      }
+      ui.motionHandler = showIndicator;
+      if (motion && motion.addEventListener) motion.addEventListener('change', ui.motionHandler);
+      else if (motion && motion.addListener) motion.addListener(ui.motionHandler);
+      showIndicator();
       requestAnimationFrame(() => {
-        if (languageWaitUi !== ui) return;
+        if (languageWaitUi !== ui && !fadingLanguageWaits.has(ui)) return;
         try { SiteI18n.apply(status, { namespace: 'settings' }); } catch (_) {}
         if (!status.textContent) status.textContent = 'Loading language…';
         overlay.classList.add('is-visible');
       });
 
-      // Start the user's original animation after the white veil has faded in.
-      ui.animationTimer = window.setTimeout(() => {
-        if (languageWaitUi !== ui) return;
-        if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-          const indicator = document.createElement('div');
-          indicator.className = 'language-wait-static';
-          indicator.setAttribute('aria-hidden', 'true');
-          overlay.appendChild(indicator);
-          return;
-        }
-        const fallback = document.createElement('div');
-        fallback.className = 'language-wait-fallback';
-        fallback.setAttribute('aria-hidden', 'true');
-        overlay.appendChild(fallback);
-        const frame = document.createElement('iframe');
-        frame.setAttribute('aria-hidden', 'true');
-        frame.setAttribute('tabindex', '-1');
-        frame.setAttribute('scrolling', 'no');
-        frame.title = '';
-        frame.style.visibility = 'hidden';
-        frame.addEventListener('load', () => {
-          if (languageWaitUi !== ui) return;
-          const replay = () => {
-            if (languageWaitUi !== ui) return;
-            if (ui.repeatTimer !== null) window.clearTimeout(ui.repeatTimer);
-            ui.repeatTimer = window.setTimeout(() => {
-              if (languageWaitUi !== ui) return;
-              if (!fallback.isConnected) overlay.appendChild(fallback);
-              frame.style.visibility = 'hidden';
-              frame.src = loadingAnimationUrl.href;
-            }, 150);
-          };
-          try {
-            const frameDocument = frame.contentDocument;
-            if (!frameDocument || !frameDocument.querySelector('.animation-container')) throw new Error('Animation is unavailable');
-            frameDocument.documentElement.style.backgroundColor = ui.frameBackground;
-            frameDocument.body.style.backgroundColor = ui.frameBackground;
-            frame.contentWindow.addEventListener('wkjasdka:loading-finished', replay, { once: true });
-            frame.style.visibility = 'visible';
-            fallback.remove();
-            // Recover if an old cached copy or interrupted animation emits no event.
-            ui.repeatTimer = window.setTimeout(replay, 12000);
-          } catch (_) {
-            frame.remove();
-            if (!fallback.isConnected) overlay.appendChild(fallback);
-          }
-        });
-        frame.src = loadingAnimationUrl.href;
-        overlay.appendChild(frame);
-      }, 550);
+    }
+
+    function disposeLanguageWait(ui) {
+      if (ui.fadeTimer !== null) window.clearTimeout(ui.fadeTimer);
+      if (ui.animation) ui.animation.stop();
+      if (ui.motion && ui.motion.removeEventListener) ui.motion.removeEventListener('change', ui.motionHandler);
+      else if (ui.motion && ui.motion.removeListener) ui.motion.removeListener(ui.motionHandler);
+      ui.overlay.remove();
+      fadingLanguageWaits.delete(ui);
     }
 
     function hideLanguageWait(immediate = false, restoreFocus = true) {
       const ui = languageWaitUi;
       if (!ui) return;
       languageWaitUi = null;
-      if (ui.animationTimer !== null) window.clearTimeout(ui.animationTimer);
-      if (ui.repeatTimer !== null) window.clearTimeout(ui.repeatTimer);
-      const frame = ui.overlay.querySelector('iframe');
-      if (frame) frame.remove();
       ui.inertElements.forEach(([element, previous]) => {
         if (previous === null) element.removeAttribute('inert');
         else element.setAttribute('inert', previous);
       });
       if (ui.previousBusy === null) ui.busyElement.removeAttribute('aria-busy');
       else ui.busyElement.setAttribute('aria-busy', ui.previousBusy);
-      ui.overlay.classList.remove('is-visible');
-      ui.overlay.setAttribute('aria-hidden', 'true');
+      // Restore interaction as soon as loading ends, even if the indicator is fading.
+      ui.overlay.style.pointerEvents = 'none';
       if (restoreFocus) {
         let target = ui.focus;
-        if (!target || !target.isConnected || (languageModal.contains(target) && !languageModal.classList.contains('open'))) target = languageOpen;
+        const fallback = languageModal.classList.contains('open') ? languageClose : languageOpen;
+        if (!target || !target.isConnected || target === document.body || target === document.documentElement ||
+            target.disabled || target.closest('[inert]') || (languageModal.contains(target) && !languageModal.classList.contains('open'))) target = fallback;
         if (target === languageSelect && !ui.wasInputEditing && languageModal.classList.contains('open') && window.matchMedia &&
             window.matchMedia('(hover: none), (pointer: coarse)').matches) target = languageClose;
         if (target && target.isConnected && typeof target.focus === 'function') target.focus({ preventScroll: true });
+        if (ui.overlay.contains(document.activeElement) && fallback.isConnected && !fallback.disabled) fallback.focus({ preventScroll: true });
       }
-      if (immediate || (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) ui.overlay.remove();
+      ui.overlay.setAttribute('aria-hidden', 'true');
+      if (immediate) disposeLanguageWait(ui);
       else {
-        fadingLanguageWaits.add(ui.overlay);
-        window.setTimeout(() => {
-          ui.overlay.remove();
-          fadingLanguageWaits.delete(ui.overlay);
-        }, 600);
+        // Avoid losing the animation when a request finishes just after three seconds.
+        fadingLanguageWaits.add(ui);
+        const hold = Math.max(0, 800 - (performance.now() - ui.shownAt));
+        const reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        ui.fadeTimer = window.setTimeout(() => {
+          if (reducedMotion) {
+            disposeLanguageWait(ui);
+            return;
+          }
+          ui.overlay.classList.remove('is-visible');
+          ui.fadeTimer = window.setTimeout(() => disposeLanguageWait(ui), 600);
+        }, hold);
       }
     }
 
@@ -244,7 +216,7 @@
     }
 
     function suspendLanguageLoading() {
-      fadingLanguageWaits.forEach(overlay => overlay.remove());
+      fadingLanguageWaits.forEach(ui => disposeLanguageWait(ui));
       fadingLanguageWaits.clear();
       if (!languageLoading) return;
       languageLoading.pending.delete('preview');
