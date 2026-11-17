@@ -138,7 +138,8 @@
     .language-actions { position: absolute; z-index: 2; right: 1.35rem; bottom: .65rem; display: flex; justify-content: flex-end; }
     .language-confirm { flex: 0 0 auto; width: 110px; min-width: 110px; }
     .language-confirm:disabled { cursor: wait; opacity: .6; }
-    .language-wait-overlay { position: fixed; inset: 0; z-index: 2147483000; overflow: hidden; background: rgba(255,255,255,.42); opacity: 0; pointer-events: none; touch-action: none; cursor: wait; transition: opacity .55s ease, background-color .55s ease; }
+    .language-wait-overlay { position: fixed; inset: 0; z-index: 2147483000; overflow: hidden; background: rgba(200,200,200,.42); opacity: 0; pointer-events: none; touch-action: none; cursor: wait; transition: opacity .55s ease, background-color .55s ease; }
+    html.dark-mode .language-wait-overlay { background: rgba(255,255,255,.42); }
     .language-wait-overlay.is-visible { opacity: 1; pointer-events: auto; }
     .language-wait-overlay.is-finishing { opacity: 0; pointer-events: none; }
     .language-wait-static { position: absolute; top: 0; left: 0; width: 35%; height: 8px; border-radius: 0 4px 4px 0; background: #ff8000; }

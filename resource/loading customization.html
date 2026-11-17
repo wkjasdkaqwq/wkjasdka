@@ -28,7 +28,8 @@
     <script src="../scripts/loading-animation.js?v=20261117-overlap-sync"></script>
     <script>
         const loadingAnimation = window.SiteLoadingAnimation.start(document.body, {
-            container: document.querySelector('.animation-container')
+            container: document.querySelector('.animation-container'),
+            loop: true
         });
         window.addEventListener('beforeunload', () => loadingAnimation.stop(), { once: true });
     </script>

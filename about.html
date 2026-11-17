@@ -731,7 +731,8 @@
       }
     }
     /* Match the settings-page slow-loading veil without delaying short requests. */
-    .article-wait-overlay { position: fixed; inset: 0; z-index: 2147483000; overflow: hidden; background: rgba(255,255,255,.42); opacity: 0; pointer-events: none; touch-action: none; cursor: wait; transition: opacity .55s ease, background-color .55s ease; }
+    .article-wait-overlay { position: fixed; inset: 0; z-index: 2147483000; overflow: hidden; background: rgba(200,200,200,.42); opacity: 0; pointer-events: none; touch-action: none; cursor: wait; transition: opacity .55s ease, background-color .55s ease; }
+    html.dark-mode .article-wait-overlay { background: rgba(255,255,255,.42); }
     .article-wait-overlay.is-visible { opacity: 1; pointer-events: auto; }
     .article-wait-overlay.is-finishing { opacity: 0; pointer-events: none; }
     .article-wait-static { position: absolute; top: 0; left: 0; width: 35%; height: 8px; border-radius: 0 4px 4px 0; background: #ff8000; }
