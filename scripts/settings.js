@@ -137,6 +137,13 @@
       const choice = languageChoice(locale);
       if (choice) {
         languageCurrent.textContent = choice.querySelector('.language-choice-text').textContent;
+        // Keep the applied language first, with the remaining choices in the
+        // original Latin / Cyrillic / Han order, not the order of past selections.
+        const choices = [choice, ...languageChoices.filter(item => item !== choice)];
+        choices.forEach((item, index) => {
+          const current = languageOptions.children[index];
+          if (current !== item) languageOptions.insertBefore(item, current || null);
+        });
       }
       updateLanguageNames(locale);
       languageModal.lang = locale;
@@ -520,13 +527,26 @@
       const choice = event.target instanceof Element ? event.target.closest('[role="option"]') : null;
       if (choice && languageOptions.contains(choice)) chooseLanguage(choice);
     });
+    languageDropdown.addEventListener('click', event => {
+      if (event.target instanceof Element && event.target.closest('[role="option"]')) return;
+      closeLanguageOptions();
+      languageSelect.blur();
+    });
     document.addEventListener('click', event => {
       const inputSubmit = event.detail === 0 && document.activeElement === languageSelect && languageConfirm.contains(event.target);
-      if (!languageComposing && !suppressCompositionSubmit && !inputSubmit && !languageDropdown.hidden && !languagePicker.contains(event.target)) closeLanguageOptions();
+      const composingSubmit = event.detail === 0 && (languageComposing || suppressCompositionSubmit);
+      if (!inputSubmit && !composingSubmit && !languageDropdown.hidden && !languagePicker.contains(event.target)) {
+        closeLanguageOptions();
+        languageSelect.blur();
+      }
     });
     languageForm.addEventListener('submit', confirmLanguage);
     languageModal.addEventListener('click', event => {
-      if (event.target === languageModal) closeLanguage();
+      if (event.target !== languageModal) return;
+      if (!languageDropdown.hidden) {
+        closeLanguageOptions();
+        languageSelect.blur();
+      } else closeLanguage();
     });
     languageDialog.addEventListener('transitionend', event => {
       if (event.target === languageDialog && event.propertyName === 'transform') fitLanguageDropdown();
