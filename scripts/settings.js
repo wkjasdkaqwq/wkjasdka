@@ -51,6 +51,9 @@
     let suppressCompositionSubmit = false;
     let suppressLanguageFocusOpen = false;
     let languageDialogLift = 0;
+    let languageViewportBaseline = null;
+    let languageViewportKeyboardVisible = false;
+    let languageOptionPointer = null;
     let backNavigationPending = false;
     let backFallbackOnly = false;
     let backFallbackTimer = null;
@@ -123,6 +126,7 @@
       overlay.appendChild(status);
 
       const focus = document.activeElement;
+      const wasInputEditing = focus === languageSelect && languageKeyboardVisible();
       const frameBackground = languageWaitTopBackground();
       const inertElements = [...document.body.children].map(element => [element, element.getAttribute('inert')]);
       const busyElement = page === document ? page.querySelector('main') : page;
@@ -130,7 +134,7 @@
       inertElements.forEach(([element]) => element.setAttribute('inert', ''));
       busyElement.setAttribute('aria-busy', 'true');
       document.body.appendChild(overlay);
-      const ui = { overlay, focus, inertElements, busyElement, previousBusy, frameBackground, animationTimer: null, repeatTimer: null };
+      const ui = { overlay, focus, wasInputEditing, inertElements, busyElement, previousBusy, frameBackground, animationTimer: null, repeatTimer: null };
       languageWaitUi = ui;
       overlay.focus({ preventScroll: true });
       requestAnimationFrame(() => {
@@ -211,6 +215,8 @@
       if (restoreFocus) {
         let target = ui.focus;
         if (!target || !target.isConnected || (languageModal.contains(target) && !languageModal.classList.contains('open'))) target = languageOpen;
+        if (target === languageSelect && !ui.wasInputEditing && languageModal.classList.contains('open') && window.matchMedia &&
+            window.matchMedia('(hover: none), (pointer: coarse)').matches) target = languageClose;
         if (target && target.isConnected && typeof target.focus === 'function') target.focus({ preventScroll: true });
       }
       if (immediate || (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) ui.overlay.remove();
@@ -394,7 +400,32 @@
       }
     }
 
+    function languageViewportSize() {
+      const viewport = window.visualViewport;
+      return { width: viewport ? viewport.width : window.innerWidth, height: viewport ? viewport.height : window.innerHeight };
+    }
+
+    function updateLanguageViewportBaseline() {
+      if (!languageModal.classList.contains('open')) return;
+      const viewport = languageViewportSize();
+      const widthChanged = languageViewportBaseline && Math.abs(viewport.width - languageViewportBaseline.width) > 24;
+      if (widthChanged && document.activeElement === languageSelect && languageViewportKeyboardVisible) {
+        languageViewportBaseline = { width: viewport.width, height: Math.max(viewport.height, window.innerHeight) };
+      } else if (!languageViewportBaseline || widthChanged || viewport.height > languageViewportBaseline.height) {
+        languageViewportBaseline = viewport;
+      }
+      if (document.activeElement !== languageSelect || !languageViewportBaseline) languageViewportKeyboardVisible = false;
+      else if (widthChanged && languageViewportKeyboardVisible && window.innerHeight - viewport.height <= 120) languageViewportKeyboardVisible = true;
+      else languageViewportKeyboardVisible = languageViewportBaseline.height - viewport.height > 120;
+    }
+
+    function languageKeyboardVisible() {
+      if (!languageViewportBaseline) return false;
+      return languageViewportKeyboardVisible || languageViewportBaseline.height - languageViewportSize().height > 120;
+    }
+
     function fitLanguageDropdown(event) {
+      if (event && event.type === 'resize') updateLanguageViewportBaseline();
       if (languageDropdown.hidden || !languageModal.classList.contains('open')) return;
       const viewport = window.visualViewport;
       const topLimit = (viewport ? viewport.offsetTop : 0) + 12;
@@ -465,6 +496,7 @@
       languageSelect.setAttribute('aria-expanded', 'false');
       languageSelect.removeAttribute('aria-activedescendant');
       languageSelect.readOnly = true;
+      languageOptionPointer = null;
       languageSelect.placeholder = '';
       languageInputIsPreview = false;
       languageComposing = false;
@@ -482,7 +514,7 @@
       }
     }
 
-    function chooseLanguage(choice) {
+    function chooseLanguage(choice, restoreSearchFocus = true) {
       if (!choice || choice.hidden || languageSelect.disabled) return;
       setLanguageDraft(choice.dataset.value);
       setLanguageError(null);
@@ -491,8 +523,9 @@
       activeLanguageChoice = choice;
       filterLanguageChoices();
       setActiveLanguageChoice(choice);
-      // Keep the search input focused so the on-screen return key can confirm.
-      languageSelect.focus({ preventScroll: true });
+      // Keyboard and mouse selection keep their existing search navigation.
+      // Touch selection must not reopen a keyboard the user already dismissed.
+      if (restoreSearchFocus && document.activeElement !== languageSelect) languageSelect.focus({ preventScroll: true });
       previewLanguage(languageDraft);
     }
 
@@ -506,6 +539,8 @@
       setLanguageError(null);
       resetLanguagePreview();
       languageModal.classList.add('open');
+      languageViewportBaseline = languageViewportSize();
+      languageViewportKeyboardVisible = false;
       languageModal.setAttribute('aria-hidden', 'false');
       languageOpen.setAttribute('aria-expanded', 'true');
       document.body.style.overflow = 'hidden';
@@ -717,6 +752,7 @@
     languageSelect.addEventListener('focus', () => {
       if (!suppressLanguageFocusOpen && languageModal.classList.contains('open')) openLanguageOptions();
     });
+    languageSelect.addEventListener('blur', () => { languageViewportKeyboardVisible = false; });
     languageSelectCard.addEventListener('click', () => {
       if (languageSelect.disabled) return;
       openLanguageOptions();
@@ -756,6 +792,9 @@
       languageInputIsPreview = false;
       languageSelect.value = '';
     };
+    languageSelect.addEventListener('pointerdown', () => {
+      if (!languageDropdown.hidden) prepareLanguageSearch();
+    });
     languageSelect.addEventListener('beforeinput', prepareLanguageSearch);
     languageSelect.addEventListener('compositionstart', () => {
       prepareLanguageSearch();
@@ -769,9 +808,31 @@
       languageInputIsPreview = false;
       if (!languageDropdown.hidden && !languageComposing && !event.isComposing) filterLanguageChoices();
     });
+    languageOptions.addEventListener('pointerdown', event => {
+      const choice = event.target instanceof Element ? event.target.closest('[role="option"]') : null;
+      if (!choice || !languageOptions.contains(choice)) return;
+      const touch = event.pointerType === 'touch' || event.pointerType === 'pen';
+      languageOptionPointer = { touch, keepInputFocus: touch && document.activeElement === languageSelect && languageKeyboardVisible() };
+    });
+    languageOptions.addEventListener('touchstart', event => {
+      if (languageOptionPointer || !(event.target instanceof Element) || !event.target.closest('[role="option"]')) return;
+      languageOptionPointer = { touch: true, keepInputFocus: document.activeElement === languageSelect && languageKeyboardVisible() };
+    }, { passive: true });
+    languageOptions.addEventListener('pointercancel', () => { languageOptionPointer = null; });
+    languageOptions.addEventListener('touchcancel', () => { languageOptionPointer = null; });
+    languageOptions.addEventListener('mousedown', event => {
+      // This runs after a tap, not during touch movement, so scrolling remains native.
+      if (languageOptionPointer && languageOptionPointer.keepInputFocus) event.preventDefault();
+    });
     languageOptions.addEventListener('click', event => {
       const choice = event.target instanceof Element ? event.target.closest('[role="option"]') : null;
-      if (choice && languageOptions.contains(choice)) chooseLanguage(choice);
+      if (!choice || !languageOptions.contains(choice)) return;
+      const touch = languageOptionPointer ? languageOptionPointer.touch : event.pointerType === 'touch' || event.pointerType === 'pen';
+      const virtualClick = !languageOptionPointer && event.pointerType !== 'mouse' && !touch;
+      const keepInputFocus = languageOptionPointer && languageOptionPointer.keepInputFocus;
+      languageOptionPointer = null;
+      chooseLanguage(choice, !touch && !virtualClick);
+      if (touch && !keepInputFocus && document.activeElement === languageSelect) languageSelect.blur();
     });
     languageDropdown.addEventListener('click', event => {
       if (event.target instanceof Element && event.target.closest('[role="option"]')) return;
