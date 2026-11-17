@@ -23,7 +23,7 @@
 
   function loadSettings() {
     if (!settingsPromise) {
-      settingsPromise = fetch(settingsUrl.href, { credentials: 'same-origin' })
+      settingsPromise = fetch(settingsUrl.href, { credentials: 'same-origin', cache: 'no-cache' })
         .then(response => {
           if (!response.ok) throw new Error(`Settings request failed (${response.status})`);
           return response.text();
