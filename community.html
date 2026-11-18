@@ -386,6 +386,23 @@
                 menuPanel.classList.remove('open');
                 menuButton.setAttribute('aria-expanded', 'false');
             };
+            function playLocalRefreshEntrance() {
+                const loading = document.getElementById('loadingScreen');
+                if (!loading) return;
+                loading.classList.remove('is-soft-refresh-reverse', 'is-soft-refresh-logo-visible', 'is-zooming-into-content', 'is-zoom-settled', 'allows-page-interaction', 'is-center-revealing');
+                loading.style.display = 'flex';
+                loading.style.transform = 'scale(1)';
+                window.requestAnimationFrame(() => {
+                    loading.classList.add('is-center-revealing');
+                    window.setTimeout(() => {
+                        loading.classList.add('is-zooming-into-content');
+                        window.setTimeout(() => {
+                            loading.classList.remove('is-zooming-into-content', 'is-center-revealing');
+                            loading.style.display = 'none';
+                        }, 900);
+                    }, 50);
+                });
+            }
             async function softRefreshCommunityPage() {
                 if (softRefreshInProgress) return;
                 softRefreshInProgress = true;
@@ -429,6 +446,7 @@
                         image.src = new URL(source, pageUrl).href;
                         image.removeAttribute('data-src');
                     });
+                    playLocalRefreshEntrance();
                 } catch (error) {
                     console.error('[community] Soft refresh failed.', error);
                 } finally {
