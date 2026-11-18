@@ -511,10 +511,10 @@
                     const fullHeight = description.getBoundingClientRect().height;
                     const lineHeight = parseFloat(window.getComputedStyle(description).lineHeight) || 0;
                     const collapsedHeight = Number(description.dataset.collapsedHeight) || lineHeight * 3;
+                    description.classList.remove('is-expanded');
+                    info.classList.remove('is-expanded');
                     animateDescriptionHeight(description, fullHeight, collapsedHeight, () => {
                         description.style.height = '';
-                        description.classList.remove('is-expanded');
-                        info.classList.remove('is-expanded');
                         delete description.dataset.collapsedHeight;
                     });
                 }
