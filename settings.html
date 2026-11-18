@@ -100,7 +100,7 @@
     .language-modal.open .language-dialog { transform: translateY(calc(-30px - var(--language-dialog-lift, 0px))) scale(1); }
     .language-header { display: flex; flex: 0 0 auto; align-items: center; justify-content: space-between; gap: 1rem; padding: .65rem 1.35rem; border-bottom: 1px solid #e3e7eb; }
     .language-header h2 { margin: 0; font-size: 1.2rem; }
-    .language-close { position: relative; z-index: 5; display: grid; flex: 0 0 38px; place-items: center; width: 38px; height: 38px; padding: 0; border: 0; border-radius: 50%; background: #edf0f2; color: inherit; font-size: 1.6rem; line-height: 1; cursor: pointer; }
+    .language-close { position: relative; z-index: 5; display: grid; flex: 0 0 38px; place-items: center; width: 38px; height: 38px; padding: 0; border: 0; border-radius: 50%; background: #edf0f2; color: inherit; font-size: 1.6rem; line-height: 1; cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation; transition: transform .4s cubic-bezier(.34,1.56,.64,1), background-color .4s cubic-bezier(.34,1.56,.64,1), color .4s cubic-bezier(.34,1.56,.64,1), box-shadow .4s cubic-bezier(.34,1.56,.64,1); }
     .language-form { display: flex; flex: 1 1 auto; flex-direction: column; min-height: 0; padding: .5rem 1.35rem .65rem; }
     .language-label { display: block; margin-bottom: .4rem; font-size: .9rem; font-weight: 700; }
     .language-picker { position: relative; }
@@ -154,11 +154,12 @@
     .shortcuts-header h2 { margin: 0; font-size: clamp(1.2rem, 2.5vw, 1.65rem); }
     .shortcuts-close { display: grid; flex: 0 0 42px; place-items: center; width: 42px; height: 42px; border: 0; border-radius: 50%; background: #edf0f2; color: inherit; font-size: 1.65rem; line-height: 1; cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation; transition: transform .4s cubic-bezier(.34,1.56,.64,1), background-color .4s cubic-bezier(.34,1.56,.64,1), color .4s cubic-bezier(.34,1.56,.64,1), box-shadow .4s cubic-bezier(.34,1.56,.64,1); }
     @media (hover: hover) and (pointer: fine) {
-      .shortcuts-close:hover { transform: scale(1.12); background: #FFE4C4; color: #E67E22; box-shadow: 0 8px 20px rgba(255,218,185,.8); }
-      .shortcuts-close:active { transform: scale(1.08); background: #FFC38D; color: #E67E22; box-shadow: 0 6px 16px rgba(255,218,185,.6); }
+      .shortcuts-close:hover, .language-close:hover { transform: scale(1.12); background: #FFE4C4; color: #E67E22; box-shadow: 0 8px 20px rgba(255,218,185,.8); }
+      .shortcuts-close:active, .language-close:active { transform: scale(1.08); background: #FFC38D; color: #E67E22; box-shadow: 0 6px 16px rgba(255,218,185,.6); }
     }
     @media (hover: none), (pointer: coarse) {
-      .shortcuts-close:active, .shortcuts-close.is-touch-pressed { transform: translateY(2px) scale(.98); background: #FFC38D; color: #E67E22; box-shadow: 0 2px 6px rgba(255,218,185,.5); }
+      .shortcuts-close:active, .shortcuts-close.is-touch-pressed,
+      .language-close:active, .language-close.is-touch-pressed { transform: translateY(2px) scale(.98); background: #FFC38D; color: #E67E22; box-shadow: 0 2px 6px rgba(255,218,185,.5); }
     }
     .shortcuts-layout { display: grid; flex: 1 1 auto; grid-template-rows: minmax(0, 7fr) minmax(170px, 3fr); min-height: 0; }
     .shortcuts-information { min-height: 0; overflow: auto; padding: clamp(1rem, 3vw, 2rem); }
@@ -186,13 +187,14 @@
     html.dark-mode .shortcuts-dialog { border-color: #26394d; background: #0d1a26; color: #e0e0e0; }
     html.dark-mode .shortcuts-header, html.dark-mode .keyboard-area { border-color: #26394d; }
     html.dark-mode .shortcuts-header { border-bottom-color: #26394d; }
-    html.dark-mode .shortcuts-close { background: #1a2a3a; }
+    html.dark-mode .shortcuts-close, html.dark-mode .language-close { background: #1a2a3a; }
     @media (hover: hover) and (pointer: fine) {
-      html.dark-mode .shortcuts-close:hover { background: #422B1C; color: #ffe0c3; box-shadow: 0 8px 20px rgba(0,0,0,.28); }
-      html.dark-mode .shortcuts-close:active { background: #2B211B; color: #ffe0c3; box-shadow: 0 6px 16px rgba(0,0,0,.25); }
+      html.dark-mode .shortcuts-close:hover, html.dark-mode .language-close:hover { background: #422B1C; color: #ffe0c3; box-shadow: 0 8px 20px rgba(0,0,0,.28); }
+      html.dark-mode .shortcuts-close:active, html.dark-mode .language-close:active { background: #2B211B; color: #ffe0c3; box-shadow: 0 6px 16px rgba(0,0,0,.25); }
     }
     @media (hover: none), (pointer: coarse) {
-      html.dark-mode .shortcuts-close:active, html.dark-mode .shortcuts-close.is-touch-pressed { background: #2B211B; color: #ffe0c3; box-shadow: 0 2px 6px rgba(0,0,0,.25); }
+      html.dark-mode .shortcuts-close:active, html.dark-mode .shortcuts-close.is-touch-pressed,
+      html.dark-mode .language-close:active, html.dark-mode .language-close.is-touch-pressed { background: #2B211B; color: #ffe0c3; box-shadow: 0 2px 6px rgba(0,0,0,.25); }
     }
     html.dark-mode .shortcut-info-card span { color: #a0aab3; }
     html.dark-mode .shortcut-info-card { border-color: #26394d; background: #101f2e; }
@@ -715,19 +717,20 @@
   </script>
   <script>
     (() => {
-      const button = document.getElementById('shortcutsClose');
+      const buttons = document.querySelectorAll('.shortcuts-close, .language-close');
       const touchMedia = window.matchMedia('(hover: none), (pointer: coarse)');
-      let pressedPointer = null;
-      button.addEventListener('pointerdown', event => {
+      const pressedButtons = new Map();
+      buttons.forEach(button => button.addEventListener('pointerdown', event => {
         if (!touchMedia.matches || event.pointerType === 'mouse') return;
-        pressedPointer = event.pointerId;
+        pressedButtons.set(event.pointerId, button);
         button.classList.add('is-touch-pressed');
-      });
+      }));
       ['pointerup', 'pointercancel'].forEach(type => {
         document.addEventListener(type, event => {
-          if (event.pointerId !== pressedPointer) return;
+          const button = pressedButtons.get(event.pointerId);
+          if (!button) return;
           button.classList.remove('is-touch-pressed');
-          pressedPointer = null;
+          pressedButtons.delete(event.pointerId);
         }, { passive: true });
       });
     })();
