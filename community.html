@@ -280,6 +280,7 @@
         .main-project-info.is-expanded { z-index: 1; }
         .main-project-title { margin: 0; color: #333; font-size: 1.32rem; font-weight: 700; line-height: 1.2; }
         .main-project-description { display: block; box-sizing: border-box; max-height: 4.2em; margin: .3rem 0 0; padding-right: .35rem; overflow: hidden; color: #666; font-size: 1rem; line-height: 1.4; overflow-anchor: none; transition: height .24s cubic-bezier(.2, .8, .2, 1); will-change: height; }
+        .main-project-description .description-token.is-arrow-overlap { visibility: hidden; }
         .main-project-description.is-expanded { display: block; width: calc(100% + 5px); max-height: none; margin-left: -5px; padding-right: .35rem; padding-bottom: 5px; padding-left: 5px; overflow: hidden; border-radius: .35rem; background: #e8e8e8; box-shadow: 0 0 0 1px #d8d8d8; }
         .main-project-description-toggle { display: none; position: absolute; right: 0; bottom: 0; z-index: 2; align-items: center; justify-content: center; width: 2rem; height: 1.4rem; margin: 0; padding: 0; border: 0; color: #666; background: transparent; cursor: pointer; font-size: 0; line-height: 1; transition: right .24s cubic-bezier(.2, .8, .2, 1), bottom .24s cubic-bezier(.2, .8, .2, 1), width .24s cubic-bezier(.2, .8, .2, 1), height .24s cubic-bezier(.2, .8, .2, 1), transform .15s ease; }
         .main-project-description-toggle:active { transform: translateY(2px) scale(.98); transition-duration: .1s; }
@@ -463,10 +464,45 @@
                 }, 260);
                 descriptionAnimationTimers.set(description, timer);
             }
+            function prepareDescriptionTokens(description) {
+                if (description.dataset.tokensReady === 'true') return;
+                const text = description.textContent || '';
+                const parts = text.match(/\s+|[A-Za-z0-9]+(?:['’_-][A-Za-z0-9]+)*|./gu) || [];
+                const fragment = document.createDocumentFragment();
+                parts.forEach(part => {
+                    const token = document.createElement('span');
+                    token.className = 'description-token';
+                    token.textContent = part;
+                    if (/^\s+$/u.test(part)) token.dataset.whitespace = 'true';
+                    fragment.appendChild(token);
+                });
+                description.replaceChildren(fragment);
+                description.dataset.tokensReady = 'true';
+            }
+            function updateDescriptionArrowOverlaps(description, toggle) {
+                if (!description || !toggle) return;
+                if (!toggle.classList.contains('is-visible')) {
+                    description.querySelectorAll('.description-token.is-arrow-overlap').forEach(token => token.classList.remove('is-arrow-overlap'));
+                    return;
+                }
+                const toggleRect = toggle.getBoundingClientRect();
+                const extra = 3.2;
+                const arrowLeft = toggleRect.left - extra;
+                const arrowRight = toggleRect.right + extra;
+                const arrowTop = toggleRect.top - extra;
+                const arrowBottom = toggleRect.bottom + extra;
+                description.querySelectorAll('.description-token').forEach(token => {
+                    if (token.dataset.whitespace === 'true') return;
+                    const rect = token.getBoundingClientRect();
+                    const overlaps = rect.right > arrowLeft && rect.left < arrowRight && rect.bottom > arrowTop && rect.top < arrowBottom;
+                    token.classList.toggle('is-arrow-overlap', overlaps);
+                });
+            }
             function syncDescriptionToggle() {
                 const description = document.querySelector('.main-project-description');
                 const toggle = document.querySelector('.main-project-description-toggle');
                 if (!description || !toggle || description.classList.contains('is-expanded')) return;
+                prepareDescriptionTokens(description);
                 const probe = description.cloneNode(true);
                 probe.classList.remove('is-expanded');
                 probe.style.position = 'absolute';
@@ -481,6 +517,7 @@
                 const lineHeight = parseFloat(window.getComputedStyle(description).lineHeight) || 0;
                 probe.remove();
                 toggle.classList.toggle('is-visible', fullHeight > lineHeight * 3 + 1);
+                window.requestAnimationFrame(() => updateDescriptionArrowOverlaps(description, toggle));
             }
             function collapseDescription(description, toggle) {
                 const fullHeight = description.getBoundingClientRect().height;
@@ -493,17 +530,20 @@
                     description.style.height = '';
                     description.style.removeProperty('max-height');
                     delete description.dataset.collapsedHeight;
+                    updateDescriptionArrowOverlaps(description, toggle);
                 });
                 toggle.setAttribute('aria-expanded', 'false');
                 toggle.textContent = '⌄';
                 toggle.setAttribute('aria-label', 'Show full project description');
             }
             document.addEventListener('click', event => {
-                const expandedDescription = event.target.closest('.main-project-description.is-expanded');
-                if (expandedDescription) {
-                    const expandedToggle = expandedDescription.parentElement.querySelector('.main-project-description-toggle');
-                    if (expandedToggle) collapseDescription(expandedDescription, expandedToggle);
-                    return;
+                const activeDescription = document.querySelector('.main-project-description.is-expanded');
+                if (activeDescription) {
+                    const activeToggle = activeDescription.parentElement.querySelector('.main-project-description-toggle');
+                    const clickedInsideDescription = event.target.closest('.main-project-description.is-expanded');
+                    const clickedToggle = activeToggle && event.target.closest('.main-project-description-toggle') === activeToggle;
+                    collapseDescription(activeDescription, activeToggle);
+                    if (clickedInsideDescription || clickedToggle) return;
                 }
                 const toggle = event.target.closest('.main-project-description-toggle');
                 if (!toggle) return;
@@ -527,8 +567,10 @@
                     description.dataset.collapsedHeight = String(currentHeight);
                     description.classList.add('is-expanded');
                     info.classList.add('is-expanded');
+                    window.requestAnimationFrame(() => updateDescriptionArrowOverlaps(description, toggle));
                     animateDescriptionHeight(description, currentHeight, fullHeight, () => {
                         description.style.height = 'auto';
+                        updateDescriptionArrowOverlaps(description, toggle);
                     });
                 } else collapseDescription(description, toggle);
                 toggle.setAttribute('aria-expanded', String(!expanded));
@@ -543,11 +585,37 @@
                 const image = event.target.closest('.main-image-module');
                 if (image) image.classList.add('is-highlighted');
             }, { passive: true });
+            let detailTouchStartX = 0;
+            let detailTouchStartY = 0;
+            let detailDismissedBySwipe = false;
+            document.addEventListener('touchstart', event => {
+                if (event.touches.length !== 1) return;
+                detailTouchStartX = event.touches[0].clientX;
+                detailTouchStartY = event.touches[0].clientY;
+                detailDismissedBySwipe = false;
+            }, { passive: true });
+            document.addEventListener('touchmove', event => {
+                const description = document.querySelector('.main-project-description.is-expanded');
+                if (!description || detailDismissedBySwipe || event.touches.length !== 1) return;
+                const touch = event.touches[0];
+                const distance = Math.hypot(touch.clientX - detailTouchStartX, touch.clientY - detailTouchStartY);
+                if (distance < 4) return;
+                const toggle = description.parentElement.querySelector('.main-project-description-toggle');
+                if (toggle) {
+                    detailDismissedBySwipe = true;
+                    collapseDescription(description, toggle);
+                }
+            }, { passive: true });
             document.addEventListener('pointerdown', event => {
                 const image = event.target.closest('.main-image-module');
                 if (!image) document.querySelector('.main-image-module.is-highlighted')?.classList.remove('is-highlighted');
             }, { passive: true });
-            window.addEventListener('resize', syncDescriptionToggle);
+            window.addEventListener('resize', () => {
+                syncDescriptionToggle();
+                const description = document.querySelector('.main-project-description');
+                const toggle = document.querySelector('.main-project-description-toggle');
+                if (description && toggle) window.requestAnimationFrame(() => updateDescriptionArrowOverlaps(description, toggle));
+            });
             document.addEventListener('DOMContentLoaded', syncDescriptionToggle, { once: true });
             async function softRefreshCommunityPage() {
                 if (softRefreshInProgress) return;
