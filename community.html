@@ -273,7 +273,7 @@
         .main-project-info { position: relative; min-width: 0; flex: 1 1 auto; max-width: 420px; margin: -16px 0 0 30px; text-align: left; }
         .main-project-info.is-expanded { z-index: 1; box-sizing: border-box; padding: 0; border: 0; border-radius: .35rem; box-shadow: 0 0 0 1px #d8d8d8; background: #f8f8f8; }
         .main-project-title { margin: 0; color: #333; font-size: 1.32rem; font-weight: 700; line-height: 1.2; }
-        .main-project-description { display: -webkit-box; box-sizing: border-box; margin: .3rem 0 0; padding-right: 2rem; overflow: hidden; color: #666; font-size: 1rem; line-height: 1.4; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
+        .main-project-description { display: -webkit-box; box-sizing: border-box; margin: .3rem 0 0; padding-right: 2rem; overflow: hidden; color: #666; font-size: 1rem; line-height: 1.4; -webkit-box-orient: vertical; -webkit-line-clamp: 3; will-change: height; transition: height .3s linear; overflow-anchor: none; }
         .main-project-description.is-expanded { display: block; padding-right: 0; overflow: hidden; }
         .main-project-description-toggle { display: none; position: absolute; right: 0; bottom: 0; align-items: center; justify-content: center; width: 2rem; height: 1.4rem; margin: 0; padding: 0; border: 0; color: #666; background: #F2F2F2; cursor: pointer; font-size: 0; line-height: 1; }
         .main-project-description-toggle::before { content: ""; width: .5rem; height: .5rem; border-right: .12rem solid currentColor; border-bottom: .12rem solid currentColor; transform: translateY(-.12rem) rotate(45deg); }
@@ -436,21 +436,21 @@
             };
             const descriptionAnimationFrames = new WeakMap();
             function animateDescriptionHeight(description, from, to, onComplete) {
-                const previousFrame = descriptionAnimationFrames.get(description);
-                if (previousFrame) window.cancelAnimationFrame(previousFrame);
-                const start = performance.now();
-                const duration = 300;
-                const frame = now => {
-                    const progress = Math.min(1, (now - start) / duration);
-                    description.style.height = `${from + (to - from) * progress}px`;
-                    if (progress < 1) {
-                        descriptionAnimationFrames.set(description, window.requestAnimationFrame(frame));
-                    } else {
+                const previousAnimation = descriptionAnimationFrames.get(description);
+                if (previousAnimation) {
+                    window.cancelAnimationFrame(previousAnimation.frame);
+                    window.clearTimeout(previousAnimation.timer);
+                }
+                description.style.height = `${from}px`;
+                const frame = window.requestAnimationFrame(() => {
+                    description.style.height = `${to}px`;
+                    const timer = window.setTimeout(() => {
                         descriptionAnimationFrames.delete(description);
                         if (onComplete) onComplete();
-                    }
-                };
-                descriptionAnimationFrames.set(description, window.requestAnimationFrame(frame));
+                    }, 320);
+                    descriptionAnimationFrames.set(description, { frame: 0, timer });
+                });
+                descriptionAnimationFrames.set(description, { frame, timer: 0 });
             }
             function syncDescriptionToggle() {
                 const description = document.querySelector('.main-project-description');
