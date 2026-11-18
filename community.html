@@ -486,15 +486,10 @@
                     return;
                 }
                 const toggleRect = toggle.getBoundingClientRect();
-                const coating = window.getComputedStyle(toggle, '::after');
-                const coatingLeft = parseFloat(coating.left) || 0;
-                const coatingRight = parseFloat(coating.right) || 0;
-                const coatingTop = parseFloat(coating.top) || 0;
-                const coatingBottom = parseFloat(coating.bottom) || 0;
-                const arrowLeft = toggleRect.left + coatingLeft;
-                const arrowRight = toggleRect.right - coatingRight;
-                const arrowTop = toggleRect.top + coatingTop;
-                const arrowBottom = toggleRect.bottom - coatingBottom;
+                const arrowLeft = toggleRect.left;
+                const arrowRight = toggleRect.right;
+                const arrowTop = toggleRect.top;
+                const arrowBottom = toggleRect.bottom;
                 description.querySelectorAll('.description-token').forEach(token => {
                     if (token.dataset.whitespace === 'true') return;
                     token.classList.remove('is-arrow-overlap');
