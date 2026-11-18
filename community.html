@@ -263,8 +263,8 @@
         .main-image-module { display: block; flex: 0 0 64px; width: 64px; height: 64px; margin: 0; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); object-fit: contain; transform: scale(1.5); transform-origin: center; }
         .main-project-info { position: relative; min-width: 0; flex: 1 1 auto; max-width: 420px; margin: 8px 0 0 30px; text-align: left; }
         .main-project-title { margin: 0; color: #333; font-size: 1.32rem; font-weight: 700; line-height: 1.2; }
-        .main-project-description { max-height: 4.2em; margin: .3rem 0 0; overflow: hidden; color: #666; font-size: 1rem; line-height: 1.4; }
-        .main-project-description.is-expanded { max-height: none; overflow: visible; }
+        .main-project-description { display: -webkit-box; margin: .3rem 0 0; overflow: hidden; color: #666; font-size: 1rem; line-height: 1.4; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
+        .main-project-description.is-expanded { display: block; overflow: visible; }
         .main-project-description-toggle { display: none; position: absolute; right: 0; bottom: 0; align-items: center; justify-content: center; width: 2rem; height: 1.4rem; margin: 0; padding: 0; border: 0; color: #666; background: linear-gradient(90deg, transparent, #F2F2F2 42%); cursor: pointer; font-size: 1.2rem; line-height: 1; }
         .main-project-description-toggle.is-visible { display: inline-flex; }
         .main-project-description-toggle[aria-expanded="true"] { position: static; width: auto; height: auto; margin: .25rem 0 0; background: transparent; }
@@ -408,8 +408,20 @@
                 const description = document.querySelector('.main-project-description');
                 const toggle = document.querySelector('.main-project-description-toggle');
                 if (!description || !toggle || description.classList.contains('is-expanded')) return;
-                const overflowing = description.scrollHeight > description.clientHeight + 1;
-                toggle.classList.toggle('is-visible', overflowing);
+                const probe = description.cloneNode(true);
+                probe.classList.remove('is-expanded');
+                probe.style.position = 'absolute';
+                probe.style.visibility = 'hidden';
+                probe.style.width = `${description.clientWidth}px`;
+                probe.style.height = 'auto';
+                probe.style.maxHeight = 'none';
+                probe.style.display = 'block';
+                probe.style.webkitLineClamp = 'unset';
+                document.body.appendChild(probe);
+                const fullHeight = probe.scrollHeight;
+                const lineHeight = parseFloat(window.getComputedStyle(description).lineHeight) || 0;
+                probe.remove();
+                toggle.classList.toggle('is-visible', fullHeight > lineHeight * 3 + 1);
             }
             document.addEventListener('click', event => {
                 const toggle = event.target.closest('.main-project-description-toggle');
