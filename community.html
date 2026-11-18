@@ -484,8 +484,9 @@
             }
             function updateDescriptionArrowOverlaps(description, toggle) {
                 if (!description) return;
+                if (description.classList.contains('is-expanded')) return;
                 clearDescriptionArrowWrap(description);
-                if (!toggle || !toggle.classList.contains('is-visible') || description.classList.contains('is-expanded')) return;
+                if (!toggle || !toggle.classList.contains('is-visible')) return;
                 const toggleRect = toggle.getBoundingClientRect();
                 const arrowLeft = toggleRect.left;
                 const arrowRight = toggleRect.right;
