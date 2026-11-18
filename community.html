@@ -173,10 +173,11 @@
         .navbar-container { width: 100%; height: 100%; display: flex; align-items: center; justify-content: space-between; }
         .navbar-logo { display: block; width: min(83px, 22vw); height: auto; max-height: 1.9rem; margin-left: 1rem; object-fit: contain; object-position: left center; transform: translateX(-5px); }
         .navbar-menu { display: flex; list-style: none; margin: 0; padding: 0 1rem; }
-        .menu-btn { position: absolute; top: 0; right: .625rem; bottom: 0; z-index: 9001; display: grid; grid-template-columns: repeat(3, .3rem); grid-template-rows: repeat(3, .3rem); align-content: center; justify-content: end; gap: .2rem; width: 3.125rem; height: 3.125rem; margin: auto 0; padding: 0; border: 0; background: transparent; color: #666; cursor: pointer; transform: translateX(-8px); }
+        .menu-anchor { position: absolute; top: 0; right: calc(.625rem + 8px); bottom: 0; z-index: 9001; width: 3.125rem; }
+        .menu-btn { position: relative; display: grid; grid-template-columns: repeat(3, .3rem); grid-template-rows: repeat(3, .3rem); align-content: center; justify-content: end; gap: .2rem; width: 100%; height: 100%; margin: 0; padding: 0; border: 0; background: transparent; color: #666; cursor: pointer; }
         .menu-btn .dot { display: block; width: .3rem; height: .3rem; border-radius: 50%; background: #666; }
         .menu-btn:focus-visible { outline: 2px solid #64b5f6; outline-offset: 3px; }
-        .menu-panel { position: absolute; top: calc(100% + .5rem); right: calc(.625rem + 8px); z-index: 9002; display: flex; flex-direction: column; width: min(320px, calc(100vw - 2rem)); max-height: min(70vh, 520px); overflow-y: auto; padding: .45rem 0; border: 1px solid #dedede; border-radius: 12px; background: #fff; box-shadow: 0 8px 24px rgba(0,0,0,.14); opacity: 0; visibility: hidden; transform: translateY(-8px) scale(.98); transform-origin: top right; transition: opacity .18s ease, visibility .18s ease, transform .18s ease; }
+        .menu-panel { position: absolute; top: calc(100% + .5rem); right: 0; z-index: 9002; display: flex; flex-direction: column; width: min(320px, calc(100vw - 2rem)); max-height: min(70vh, 520px); overflow-y: auto; padding: .45rem 0; border: 1px solid #dedede; border-radius: 12px; background: #fff; box-shadow: 0 8px 24px rgba(0,0,0,.14); opacity: 0; visibility: hidden; transform: translateY(-8px) scale(.98); transform-origin: top right; transition: opacity .18s ease, visibility .18s ease, transform .18s ease; }
         .menu-panel.open { opacity: 1; visibility: visible; transform: translateY(0) scale(1); }
         .menu-panel a, .menu-panel .menu-heading { display: block; padding: .7rem 1rem; color: #555; font-size: .98rem; text-decoration: none; }
         .menu-panel a:hover { background: #f1f1f1; color: #222; }
@@ -261,36 +262,38 @@
 </head>
 <body>
     <nav class="navbar" id="navbar" aria-label="Site header">
-        <button class="menu-btn" id="menuBtn" type="button" aria-label="Open menu" data-i18n-aria-label="menuToggle" aria-controls="menuPanel" aria-expanded="false">
-            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-        </button>
+        <div class="menu-anchor">
+            <button class="menu-btn" id="menuBtn" type="button" aria-label="Open menu" data-i18n-aria-label="menuToggle" aria-controls="menuPanel" aria-expanded="false">
+                <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+            </button>
+            <div class="menu-panel" id="menuPanel" role="menu" aria-label="Site menu" data-i18n-aria-label="menuLabel">
+                <a href="#" id="menuTopLink" role="menuitem" data-i18n="topLink">Top</a>
+                <div class="menu-heading" data-i18n="socialPlatforms">Social Platforms</div>
+                <a href="https://space.bilibili.com/3493283156200346" role="menuitem">Bilibili</a>
+                <a href="https://bsky.app/profile/wkjasdka.bsky.social" role="menuitem">Bluesky</a>
+                <a href="https://discord.gg/QQQVS5fJPD" role="menuitem">Discord</a>
+                <a href="https://facebook.com/chenasawkjasdka" role="menuitem">Facebook</a>
+                <a href="https://instagram.com/imwkjasdka" role="menuitem">Instagram</a>
+                <a href="https://www.pinterest.com/Wkjasdka" role="menuitem">Pinterest</a>
+                <a href="https://open.spotify.com/user/31fp6b7aq3ch2jzdt5up5welfdhq?si=4vDMBCqPRJSPB4a2rxM7eg" role="menuitem">Spotify</a>
+                <a href="https://tiktok.com/@wkjasdkaqwq" role="menuitem">TikTok</a>
+                <a href="https://threads.net/@imwkjasdka" role="menuitem">Threads</a>
+                <a href="https://twitch.tv/wkjasdkaqwq" role="menuitem">Twitch</a>
+                <a href="https://x.com/Wkjasdka" role="menuitem">Twitter</a>
+                <a href="https://www.youtube.com/@wkjasdkaverynb" role="menuitem">YouTube</a>
+                <div class="menu-divider" aria-hidden="true"></div>
+                <a href="mailto:wkjasdkayeah@yeah.net" role="menuitem" data-i18n="contactLink">Contact</a>
+                <a href="about.html" role="menuitem" data-i18n="aboutLink">About</a>
+                <a href="settings.html" role="menuitem" data-i18n="settingsLink">Settings</a>
+            </div>
+        </div>
         <div class="navbar-container">
             <a href="community.html" id="communityLogoLink" aria-label="Refresh community page"><img class="navbar-logo" src="index/community2.png" alt="W.K.Jasdka Community" data-i18n-alt="logoAlt"></a>
             <ul class="navbar-menu"></ul>
         </div>
     </nav>
-    <div class="menu-panel" id="menuPanel" role="menu" aria-label="Site menu" data-i18n-aria-label="menuLabel">
-        <a href="#" id="menuTopLink" role="menuitem" data-i18n="topLink">Top</a>
-        <div class="menu-heading" data-i18n="socialPlatforms">Social Platforms</div>
-        <a href="https://space.bilibili.com/3493283156200346" role="menuitem">Bilibili</a>
-        <a href="https://bsky.app/profile/wkjasdka.bsky.social" role="menuitem">Bluesky</a>
-        <a href="https://discord.gg/QQQVS5fJPD" role="menuitem">Discord</a>
-        <a href="https://facebook.com/chenasawkjasdka" role="menuitem">Facebook</a>
-        <a href="https://instagram.com/imwkjasdka" role="menuitem">Instagram</a>
-        <a href="https://www.pinterest.com/Wkjasdka" role="menuitem">Pinterest</a>
-        <a href="https://open.spotify.com/user/31fp6b7aq3ch2jzdt5up5welfdhq?si=4vDMBCqPRJSPB4a2rxM7eg" role="menuitem">Spotify</a>
-        <a href="https://tiktok.com/@wkjasdkaqwq" role="menuitem">TikTok</a>
-        <a href="https://threads.net/@imwkjasdka" role="menuitem">Threads</a>
-        <a href="https://twitch.tv/wkjasdkaqwq" role="menuitem">Twitch</a>
-        <a href="https://x.com/Wkjasdka" role="menuitem">Twitter</a>
-        <a href="https://www.youtube.com/@wkjasdkaverynb" role="menuitem">YouTube</a>
-        <div class="menu-divider" aria-hidden="true"></div>
-        <a href="mailto:wkjasdkayeah@yeah.net" role="menuitem" data-i18n="contactLink">Contact</a>
-        <a href="about.html" role="menuitem" data-i18n="aboutLink">About</a>
-        <a href="settings.html" role="menuitem" data-i18n="settingsLink">Settings</a>
-    </div>
     <div class="loading-screen" id="loadingScreen">
         <div class="loading-backdrop" aria-hidden="true">
             <div class="loading-backdrop-cell"></div><div class="loading-backdrop-cell"></div><div class="loading-backdrop-cell"></div>
@@ -320,6 +323,7 @@
         (function () {
             const menuButton = document.getElementById('menuBtn');
             const menuPanel = document.getElementById('menuPanel');
+            const menuAnchor = menuButton.closest('.menu-anchor');
             const logoLink = document.getElementById('communityLogoLink');
             const closeMenu = () => {
                 menuPanel.classList.remove('open');
@@ -334,7 +338,7 @@
                 if (event.target.closest('a')) closeMenu();
             });
             document.addEventListener('click', event => {
-                if (!menuPanel.contains(event.target) && event.target !== menuButton) closeMenu();
+                if (!menuAnchor.contains(event.target)) closeMenu();
             });
             document.addEventListener('keydown', event => {
                 if (event.key === 'Escape' && menuPanel.classList.contains('open')) {
