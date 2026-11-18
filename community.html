@@ -198,7 +198,7 @@
         .navbar-container { width: 100%; height: 100%; display: flex; align-items: center; justify-content: space-between; }
         .navbar-logo { display: block; width: min(83px, 22vw); height: auto; max-height: 1.9rem; margin-left: 1rem; object-fit: contain; object-position: left center; cursor: pointer; user-select: none; -webkit-user-select: none; -webkit-user-drag: none; transform: translateX(-5px); transition: filter .1s ease, transform .3s ease; transform-origin: left center; }
         .navbar-menu { display: flex; list-style: none; margin: 0; padding: 0 1rem; }
-        .menu-anchor { position: absolute; top: 0; right: calc(.625rem + 8px - .2rem); bottom: 0; z-index: 9001; width: 2.3rem; }
+        .menu-anchor { position: absolute; top: 0; right: calc(.625rem + 8px - .2rem); bottom: 0; z-index: 9001; width: 2.3rem; touch-action: none; }
         .menu-btn { position: absolute; top: 50%; left: 50%; display: grid; grid-template-columns: repeat(3, .3rem); grid-template-rows: repeat(3, .3rem); align-content: center; justify-content: center; gap: .2rem; width: 2.3rem; height: 2.3rem; margin: 0; padding: 0; border: 0; outline: none; appearance: none; -webkit-tap-highlight-color: transparent; background: transparent; color: #666; cursor: pointer; transform: translate(-50%, -50%); }
         .menu-btn .dot { display: block; width: .3rem; height: .3rem; border-radius: 50%; background: #666; }
         .menu-btn[aria-expanded="true"] { border-radius: 0; background: #dcdcdc; }
@@ -272,10 +272,10 @@
             .main-image-module.is-highlighted { transform: scale(1.65); box-shadow: 0 8px 20px rgba(0,0,0,.18); }
         }
         .main-project-info { position: relative; min-width: 0; flex: 1 1 auto; max-width: 420px; margin: -16px 0 0 30px; text-align: left; }
-        .main-project-info.is-expanded { z-index: 1; box-sizing: border-box; padding: 0; border: 0; border-radius: .35rem; box-shadow: 0 0 0 1px #d8d8d8; background: #f8f8f8; }
+        .main-project-info.is-expanded { z-index: 1; }
         .main-project-title { margin: 0; color: #333; font-size: 1.32rem; font-weight: 700; line-height: 1.2; }
-        .main-project-description { display: -webkit-box; box-sizing: border-box; margin: .3rem 0 0; padding-right: 2rem; overflow: hidden; color: #666; font-size: 1rem; line-height: 1.4; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow-anchor: none; }
-        .main-project-description.is-expanded { display: block; padding-right: 0; overflow: hidden; }
+        .main-project-description { display: -webkit-box; box-sizing: border-box; margin: .3rem 0 0; padding-right: 2rem; overflow: hidden; color: #666; font-size: 1rem; line-height: 1.4; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow-anchor: none; transition: clip-path .24s cubic-bezier(.2, .8, .2, 1); will-change: clip-path; }
+        .main-project-description.is-expanded { display: block; padding-right: 0; overflow: hidden; border-radius: .35rem; background: #f8f8f8; box-shadow: 0 0 0 1px #d8d8d8; }
         .main-project-description-toggle { display: none; position: absolute; right: 0; bottom: 0; align-items: center; justify-content: center; width: 2rem; height: 1.4rem; margin: 0; padding: 0; border: 0; color: #666; background: #F2F2F2; cursor: pointer; font-size: 0; line-height: 1; }
         .main-project-description-toggle::before { content: ""; width: .5rem; height: .5rem; border-right: .12rem solid currentColor; border-bottom: .12rem solid currentColor; transform: translateY(-.12rem) rotate(45deg); }
         .main-project-description-toggle.is-visible { display: inline-flex; }
@@ -353,7 +353,7 @@
         html.dark-mode .main-project-module::after {
             border-top-color: #385066;
         }
-        html.dark-mode .main-project-info.is-expanded {
+        html.dark-mode .main-project-description.is-expanded {
             box-shadow: 0 0 0 1px #385066;
             background: #243545;
         }
@@ -438,6 +438,23 @@
                 menuPanel.classList.remove('open');
                 menuButton.setAttribute('aria-expanded', 'false');
             };
+            const descriptionAnimationTimers = new WeakMap();
+            function animateDescription(description, from, to, onComplete) {
+                const previousTimer = descriptionAnimationTimers.get(description);
+                if (previousTimer) window.clearTimeout(previousTimer);
+                const expanding = to > from;
+                const startClip = expanding ? to - from : 0;
+                const endClip = expanding ? 0 : from - to;
+                description.style.clipPath = `inset(0 0 ${startClip}px 0)`;
+                window.requestAnimationFrame(() => {
+                    description.style.clipPath = `inset(0 0 ${endClip}px 0)`;
+                });
+                const timer = window.setTimeout(() => {
+                    descriptionAnimationTimers.delete(description);
+                    if (onComplete) onComplete();
+                }, 260);
+                descriptionAnimationTimers.set(description, timer);
+            }
             function syncDescriptionToggle() {
                 const description = document.querySelector('.main-project-description');
                 const toggle = document.querySelector('.main-project-description-toggle');
@@ -465,11 +482,38 @@
                 const expanded = toggle.getAttribute('aria-expanded') === 'true';
                 const info = description.parentElement;
                 if (!expanded) {
+                    const currentHeight = description.getBoundingClientRect().height;
+                    const probe = description.cloneNode(true);
+                    probe.classList.add('is-expanded');
+                    probe.style.position = 'absolute';
+                    probe.style.visibility = 'hidden';
+                    probe.style.width = `${description.clientWidth}px`;
+                    probe.style.height = 'auto';
+                    probe.style.maxHeight = 'none';
+                    probe.style.display = 'block';
+                    document.body.appendChild(probe);
+                    const fullHeight = probe.scrollHeight;
+                    probe.remove();
+                    description.dataset.collapsedHeight = String(currentHeight);
                     description.classList.add('is-expanded');
                     info.classList.add('is-expanded');
+                    description.style.height = `${fullHeight}px`;
+                    animateDescription(description, currentHeight, fullHeight, () => {
+                        description.style.height = 'auto';
+                        description.style.clipPath = '';
+                    });
                 } else {
-                    description.classList.remove('is-expanded');
-                    info.classList.remove('is-expanded');
+                    const fullHeight = description.getBoundingClientRect().height;
+                    const lineHeight = parseFloat(window.getComputedStyle(description).lineHeight) || 0;
+                    const collapsedHeight = Number(description.dataset.collapsedHeight) || lineHeight * 3;
+                    description.style.height = `${fullHeight}px`;
+                    animateDescription(description, fullHeight, collapsedHeight, () => {
+                        description.style.height = '';
+                        description.style.clipPath = '';
+                        description.classList.remove('is-expanded');
+                        info.classList.remove('is-expanded');
+                        delete description.dataset.collapsedHeight;
+                    });
                 }
                 toggle.setAttribute('aria-expanded', String(!expanded));
                 toggle.textContent = expanded ? '⌄' : '⌃';
