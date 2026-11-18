@@ -111,6 +111,21 @@
         }
         .loading-logo { width: var(--community-logo-width, min(300px, 62vw)); height: auto; z-index: 10000; display: none; opacity: 1; transition: opacity .7s ease; }
         .loading-screen.is-center-revealing .loading-logo { opacity: 0; }
+        @keyframes community-soft-refresh-logo {
+            0% { opacity: 0; transform: translate(var(--community-refresh-start-x), var(--community-refresh-start-y)) scale(.24); }
+            100% { opacity: 1; transform: translate(0, 0) scale(1); }
+        }
+        .loading-screen.is-soft-refresh-reverse { background: transparent; pointer-events: auto; }
+        .loading-screen.is-soft-refresh-reverse .loading-backdrop,
+        .loading-screen.is-soft-refresh-reverse .loading-progress,
+        .loading-screen.is-soft-refresh-reverse .loading-text-container,
+        .loading-screen.is-soft-refresh-reverse .loading-error { display: none !important; }
+        .loading-screen.is-soft-refresh-reverse .loading-logo {
+            display: block !important;
+            opacity: 0;
+            transition: none;
+            animation: community-soft-refresh-logo .72s cubic-bezier(.22, .72, .24, 1) forwards;
+        }
         .loading-text-container { position: fixed !important; bottom: env(safe-area-inset-bottom, 26px) !important; left: 0 !important; width: 100% !important; display: none !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; z-index: 10001 !important; visibility: visible !important; pointer-events: none !important; -webkit-text-size-adjust: 100% !important; transform: translateY(-32px) !important; }
         .loading-ready #loadingLogo { display: block !important; }
         .loading-ready .loading-text-container { display: flex !important; }
@@ -356,6 +371,7 @@
             const logoLink = document.getElementById('communityLogoLink');
             let menuTouchStartY = 0;
             let softRefreshInProgress = false;
+            let softRefreshAnimationInProgress = false;
             const closeMenu = () => {
                 menuPanel.classList.remove('open');
                 menuButton.setAttribute('aria-expanded', 'false');
@@ -375,6 +391,25 @@
                     softRefreshInProgress = false;
                     console.error('[community] Soft refresh failed.', error);
                 }
+            }
+            function playSoftRefreshAnimation() {
+                const loading = document.getElementById('loadingScreen');
+                const loadingLogo = document.getElementById('loadingLogo');
+                const navbarLogo = document.querySelector('.navbar-logo');
+                if (!loading || !loadingLogo || !navbarLogo) return Promise.resolve();
+                const logoBounds = navbarLogo.getBoundingClientRect();
+                const logoCenterX = logoBounds.left + logoBounds.width / 2;
+                const logoCenterY = logoBounds.top + logoBounds.height / 2;
+                loading.style.setProperty('--community-refresh-start-x', `${logoCenterX - window.innerWidth / 2}px`);
+                loading.style.setProperty('--community-refresh-start-y', `${logoCenterY - window.innerHeight / 2}px`);
+                loading.classList.remove('is-center-revealing', 'is-zooming-into-content', 'is-zoom-settled', 'allows-page-interaction');
+                loading.style.display = 'flex';
+                loading.classList.add('loading-ready', 'is-soft-refresh-reverse');
+                return new Promise(resolve => {
+                    const finish = () => resolve();
+                    loadingLogo.addEventListener('animationend', finish, { once: true });
+                    window.setTimeout(finish, 900);
+                });
             }
             menuPanel.addEventListener('touchstart', event => {
                 if (event.touches.length === 1) menuTouchStartY = event.touches[0].clientY;
@@ -411,7 +446,12 @@
                 const contentScrollTop = contentScroller ? contentScroller.scrollTop : 0;
                 const scrollTop = pageScrollTop || contentScrollTop;
                 if (scrollTop <= 0) {
-                    softRefreshCommunityPage();
+                    if (softRefreshInProgress || softRefreshAnimationInProgress) return;
+                    softRefreshAnimationInProgress = true;
+                    playSoftRefreshAnimation().then(() => {
+                        softRefreshAnimationInProgress = false;
+                        softRefreshCommunityPage();
+                    });
                     return;
                 }
                 if (contentScrollTop > 0) contentScroller.scrollTo({ top: 0, behavior: 'smooth' });
