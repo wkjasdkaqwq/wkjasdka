@@ -273,6 +273,7 @@
         }
         .main-project-info { position: relative; min-width: 0; flex: 1 1 auto; max-width: 420px; margin: -16px 0 0 30px; text-align: left; }
         .main-project-info.is-expanded { z-index: 1; }
+        .main-project-info.is-expanded::after { content: ""; position: absolute; right: 0; bottom: -5px; left: -5px; height: 5px; background: #e8e8e8; box-shadow: 0 1px 0 #d8d8d8; pointer-events: none; }
         .main-project-title { margin: 0; color: #333; font-size: 1.32rem; font-weight: 700; line-height: 1.2; }
         .main-project-description { display: -webkit-box; box-sizing: border-box; margin: .3rem 0 0; padding-right: 2rem; overflow: hidden; color: #666; font-size: 1rem; line-height: 1.4; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow-anchor: none; transition: height .24s cubic-bezier(.2, .8, .2, 1); will-change: height; }
         .main-project-description.is-expanded { display: block; width: calc(100% + 5px); margin-left: -5px; padding-right: 2rem; padding-left: 5px; overflow: hidden; border-radius: .35rem; background: #e8e8e8; box-shadow: 0 0 0 1px #d8d8d8; }
@@ -360,6 +361,10 @@
         html.dark-mode .main-project-description.is-expanded {
             box-shadow: 0 0 0 1px #385066;
             background: #243545;
+        }
+        html.dark-mode .main-project-info.is-expanded::after {
+            background: #243545;
+            box-shadow: 0 1px 0 #385066;
         }
 
         html.dark-mode .page-title {
