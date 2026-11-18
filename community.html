@@ -497,8 +497,12 @@
                 const arrowBottom = toggleRect.bottom - coatingBottom;
                 description.querySelectorAll('.description-token').forEach(token => {
                     if (token.dataset.whitespace === 'true') return;
-                    const rect = token.getBoundingClientRect();
-                    const overlaps = rect.right > arrowLeft && rect.left < arrowRight && rect.bottom > arrowTop && rect.top < arrowBottom;
+                    token.classList.remove('is-arrow-overlap');
+                    const range = document.createRange();
+                    range.selectNodeContents(token);
+                    const rects = Array.from(range.getClientRects());
+                    range.detach?.();
+                    const overlaps = rects.some(rect => rect.right > arrowLeft && rect.left < arrowRight && rect.bottom > arrowTop && rect.top < arrowBottom);
                     token.classList.toggle('is-arrow-overlap', overlaps);
                 });
             }
@@ -620,6 +624,14 @@
                 const toggle = document.querySelector('.main-project-description-toggle');
                 if (description && toggle) window.requestAnimationFrame(() => updateDescriptionArrowOverlaps(description, toggle));
             });
+            if (window.visualViewport) {
+                window.visualViewport.addEventListener('resize', () => {
+                    syncDescriptionToggle();
+                    const description = document.querySelector('.main-project-description');
+                    const toggle = document.querySelector('.main-project-description-toggle');
+                    if (description && toggle) window.requestAnimationFrame(() => updateDescriptionArrowOverlaps(description, toggle));
+                }, { passive: true });
+            }
             document.addEventListener('DOMContentLoaded', syncDescriptionToggle, { once: true });
             async function softRefreshCommunityPage() {
                 if (softRefreshInProgress) return;
