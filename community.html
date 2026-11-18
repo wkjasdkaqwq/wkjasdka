@@ -299,17 +299,17 @@
             <div class="menu-panel" id="menuPanel" role="menu" aria-label="Site menu" data-i18n-aria-label="menuLabel">
                 <div class="menu-heading" data-i18n="socialPlatforms">Social Platforms</div>
                 <div class="menu-community-grid" aria-label="Community modules">
-                    <button class="menu-community-module" type="button" aria-label="Community module 1"><img src="index/community2.png" alt=""></button>
-                    <button class="menu-community-module" type="button" aria-label="Community module 2"><img src="index/community2.png" alt=""></button>
-                    <button class="menu-community-module" type="button" aria-label="Community module 3"><img src="index/community2.png" alt=""></button>
-                    <button class="menu-community-module" type="button" aria-label="Community module 4"><img src="index/community2.png" alt=""></button>
-                    <button class="menu-community-module" type="button" aria-label="Community module 5"><img src="index/community2.png" alt=""></button>
+                    <button class="menu-community-module" type="button" aria-label="Community module 1"><img src="index/community2.png" data-community-light-src="index/community2.png" data-community-dark-src="index/community%20dark.png" alt=""></button>
+                    <button class="menu-community-module" type="button" aria-label="Community module 2"><img src="index/community2.png" data-community-light-src="index/community2.png" data-community-dark-src="index/community%20dark.png" alt=""></button>
+                    <button class="menu-community-module" type="button" aria-label="Community module 3"><img src="index/community2.png" data-community-light-src="index/community2.png" data-community-dark-src="index/community%20dark.png" alt=""></button>
+                    <button class="menu-community-module" type="button" aria-label="Community module 4"><img src="index/community2.png" data-community-light-src="index/community2.png" data-community-dark-src="index/community%20dark.png" alt=""></button>
+                    <button class="menu-community-module" type="button" aria-label="Community module 5"><img src="index/community2.png" data-community-light-src="index/community2.png" data-community-dark-src="index/community%20dark.png" alt=""></button>
                 </div>
             </div>
             </div>
         </div>
         <div class="navbar-container">
-            <a href="community.html" id="communityLogoLink" aria-label="Refresh community page"><img class="navbar-logo" src="index/community2.png" alt="W.K.Jasdka Community" data-i18n-alt="logoAlt"></a>
+            <a href="community.html" id="communityLogoLink" aria-label="Refresh community page"><img class="navbar-logo" src="index/community2.png" data-community-light-src="index/community2.png" data-community-dark-src="index/community%20dark.png" alt="W.K.Jasdka Community" data-i18n-alt="logoAlt"></a>
             <ul class="navbar-menu"></ul>
         </div>
     </nav>
@@ -322,7 +322,7 @@
         <svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute;pointer-events:none"><defs><clipPath id="communityPortalClip" clipPathUnits="userSpaceOnUse"><path id="communityPortalPath" fill-rule="evenodd" clip-rule="evenodd"></path></clipPath></defs></svg>
         <div class="loading-progress" id="loadingProgress" role="progressbar" aria-label="Loading page" data-i18n-aria-label="loadingProgress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="loading-progress-fill" id="loadingProgressFill"></div></div>
         <!-- Change this image source to replace both the loading and page logos. -->
-        <img data-src="/wkjasdka/index/community2.png" alt="Liuyanlin Community" data-i18n-alt="logoAlt" class="loading-logo" id="loadingLogo">
+        <img data-src="/wkjasdka/index/community2.png" data-community-light-src="/wkjasdka/index/community2.png" data-community-dark-src="/wkjasdka/index/community%20dark.png" alt="Liuyanlin Community" data-i18n-alt="logoAlt" class="loading-logo" id="loadingLogo">
         <div class="loading-text-container" id="loadingTexts" aria-hidden="false"><img class="loading-footer-image" data-src="index/under%20logo.png" alt="from - Wkjasdka -"></div>
         <div class="loading-error" id="loadingError" hidden><div role="alert" data-i18n="loadingError">Unable to load the page. Please check your connection.</div><button class="loading-retry" id="loadingRetry" type="button" data-i18n="loadingRetry">Retry</button></div>
     </div>
@@ -378,6 +378,20 @@
 
         (function () {
             'use strict';
+            const themeLogoImages = Array.from(document.querySelectorAll('[data-community-light-src]'));
+            function syncCommunityLogoSources() {
+                const dark = document.documentElement.classList.contains('dark-mode');
+                themeLogoImages.forEach(image => {
+                    const source = dark ? image.dataset.communityDarkSrc : image.dataset.communityLightSrc;
+                    if (!source) return;
+                    if (image.id === 'loadingLogo') image.setAttribute('data-src', source);
+                    else image.setAttribute('src', source);
+                });
+            }
+            syncCommunityLogoSources();
+            window.addEventListener('storage', event => {
+                if (event.key === 'wkjasdka-dark-mode' || event.key === null) syncCommunityLogoSources();
+            });
             const loading = document.getElementById('loadingScreen');
             const main = document.getElementById('mainContent');
             const progress = document.getElementById('loadingProgress');
