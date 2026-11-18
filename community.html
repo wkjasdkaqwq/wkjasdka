@@ -285,7 +285,7 @@
         .main-project-description-toggle:active { transform: translateY(2px) scale(.98); transition-duration: .1s; }
         .main-project-description-toggle::before { content: ""; width: .5rem; height: .5rem; border-right: .12rem solid currentColor; border-bottom: .12rem solid currentColor; transform: translateY(-.12rem) rotate(45deg); }
         .main-project-description-toggle.is-visible { display: inline-flex; }
-        .main-project-description-toggle.is-visible::after { content: ""; position: absolute; inset: 0; z-index: 0; background: #e8e8e8; pointer-events: none; }
+        .main-project-description-toggle.is-visible::after { content: ""; position: absolute; inset: 0; z-index: 0; background: #f2f2f2; pointer-events: none; }
         .main-project-description-toggle.is-visible::before { position: relative; z-index: 1; }
         .main-project-description-toggle[aria-expanded="true"] { position: absolute; right: .35rem; bottom: calc(.25rem + 5px); width: 1.65rem; height: 1.2rem; margin: 0; background: transparent; overflow: visible; }
         .main-project-description-toggle[aria-expanded="true"]::after { content: ""; position: absolute; inset: -.15rem; z-index: 0; border-radius: 0; background: #e8e8e8; pointer-events: none; }
@@ -348,7 +348,7 @@
             color: #a0a0a0;
             background: transparent;
         }
-        html.dark-mode .main-project-description-toggle.is-visible::after { background: #243545; }
+        html.dark-mode .main-project-description-toggle.is-visible::after { background: #0C1F30; }
         html.dark-mode .main-image-module {
             background-color: #243545;
             border: 1px solid #385066;
@@ -486,10 +486,12 @@
                 const fullHeight = description.getBoundingClientRect().height;
                 const lineHeight = parseFloat(window.getComputedStyle(description).lineHeight) || 0;
                 const collapsedHeight = Number(description.dataset.collapsedHeight) || lineHeight * 3;
+                description.style.maxHeight = 'none';
                 description.classList.remove('is-expanded');
                 description.parentElement.classList.remove('is-expanded');
                 animateDescriptionHeight(description, fullHeight, collapsedHeight, () => {
                     description.style.height = '';
+                    description.style.removeProperty('max-height');
                     delete description.dataset.collapsedHeight;
                 });
                 toggle.setAttribute('aria-expanded', 'false');
