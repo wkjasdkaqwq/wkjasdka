@@ -486,13 +486,15 @@
                     return;
                 }
                 const toggleRect = toggle.getBoundingClientRect();
-                const iconHalfSize = Math.min(7.2, toggleRect.height * .34);
-                const iconCenterX = toggleRect.left + toggleRect.width / 2;
-                const iconCenterY = toggleRect.top + toggleRect.height / 2;
-                const arrowLeft = iconCenterX - iconHalfSize;
-                const arrowRight = iconCenterX + iconHalfSize;
-                const arrowTop = iconCenterY - iconHalfSize;
-                const arrowBottom = iconCenterY + iconHalfSize;
+                const coating = window.getComputedStyle(toggle, '::after');
+                const coatingLeft = parseFloat(coating.left) || 0;
+                const coatingRight = parseFloat(coating.right) || 0;
+                const coatingTop = parseFloat(coating.top) || 0;
+                const coatingBottom = parseFloat(coating.bottom) || 0;
+                const arrowLeft = toggleRect.left + coatingLeft;
+                const arrowRight = toggleRect.right - coatingRight;
+                const arrowTop = toggleRect.top + coatingTop;
+                const arrowBottom = toggleRect.bottom - coatingBottom;
                 description.querySelectorAll('.description-token').forEach(token => {
                     if (token.dataset.whitespace === 'true') return;
                     const rect = token.getBoundingClientRect();
