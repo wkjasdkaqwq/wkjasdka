@@ -63,8 +63,8 @@
 
         #mainContent {
             display: none;
-            align-items: center;
-            justify-content: center;
+            align-items: flex-start;
+            justify-content: flex-start;
             box-sizing: border-box;
             min-height: 100vh;
             padding: 40px;
@@ -230,9 +230,11 @@
         }
 
         .content-box {
-            width: min(800px, 100%);
-            text-align: center;
+            width: 100%;
+            text-align: left;
         }
+
+        .main-image-module { display: block; width: 64px; height: 64px; margin: 10px; object-fit: contain; }
 
         .page-title {
             margin: 0;
@@ -333,14 +335,7 @@
     </div>
     <main id="mainContent" inert aria-busy="true">
         <div class="content-box">
-            <h1 class="page-title" data-i18n="pageHeading">Test</h1>
-            <p class="page-description" data-i18n="pageDescription">This is a Community front-end test page.</p>
-
-            <div class="placeholder-grid">
-                <div class="placeholder-item"></div>
-                <div class="placeholder-item"></div>
-                <div class="placeholder-item"></div>
-            </div>
+            <img class="main-image-module" data-src="index/untitled.png" alt="Community content image">
         </div>
     </main>
     <script>
