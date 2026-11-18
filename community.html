@@ -566,10 +566,13 @@
                 const activeDescription = document.querySelector('.main-project-description.is-expanded');
                 if (activeDescription) {
                     const activeToggle = activeDescription.parentElement.querySelector('.main-project-description-toggle');
-                    const clickedInsideDescription = event.target.closest('.main-project-description.is-expanded');
+                    const activeCard = activeDescription.parentElement;
                     const clickedToggle = activeToggle && event.target.closest('.main-project-description-toggle') === activeToggle;
-                    collapseDescription(activeDescription, activeToggle);
-                    if (clickedInsideDescription || clickedToggle) return;
+                    if (!clickedToggle && activeCard.contains(event.target)) return;
+                    if (!clickedToggle) {
+                        collapseDescription(activeDescription, activeToggle);
+                        return;
+                    }
                 }
                 const toggle = event.target.closest('.main-project-description-toggle');
                 if (!toggle) return;
