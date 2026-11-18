@@ -205,10 +205,10 @@
         .menu-btn[aria-expanded="true"] .dot { background: #333; }
         .menu-btn:focus-visible { outline: 2px solid #64b5f6; outline-offset: 3px; }
         .menu-drawer { position: absolute; top: 100%; right: calc(-.625rem - 8px + .2rem); z-index: 9002; width: min(360px, calc(100vw - 1rem)); max-height: min(70vh, 520px); overflow: hidden; border-radius: .35rem; pointer-events: none; }
-        .menu-panel { position: relative; top: 0; right: auto; display: flex; flex-direction: column; box-sizing: border-box; width: 100%; max-height: min(70vh, 420px); aspect-ratio: 1; overflow-y: auto; overscroll-behavior: contain; padding: .45rem 0; border: 1px solid #dedede; border-right: 0; border-radius: .35rem; background: #fff; box-shadow: inset -1px 0 0 transparent; opacity: 1; visibility: hidden; clip-path: inset(0 0 100% 0 round .35rem); will-change: clip-path; transition: clip-path .4s linear, visibility 0s linear .4s; }
+        .menu-panel { position: relative; top: 0; right: auto; display: flex; flex-direction: column; box-sizing: border-box; width: 100%; max-height: min(70vh, 420px); aspect-ratio: 1; overflow-y: auto; overscroll-behavior: contain; padding: .45rem 0; border: 1px solid #dedede; border-right: 0; border-radius: .35rem; background: #fff; box-shadow: inset -1px 0 0 transparent; opacity: 1; visibility: hidden; transform: translateY(-100%); will-change: transform; transition: transform .4s ease, visibility 0s linear .4s; }
         .menu-panel { scrollbar-width: none; -ms-overflow-style: none; }
         .menu-panel::-webkit-scrollbar { display: none; width: 0; height: 0; }
-        .menu-panel.open { visibility: visible; clip-path: inset(0 0 0 0 round .35rem); box-shadow: inset -1px 0 0 #dedede; transition: clip-path .4s linear, visibility 0s linear 0s; }
+        .menu-panel.open { visibility: visible; transform: translateY(0); box-shadow: inset -1px 0 0 #dedede; transition: transform .4s ease, visibility 0s linear 0s; }
         .menu-panel.open { pointer-events: auto; }
         .menu-panel a, .menu-panel .menu-heading { display: block; padding: .7rem 1rem; color: #555; font-size: .98rem; text-decoration: none; }
         .menu-panel a:hover { background: #f1f1f1; color: #222; }
@@ -271,7 +271,7 @@
             .main-image-module.is-highlighted { transform: scale(1.65); box-shadow: 0 8px 20px rgba(0,0,0,.18); }
         }
         .main-project-info { position: relative; min-width: 0; flex: 1 1 auto; max-width: 420px; margin: -16px 0 0 30px; text-align: left; }
-        .main-project-info.is-expanded { z-index: 1; box-sizing: border-box; padding: 0; border: 0; outline: 1px solid #d8d8d8; background: #f8f8f8; }
+        .main-project-info.is-expanded { z-index: 1; box-sizing: border-box; padding: 0; border: 0; border-radius: .35rem; box-shadow: 0 0 0 1px #d8d8d8; background: #f8f8f8; }
         .main-project-title { margin: 0; color: #333; font-size: 1.32rem; font-weight: 700; line-height: 1.2; }
         .main-project-description { display: -webkit-box; box-sizing: border-box; margin: .3rem 0 0; padding-right: 2rem; overflow: hidden; color: #666; font-size: 1rem; line-height: 1.4; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
         .main-project-description.is-expanded { display: block; padding-right: 0; overflow: hidden; }
@@ -353,7 +353,7 @@
             border-top-color: #385066;
         }
         html.dark-mode .main-project-info.is-expanded {
-            outline-color: #385066;
+            box-shadow: 0 0 0 1px #385066;
             background: #243545;
         }
 
