@@ -408,8 +408,8 @@
                 if (!loading || !loadingLogo) return Promise.resolve();
                 loading.classList.remove('is-zooming-into-content', 'is-zoom-settled', 'allows-page-interaction');
                 loading.classList.remove('is-soft-refresh-logo-visible');
-                loading.style.display = 'flex';
                 loading.classList.add('loading-ready', 'is-soft-refresh-reverse');
+                loading.style.display = 'flex';
                 return new Promise(resolve => {
                     let logoStarted = false;
                     let finished = false;
