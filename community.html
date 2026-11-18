@@ -505,6 +505,7 @@
                 const description = document.querySelector('.main-project-description');
                 const toggle = document.querySelector('.main-project-description-toggle');
                 if (!description || !toggle || description.classList.contains('is-expanded')) return;
+                if (!description.getClientRects().length || description.clientWidth <= 0) return;
                 prepareDescriptionTokens(description);
                 const probe = description.cloneNode(true);
                 probe.classList.remove('is-expanded');
@@ -522,6 +523,7 @@
                 toggle.classList.toggle('is-visible', fullHeight > lineHeight * 3 + 1);
                 window.requestAnimationFrame(() => updateDescriptionArrowOverlaps(description, toggle));
             }
+            window.syncCommunityDescriptionToggle = syncDescriptionToggle;
             function collapseDescription(description, toggle) {
                 const fullHeight = description.getBoundingClientRect().height;
                 const lineHeight = parseFloat(window.getComputedStyle(description).lineHeight) || 0;
@@ -1279,11 +1281,11 @@
                 document.documentElement.classList.remove('community-interaction-locked');
                 loading.classList.add('allows-page-interaction');
                 window.requestAnimationFrame(() => {
-                    syncDescriptionToggle();
-                    window.setTimeout(syncDescriptionToggle, 120);
+                    window.syncCommunityDescriptionToggle?.();
+                    window.setTimeout(() => window.syncCommunityDescriptionToggle?.(), 120);
                 });
                 if (document.fonts && document.fonts.ready) {
-                    document.fonts.ready.then(() => syncDescriptionToggle());
+                    document.fonts.ready.then(() => window.syncCommunityDescriptionToggle?.());
                 }
             }
 
@@ -1542,6 +1544,7 @@
                     }
                     await initializeLanguage();
                     main.style.display = 'flex';
+                    window.syncCommunityDescriptionToggle?.();
                     setProgress(100);
 
                     const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
