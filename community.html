@@ -214,6 +214,10 @@
             .navbar-logo:hover { transform: translateX(-5px) scale(1.05); }
             .navbar-logo:hover:active { transform: translateX(-5px) translateY(2px) scale(1.02); }
         }
+        @media (min-width: 601px) {
+            .navbar-logo { width: auto; height: 2.25rem; max-height: 2.25rem; }
+            .menu-drawer { width: min(440px, calc(100vw - 1rem)); }
+        }
         @media (max-width: 600px) {
             .navbar { height: 3.75rem; }
             .navbar-logo { width: min(73px, 24vw); max-height: 1.7rem; margin-left: 1rem; }
