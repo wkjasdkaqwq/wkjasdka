@@ -261,9 +261,13 @@
 
         .main-project-module { display: flex; align-items: flex-start; margin: 10px; }
         .main-image-module { display: block; flex: 0 0 64px; width: 64px; height: 64px; margin: 0; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); object-fit: contain; transform: scale(1.5); transform-origin: center; }
-        .main-project-info { min-width: 0; margin: 8px 0 0 30px; text-align: left; }
+        .main-project-info { position: relative; min-width: 0; flex: 1 1 auto; max-width: 420px; margin: 8px 0 0 30px; text-align: left; }
         .main-project-title { margin: 0; color: #333; font-size: 1.32rem; font-weight: 700; line-height: 1.2; }
-        .main-project-description { margin: .3rem 0 0; color: #666; font-size: 1rem; line-height: 1.4; }
+        .main-project-description { display: -webkit-box; margin: .3rem 0 0; overflow: hidden; color: #666; font-size: 1rem; line-height: 1.4; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
+        .main-project-description.is-expanded { display: block; overflow: visible; }
+        .main-project-description-toggle { display: none; position: absolute; right: 0; bottom: 0; align-items: center; justify-content: center; width: 2rem; height: 1.4rem; margin: 0; padding: 0; border: 0; color: #666; background: linear-gradient(90deg, transparent, #F2F2F2 42%); cursor: pointer; font-size: 1.2rem; line-height: 1; }
+        .main-project-description-toggle.is-visible { display: inline-flex; }
+        .main-project-description-toggle[aria-expanded="true"] { position: static; width: auto; height: auto; margin: .25rem 0 0; background: transparent; }
 
         .page-title {
             margin: 0;
@@ -317,6 +321,10 @@
         }
         html.dark-mode .main-project-description {
             color: #a0a0a0;
+        }
+        html.dark-mode .main-project-description-toggle {
+            color: #a0a0a0;
+            background: linear-gradient(90deg, transparent, #0C1F30 42%);
         }
 
         html.dark-mode .page-title {
@@ -377,7 +385,8 @@
                 <img class="main-image-module" data-src="index/untitled.png" alt="Community content image">
                 <div class="main-project-info">
                     <h1 class="main-project-title">Semi-rounded Corner</h1>
-                    <p class="main-project-description">Project description coming soon.</p>
+                    <p class="main-project-description">Semi-rounded Corner is a small visual study focused on balanced spacing, soft edges, and a clear structure. More details, project notes, and future updates will be added here as the design continues to develop.</p>
+                    <button class="main-project-description-toggle" type="button" aria-label="Show full project description" aria-expanded="false">⌄</button>
                 </div>
             </div>
         </div>
@@ -395,6 +404,26 @@
                 menuPanel.classList.remove('open');
                 menuButton.setAttribute('aria-expanded', 'false');
             };
+            function syncDescriptionToggle() {
+                const description = document.querySelector('.main-project-description');
+                const toggle = document.querySelector('.main-project-description-toggle');
+                if (!description || !toggle || description.classList.contains('is-expanded')) return;
+                const overflowing = description.scrollHeight > description.clientHeight + 1;
+                toggle.classList.toggle('is-visible', overflowing);
+            }
+            document.addEventListener('click', event => {
+                const toggle = event.target.closest('.main-project-description-toggle');
+                if (!toggle) return;
+                const description = toggle.previousElementSibling;
+                if (!description || !description.classList.contains('main-project-description')) return;
+                const expanded = toggle.getAttribute('aria-expanded') === 'true';
+                description.classList.toggle('is-expanded', !expanded);
+                toggle.setAttribute('aria-expanded', String(!expanded));
+                toggle.textContent = expanded ? '⌄' : '⌃';
+                toggle.setAttribute('aria-label', expanded ? 'Show full project description' : 'Collapse project description');
+            });
+            window.addEventListener('resize', syncDescriptionToggle);
+            document.addEventListener('DOMContentLoaded', syncDescriptionToggle, { once: true });
             async function softRefreshCommunityPage() {
                 if (softRefreshInProgress) return;
                 softRefreshInProgress = true;
