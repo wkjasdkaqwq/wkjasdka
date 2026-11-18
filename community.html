@@ -275,11 +275,11 @@
         .main-project-info.is-expanded { z-index: 1; }
         .main-project-title { margin: 0; color: #333; font-size: 1.32rem; font-weight: 700; line-height: 1.2; }
         .main-project-description { display: -webkit-box; box-sizing: border-box; margin: .3rem 0 0; padding-right: 2rem; overflow: hidden; color: #666; font-size: 1rem; line-height: 1.4; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow-anchor: none; transition: clip-path .24s cubic-bezier(.2, .8, .2, 1); will-change: clip-path; }
-        .main-project-description.is-expanded { display: block; padding-right: 0; overflow: hidden; border-radius: .35rem; background: #f8f8f8; box-shadow: 0 0 0 1px #d8d8d8; }
-        .main-project-description-toggle { display: none; position: absolute; right: 0; bottom: 0; align-items: center; justify-content: center; width: 2rem; height: 1.4rem; margin: 0; padding: 0; border: 0; color: #666; background: transparent; cursor: pointer; font-size: 0; line-height: 1; }
+        .main-project-description.is-expanded { display: block; padding-right: 0; overflow: hidden; border-radius: .35rem; background: #e8e8e8; box-shadow: 0 0 0 1px #d8d8d8; }
+        .main-project-description-toggle { display: none; position: absolute; right: 0; bottom: 0; align-items: center; justify-content: center; width: 2rem; height: 1.4rem; margin: 0; padding: 0; border: 0; color: #666; background: transparent; cursor: pointer; font-size: 0; line-height: 1; transition: right .24s cubic-bezier(.2, .8, .2, 1), bottom .24s cubic-bezier(.2, .8, .2, 1), width .24s cubic-bezier(.2, .8, .2, 1), height .24s cubic-bezier(.2, .8, .2, 1); }
         .main-project-description-toggle::before { content: ""; width: .5rem; height: .5rem; border-right: .12rem solid currentColor; border-bottom: .12rem solid currentColor; transform: translateY(-.12rem) rotate(45deg); }
         .main-project-description-toggle.is-visible { display: inline-flex; }
-        .main-project-description-toggle.is-visible::after { content: ""; position: absolute; inset: 0; z-index: 0; background: #f8f8f8; pointer-events: none; }
+        .main-project-description-toggle.is-visible::after { content: ""; position: absolute; inset: 0; z-index: 0; background: #e8e8e8; pointer-events: none; transition: background-color .24s cubic-bezier(.2, .8, .2, 1); }
         .main-project-description-toggle.is-visible::before { position: relative; z-index: 1; }
         .main-project-description-toggle[aria-expanded="true"] { position: absolute; right: .35rem; bottom: .25rem; width: 1.65rem; height: 1.2rem; margin: 0; background: transparent; overflow: visible; }
         .main-project-description-toggle[aria-expanded="true"]::after { content: ""; position: absolute; inset: -.15rem; z-index: 0; border-radius: 0; background: transparent; pointer-events: none; }
