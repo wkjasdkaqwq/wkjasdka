@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
   <script>
     (function () {
       const themeKey = 'wkjasdka-dark-mode';
@@ -168,6 +169,56 @@
             .loading-screen.is-zooming-into-content { animation: none; }
         }
 
+        /* Community navigation: fixed, permanently visible, and 50% lighter than the home page navbar. */
+        .navbar { position: fixed; top: 0; left: 0; width: 100%; height: 4.125rem; box-sizing: border-box; padding: 0; background-color: #ebebeb; z-index: 9000; box-shadow: 0 2px 5px rgba(0,0,0,.08); }
+        .navbar-container { width: 100%; height: 100%; display: flex; align-items: center; justify-content: space-between; }
+        .navbar-logo { display: block; width: min(132px, 35vw); height: auto; max-height: 3rem; margin-left: 1rem; object-fit: contain; object-position: left center; }
+        .navbar-menu { display: flex; list-style: none; margin: 0; padding: 0 1rem; }
+        .menu-btn { position: absolute; top: 0; right: .625rem; bottom: 0; z-index: 9001; width: 3.125rem; height: 3.125rem; margin: auto 0; padding: 0; border: 0; background: transparent; color: #666; cursor: pointer; }
+        .menu-btn .line { position: absolute; left: .625rem; display: block; width: 1.875rem; height: .1875rem; background: #666; border-radius: .125rem; transform-origin: center; transition: transform .25s ease, top .25s ease, bottom .25s ease; }
+        .menu-btn .line1 { top: calc(50% - .71875rem); }
+        .menu-btn .line2 { top: calc(50% - .09375rem); }
+        .menu-btn .line3 { bottom: calc(50% - .71875rem); }
+        .menu-btn.rotated { transform: rotate(90deg); }
+        .menu-btn:focus-visible { outline: 2px solid #64b5f6; outline-offset: 3px; }
+        .sidebar { position: fixed; top: 0; right: 0; left: auto; width: 500px; height: 100vh; height: 100dvh; display: flex; flex-direction: column; box-sizing: border-box; padding-top: 4.125rem; overflow: hidden; background: #fafafa; z-index: 8999; transform: translateX(100%); transition: transform .3s ease-out; box-shadow: -2px 0 10px rgba(0,0,0,.08); }
+        .sidebar.open { transform: translateX(0); }
+        .sidebar-menu { flex: 1 1 auto; min-height: 0; overflow-x: hidden; overflow-y: auto; list-style: none; padding: 0; margin: 0; scrollbar-width: none; }
+        .sidebar-menu::-webkit-scrollbar { display: none; }
+        .sidebar-menu-main { padding: 0; margin: 0; }
+        .sidebar-item { margin: 0; border-bottom: 1px solid #ededed; overflow: hidden; list-style: none; }
+        .sidebar-submenu { max-height: 0; overflow: hidden; padding: 0; margin: 0; background: #f4f4f4; transition: max-height .15s ease-out; }
+        .sidebar-submenu.open { max-height: 1000px; }
+        .sidebar-link { position: relative; display: block; padding: 15px 25px; color: #666; font-size: 1.1rem; text-decoration: none; transition: background-color .2s ease, padding-left .2s ease; }
+        .sidebar-submenu .sidebar-link { padding-left: 50px; font-size: 1rem; }
+        .sidebar-link:hover { padding-left: 30px; background: #ededed; }
+        .sidebar-submenu .sidebar-link:hover { padding-left: 55px; }
+        .sidebar-link:active { background: #e5e5e5; }
+        .sidebar-link i { width: 20px; margin-right: 10px; text-align: center; }
+        .has-submenu .sidebar-link::after { content: "\f062"; position: absolute; right: 20px; font-family: "Font Awesome 6 Free"; font-weight: 900; font-size: .9rem; transition: transform .3s ease; }
+        .has-submenu.open .sidebar-link::after { transform: rotate(90deg); }
+        .social-platform-link::after { content: "\f078" !important; }
+        .has-submenu.open .social-platform-link::after { transform: rotate(180deg); }
+        .sidebar-settings { position: relative; flex: 0 0 46px; align-self: flex-start; display: flex; align-items: center; justify-content: center; width: 46px; height: 46px; margin: .75rem 0 calc(.75rem + env(safe-area-inset-bottom, 0px)) 1.25rem; border-radius: 50%; background: #eeeeee; color: #666; font-size: 1.2rem; text-decoration: none; box-shadow: 0 2px 8px rgba(0,0,0,.1); }
+        .sidebar-settings:hover { background: #e4e4e4; }
+        .overlay { position: fixed; inset: 0; z-index: 8998; background: rgba(0,0,0,.25); opacity: 0; visibility: hidden; transition: opacity .3s ease, visibility .3s ease; }
+        .overlay.open { opacity: 1; visibility: visible; }
+        #mainContent { padding-top: calc(40px + 4.125rem); scroll-margin-top: 4.125rem; }
+        html.dark-mode .navbar { background-color: #182532; box-shadow: 0 2px 5px rgba(0,0,0,.35); }
+        html.dark-mode .menu-btn .line { background-color: #d8dfe5; }
+        html.dark-mode .sidebar { background-color: #12202b; box-shadow: -2px 0 10px rgba(0,0,0,.6); }
+        html.dark-mode .sidebar-item { border-bottom-color: #243542; }
+        html.dark-mode .sidebar-submenu { background-color: #172a38; }
+        html.dark-mode .sidebar-link, html.dark-mode .sidebar-settings { color: #d8dfe5; }
+        html.dark-mode .sidebar-link:hover, html.dark-mode .sidebar-settings { background-color: #203544; }
+        html.dark-mode .sidebar-settings:hover { background-color: #294454; }
+        @media (max-width: 600px) {
+            .navbar { height: 3.75rem; }
+            .sidebar { width: 85vw; padding-top: 3.75rem; }
+            .navbar-logo { width: min(116px, 38vw); max-height: 2.75rem; margin-left: 1rem; }
+            #mainContent { padding: calc(28px + 3.75rem) 20px 28px; }
+        }
+
         .content-box {
             width: min(800px, 100%);
             text-align: center;
@@ -239,6 +290,40 @@
     </style>
 </head>
 <body>
+    <nav class="navbar" id="navbar" aria-label="Site header">
+        <button class="menu-btn" id="menuBtn" type="button" aria-label="Toggle menu" data-i18n-aria-label="menuToggle" aria-controls="sidebar" aria-expanded="false">
+            <span class="line line1"></span><span class="line line2"></span><span class="line line3"></span>
+        </button>
+        <div class="navbar-container">
+            <a href="wkjasdka.html" aria-label="W.K.Jasdka home"><img class="navbar-logo" src="index/community2.png" alt="W.K.Jasdka Community" data-i18n-alt="logoAlt"></a>
+            <ul class="navbar-menu"></ul>
+        </div>
+    </nav>
+    <div class="sidebar" id="sidebar" role="navigation" aria-label="Site menu" data-i18n-aria-label="menuLabel">
+        <ul class="sidebar-menu">
+            <div class="sidebar-menu-main">
+                <li class="sidebar-item"><a href="#" class="sidebar-link" id="sidebarHomeBtn"><i class="fas fa-home"></i> <span data-i18n="topLink">Top</span></a></li>
+                <li class="sidebar-item has-submenu"><a href="#" class="sidebar-link social-platform-link"><i class="fas fa-comment"></i> <span data-i18n="socialPlatforms">Social Platforms</span></a><ul class="sidebar-submenu">
+                    <li class="sidebar-item"><a href="https://space.bilibili.com/3493283156200346" class="sidebar-link"><i class="fab fa-bilibili"></i> Bilibili</a></li>
+                    <li class="sidebar-item"><a href="https://bsky.app/profile/wkjasdka.bsky.social" class="sidebar-link"><i class="fa-brands fa-bluesky"></i> Bluesky</a></li>
+                    <li class="sidebar-item"><a href="https://discord.gg/QQQVS5fJPD" class="sidebar-link"><i class="fab fa-discord"></i> Discord</a></li>
+                    <li class="sidebar-item"><a href="https://facebook.com/chenasawkjasdka" class="sidebar-link"><i class="fa-brands fa-facebook-f"></i> Facebook</a></li>
+                    <li class="sidebar-item"><a href="https://instagram.com/imwkjasdka" class="sidebar-link"><i class="fab fa-instagram"></i> Instagram</a></li>
+                    <li class="sidebar-item"><a href="https://www.pinterest.com/Wkjasdka" class="sidebar-link"><i class="fab fa-pinterest"></i> Pinterest</a></li>
+                    <li class="sidebar-item"><a href="https://open.spotify.com/user/31fp6b7aq3ch2jzdt5up5welfdhq?si=4vDMBCqPRJSPB4a2rxM7eg" class="sidebar-link"><i class="fab fa-spotify"></i> Spotify</a></li>
+                    <li class="sidebar-item"><a href="https://tiktok.com/@wkjasdkaqwq" class="sidebar-link"><i class="fab fa-tiktok"></i> TikTok</a></li>
+                    <li class="sidebar-item"><a href="https://threads.net/@imwkjasdka" class="sidebar-link"><i class="fa-brands fa-threads"></i> Threads</a></li>
+                    <li class="sidebar-item"><a href="https://twitch.tv/wkjasdkaqwq" class="sidebar-link"><i class="fab fa-twitch"></i> Twitch</a></li>
+                    <li class="sidebar-item"><a href="https://x.com/Wkjasdka" class="sidebar-link"><i class="fab fa-twitter"></i> Twitter</a></li>
+                    <li class="sidebar-item"><a href="https://www.youtube.com/@wkjasdkaverynb" class="sidebar-link"><i class="fab fa-youtube"></i> YouTube</a></li>
+                </ul></li>
+                <li class="sidebar-item"><a id="contactBtn" href="mailto:wkjasdkayeah@yeah.net" class="sidebar-link"><i class="fas fa-envelope"></i> <span data-i18n="contactLink">Contact</span></a></li>
+            </div>
+            <li class="sidebar-item"><a href="about.html" class="sidebar-link" id="about-link"><i class="fas fa-info-circle"></i> <span data-i18n="aboutLink">About</span></a></li>
+        </ul>
+        <a class="sidebar-settings" href="settings.html" data-tooltip="Settings" data-i18n-tooltip="settingsLink" aria-label="Settings" data-i18n-aria-label="settingsLink" title="Settings" data-i18n-title="settingsLink"><i class="fas fa-cog" aria-hidden="true"></i></a>
+    </div>
+    <div class="overlay" id="overlay"></div>
     <div class="loading-screen" id="loadingScreen">
         <div class="loading-backdrop" aria-hidden="true">
             <div class="loading-backdrop-cell"></div><div class="loading-backdrop-cell"></div><div class="loading-backdrop-cell"></div>
@@ -271,6 +356,42 @@
         </div>
     </main>
     <script>
+        (function () {
+            const menuBtn = document.getElementById('menuBtn');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            const closeSidebar = () => {
+                sidebar.classList.remove('open');
+                overlay.classList.remove('open');
+                menuBtn.classList.remove('rotated');
+                menuBtn.setAttribute('aria-expanded', 'false');
+                sidebar.querySelectorAll('.has-submenu.open, .sidebar-submenu.open').forEach(element => element.classList.remove('open'));
+                document.body.style.overflow = '';
+            };
+            const openSidebar = () => {
+                sidebar.classList.add('open');
+                overlay.classList.add('open');
+                menuBtn.classList.add('rotated');
+                menuBtn.setAttribute('aria-expanded', 'true');
+                document.body.style.overflow = 'hidden';
+            };
+            menuBtn.addEventListener('click', () => sidebar.classList.contains('open') ? closeSidebar() : openSidebar());
+            overlay.addEventListener('click', closeSidebar);
+            document.addEventListener('keydown', event => {
+                if (event.key === 'Escape' && sidebar.classList.contains('open')) {
+                    event.preventDefault(); closeSidebar(); menuBtn.focus();
+                }
+            });
+            sidebar.querySelectorAll('.has-submenu').forEach(item => {
+                const link = item.querySelector(':scope > .sidebar-link');
+                const submenu = item.querySelector(':scope > .sidebar-submenu');
+                link.addEventListener('click', event => { event.preventDefault(); item.classList.toggle('open'); submenu.classList.toggle('open'); });
+            });
+            document.getElementById('sidebarHomeBtn').addEventListener('click', event => { event.preventDefault(); closeSidebar(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+            sidebar.querySelectorAll('a[href^="http"], a[href^="mailto:"]').forEach(link => link.addEventListener('click', () => closeSidebar()));
+            if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+        })();
+
         (function () {
             'use strict';
             const loading = document.getElementById('loadingScreen');
