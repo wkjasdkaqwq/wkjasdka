@@ -179,7 +179,7 @@
         .menu-btn[aria-expanded="true"] { border-radius: 0; background: #dcdcdc; }
         .menu-btn[aria-expanded="true"] .dot { background: #333; }
         .menu-btn:focus-visible { outline: 2px solid #64b5f6; outline-offset: 3px; }
-        .menu-panel { position: absolute; top: 100%; right: calc(-.625rem - 8px + .2rem); z-index: 9002; display: flex; flex-direction: column; width: min(360px, calc(100vw - 1rem)); max-height: min(70vh, 520px); overflow-y: auto; padding: .45rem 0; border: 1px solid #dedede; border-radius: 0; background: #fff; box-shadow: 0 8px 24px rgba(0,0,0,.14); opacity: 0; visibility: hidden; transform: translateY(-8px) scale(.98); transform-origin: top right; transition: opacity .18s ease, visibility .18s ease, transform .18s ease; }
+        .menu-panel { position: absolute; top: 100%; right: calc(-.625rem - 8px + .2rem + 2px); z-index: 9002; display: flex; flex-direction: column; box-sizing: border-box; width: min(360px, calc(100vw - 1rem)); max-height: min(70vh, 520px); overflow-y: auto; padding: .45rem 0; border: 1px solid #dedede; border-radius: 0; background: #fff; box-shadow: 0 8px 24px rgba(0,0,0,.14); opacity: 0; visibility: hidden; transform: translateY(-8px) scale(.98); transform-origin: top right; transition: opacity .18s ease, visibility .18s ease, transform .18s ease; }
         .menu-panel.open { opacity: 1; visibility: visible; transform: translateY(0) scale(1); }
         .menu-panel a, .menu-panel .menu-heading { display: block; padding: .7rem 1rem; color: #555; font-size: .98rem; text-decoration: none; }
         .menu-panel a:hover { background: #f1f1f1; color: #222; }
