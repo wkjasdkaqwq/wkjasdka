@@ -386,23 +386,6 @@
                 menuPanel.classList.remove('open');
                 menuButton.setAttribute('aria-expanded', 'false');
             };
-            function playLocalRefreshEntrance() {
-                const loading = document.getElementById('loadingScreen');
-                if (!loading) return;
-                loading.classList.remove('is-soft-refresh-reverse', 'is-soft-refresh-logo-visible', 'is-zooming-into-content', 'is-zoom-settled', 'allows-page-interaction', 'is-center-revealing');
-                loading.style.display = 'flex';
-                loading.style.transform = 'scale(1)';
-                window.requestAnimationFrame(() => {
-                    loading.classList.add('is-center-revealing');
-                    window.setTimeout(() => {
-                        loading.classList.add('is-zooming-into-content');
-                        window.setTimeout(() => {
-                            loading.classList.remove('is-zooming-into-content', 'is-center-revealing');
-                            loading.style.display = 'none';
-                        }, 900);
-                    }, 50);
-                });
-            }
             async function softRefreshCommunityPage() {
                 if (softRefreshInProgress) return;
                 softRefreshInProgress = true;
@@ -411,46 +394,12 @@
                     const response = await fetch(pageUrl, { cache: 'no-store', credentials: 'same-origin' });
                     if (!response.ok) throw new Error(`Soft refresh request failed: ${response.status}`);
                     const pageMarkup = await response.text();
-                    const refreshedDocument = new DOMParser().parseFromString(pageMarkup, 'text/html');
-                    const refreshedMain = refreshedDocument.getElementById('mainContent');
-                    const currentMain = document.getElementById('mainContent');
-                    if (!refreshedMain || !currentMain) throw new Error('Soft refresh content area is missing');
-                    const refreshedImages = Array.from(refreshedMain.querySelectorAll('img[data-src]'));
-                    await Promise.all(refreshedImages.map(async image => {
-                        const source = image.getAttribute('data-src');
-                        if (!source) return;
-                        const preview = new Image();
-                        await new Promise(resolve => {
-                            let settled = false;
-                            const finish = () => {
-                                if (settled) return;
-                                settled = true;
-                                resolve();
-                            };
-                            preview.onload = async () => {
-                                if (preview.decode) {
-                                    try { await preview.decode(); } catch (_) { /* Native image is still usable. */ }
-                                }
-                                finish();
-                            };
-                            preview.onerror = finish;
-                            preview.src = new URL(source, pageUrl).href;
-                            if (preview.complete) preview.onload();
-                        });
-                    }));
-                    currentMain.innerHTML = refreshedMain.innerHTML;
-                    currentMain.scrollTop = 0;
-                    currentMain.querySelectorAll('img[data-src]').forEach(image => {
-                        const source = image.getAttribute('data-src');
-                        if (!source) return;
-                        image.src = new URL(source, pageUrl).href;
-                        image.removeAttribute('data-src');
-                    });
-                    playLocalRefreshEntrance();
+                    document.open();
+                    document.write(pageMarkup);
+                    document.close();
                 } catch (error) {
-                    console.error('[community] Soft refresh failed.', error);
-                } finally {
                     softRefreshInProgress = false;
+                    console.error('[community] Soft refresh failed.', error);
                 }
             }
             function playSoftRefreshAnimation() {
@@ -459,8 +408,8 @@
                 if (!loading || !loadingLogo) return Promise.resolve();
                 loading.classList.remove('is-zooming-into-content', 'is-zoom-settled', 'allows-page-interaction');
                 loading.classList.remove('is-soft-refresh-logo-visible');
-                loading.classList.add('loading-ready', 'is-soft-refresh-reverse');
                 loading.style.display = 'flex';
+                loading.classList.add('loading-ready', 'is-soft-refresh-reverse');
                 return new Promise(resolve => {
                     let logoStarted = false;
                     let finished = false;
