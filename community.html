@@ -112,11 +112,12 @@
         .loading-logo { width: var(--community-logo-width, min(300px, 62vw)); height: auto; z-index: 10000; display: none; opacity: 1; transition: opacity .7s ease; }
         .loading-screen.is-center-revealing .loading-logo { opacity: 0; }
         @keyframes community-loader-zoom-reverse {
-            0% { transform: scale(var(--community-loader-clear-scale)); }
+            0% { transform: scale(var(--community-loader-clear-scale)); animation-timing-function: linear; }
+            80% { transform: scale(var(--community-loader-scale-30)); animation-timing-function: cubic-bezier(.2, .6285714, .45, 1); }
             100% { transform: scale(1); }
         }
         @keyframes community-loader-logo-reverse {
-            0%, 42% { opacity: 0; }
+            0%, 80% { opacity: 0; }
             100% { opacity: 1; }
         }
         .loading-screen.is-soft-refresh-reverse {
