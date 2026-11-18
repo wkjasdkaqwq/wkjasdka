@@ -266,6 +266,9 @@
             .main-image-module { cursor: pointer !important; }
             .main-image-module:hover { transform: scale(1.65); box-shadow: 0 8px 20px rgba(0,0,0,.18); }
         }
+        @media (hover: none), (pointer: coarse) {
+            .main-image-module.is-highlighted { transform: scale(1.65); box-shadow: 0 8px 20px rgba(0,0,0,.18); }
+        }
         .main-project-info { position: relative; min-width: 0; flex: 1 1 auto; max-width: 420px; margin: -16px 0 0 30px; text-align: left; }
         .main-project-title { margin: 0; color: #333; font-size: 1.32rem; font-weight: 700; line-height: 1.2; }
         .main-project-description { display: -webkit-box; margin: .3rem 0 0; overflow: hidden; color: #666; font-size: 1rem; line-height: 1.4; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
