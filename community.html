@@ -189,6 +189,9 @@
         .menu-panel a:hover { background: #f1f1f1; color: #222; }
         .menu-panel .menu-logo { display: block; width: min(150px, 70%); height: auto; margin: .35rem auto .1rem; }
         .menu-panel .menu-heading { padding: .2rem 1rem .45rem; color: #999; font-size: .78rem; font-weight: 700; letter-spacing: .06em; text-align: center; text-transform: uppercase; }
+        .menu-community-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .35rem; padding: .35rem .5rem .5rem; }
+        .menu-community-module { display: block; aspect-ratio: 1; overflow: hidden; border: 1px solid #e5e5e5; background: #fafafa; }
+        .menu-community-module img { display: block; width: 100%; height: 100%; object-fit: contain; }
         .menu-panel .menu-divider { height: 1px; margin: .35rem 0; background: #ededed; }
         #mainContent { padding-top: calc(40px + 4.125rem); scroll-margin-top: 4.125rem; }
         html.dark-mode .navbar { background-color: #182532; box-shadow: 0 2px 5px rgba(0,0,0,.35); }
@@ -200,6 +203,7 @@
         html.dark-mode .menu-panel a, html.dark-mode .menu-panel .menu-heading { color: #d8dfe5; }
         html.dark-mode .menu-panel a:hover { background: #203544; color: #fff; }
         html.dark-mode .menu-panel .menu-heading { color: #8fa2af; }
+        html.dark-mode .menu-community-module { border-color: #2c4050; background: #1a2b38; }
         html.dark-mode .menu-panel .menu-divider { background: #2c4050; }
         @media (max-width: 600px) {
             .navbar { height: 3.75rem; }
@@ -282,6 +286,13 @@
             <div class="menu-panel" id="menuPanel" role="menu" aria-label="Site menu" data-i18n-aria-label="menuLabel">
                 <div class="menu-heading" data-i18n="socialPlatforms">Social Platforms</div>
                 <img class="menu-logo" src="index/community2.png" alt="W.K.Jasdka Community" data-i18n-alt="logoAlt">
+                <div class="menu-community-grid" aria-label="Community modules">
+                    <div class="menu-community-module"><img src="index/community2.png" alt="Community module 1"></div>
+                    <div class="menu-community-module"><img src="index/community2.png" alt="Community module 2"></div>
+                    <div class="menu-community-module"><img src="index/community2.png" alt="Community module 3"></div>
+                    <div class="menu-community-module"><img src="index/community2.png" alt="Community module 4"></div>
+                    <div class="menu-community-module"><img src="index/community2.png" alt="Community module 5"></div>
+                </div>
             </div>
             </div>
         </div>
