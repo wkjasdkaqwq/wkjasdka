@@ -226,7 +226,7 @@
             .menu-drawer { width: min(330px, calc(100vw - 1.5rem)); }
             .menu-panel { padding: .8rem 0; }
             .menu-community-grid { padding-top: .55rem; padding-bottom: .8rem; }
-            #mainContent { padding: calc(28px + 3.75rem) 20px 28px; }
+            #mainContent { position: fixed; top: 3.75rem; right: 0; bottom: 0; left: 0; height: auto; min-height: 0; margin: 0; overflow-y: auto; overscroll-behavior-y: contain; padding: 28px 20px; }
         }
 
         .content-box {
@@ -264,7 +264,7 @@
 
         @media (max-width: 640px) {
             #mainContent {
-                padding: calc(28px + 3.75rem) 20px 28px;
+                padding: 28px 20px;
             }
 
             .page-title {
@@ -396,12 +396,16 @@
             });
             logoLink.addEventListener('click', event => {
                 event.preventDefault();
-                const scrollTop = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop;
+                const contentScroller = document.getElementById('mainContent');
+                const pageScrollTop = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop;
+                const contentScrollTop = contentScroller ? contentScroller.scrollTop : 0;
+                const scrollTop = pageScrollTop || contentScrollTop;
                 if (scrollTop <= 0) {
                     softRefreshCommunityPage();
                     return;
                 }
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+                if (contentScrollTop > 0) contentScroller.scrollTo({ top: 0, behavior: 'smooth' });
+                else window.scrollTo({ top: 0, behavior: 'smooth' });
             });
         })();
 
