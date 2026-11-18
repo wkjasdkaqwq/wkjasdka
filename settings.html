@@ -144,8 +144,7 @@
     .language-wait-overlay.is-finishing { opacity: 0; pointer-events: none; }
     .language-wait-static { position: absolute; top: 0; left: 0; width: 35%; height: 8px; border-radius: 0 4px 4px 0; background: #ff8000; }
     .language-wait-status { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
-    .shortcuts-open { min-height: 42px; padding: .65rem 1rem; border: 0; border-radius: 8px; background: #e67e22; color: #fff; font: inherit; font-weight: 700; cursor: pointer; transition: background .2s ease, transform .2s ease; }
-    .shortcuts-open:hover { background: #cf6d16; transform: translateY(-1px); }
+    .shortcuts-open { white-space: normal; text-align: center; }
     .shortcuts-open:focus-visible, .shortcuts-close:focus-visible, .shortcut-info-card:focus-visible { outline: 3px solid #64b5f6; outline-offset: 3px; }
     .shortcuts-modal { position: fixed; inset: 0; z-index: 9500; display: grid; place-items: center; padding: 2vh 2vw; background: rgba(5,12,20,.68); opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .2s ease, visibility .2s ease; }
     .shortcuts-modal.open { opacity: 1; visibility: visible; pointer-events: auto; }
@@ -376,7 +375,7 @@
           <h2 data-i18n="shortcutsTitle">Keyboard shortcuts</h2>
           <p data-i18n="shortcutsDescription">View available shortcuts and their keys.</p>
         </div>
-        <button class="shortcuts-open" id="shortcutsOpen" type="button" aria-haspopup="dialog" aria-controls="shortcutsModal" data-i18n="shortcutsOpen">View shortcuts</button>
+        <button class="theme-option shortcuts-open" id="shortcutsOpen" type="button" aria-haspopup="dialog" aria-controls="shortcutsModal" data-i18n="shortcutsOpen">View shortcuts</button>
       </div>
     </section>
 
