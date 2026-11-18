@@ -344,7 +344,12 @@
             });
             logoLink.addEventListener('click', event => {
                 event.preventDefault();
-                window.location.reload();
+                const scrollTop = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop;
+                if (scrollTop <= 0) {
+                    window.location.reload();
+                    return;
+                }
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             });
         })();
 
