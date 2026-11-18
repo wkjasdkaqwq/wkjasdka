@@ -190,10 +190,10 @@
         .menu-panel .menu-logo { display: block; width: min(150px, 70%); height: auto; margin: .35rem auto .1rem; }
         .menu-panel .menu-heading { padding: .2rem 1rem .45rem; color: #999; font-size: .78rem; font-weight: 700; letter-spacing: .06em; text-align: center; text-transform: uppercase; }
         .menu-community-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .35rem; padding: .35rem .5rem .5rem; }
-        .menu-community-module { display: block; aspect-ratio: 1; overflow: hidden; border: 1px solid transparent; background: transparent; transition: border-color .2s ease, transform .3s ease; transform-origin: center; }
-        .menu-community-module:hover, .menu-community-module:active, .menu-community-module:focus-visible { border-color: #bdbdbd; }
+        .menu-community-module { display: block; aspect-ratio: 1; overflow: hidden; box-sizing: border-box; width: 100%; padding: 0; border: 0; outline: none; background: transparent; cursor: pointer; transition: transform .3s ease; transform-origin: center; }
+        .menu-community-module img { display: block; width: 100%; height: 100%; object-fit: contain; transition: filter .1s ease; }
         .menu-community-module:active { transform: translateY(2px); transition-duration: .1s; }
-        .menu-community-module img { display: block; width: 100%; height: 100%; object-fit: contain; }
+        .menu-community-module:active img { filter: grayscale(1) brightness(.68); }
         .menu-panel .menu-divider { height: 1px; margin: .35rem 0; background: #ededed; }
         #mainContent { padding-top: calc(40px + 4.125rem); scroll-margin-top: 4.125rem; }
         html.dark-mode .navbar { background-color: #182532; box-shadow: 0 2px 5px rgba(0,0,0,.35); }
@@ -205,7 +205,6 @@
         html.dark-mode .menu-panel a, html.dark-mode .menu-panel .menu-heading { color: #d8dfe5; }
         html.dark-mode .menu-panel a:hover { background: #203544; color: #fff; }
         html.dark-mode .menu-panel .menu-heading { color: #8fa2af; }
-        html.dark-mode .menu-community-module:hover, html.dark-mode .menu-community-module:active, html.dark-mode .menu-community-module:focus-visible { border-color: #6f8796; }
         html.dark-mode .menu-panel .menu-divider { background: #2c4050; }
         @media (hover: hover) and (pointer: fine) {
             .menu-community-module:hover { transform: scale(1.05); }
@@ -292,11 +291,11 @@
             <div class="menu-panel" id="menuPanel" role="menu" aria-label="Site menu" data-i18n-aria-label="menuLabel">
                 <div class="menu-heading" data-i18n="socialPlatforms">Social Platforms</div>
                 <div class="menu-community-grid" aria-label="Community modules">
-                    <div class="menu-community-module"><img src="index/community2.png" alt="Community module 1"></div>
-                    <div class="menu-community-module"><img src="index/community2.png" alt="Community module 2"></div>
-                    <div class="menu-community-module"><img src="index/community2.png" alt="Community module 3"></div>
-                    <div class="menu-community-module"><img src="index/community2.png" alt="Community module 4"></div>
-                    <div class="menu-community-module"><img src="index/community2.png" alt="Community module 5"></div>
+                    <button class="menu-community-module" type="button" aria-label="Community module 1"><img src="index/community2.png" alt=""></button>
+                    <button class="menu-community-module" type="button" aria-label="Community module 2"><img src="index/community2.png" alt=""></button>
+                    <button class="menu-community-module" type="button" aria-label="Community module 3"><img src="index/community2.png" alt=""></button>
+                    <button class="menu-community-module" type="button" aria-label="Community module 4"><img src="index/community2.png" alt=""></button>
+                    <button class="menu-community-module" type="button" aria-label="Community module 5"><img src="index/community2.png" alt=""></button>
                 </div>
             </div>
             </div>
