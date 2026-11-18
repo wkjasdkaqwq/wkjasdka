@@ -718,6 +718,7 @@
     html.dark-mode .sidebar::-webkit-scrollbar-thumb { background: #1a2a3a; }
     html.dark-mode .sidebar::-webkit-scrollbar-thumb:hover { background: #2a3a4a; }
     @media (min-width: 769px) {
+      .sidebar::after { display: none; }
       html.dark-mode .sidebar,
       html.dark-mode .sidebar::before { background-color: #07121C !important; }
     }

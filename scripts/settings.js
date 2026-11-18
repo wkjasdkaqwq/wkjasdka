@@ -618,9 +618,15 @@
       shortcutsModal.classList.add('open');
       shortcutsModal.setAttribute('aria-hidden', 'false');
       document.body.style.overflow = 'hidden';
-      requestAnimationFrame(() => {
-        if (shortcutsModal.classList.contains('open')) shortcutsClose.focus();
-      });
+      const focusClose = () => {
+        if (!shortcutsModal.classList.contains('open')) return;
+        if (getComputedStyle(shortcutsModal).visibility !== 'visible') {
+          requestAnimationFrame(focusClose);
+          return;
+        }
+        shortcutsClose.focus({ preventScroll: true });
+      };
+      focusClose();
     }
 
     function clearShiftCycle() {
