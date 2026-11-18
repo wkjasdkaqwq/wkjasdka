@@ -176,6 +176,8 @@
         .menu-anchor { position: absolute; top: 0; right: calc(.625rem + 8px - .2rem); bottom: 0; z-index: 9001; width: 2.3rem; }
         .menu-btn { position: absolute; top: 50%; left: 50%; display: grid; grid-template-columns: repeat(3, .3rem); grid-template-rows: repeat(3, .3rem); align-content: center; justify-content: center; gap: .2rem; width: 2.3rem; height: 2.3rem; margin: 0; padding: 0; border: 0; background: transparent; color: #666; cursor: pointer; transform: translate(-50%, -50%); }
         .menu-btn .dot { display: block; width: .3rem; height: .3rem; border-radius: 50%; background: #666; }
+        .menu-btn[aria-expanded="true"] { border-radius: 8px; background: #dcdcdc; }
+        .menu-btn[aria-expanded="true"] .dot { background: #333; }
         .menu-btn:focus-visible { outline: 2px solid #64b5f6; outline-offset: 3px; }
         .menu-panel { position: absolute; top: calc(100% + .5rem); left: 50%; z-index: 9002; display: flex; flex-direction: column; width: min(320px, calc(100vw - 2rem)); max-height: min(70vh, 520px); overflow-y: auto; padding: .45rem 0; border: 1px solid #dedede; border-radius: 12px; background: #fff; box-shadow: 0 8px 24px rgba(0,0,0,.14); opacity: 0; visibility: hidden; transform: translate(-50%, -8px) scale(.98); transform-origin: top center; transition: opacity .18s ease, visibility .18s ease, transform .18s ease; }
         .menu-panel.open { opacity: 1; visibility: visible; transform: translate(-50%, 0) scale(1); }
@@ -186,6 +188,8 @@
         #mainContent { padding-top: calc(40px + 4.125rem); scroll-margin-top: 4.125rem; }
         html.dark-mode .navbar { background-color: #182532; box-shadow: 0 2px 5px rgba(0,0,0,.35); }
         html.dark-mode .menu-btn .dot { background-color: #d8dfe5; }
+        html.dark-mode .menu-btn[aria-expanded="true"] { background-color: #294454; }
+        html.dark-mode .menu-btn[aria-expanded="true"] .dot { background-color: #fff; }
         html.dark-mode .menu-panel { border-color: #2c4050; background: #12202b; box-shadow: 0 8px 24px rgba(0,0,0,.5); }
         html.dark-mode .menu-panel a, html.dark-mode .menu-panel .menu-heading { color: #d8dfe5; }
         html.dark-mode .menu-panel a:hover { background: #203544; color: #fff; }
