@@ -345,10 +345,27 @@
             const menuAnchor = menuButton.closest('.menu-anchor');
             const logoLink = document.getElementById('communityLogoLink');
             let menuTouchStartY = 0;
+            let softRefreshInProgress = false;
             const closeMenu = () => {
                 menuPanel.classList.remove('open');
                 menuButton.setAttribute('aria-expanded', 'false');
             };
+            async function softRefreshCommunityPage() {
+                if (softRefreshInProgress) return;
+                softRefreshInProgress = true;
+                try {
+                    const pageUrl = window.location.href.split('#')[0];
+                    const response = await fetch(pageUrl, { cache: 'no-store', credentials: 'same-origin' });
+                    if (!response.ok) throw new Error(`Soft refresh request failed: ${response.status}`);
+                    const pageMarkup = await response.text();
+                    document.open();
+                    document.write(pageMarkup);
+                    document.close();
+                } catch (error) {
+                    softRefreshInProgress = false;
+                    console.error('[community] Soft refresh failed.', error);
+                }
+            }
             menuPanel.addEventListener('touchstart', event => {
                 if (event.touches.length === 1) menuTouchStartY = event.touches[0].clientY;
             }, { passive: true });
@@ -381,7 +398,7 @@
                 event.preventDefault();
                 const scrollTop = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop;
                 if (scrollTop <= 0) {
-                    window.location.reload();
+                    softRefreshCommunityPage();
                     return;
                 }
                 window.scrollTo({ top: 0, behavior: 'smooth' });
