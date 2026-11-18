@@ -210,6 +210,7 @@
         .menu-panel::-webkit-scrollbar { display: none; width: 0; height: 0; }
         .menu-panel.open { visibility: visible; transform: translateY(0); box-shadow: inset -1px 0 0 #dedede; transition: transform .4s ease, visibility 0s linear 0s; }
         .menu-panel.open { pointer-events: auto; }
+        .menu-panel.dragging { transition: none !important; }
         .menu-panel a, .menu-panel .menu-heading { display: block; padding: .7rem 1rem; color: #555; font-size: .98rem; text-decoration: none; }
         .menu-panel a:hover { background: #f1f1f1; color: #222; }
         .menu-panel .menu-logo { display: block; width: min(150px, 70%); height: auto; margin: .35rem auto .1rem; }
@@ -273,7 +274,7 @@
         .main-project-info { position: relative; min-width: 0; flex: 1 1 auto; max-width: 420px; margin: -16px 0 0 30px; text-align: left; }
         .main-project-info.is-expanded { z-index: 1; box-sizing: border-box; padding: 0; border: 0; border-radius: .35rem; box-shadow: 0 0 0 1px #d8d8d8; background: #f8f8f8; }
         .main-project-title { margin: 0; color: #333; font-size: 1.32rem; font-weight: 700; line-height: 1.2; }
-        .main-project-description { display: -webkit-box; box-sizing: border-box; margin: .3rem 0 0; padding-right: 2rem; overflow: hidden; color: #666; font-size: 1rem; line-height: 1.4; -webkit-box-orient: vertical; -webkit-line-clamp: 3; will-change: clip-path; transition: clip-path .3s linear; overflow-anchor: none; }
+        .main-project-description { display: -webkit-box; box-sizing: border-box; margin: .3rem 0 0; padding-right: 2rem; overflow: hidden; color: #666; font-size: 1rem; line-height: 1.4; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow-anchor: none; }
         .main-project-description.is-expanded { display: block; padding-right: 0; overflow: hidden; }
         .main-project-description-toggle { display: none; position: absolute; right: 0; bottom: 0; align-items: center; justify-content: center; width: 2rem; height: 1.4rem; margin: 0; padding: 0; border: 0; color: #666; background: #F2F2F2; cursor: pointer; font-size: 0; line-height: 1; }
         .main-project-description-toggle::before { content: ""; width: .5rem; height: .5rem; border-right: .12rem solid currentColor; border-bottom: .12rem solid currentColor; transform: translateY(-.12rem) rotate(45deg); }
@@ -428,33 +429,15 @@
             const menuAnchor = menuButton.closest('.menu-anchor');
             const logoLink = document.getElementById('communityLogoLink');
             let menuTouchStartY = 0;
+            let mobileMenuDrag = null;
+            let suppressNextMenuClick = false;
+            let suppressMenuClickTimer = null;
             let softRefreshInProgress = false;
             let softRefreshAnimationInProgress = false;
             const closeMenu = () => {
                 menuPanel.classList.remove('open');
                 menuButton.setAttribute('aria-expanded', 'false');
             };
-            const descriptionAnimationFrames = new WeakMap();
-            function animateDescriptionHeight(description, from, to, onComplete) {
-                const previousAnimation = descriptionAnimationFrames.get(description);
-                if (previousAnimation) {
-                    window.cancelAnimationFrame(previousAnimation.frame);
-                    window.clearTimeout(previousAnimation.timer);
-                }
-                const expanding = to > from;
-                const startClip = expanding ? to - from : 0;
-                const endClip = expanding ? 0 : from - to;
-                description.style.clipPath = `inset(0 0 ${startClip}px 0)`;
-                const frame = window.requestAnimationFrame(() => {
-                    description.style.clipPath = `inset(0 0 ${endClip}px 0)`;
-                    const timer = window.setTimeout(() => {
-                        descriptionAnimationFrames.delete(description);
-                        if (onComplete) onComplete();
-                    }, 320);
-                    descriptionAnimationFrames.set(description, { frame: 0, timer });
-                });
-                descriptionAnimationFrames.set(description, { frame, timer: 0 });
-            }
             function syncDescriptionToggle() {
                 const description = document.querySelector('.main-project-description');
                 const toggle = document.querySelector('.main-project-description-toggle');
@@ -481,38 +464,12 @@
                 if (!description || !description.classList.contains('main-project-description')) return;
                 const expanded = toggle.getAttribute('aria-expanded') === 'true';
                 const info = description.parentElement;
-                const lineHeight = parseFloat(window.getComputedStyle(description).lineHeight) || 0;
-                const currentHeight = description.getBoundingClientRect().height;
-                const collapsedHeight = Number(description.dataset.collapsedHeight) || description.clientHeight || lineHeight * 3;
                 if (!expanded) {
-                    const probe = description.cloneNode(true);
-                    probe.classList.add('is-expanded');
-                    probe.style.position = 'absolute';
-                    probe.style.visibility = 'hidden';
-                    probe.style.width = `${description.clientWidth}px`;
-                    probe.style.height = 'auto';
-                    probe.style.maxHeight = 'none';
-                    probe.style.display = 'block';
-                    document.body.appendChild(probe);
-                    const fullHeight = probe.scrollHeight;
-                    probe.remove();
-                    description.dataset.collapsedHeight = String(collapsedHeight);
                     description.classList.add('is-expanded');
                     info.classList.add('is-expanded');
-                    description.style.height = `${fullHeight}px`;
-                    animateDescriptionHeight(description, currentHeight, fullHeight, () => {
-                        description.style.height = 'auto';
-                        description.style.clipPath = '';
-                    });
                 } else {
-                    const fullHeight = currentHeight;
-                    animateDescriptionHeight(description, fullHeight, collapsedHeight, () => {
-                        description.style.height = '';
-                        description.style.clipPath = '';
-                        description.classList.remove('is-expanded');
-                        info.classList.remove('is-expanded');
-                        delete description.dataset.collapsedHeight;
-                    });
+                    description.classList.remove('is-expanded');
+                    info.classList.remove('is-expanded');
                 }
                 toggle.setAttribute('aria-expanded', String(!expanded));
                 toggle.textContent = expanded ? '⌄' : '⌃';
@@ -589,8 +546,80 @@
                 const cannotScroll = menuPanel.scrollHeight <= menuPanel.clientHeight;
                 if (cannotScroll || (deltaY < 0 && atTop) || (deltaY > 0 && atBottom)) event.preventDefault();
             }, { passive: false });
+            function clampMenuDragOffset(offset, height) {
+                return Math.min(height, Math.max(0, offset));
+            }
+            function updateMobileMenuDrag(start, touch) {
+                const deltaY = touch.clientY - start.y;
+                const offset = clampMenuDragOffset(start.startedOpen ? -deltaY : start.height - deltaY, start.height);
+                start.offset = offset;
+                menuPanel.style.transform = `translateY(${-offset}px)`;
+            }
+            function finishMobileMenuDrag(event) {
+                if (!mobileMenuDrag) return;
+                const start = mobileMenuDrag;
+                mobileMenuDrag = null;
+                if (!start.dragging) return;
+                const touch = event.changedTouches && event.changedTouches[0];
+                if (touch) updateMobileMenuDrag(start, touch);
+                const shouldOpen = start.offset < start.height * .5;
+                menuPanel.classList.toggle('open', shouldOpen);
+                menuButton.setAttribute('aria-expanded', String(shouldOpen));
+                menuPanel.classList.remove('dragging');
+                menuPanel.style.removeProperty('transform');
+                suppressNextMenuClick = true;
+                if (suppressMenuClickTimer !== null) window.clearTimeout(suppressMenuClickTimer);
+                suppressMenuClickTimer = window.setTimeout(() => {
+                    suppressNextMenuClick = false;
+                    suppressMenuClickTimer = null;
+                }, 400);
+            }
+            document.addEventListener('touchstart', event => {
+                if (window.innerWidth > 600 || event.touches.length !== 1) return;
+                const startedOpen = menuPanel.classList.contains('open');
+                const startedInMenu = menuAnchor.contains(event.target);
+                if (!startedInMenu) return;
+                mobileMenuDrag = {
+                    x: event.touches[0].clientX,
+                    y: event.touches[0].clientY,
+                    height: Math.max(1, menuPanel.getBoundingClientRect().height),
+                    offset: startedOpen ? 0 : menuPanel.getBoundingClientRect().height,
+                    startedOpen,
+                    dragging: false
+                };
+            }, { passive: true });
+            document.addEventListener('touchmove', event => {
+                if (!mobileMenuDrag || window.innerWidth > 600 || event.touches.length !== 1) return;
+                const start = mobileMenuDrag;
+                const touch = event.touches[0];
+                const deltaX = touch.clientX - start.x;
+                const deltaY = touch.clientY - start.y;
+                if (!start.dragging) {
+                    if (Math.abs(deltaY) < 6) return;
+                    if (Math.abs(deltaX) > Math.abs(deltaY) * 1.15) {
+                        mobileMenuDrag = null;
+                        return;
+                    }
+                    const movingTowardOpen = start.startedOpen ? deltaY < 0 : deltaY > 0;
+                    if (!movingTowardOpen) {
+                        mobileMenuDrag = null;
+                        return;
+                    }
+                    start.dragging = true;
+                    menuPanel.classList.add('open', 'dragging');
+                    menuButton.setAttribute('aria-expanded', 'true');
+                }
+                event.preventDefault();
+                updateMobileMenuDrag(start, touch);
+            }, { passive: false });
+            document.addEventListener('touchend', finishMobileMenuDrag, { passive: true });
+            document.addEventListener('touchcancel', finishMobileMenuDrag, { passive: true });
             menuButton.addEventListener('click', event => {
                 event.stopPropagation();
+                if (suppressNextMenuClick) {
+                    suppressNextMenuClick = false;
+                    return;
+                }
                 const open = menuPanel.classList.toggle('open');
                 menuButton.setAttribute('aria-expanded', String(open));
             });
