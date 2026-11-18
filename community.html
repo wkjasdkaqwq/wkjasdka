@@ -343,9 +343,6 @@
                 const open = menuPanel.classList.toggle('open');
                 menuButton.setAttribute('aria-expanded', String(open));
             });
-            menuPanel.addEventListener('click', event => {
-                if (event.target.closest('a')) closeMenu();
-            });
             document.addEventListener('click', event => {
                 if (!menuAnchor.contains(event.target)) closeMenu();
             });
@@ -360,7 +357,6 @@
             });
             document.getElementById('menuTopLink').addEventListener('click', event => {
                 event.preventDefault();
-                closeMenu();
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             });
             logoLink.addEventListener('click', event => {
