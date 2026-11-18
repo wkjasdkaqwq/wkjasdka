@@ -187,7 +187,8 @@
         .menu-panel.open { pointer-events: auto; }
         .menu-panel a, .menu-panel .menu-heading { display: block; padding: .7rem 1rem; color: #555; font-size: .98rem; text-decoration: none; }
         .menu-panel a:hover { background: #f1f1f1; color: #222; }
-        .menu-panel .menu-heading { padding-bottom: .3rem; color: #999; font-size: .78rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+        .menu-panel .menu-logo { display: block; width: min(150px, 70%); height: auto; margin: .35rem auto .1rem; }
+        .menu-panel .menu-heading { padding: .2rem 1rem .45rem; color: #999; font-size: .78rem; font-weight: 700; letter-spacing: .06em; text-align: center; text-transform: uppercase; }
         .menu-panel .menu-divider { height: 1px; margin: .35rem 0; background: #ededed; }
         #mainContent { padding-top: calc(40px + 4.125rem); scroll-margin-top: 4.125rem; }
         html.dark-mode .navbar { background-color: #182532; box-shadow: 0 2px 5px rgba(0,0,0,.35); }
@@ -279,24 +280,8 @@
             </button>
             <div class="menu-drawer">
             <div class="menu-panel" id="menuPanel" role="menu" aria-label="Site menu" data-i18n-aria-label="menuLabel">
-                <a href="#" id="menuTopLink" role="menuitem" data-i18n="topLink">Top</a>
+                <img class="menu-logo" src="index/community2.png" alt="W.K.Jasdka Community" data-i18n-alt="logoAlt">
                 <div class="menu-heading" data-i18n="socialPlatforms">Social Platforms</div>
-                <a href="https://space.bilibili.com/3493283156200346" role="menuitem">Bilibili</a>
-                <a href="https://bsky.app/profile/wkjasdka.bsky.social" role="menuitem">Bluesky</a>
-                <a href="https://discord.gg/QQQVS5fJPD" role="menuitem">Discord</a>
-                <a href="https://facebook.com/chenasawkjasdka" role="menuitem">Facebook</a>
-                <a href="https://instagram.com/imwkjasdka" role="menuitem">Instagram</a>
-                <a href="https://www.pinterest.com/Wkjasdka" role="menuitem">Pinterest</a>
-                <a href="https://open.spotify.com/user/31fp6b7aq3ch2jzdt5up5welfdhq?si=4vDMBCqPRJSPB4a2rxM7eg" role="menuitem">Spotify</a>
-                <a href="https://tiktok.com/@wkjasdkaqwq" role="menuitem">TikTok</a>
-                <a href="https://threads.net/@imwkjasdka" role="menuitem">Threads</a>
-                <a href="https://twitch.tv/wkjasdkaqwq" role="menuitem">Twitch</a>
-                <a href="https://x.com/Wkjasdka" role="menuitem">Twitter</a>
-                <a href="https://www.youtube.com/@wkjasdkaverynb" role="menuitem">YouTube</a>
-                <div class="menu-divider" aria-hidden="true"></div>
-                <a href="mailto:wkjasdkayeah@yeah.net" role="menuitem" data-i18n="contactLink">Contact</a>
-                <a href="about.html" role="menuitem" data-i18n="aboutLink">About</a>
-                <a href="settings.html" role="menuitem" data-i18n="settingsLink">Settings</a>
             </div>
             </div>
         </div>
@@ -356,10 +341,6 @@
                     closeMenu();
                     menuButton.focus();
                 }
-            });
-            document.getElementById('menuTopLink').addEventListener('click', event => {
-                event.preventDefault();
-                window.scrollTo({ top: 0, behavior: 'smooth' });
             });
             logoLink.addEventListener('click', event => {
                 event.preventDefault();
