@@ -1271,6 +1271,13 @@
                 main.removeAttribute('aria-busy');
                 document.documentElement.classList.remove('community-interaction-locked');
                 loading.classList.add('allows-page-interaction');
+                window.requestAnimationFrame(() => {
+                    syncDescriptionToggle();
+                    window.setTimeout(syncDescriptionToggle, 120);
+                });
+                if (document.fonts && document.fonts.ready) {
+                    document.fonts.ready.then(() => syncDescriptionToggle());
+                }
             }
 
             function waitForZoomAnimation() {
