@@ -394,12 +394,45 @@
                     const response = await fetch(pageUrl, { cache: 'no-store', credentials: 'same-origin' });
                     if (!response.ok) throw new Error(`Soft refresh request failed: ${response.status}`);
                     const pageMarkup = await response.text();
-                    document.open();
-                    document.write(pageMarkup);
-                    document.close();
+                    const refreshedDocument = new DOMParser().parseFromString(pageMarkup, 'text/html');
+                    const refreshedMain = refreshedDocument.getElementById('mainContent');
+                    const currentMain = document.getElementById('mainContent');
+                    if (!refreshedMain || !currentMain) throw new Error('Soft refresh content area is missing');
+                    const refreshedImages = Array.from(refreshedMain.querySelectorAll('img[data-src]'));
+                    await Promise.all(refreshedImages.map(async image => {
+                        const source = image.getAttribute('data-src');
+                        if (!source) return;
+                        const preview = new Image();
+                        await new Promise(resolve => {
+                            let settled = false;
+                            const finish = () => {
+                                if (settled) return;
+                                settled = true;
+                                resolve();
+                            };
+                            preview.onload = async () => {
+                                if (preview.decode) {
+                                    try { await preview.decode(); } catch (_) { /* Native image is still usable. */ }
+                                }
+                                finish();
+                            };
+                            preview.onerror = finish;
+                            preview.src = new URL(source, pageUrl).href;
+                            if (preview.complete) preview.onload();
+                        });
+                    }));
+                    currentMain.innerHTML = refreshedMain.innerHTML;
+                    currentMain.scrollTop = 0;
+                    currentMain.querySelectorAll('img[data-src]').forEach(image => {
+                        const source = image.getAttribute('data-src');
+                        if (!source) return;
+                        image.src = new URL(source, pageUrl).href;
+                        image.removeAttribute('data-src');
+                    });
                 } catch (error) {
-                    softRefreshInProgress = false;
                     console.error('[community] Soft refresh failed.', error);
+                } finally {
+                    softRefreshInProgress = false;
                 }
             }
             function playSoftRefreshAnimation() {
