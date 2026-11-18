@@ -234,7 +234,11 @@
             text-align: left;
         }
 
-        .main-image-module { display: block; width: 64px; height: 64px; margin: 10px; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); object-fit: contain; transform: scale(1.5); transform-origin: center; }
+        .main-project-module { display: flex; align-items: flex-start; margin: 10px; }
+        .main-image-module { display: block; flex: 0 0 64px; width: 64px; height: 64px; margin: 0; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); object-fit: contain; transform: scale(1.5); transform-origin: center; }
+        .main-project-info { min-width: 0; margin: 8px 0 0 14px; text-align: left; }
+        .main-project-title { margin: 0; color: #333; font-size: 1.26rem; font-weight: 700; line-height: 1.2; }
+        .main-project-description { margin: .3rem 0 0; color: #666; font-size: 1rem; line-height: 1.4; }
 
         .page-title {
             margin: 0;
@@ -335,7 +339,13 @@
     </div>
     <main id="mainContent" inert aria-busy="true">
         <div class="content-box">
-            <img class="main-image-module" data-src="index/untitled.png" alt="Community content image">
+            <div class="main-project-module">
+                <img class="main-image-module" data-src="index/untitled.png" alt="Community content image">
+                <div class="main-project-info">
+                    <h1 class="main-project-title">Semi-rounded Corner</h1>
+                    <p class="main-project-description">Project description coming soon.</p>
+                </div>
+            </div>
         </div>
     </main>
     <script>
