@@ -180,7 +180,7 @@
         .menu-btn[aria-expanded="true"] .dot { background: #333; }
         .menu-btn:focus-visible { outline: 2px solid #64b5f6; outline-offset: 3px; }
         .menu-drawer { position: absolute; top: 100%; right: calc(-.625rem - 8px + .2rem); z-index: 9002; width: min(360px, calc(100vw - 1rem)); max-height: min(70vh, 520px); overflow: hidden; border-radius: 0 0 .35rem .35rem; pointer-events: none; }
-        .menu-panel { position: relative; top: 0; right: auto; display: flex; flex-direction: column; box-sizing: border-box; width: 100%; max-height: min(70vh, 420px); aspect-ratio: 1; overflow-y: auto; padding: .45rem 0; border: 1px solid #dedede; border-right: 0; border-radius: 0 0 .35rem .35rem; background: #fff; box-shadow: inset -1px 0 0 transparent; opacity: 1; visibility: hidden; transform: translateY(-100%); will-change: transform; transition: transform .4s ease, visibility 0s linear .4s; }
+        .menu-panel { position: relative; top: 0; right: auto; display: flex; flex-direction: column; box-sizing: border-box; width: 100%; max-height: min(70vh, 420px); aspect-ratio: 1; overflow-y: auto; overscroll-behavior: contain; padding: .45rem 0; border: 1px solid #dedede; border-right: 0; border-radius: 0 0 .35rem .35rem; background: #fff; box-shadow: inset -1px 0 0 transparent; opacity: 1; visibility: hidden; transform: translateY(-100%); will-change: transform; transition: transform .4s ease, visibility 0s linear .4s; }
         .menu-panel { scrollbar-width: none; -ms-overflow-style: none; }
         .menu-panel::-webkit-scrollbar { display: none; width: 0; height: 0; }
         .menu-panel.open { visibility: visible; transform: translateY(0); box-shadow: inset -1px 0 0 #dedede; transition: transform .4s ease, visibility 0s linear 0s; }
@@ -348,10 +348,22 @@
             const menuPanel = document.getElementById('menuPanel');
             const menuAnchor = menuButton.closest('.menu-anchor');
             const logoLink = document.getElementById('communityLogoLink');
+            let menuTouchStartY = 0;
             const closeMenu = () => {
                 menuPanel.classList.remove('open');
                 menuButton.setAttribute('aria-expanded', 'false');
             };
+            menuPanel.addEventListener('touchstart', event => {
+                if (event.touches.length === 1) menuTouchStartY = event.touches[0].clientY;
+            }, { passive: true });
+            menuPanel.addEventListener('touchmove', event => {
+                if (!menuPanel.classList.contains('open') || event.touches.length !== 1) return;
+                const deltaY = menuTouchStartY - event.touches[0].clientY;
+                const atTop = menuPanel.scrollTop <= 0;
+                const atBottom = menuPanel.scrollTop + menuPanel.clientHeight >= menuPanel.scrollHeight - 1;
+                const cannotScroll = menuPanel.scrollHeight <= menuPanel.clientHeight;
+                if (cannotScroll || (deltaY < 0 && atTop) || (deltaY > 0 && atBottom)) event.preventDefault();
+            }, { passive: false });
             menuButton.addEventListener('click', event => {
                 event.stopPropagation();
                 const open = menuPanel.classList.toggle('open');
