@@ -303,6 +303,7 @@
         .main-project-tab-empty { margin: 14px 0 0; color: #666; font-size: 1rem; line-height: 1.5; }
         html.dark-mode .main-project-tab-empty { color: #a0aeb8; }
         .main-project-description-section { position: absolute; top: calc(1.32rem * 1.2 + .3rem + 4.2rem - 8px + 24px + 12px + 2.55rem + 32px + 16px); right: -34px; left: -34px; z-index: 1; }
+        #compatibility-section[hidden] { display: none !important; }
         .main-project-description-section-title { margin: 0; color: #333; font-size: 1.5rem; font-weight: 700; line-height: 1.2; }
         .main-project-description-title { font-size: 1.65rem; font-weight: 735; }
         .main-project-description-section-divider { height: 1px; margin-top: 8px; margin-right: -2px; margin-left: -2px; background: #c2c2c2; }
@@ -709,7 +710,10 @@
                     const panel = document.getElementById(button.getAttribute('aria-controls'));
                     if (panel) panel.hidden = !isSelected;
                 });
-                if (selectedIndex === projectSwitcherButtons.findIndex(button => button.getAttribute('aria-controls') === 'panel-description')) {
+                const descriptionIndex = projectSwitcherButtons.findIndex(button => button.getAttribute('aria-controls') === 'panel-description');
+                const isDescriptionSelected = selectedIndex === descriptionIndex;
+                if (compatibilitySection) compatibilitySection.hidden = !isDescriptionSelected;
+                if (isDescriptionSelected) {
                     syncDescriptionEndDivider();
                 }
                 projectSwitcherButtons[selectedIndex].scrollIntoView({ behavior: 'auto', block: 'nearest', inline: 'nearest' });
