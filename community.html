@@ -519,12 +519,13 @@
             function selectProjectSection(index) {
                 if (!projectSwitcherButtons.length) return;
                 const selectedIndex = (index + projectSwitcherButtons.length) % projectSwitcherButtons.length;
-                projectSwitcher.style.setProperty('--switcher-index', String(selectedIndex));
                 if (projectSwitcherTrack && window.matchMedia('(max-width: 600px)').matches) {
                     const currentStyle = window.getComputedStyle(projectSwitcherTrack, '::before');
                     const from = parseFloat(currentStyle.marginLeft) || 0;
                     const baseLeft = parseFloat(currentStyle.left) || 0;
                     const to = projectSwitcherButtons[selectedIndex].offsetLeft - baseLeft;
+                    projectSwitcherTrack.style.setProperty('--switcher-mobile-offset', `${from}px`);
+                    projectSwitcher.style.setProperty('--switcher-index', String(selectedIndex));
                     if (projectSwitcherSliderFrame) window.cancelAnimationFrame(projectSwitcherSliderFrame);
                     const startedAt = performance.now();
                     const duration = 240;
@@ -539,6 +540,8 @@
                         }
                     };
                     projectSwitcherSliderFrame = window.requestAnimationFrame(animateSlider);
+                } else {
+                    projectSwitcher.style.setProperty('--switcher-index', String(selectedIndex));
                 }
                 projectSwitcherButtons.forEach((button, buttonIndex) => {
                     button.setAttribute('aria-selected', String(buttonIndex === selectedIndex));
