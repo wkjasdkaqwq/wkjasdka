@@ -95,11 +95,16 @@
         .loading-backdrop-cell, .loading-backdrop-center { background-color: #fff; }
         .loading-backdrop-slot { position: relative; width: 100%; aspect-ratio: var(--community-logo-aspect, 743 / 215); }
         .loading-backdrop-center { position: absolute; inset: 0; width: 100%; height: 100%; -webkit-mask-size: 100% 100%; -webkit-mask-repeat: no-repeat; -webkit-mask-position: center; mask-mode: alpha; mask-size: 100% 100%; mask-repeat: no-repeat; mask-position: center; }
+        /* One painted surface avoids subpixel seams between independently scaled grid cells. */
+        .loading-screen.has-composite-alpha-mask .loading-backdrop { display: block; background-color: #fff; -webkit-mask-size: 100% 100%, var(--community-logo-width) var(--community-logo-height); -webkit-mask-position: center, center; -webkit-mask-repeat: no-repeat, no-repeat; -webkit-mask-composite: xor; mask-mode: alpha; mask-size: 100% 100%, var(--community-logo-width) var(--community-logo-height); mask-position: center, center; mask-repeat: no-repeat, no-repeat; mask-composite: exclude; }
+        .loading-screen.has-composite-alpha-mask .loading-backdrop-cell, .loading-screen.has-composite-alpha-mask .loading-backdrop-slot { display: none; }
+        html.dark-mode .loading-screen.has-composite-alpha-mask .loading-backdrop { background-color: #07121C; }
         .loading-screen.is-portal-fallback .loading-backdrop { -webkit-clip-path: url(#communityPortalClip); clip-path: url(#communityPortalClip); }
+        .loading-logo-cover { display: none; }
         @media (min-width: 641px) {
             /* Hold the center opaque until reveal starts, avoiding desktop AA-edge leaks. */
-            .loading-backdrop::after {
-                content: "";
+            .loading-logo-cover {
+                display: block;
                 position: absolute;
                 top: 50%;
                 left: 50%;
@@ -112,8 +117,8 @@
                 transition: opacity .7s ease;
                 pointer-events: none;
             }
-            .loading-screen.is-center-revealing .loading-backdrop::after { opacity: 0; }
-            html.dark-mode .loading-backdrop::after { background-color: #07121C; }
+            .loading-screen.is-center-revealing .loading-logo-cover { opacity: 0; }
+            html.dark-mode .loading-logo-cover { background-color: #07121C; }
         }
         .loading-logo { width: var(--community-logo-width, min(300px, 62vw)); height: auto; z-index: 10000; display: none; opacity: 1; transition: opacity .7s ease; }
         .loading-screen.is-center-revealing .loading-logo { opacity: 0; }
@@ -406,7 +411,7 @@
     </style>
 </head>
 <body>
-    <nav class="navbar" id="navbar" aria-label="Site header">
+    <nav class="navbar" id="navbar" aria-label="Site header" inert>
         <div class="menu-anchor">
             <button class="menu-btn" id="menuBtn" type="button" aria-label="Open menu" data-i18n-aria-label="menuToggle" aria-controls="menuPanel" aria-expanded="false">
                 <span class="dot"></span><span class="dot"></span><span class="dot"></span>
@@ -437,6 +442,7 @@
             <div class="loading-backdrop-cell"></div><div class="loading-backdrop-slot"><div class="loading-backdrop-center"></div></div><div class="loading-backdrop-cell"></div>
             <div class="loading-backdrop-cell"></div><div class="loading-backdrop-cell"></div><div class="loading-backdrop-cell"></div>
         </div>
+        <div class="loading-logo-cover" aria-hidden="true"></div>
         <svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute;pointer-events:none"><defs><clipPath id="communityPortalClip" clipPathUnits="userSpaceOnUse"><path id="communityPortalPath" fill-rule="evenodd" clip-rule="evenodd"></path></clipPath></defs></svg>
         <div class="loading-progress" id="loadingProgress" role="progressbar" aria-label="Loading page" data-i18n-aria-label="loadingProgress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="loading-progress-fill" id="loadingProgressFill"></div></div>
         <!-- Change this image source to replace both the loading and page logos. -->
@@ -733,6 +739,7 @@
                     const response = await fetch(pageUrl, { cache: 'no-store', credentials: 'same-origin' });
                     if (!response.ok) throw new Error(`Soft refresh request failed: ${response.status}`);
                     const pageMarkup = await response.text();
+                    window.dispatchEvent(new Event('community-before-soft-refresh'));
                     document.open();
                     document.write(pageMarkup);
                     document.close();
@@ -871,6 +878,7 @@
             });
             logoLink.addEventListener('click', event => {
                 event.preventDefault();
+                if (document.documentElement.classList.contains('community-interaction-locked')) return;
                 const contentScroller = document.getElementById('mainContent');
                 const pageScrollTop = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop;
                 const contentScrollTop = contentScroller ? contentScroller.scrollTop : 0;
@@ -878,10 +886,16 @@
                 if (scrollTop <= 0) {
                     if (softRefreshInProgress || softRefreshAnimationInProgress) return;
                     softRefreshAnimationInProgress = true;
-                    playSoftRefreshAnimation().then(() => {
-                        softRefreshAnimationInProgress = false;
-                        softRefreshCommunityPage();
-                    });
+                    const beginSoftRefresh = () => {
+                        playSoftRefreshAnimation().then(() => {
+                            softRefreshAnimationInProgress = false;
+                            softRefreshCommunityPage();
+                        });
+                    };
+                    const loader = document.getElementById('loadingScreen');
+                    if (loader && loader.style.display !== 'none') {
+                        window.addEventListener('community-loading-complete', beginSoftRefresh, { once: true });
+                    } else beginSoftRefresh();
                     return;
                 }
                 if (contentScrollTop > 0) contentScroller.scrollTo({ top: 0, behavior: 'smooth' });
@@ -907,6 +921,7 @@
             });
             const loading = document.getElementById('loadingScreen');
             const main = document.getElementById('mainContent');
+            const navbar = document.getElementById('navbar');
             const progress = document.getElementById('loadingProgress');
             const fill = document.getElementById('loadingProgressFill');
             const error = document.getElementById('loadingError');
@@ -939,16 +954,18 @@
             // Older browsers may not implement inert; do not let keyboard or
             // pointer events reach the page before the interaction unlock.
             if (!('inert' in HTMLElement.prototype)) {
-                ['click', 'keydown', 'pointerdown', 'touchstart'].forEach(type => {
-                    main.addEventListener(type, event => {
-                        if (!main.hasAttribute('inert')) return;
-                        if (event.cancelable) event.preventDefault();
-                        event.stopImmediatePropagation();
+                [main, navbar].forEach(section => {
+                    ['click', 'keydown', 'pointerdown', 'touchstart'].forEach(type => {
+                        section.addEventListener(type, event => {
+                            if (!section.hasAttribute('inert')) return;
+                            if (event.cancelable) event.preventDefault();
+                            event.stopImmediatePropagation();
+                        }, true);
+                    });
+                    section.addEventListener('focusin', event => {
+                        if (section.hasAttribute('inert') && typeof event.target.blur === 'function') event.target.blur();
                     }, true);
                 });
-                main.addEventListener('focusin', event => {
-                    if (main.hasAttribute('inert') && typeof event.target.blur === 'function') event.target.blur();
-                }, true);
             }
 
             // Percentages represent the two stages, with equal weight per item.
@@ -967,6 +984,7 @@
                 const maxHeight = window.innerHeight * 0.35;
                 const displayWidth = Math.min(maxWidth, maxHeight * width / height);
                 loading.style.setProperty('--community-logo-width', `${displayWidth}px`);
+                loading.style.setProperty('--community-logo-height', `${displayWidth * height / width}px`);
                 loading.style.setProperty('--community-logo-aspect', `${width} / ${height}`);
             }
             window.addEventListener('resize', syncLogoGeometry);
@@ -1372,6 +1390,7 @@
 
             function unlockPageInteraction() {
                 main.removeAttribute('inert');
+                navbar.removeAttribute('inert');
                 main.removeAttribute('aria-busy');
                 document.documentElement.classList.remove('community-interaction-locked');
                 loading.classList.add('allows-page-interaction');
@@ -1630,6 +1649,15 @@
                             centerBackdrop.style.maskComposite = 'exclude';
                         }
                     }
+                    const supportsComposite = window.CSS && typeof CSS.supports === 'function' &&
+                        (CSS.supports('mask-composite', 'exclude') || CSS.supports('-webkit-mask-composite', 'xor'));
+                    if (loadingLogo && supportsComposite) {
+                        const backdrop = loading.querySelector('.loading-backdrop');
+                        const alphaLayers = `linear-gradient(#000 0 0), url("${loadingLogo.src}")`;
+                        backdrop.style.webkitMaskImage = alphaLayers;
+                        backdrop.style.maskImage = alphaLayers;
+                        loading.classList.add('has-composite-alpha-mask');
+                    }
                     loading.classList.add('loading-ready');
 
                     // Phase two: page images, then the language script and its
@@ -1652,10 +1680,12 @@
                     await zoomLoadingIntoContent(reduceMotion);
                     logoAlpha = null;
                     loading.style.display = 'none';
+                    window.dispatchEvent(new Event('community-loading-complete'));
                 } catch (failure) {
                     logoAlpha = null;
                     console.error('[community] Page loading failed.', failure);
                     main.setAttribute('inert', '');
+                    navbar.setAttribute('inert', '');
                     main.setAttribute('aria-busy', 'true');
                     document.documentElement.classList.add('community-interaction-locked');
                     loading.classList.remove('allows-page-interaction', 'is-zooming-into-content', 'is-zoom-settled', 'is-center-revealing');
@@ -1666,10 +1696,14 @@
             }
 
             retry.addEventListener('click', () => window.location.reload());
-            window.addEventListener('pagehide', event => {
-                if (event.persisted) return;
+            function releaseObjectUrls() {
                 objectUrls.forEach(url => URL.revokeObjectURL(url));
                 objectUrls.clear();
+            }
+            window.addEventListener('community-before-soft-refresh', releaseObjectUrls);
+            window.addEventListener('pagehide', event => {
+                if (event.persisted) return;
+                releaseObjectUrls();
             });
             document.addEventListener('DOMContentLoaded', start, { once: true });
         })();
