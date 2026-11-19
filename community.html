@@ -308,6 +308,8 @@
         .main-project-description-section-divider { height: 1px; margin-top: 8px; margin-right: -2px; margin-left: -2px; background: #c2c2c2; }
         .main-project-description-section .main-project-description-end-divider { position: absolute; right: 0; left: 0; margin-top: 0; }
         .main-project-description-body { max-width: 72ch; margin: 16px 0 0; color: #666; font-size: 1rem; line-height: 1.65; }
+        .main-project-compatibility-section { position: absolute; top: 0; right: 0; left: 0; z-index: 1; }
+        .main-project-compatibility-empty { height: 0; margin-top: 16px; }
         html.dark-mode .main-project-description-section-title { color: #e0e0e0; }
         html.dark-mode .main-project-description-section-divider { background: #385066; }
         html.dark-mode .main-project-description-body { color: #a0a0a0; }
@@ -496,6 +498,12 @@
                     <div class="main-project-description-section-divider" aria-hidden="true"></div>
                     <p class="main-project-description-body">Semi-rounded Corner is a small visual study focused on balanced spacing, soft edges, and a clear structure. More details, project notes, and future updates will be added here as the design continues to develop. Additional notes will follow. <span id="description-end-anchor">The next iteration will document the final direction.</span></p>
                     <div class="main-project-description-section-divider main-project-description-end-divider" aria-hidden="true"></div>
+                    <section class="main-project-compatibility-section" id="compatibility-section" aria-labelledby="compatibility-title">
+                        <h2 class="main-project-description-section-title main-project-description-title" id="compatibility-title">Compatibility</h2>
+                        <div class="main-project-description-section-divider" aria-hidden="true"></div>
+                        <div class="main-project-compatibility-empty" id="compatibility-empty" aria-hidden="true"></div>
+                        <div class="main-project-description-section-divider" aria-hidden="true"></div>
+                    </section>
                 </section>
                 <section class="main-project-tab-panel" id="panel-update" role="tabpanel" aria-labelledby="tab-update" hidden>
                     <h2 class="main-project-description-section-title">Update</h2>
@@ -552,6 +560,8 @@
             const descriptionEndAnchor = document.getElementById('description-end-anchor');
             const descriptionEndDivider = descriptionPanel?.querySelector('.main-project-description-end-divider');
             const descriptionBody = descriptionPanel?.querySelector('.main-project-description-body');
+            const compatibilitySection = document.getElementById('compatibility-section');
+            const compatibilityEmpty = document.getElementById('compatibility-empty');
             function syncDescriptionEndDivider() {
                 if (!descriptionPanel || descriptionPanel.hidden || !descriptionEndAnchor || !descriptionEndDivider) return;
                 const anchorLines = Array.from(descriptionEndAnchor.getClientRects());
@@ -559,6 +569,11 @@
                 const finalLine = anchorLines[anchorLines.length - 1];
                 const panelTop = descriptionPanel.getBoundingClientRect().top;
                 descriptionEndDivider.style.top = `${finalLine.bottom - panelTop + 8}px`;
+                if (compatibilitySection && compatibilityEmpty) {
+                    const dividerBottom = descriptionEndDivider.getBoundingClientRect().bottom;
+                    compatibilitySection.style.top = `${dividerBottom - panelTop + 24}px`;
+                    compatibilityEmpty.style.height = `${descriptionBody?.getBoundingClientRect().height || 0}px`;
+                }
             }
             if (descriptionBody && 'ResizeObserver' in window) {
                 new ResizeObserver(syncDescriptionEndDivider).observe(descriptionBody);
