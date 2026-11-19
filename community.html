@@ -267,7 +267,7 @@
 
         .main-project-module { position: relative; display: flex; align-items: flex-start; margin: 10px 10px 34px; padding-bottom: 0; }
         .main-project-module::after { content: ""; position: absolute; top: calc(1.32rem * 1.2 + .3rem + 4.2rem - 8px + 24px); right: -4px; left: -4px; border-top: 2px solid #d8d8d8; }
-        .main-project-switcher { position: absolute; top: calc(1.32rem * 1.2 + .3rem + 4.2rem - 8px + 24px + 12px); right: -4px; left: -4px; box-sizing: border-box; min-height: 2.55rem; border: 4px solid #d8d8d8; border-radius: 1.45rem; background: #e8e8e8; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; -ms-overflow-style: none; isolation: isolate; touch-action: pan-x; --switcher-index: 0; --switcher-button-width: 10rem; }
+        .main-project-switcher { position: absolute; top: calc(1.32rem * 1.2 + .3rem + 4.2rem - 8px + 24px + 12px); right: -4px; left: -4px; box-sizing: border-box; min-height: 2.55rem; border: 2px solid #d8d8d8; border-radius: 1.45rem; background: #e8e8e8; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; -ms-overflow-style: none; isolation: isolate; touch-action: pan-x; --switcher-index: 1; --switcher-button-width: 10rem; }
         .main-project-switcher::-webkit-scrollbar { display: none; width: 0; height: 0; }
         .main-project-switcher-track { position: relative; display: flex; align-items: stretch; gap: .2rem; box-sizing: border-box; width: max-content; min-width: 100%; padding: .2rem; }
         .main-project-switcher-track::before { content: ""; position: absolute; top: .2rem; bottom: .2rem; left: .2rem; z-index: 0; width: var(--switcher-button-width); border-radius: 1rem; background: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, .12); transform: translateX(calc(var(--switcher-index) * (var(--switcher-button-width) + .2rem))); transition: transform .24s cubic-bezier(.2, .8, .2, 1); }
@@ -275,7 +275,7 @@
         .main-project-switcher-button[aria-selected="true"] { color: #333; }
         .main-project-switcher-button:active { transform: translateY(1px); }
         .main-project-switcher-button:focus-visible { outline: 2px solid #64b5f6; outline-offset: -2px; }
-        html.dark-mode .main-project-switcher { border-color: #385066; background: #1a2d3d; }
+        html.dark-mode .main-project-switcher { border-color: #385066; background: #0C1F30; }
         html.dark-mode .main-project-switcher::before { background: #243545; box-shadow: 0 1px 3px rgba(0, 0, 0, .35); }
         html.dark-mode .main-project-switcher-button { color: #a0aeb8; }
         html.dark-mode .main-project-switcher-button[aria-selected="true"] { color: #fff; }
@@ -444,8 +444,8 @@
                 </div>
                 <div class="main-project-switcher" role="tablist" aria-label="Project sections">
                     <div class="main-project-switcher-track">
-                        <button class="main-project-switcher-button" type="button" role="tab" aria-selected="true">Update Description</button>
-                        <button class="main-project-switcher-button" type="button" role="tab" aria-selected="false">Changelog</button>
+                        <button class="main-project-switcher-button" type="button" role="tab" aria-selected="false">Update Description</button>
+                        <button class="main-project-switcher-button" type="button" role="tab" aria-selected="true">Changelog</button>
                         <button class="main-project-switcher-button" type="button" role="tab" aria-selected="false">Gallery</button>
                         <button class="main-project-switcher-button" type="button" role="tab" aria-selected="false">Comment</button>
                         <button class="main-project-switcher-button" type="button" role="tab" aria-selected="false">Issue</button>
