@@ -300,7 +300,7 @@
         html.dark-mode .main-project-lower-divider::before { border-color: #385066; }
         @media (max-width: 600px) {
             .main-project-lower-divider { right: -30px; left: -30px; }
-            .main-project-switcher-track::before { left: .2rem; margin-left: calc(var(--switcher-index) * (var(--switcher-button-width) + var(--switcher-gap))); transform: none; transition: margin-left .24s cubic-bezier(.2, .8, .2, 1); }
+            .main-project-switcher-track::before { left: .2rem; margin-left: var(--switcher-mobile-offset, calc(var(--switcher-index) * (var(--switcher-button-width) + var(--switcher-gap)))); transform: none; transition: none; }
         }
         .main-image-module { display: block; flex: 0 0 64px; width: 64px; height: 64px; margin: 0; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); object-fit: contain; transform: scale(1.5); transform-origin: center; cursor: pointer; transition: transform .3s ease, box-shadow .3s ease, background-color .2s ease; }
         .main-image-module.is-highlighted { box-shadow: 0 8px 20px rgba(0,0,0,.18); }
@@ -497,9 +497,13 @@
                 menuButton.setAttribute('aria-expanded', 'false');
             };
             const projectSwitcher = document.querySelector('.main-project-switcher');
+            const projectSwitcherTrack = projectSwitcher
+                ? projectSwitcher.querySelector('.main-project-switcher-track')
+                : null;
             const projectSwitcherButtons = projectSwitcher
                 ? Array.from(projectSwitcher.querySelectorAll('.main-project-switcher-button'))
                 : [];
+            let projectSwitcherSliderFrame = null;
             function sizeProjectSwitcherButtons() {
                 if (!projectSwitcherButtons.length) return;
                 const sample = projectSwitcherButtons[0];
@@ -516,6 +520,25 @@
                 if (!projectSwitcherButtons.length) return;
                 const selectedIndex = (index + projectSwitcherButtons.length) % projectSwitcherButtons.length;
                 projectSwitcher.style.setProperty('--switcher-index', String(selectedIndex));
+                if (projectSwitcherTrack && window.matchMedia('(max-width: 600px)').matches) {
+                    const style = window.getComputedStyle(projectSwitcher);
+                    const buttonWidth = parseFloat(style.getPropertyValue('--switcher-button-width')) || 0;
+                    const gap = parseFloat(style.getPropertyValue('--switcher-gap')) || 0;
+                    const currentStyle = window.getComputedStyle(projectSwitcherTrack, '::before');
+                    const from = parseFloat(currentStyle.marginLeft) || 0;
+                    const to = selectedIndex * (buttonWidth + gap);
+                    if (projectSwitcherSliderFrame) window.cancelAnimationFrame(projectSwitcherSliderFrame);
+                    const startedAt = performance.now();
+                    const duration = 240;
+                    const animateSlider = now => {
+                        const progress = Math.min(1, (now - startedAt) / duration);
+                        const eased = 1 - Math.pow(1 - progress, 3);
+                        projectSwitcherTrack.style.setProperty('--switcher-mobile-offset', `${from + (to - from) * eased}px`);
+                        if (progress < 1) projectSwitcherSliderFrame = window.requestAnimationFrame(animateSlider);
+                        else projectSwitcherSliderFrame = null;
+                    };
+                    projectSwitcherSliderFrame = window.requestAnimationFrame(animateSlider);
+                }
                 projectSwitcherButtons.forEach((button, buttonIndex) => {
                     button.setAttribute('aria-selected', String(buttonIndex === selectedIndex));
                 });
