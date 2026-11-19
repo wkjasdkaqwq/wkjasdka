@@ -612,6 +612,7 @@
             const descriptionEndDivider = descriptionPanel?.querySelector('.main-project-description-end-divider');
             const descriptionBody = descriptionPanel?.querySelector('.main-project-description-body');
             const compatibilitySection = document.getElementById('compatibility-section');
+            const compatibilityPlaceholder = document.createComment('compatibility-section-placeholder');
             const compatibilityContent = document.getElementById('compatibility-content');
             const compatibilityVersionButtons = Array.from(document.querySelectorAll('.compatibility-version-button'));
             const compatibilityTouchMedia = window.matchMedia('(hover: none), (pointer: coarse)');
@@ -657,6 +658,23 @@
                     const dividerBottom = descriptionEndDivider.getBoundingClientRect().bottom;
                     compatibilitySection.style.top = `${dividerBottom - panelTop + 24}px`;
                     compatibilityContent.style.height = `${descriptionBody?.getBoundingClientRect().height || 0}px`;
+                }
+            }
+            function setCompatibilityVisible(isVisible) {
+                if (!compatibilitySection) return;
+                if (isVisible) {
+                    if (!compatibilitySection.isConnected && compatibilityPlaceholder.parentNode) {
+                        compatibilityPlaceholder.replaceWith(compatibilitySection);
+                    }
+                    compatibilitySection.hidden = false;
+                    compatibilitySection.style.removeProperty('display');
+                    return;
+                }
+                compatibilitySection.hidden = true;
+                compatibilitySection.style.setProperty('display', 'none', 'important');
+                if (compatibilitySection.parentNode) {
+                    compatibilitySection.parentNode.insertBefore(compatibilityPlaceholder, compatibilitySection);
+                    compatibilitySection.remove();
                 }
             }
             if (descriptionBody && 'ResizeObserver' in window) {
@@ -715,11 +733,7 @@
                         panel.style.display = isSelected ? '' : 'none';
                     }
                 });
-                if (compatibilitySection) {
-                    compatibilitySection.hidden = !isDescriptionSelected;
-                    if (isDescriptionSelected) compatibilitySection.style.removeProperty('display');
-                    else compatibilitySection.style.setProperty('display', 'none', 'important');
-                }
+                setCompatibilityVisible(isDescriptionSelected);
                 if (isDescriptionSelected) {
                     syncDescriptionEndDivider();
                 }
