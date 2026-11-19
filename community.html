@@ -309,10 +309,19 @@
         .main-project-description-section .main-project-description-end-divider { position: absolute; right: 0; left: 0; margin-top: 0; }
         .main-project-description-body { max-width: 72ch; margin: 16px 0 0; color: #666; font-size: 1rem; line-height: 1.65; }
         .main-project-compatibility-section { position: absolute; top: 0; right: 0; left: 0; z-index: 1; }
-        .main-project-compatibility-empty { height: 0; margin-top: 16px; }
+        .main-project-compatibility-content { height: 0; margin-top: 16px; }
+        .compatibility-edition-label { margin: 0; color: #555; font-size: 1rem; line-height: 1.2; }
+        .compatibility-version-list { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 8px; }
+        .compatibility-version-button { display: inline-flex; align-items: center; justify-content: center; box-sizing: content-box; min-height: 16px; padding: 3px; border: 1px solid #FFB380; border-radius: 999px; background: #FFDAB9; color: #E67E22; box-shadow: 0 2px 6px rgba(255, 218, 185, .45); cursor: pointer; font: inherit; font-size: 1rem; font-weight: 600; line-height: 1; user-select: none; -webkit-tap-highlight-color: transparent; transition: transform .16s ease, box-shadow .16s ease, background-color .16s ease, border-color .16s ease; }
+        .compatibility-version-button:focus-visible { outline: 2px solid #64b5f6; outline-offset: 2px; }
+        @media (hover: hover) and (pointer: fine) { .compatibility-version-button:hover { transform: translateY(-1px); background: #FFE4C4; border-color: #FF9966; box-shadow: 0 4px 10px rgba(255, 218, 185, .65); } }
+        .compatibility-version-button:active { transform: translateY(1px) scale(.98); }
         html.dark-mode .main-project-description-section-title { color: #e0e0e0; }
         html.dark-mode .main-project-description-section-divider { background: #385066; }
         html.dark-mode .main-project-description-body { color: #a0a0a0; }
+        html.dark-mode .compatibility-edition-label { color: #c5ced6; }
+        html.dark-mode .compatibility-version-button { border-color: #a66a3d; background: #3b3028; color: #ffc08a; box-shadow: 0 2px 6px rgba(0, 0, 0, .25); }
+        @media (hover: hover) and (pointer: fine) { html.dark-mode .compatibility-version-button:hover { border-color: #d18a58; background: #4a382b; } }
         @media (max-width: 600px) {
             .main-project-lower-divider { right: -30px; left: -30px; }
             .main-project-tab-panel, .main-project-description-section { right: -14px; left: -14px; }
@@ -501,7 +510,13 @@
                     <section class="main-project-compatibility-section" id="compatibility-section" aria-labelledby="compatibility-title">
                         <h2 class="main-project-description-section-title main-project-description-title" id="compatibility-title">Compatibility</h2>
                         <div class="main-project-description-section-divider" aria-hidden="true"></div>
-                        <div class="main-project-compatibility-empty" id="compatibility-empty" aria-hidden="true"></div>
+                        <div class="main-project-compatibility-content" id="compatibility-content">
+                            <p class="compatibility-edition-label">Minecraft: Java Edition</p>
+                            <div class="compatibility-version-list" aria-label="Compatible Minecraft versions">
+                                <button class="compatibility-version-button" type="button" data-version="1.21.x">1.21.x</button>
+                                <button class="compatibility-version-button" type="button" data-version="1.20.x">1.20.x</button>
+                            </div>
+                        </div>
                         <div class="main-project-description-section-divider" aria-hidden="true"></div>
                     </section>
                 </section>
@@ -561,7 +576,7 @@
             const descriptionEndDivider = descriptionPanel?.querySelector('.main-project-description-end-divider');
             const descriptionBody = descriptionPanel?.querySelector('.main-project-description-body');
             const compatibilitySection = document.getElementById('compatibility-section');
-            const compatibilityEmpty = document.getElementById('compatibility-empty');
+            const compatibilityContent = document.getElementById('compatibility-content');
             function syncDescriptionEndDivider() {
                 if (!descriptionPanel || descriptionPanel.hidden || !descriptionEndAnchor || !descriptionEndDivider) return;
                 const anchorLines = Array.from(descriptionEndAnchor.getClientRects());
@@ -569,10 +584,10 @@
                 const finalLine = anchorLines[anchorLines.length - 1];
                 const panelTop = descriptionPanel.getBoundingClientRect().top;
                 descriptionEndDivider.style.top = `${finalLine.bottom - panelTop + 8}px`;
-                if (compatibilitySection && compatibilityEmpty) {
+                if (compatibilitySection && compatibilityContent) {
                     const dividerBottom = descriptionEndDivider.getBoundingClientRect().bottom;
                     compatibilitySection.style.top = `${dividerBottom - panelTop + 24}px`;
-                    compatibilityEmpty.style.height = `${descriptionBody?.getBoundingClientRect().height || 0}px`;
+                    compatibilityContent.style.height = `${descriptionBody?.getBoundingClientRect().height || 0}px`;
                 }
             }
             if (descriptionBody && 'ResizeObserver' in window) {
