@@ -312,16 +312,35 @@
         .main-project-compatibility-content { height: 0; margin-top: 16px; }
         .compatibility-edition-label { margin: 0; color: #555; font-size: 1rem; line-height: 1.2; }
         .compatibility-version-list { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 8px; }
-        .compatibility-version-button { display: inline-flex; align-items: center; justify-content: center; box-sizing: content-box; min-height: 16px; padding: 3px; border: 1px solid #FFB380; border-radius: 999px; background: #FFDAB9; color: #E67E22; box-shadow: 0 2px 6px rgba(255, 218, 185, .45); cursor: pointer; font: inherit; font-size: 1rem; font-weight: 600; line-height: 1; user-select: none; -webkit-tap-highlight-color: transparent; transition: transform .16s ease, box-shadow .16s ease, background-color .16s ease, border-color .16s ease; }
+        .compatibility-version-button { display: inline-flex; align-items: center; justify-content: center; box-sizing: content-box; min-height: 16px; padding: 5px; border: 1px solid #FFB380; border-radius: 999px; background: #FFDAB9; color: #E67E22; box-shadow: 0 4px 12px rgba(255, 218, 185, .5); cursor: pointer; font: inherit; font-size: 1rem; font-weight: 600; line-height: 1; user-select: none; -webkit-tap-highlight-color: transparent; touch-action: manipulation; transition: transform .4s cubic-bezier(.34, 1.56, .64, 1), box-shadow .4s cubic-bezier(.34, 1.56, .64, 1), background-color .4s cubic-bezier(.34, 1.56, .64, 1), border-color .4s cubic-bezier(.34, 1.56, .64, 1); }
         .compatibility-version-button:focus-visible { outline: 2px solid #64b5f6; outline-offset: 2px; }
-        @media (hover: hover) and (pointer: fine) { .compatibility-version-button:hover { transform: translateY(-1px); background: #FFE4C4; border-color: #FF9966; box-shadow: 0 4px 10px rgba(255, 218, 185, .65); } }
-        .compatibility-version-button:active { transform: translateY(1px) scale(.98); }
+        @media (hover: hover) and (pointer: fine) {
+            .compatibility-version-button:hover { transform: scale(1.12); background: #FFE4C4; border-color: #FF9966; box-shadow: 0 8px 20px rgba(255, 218, 185, .8); }
+            .compatibility-version-button:active { transform: scale(1.08); background: #FFC38D; border-color: #FF9C5A; box-shadow: 0 6px 16px rgba(255, 218, 185, .6); }
+            .compatibility-version-button.is-highlighted:active { background: #FFCF97; border-color: #FF8142; }
+        }
+        @media (hover: none), (pointer: coarse) {
+            .compatibility-version-button:hover:not(.is-highlighted) { transform: none; box-shadow: 0 4px 12px rgba(255, 218, 185, .5); background: #FFDAB9; border-color: #FFB380; }
+            .compatibility-version-button.is-highlighted { transform: none; box-shadow: 0 8px 20px rgba(255, 218, 185, .8); background: #FFE4C4; border-color: #FF9966; }
+            .compatibility-version-button:active, .compatibility-version-button:active:hover, .compatibility-version-button.is-touch-pressed, .compatibility-version-button.is-touch-pressed:hover { transform: translateY(2px) scale(.98); box-shadow: 0 2px 6px rgba(255, 218, 185, .5); background: #FFC38D; border-color: #FF9C5A; }
+            .compatibility-version-button.is-highlighted:active, .compatibility-version-button.is-highlighted:active:hover, .compatibility-version-button.is-highlighted.is-touch-pressed, .compatibility-version-button.is-highlighted.is-touch-pressed:hover { background: #FFCF97; border-color: #FF8142; }
+        }
         html.dark-mode .main-project-description-section-title { color: #e0e0e0; }
         html.dark-mode .main-project-description-section-divider { background: #385066; }
         html.dark-mode .main-project-description-body { color: #a0a0a0; }
         html.dark-mode .compatibility-edition-label { color: #c5ced6; }
-        html.dark-mode .compatibility-version-button { border-color: #a66a3d; background: #3b3028; color: #ffc08a; box-shadow: 0 2px 6px rgba(0, 0, 0, .25); }
-        @media (hover: hover) and (pointer: fine) { html.dark-mode .compatibility-version-button:hover { border-color: #d18a58; background: #4a382b; } }
+        html.dark-mode .compatibility-version-button { border-color: #a66a3d; background: #3b3028; color: #ffc08a; box-shadow: 0 4px 12px rgba(0, 0, 0, .25); }
+        @media (hover: hover) and (pointer: fine) {
+            html.dark-mode .compatibility-version-button:hover { border-color: #d18a58; background: #4a382b; box-shadow: 0 8px 20px rgba(0, 0, 0, .35); }
+            html.dark-mode .compatibility-version-button:active { border-color: #FF9C5A; background: #FFC38D; color: #E67E22; box-shadow: 0 6px 16px rgba(255, 218, 185, .6); }
+            html.dark-mode .compatibility-version-button.is-highlighted:active { border-color: #FF8142; background: #FFCF97; }
+        }
+        @media (hover: none), (pointer: coarse) {
+            html.dark-mode .compatibility-version-button:hover:not(.is-highlighted) { border-color: #a66a3d; background: #3b3028; box-shadow: 0 4px 12px rgba(0, 0, 0, .25); }
+            html.dark-mode .compatibility-version-button.is-highlighted { border-color: #d18a58; background: #4a382b; box-shadow: 0 8px 20px rgba(0, 0, 0, .35); }
+            html.dark-mode .compatibility-version-button:active, html.dark-mode .compatibility-version-button.is-touch-pressed { border-color: #FF9C5A; background: #FFC38D; color: #E67E22; box-shadow: 0 2px 6px rgba(255, 218, 185, .5); }
+            html.dark-mode .compatibility-version-button.is-highlighted:active, html.dark-mode .compatibility-version-button.is-highlighted.is-touch-pressed { border-color: #FF8142; background: #FFCF97; }
+        }
         @media (max-width: 600px) {
             .main-project-lower-divider { right: -30px; left: -30px; }
             .main-project-tab-panel, .main-project-description-section { right: -14px; left: -14px; }
@@ -577,6 +596,30 @@
             const descriptionBody = descriptionPanel?.querySelector('.main-project-description-body');
             const compatibilitySection = document.getElementById('compatibility-section');
             const compatibilityContent = document.getElementById('compatibility-content');
+            const compatibilityVersionButtons = Array.from(document.querySelectorAll('.compatibility-version-button'));
+            const compatibilityTouchMedia = window.matchMedia('(hover: none), (pointer: coarse)');
+            let compatibilityPressedPointer = null;
+            compatibilityVersionButtons.forEach(button => {
+                button.addEventListener('pointerdown', event => {
+                    if (!compatibilityTouchMedia.matches || event.pointerType === 'mouse') return;
+                    compatibilityPressedPointer = event.pointerId;
+                    button.classList.add('is-touch-pressed');
+                });
+                button.addEventListener('click', () => button.classList.add('is-highlighted'));
+            });
+            ['pointerup', 'pointercancel'].forEach(type => {
+                document.addEventListener(type, event => {
+                    if (event.pointerId !== compatibilityPressedPointer) return;
+                    compatibilityVersionButtons.forEach(button => button.classList.remove('is-touch-pressed'));
+                    compatibilityPressedPointer = null;
+                });
+            });
+            document.addEventListener('pointerdown', event => {
+                const targetButton = event.target.closest('.compatibility-version-button');
+                compatibilityVersionButtons.forEach(button => {
+                    if (button !== targetButton) button.classList.remove('is-highlighted');
+                });
+            }, { passive: true });
             function syncDescriptionEndDivider() {
                 if (!descriptionPanel || descriptionPanel.hidden || !descriptionEndAnchor || !descriptionEndDivider) return;
                 const anchorLines = Array.from(descriptionEndAnchor.getClientRects());
