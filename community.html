@@ -653,6 +653,17 @@
             window.addEventListener('load', syncCompatibilityLoaderButtonWidths, { once: true });
             window.addEventListener('resize', syncCompatibilityLoaderButtonWidths, { passive: true });
             if (document.fonts?.ready) document.fonts.ready.then(syncCompatibilityLoaderButtonWidths);
+            const mainContentForLoaderWidth = document.getElementById('mainContent');
+            if (mainContentForLoaderWidth && 'MutationObserver' in window) {
+                const loaderWidthUnlockObserver = new MutationObserver(() => {
+                    if (!mainContentForLoaderWidth.hasAttribute('inert')) {
+                        window.requestAnimationFrame(syncCompatibilityLoaderButtonWidths);
+                        loaderWidthUnlockObserver.disconnect();
+                    }
+                });
+                loaderWidthUnlockObserver.observe(mainContentForLoaderWidth, { attributes: true, attributeFilter: ['inert'] });
+                if (!mainContentForLoaderWidth.hasAttribute('inert')) window.requestAnimationFrame(syncCompatibilityLoaderButtonWidths);
+            }
             const compatibilityTouchMedia = window.matchMedia('(hover: none), (pointer: coarse)');
             let compatibilityPressedPointer = null;
             compatibilityVersionButtons.forEach(button => {
