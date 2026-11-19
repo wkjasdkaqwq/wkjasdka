@@ -313,6 +313,7 @@
         .compatibility-edition-label { margin: 0; color: #555; font-size: 1rem; line-height: 1.2; }
         .compatibility-version-list { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 8px; }
         .compatibility-version-button { display: inline-flex; align-items: center; justify-content: center; box-sizing: content-box; min-height: 16px; padding: 7px 8px; border: 1px solid #FFB380; border-radius: 999px; background: #FFDAB9; color: #E67E22; box-shadow: 0 4px 12px rgba(255, 218, 185, .5); cursor: pointer; font: inherit; font-size: 1rem; font-weight: 600; line-height: 1; user-select: none; -webkit-tap-highlight-color: transparent; touch-action: manipulation; transition: transform .4s cubic-bezier(.34, 1.56, .64, 1), box-shadow .4s cubic-bezier(.34, 1.56, .64, 1), background-color .4s cubic-bezier(.34, 1.56, .64, 1), border-color .4s cubic-bezier(.34, 1.56, .64, 1); }
+        .compatibility-version-button, .compatibility-version-button * { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
         .compatibility-version-button:focus-visible { outline: 2px solid #64b5f6; outline-offset: 2px; }
         @media (hover: hover) and (pointer: fine) {
             .compatibility-version-button:hover { transform: scale(1.12); background: #FFE4C4; border-color: #FF9966; box-shadow: 0 8px 20px rgba(255, 218, 185, .8); }
