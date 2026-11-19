@@ -267,6 +267,16 @@
 
         .main-project-module { position: relative; display: flex; align-items: flex-start; margin: 10px 10px 34px; padding-bottom: 0; }
         .main-project-module::after { content: ""; position: absolute; top: calc(1.32rem * 1.2 + .3rem + 4.2rem - 8px + 24px); right: -4px; left: -4px; border-top: 2px solid #d8d8d8; }
+        .main-project-switcher { position: absolute; top: calc(1.32rem * 1.2 + .3rem + 4.2rem - 8px + 24px + 12px); right: -4px; left: -4px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: stretch; box-sizing: border-box; min-height: 2.1rem; padding: .2rem; border: 1px solid #d8d8d8; border-radius: 1.2rem; background: #e8e8e8; isolation: isolate; overflow: hidden; --switcher-index: 0; }
+        .main-project-switcher::before { content: ""; position: absolute; top: .2rem; bottom: .2rem; left: .2rem; z-index: 0; width: calc((100% - .4rem) / 3); border-radius: 1rem; background: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, .12); transform: translateX(calc(var(--switcher-index) * 100%)); transition: transform .24s cubic-bezier(.2, .8, .2, 1); }
+        .main-project-switcher-button { position: relative; z-index: 1; min-width: 0; padding: .25rem .5rem; border: 0; border-radius: 1rem; outline: none; background: transparent; color: #666; cursor: pointer; font: inherit; font-size: .78rem; line-height: 1.2; text-align: center; transition: color .2s ease, transform .15s ease; }
+        .main-project-switcher-button[aria-selected="true"] { color: #333; }
+        .main-project-switcher-button:active { transform: translateY(1px); }
+        .main-project-switcher-button:focus-visible { outline: 2px solid #64b5f6; outline-offset: -2px; }
+        html.dark-mode .main-project-switcher { border-color: #385066; background: #1a2d3d; }
+        html.dark-mode .main-project-switcher::before { background: #243545; box-shadow: 0 1px 3px rgba(0, 0, 0, .35); }
+        html.dark-mode .main-project-switcher-button { color: #a0aeb8; }
+        html.dark-mode .main-project-switcher-button[aria-selected="true"] { color: #fff; }
         .main-image-module { display: block; flex: 0 0 64px; width: 64px; height: 64px; margin: 0; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); object-fit: contain; transform: scale(1.5); transform-origin: center; cursor: pointer; transition: transform .3s ease, box-shadow .3s ease, background-color .2s ease; }
         .main-image-module.is-highlighted { box-shadow: 0 8px 20px rgba(0,0,0,.18); }
         @media (hover: hover) and (pointer: fine) {
@@ -430,6 +440,11 @@
                     <p class="main-project-description">Semi-rounded Corner is a small visual study focused on balanced spacing, soft edges, and a clear structure. More details, project notes, and future updates will be added here as the design continues to develop. Additional notes will follow. The next iteration will document the final direction.</p>
                     <button class="main-project-description-toggle" type="button" aria-label="Show full project description" aria-expanded="false">⌄</button>
                 </div>
+                <div class="main-project-switcher" role="tablist" aria-label="Project sections">
+                    <button class="main-project-switcher-button" type="button" role="tab" aria-selected="true">Overview</button>
+                    <button class="main-project-switcher-button" type="button" role="tab" aria-selected="false">Notes</button>
+                    <button class="main-project-switcher-button" type="button" role="tab" aria-selected="false">Updates</button>
+                </div>
             </div>
         </div>
     </main>
@@ -449,6 +464,29 @@
                 menuPanel.classList.remove('open');
                 menuButton.setAttribute('aria-expanded', 'false');
             };
+            const projectSwitcher = document.querySelector('.main-project-switcher');
+            const projectSwitcherButtons = projectSwitcher
+                ? Array.from(projectSwitcher.querySelectorAll('.main-project-switcher-button'))
+                : [];
+            function selectProjectSection(index) {
+                if (!projectSwitcherButtons.length) return;
+                const selectedIndex = (index + projectSwitcherButtons.length) % projectSwitcherButtons.length;
+                projectSwitcher.style.setProperty('--switcher-index', String(selectedIndex));
+                projectSwitcherButtons.forEach((button, buttonIndex) => {
+                    button.setAttribute('aria-selected', String(buttonIndex === selectedIndex));
+                });
+            }
+            projectSwitcherButtons.forEach((button, index) => {
+                button.addEventListener('click', () => selectProjectSection(index));
+                button.addEventListener('keydown', event => {
+                    if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+                    event.preventDefault();
+                    const direction = event.key === 'ArrowRight' ? 1 : -1;
+                    const nextIndex = (index + direction + projectSwitcherButtons.length) % projectSwitcherButtons.length;
+                    selectProjectSection(nextIndex);
+                    projectSwitcherButtons[nextIndex].focus();
+                });
+            });
             const descriptionAnimationTimers = new WeakMap();
             function animateDescriptionHeight(description, from, to, onComplete) {
                 const previousTimer = descriptionAnimationTimers.get(description);
