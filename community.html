@@ -710,13 +710,7 @@
                     const panel = document.getElementById(button.getAttribute('aria-controls'));
                     if (panel) {
                         panel.hidden = !isSelected;
-                        if (panel.id === 'panel-description') {
-                            if (window.matchMedia('(max-width: 600px)').matches) {
-                                panel.style.display = isSelected ? '' : 'none';
-                            } else {
-                                panel.style.removeProperty('display');
-                            }
-                        }
+                        panel.style.display = isSelected ? '' : 'none';
                     }
                 });
                 const descriptionIndex = projectSwitcherButtons.findIndex(button => button.getAttribute('aria-controls') === 'panel-description');
