@@ -304,9 +304,12 @@
         html.dark-mode .main-project-tab-empty { color: #a0aeb8; }
         .main-project-description-section { position: absolute; top: calc(1.32rem * 1.2 + .3rem + 4.2rem - 8px + 24px + 12px + 2.55rem + 32px + 16px); right: -34px; left: -34px; z-index: 1; }
         .main-project-description-section-title { margin: 0; color: #333; font-size: 1.5rem; font-weight: 700; line-height: 1.2; }
+        .main-project-description-title { font-size: 1.65rem; font-weight: 735; }
         .main-project-description-section-divider { height: 1px; margin-top: 8px; margin-right: -2px; margin-left: -2px; background: #c2c2c2; }
+        .main-project-description-body { max-width: 72ch; margin: 16px 0 0; color: #666; font-size: 1rem; line-height: 1.65; }
         html.dark-mode .main-project-description-section-title { color: #e0e0e0; }
         html.dark-mode .main-project-description-section-divider { background: #385066; }
+        html.dark-mode .main-project-description-body { color: #a0a0a0; }
         @media (max-width: 600px) {
             .main-project-lower-divider { right: -30px; left: -30px; }
             .main-project-tab-panel, .main-project-description-section { right: -14px; left: -14px; }
@@ -488,8 +491,9 @@
                 </div>
                 <div class="main-project-lower-divider" aria-hidden="true"></div>
                 <section class="main-project-tab-panel main-project-description-section" id="panel-description" role="tabpanel" aria-labelledby="tab-description">
-                    <h2 class="main-project-description-section-title" id="description-section-title">Description</h2>
+                    <h2 class="main-project-description-section-title main-project-description-title" id="description-section-title">Description</h2>
                     <div class="main-project-description-section-divider" aria-hidden="true"></div>
+                    <p class="main-project-description-body">Semi-rounded Corner is a small visual study focused on balanced spacing, soft edges, and a clear structure. More details, project notes, and future updates will be added here as the design continues to develop. Additional notes will follow. The next iteration will document the final direction.</p>
                 </section>
                 <section class="main-project-tab-panel" id="panel-update" role="tabpanel" aria-labelledby="tab-update" hidden>
                     <h2 class="main-project-description-section-title">Update</h2>
