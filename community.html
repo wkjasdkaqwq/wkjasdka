@@ -306,6 +306,7 @@
         .main-project-description-section-title { margin: 0; color: #333; font-size: 1.5rem; font-weight: 700; line-height: 1.2; }
         .main-project-description-title { font-size: 1.65rem; font-weight: 735; }
         .main-project-description-section-divider { height: 1px; margin-top: 8px; margin-right: -2px; margin-left: -2px; background: #c2c2c2; }
+        .main-project-description-section .main-project-description-end-divider { position: absolute; right: 0; left: 0; margin-top: 0; }
         .main-project-description-body { max-width: 72ch; margin: 16px 0 0; color: #666; font-size: 1rem; line-height: 1.65; }
         html.dark-mode .main-project-description-section-title { color: #e0e0e0; }
         html.dark-mode .main-project-description-section-divider { background: #385066; }
@@ -493,8 +494,8 @@
                 <section class="main-project-tab-panel main-project-description-section" id="panel-description" role="tabpanel" aria-labelledby="tab-description">
                     <h2 class="main-project-description-section-title main-project-description-title" id="description-section-title">Description</h2>
                     <div class="main-project-description-section-divider" aria-hidden="true"></div>
-                    <p class="main-project-description-body">Semi-rounded Corner is a small visual study focused on balanced spacing, soft edges, and a clear structure. More details, project notes, and future updates will be added here as the design continues to develop. Additional notes will follow. The next iteration will document the final direction.</p>
-                    <div class="main-project-description-section-divider" aria-hidden="true"></div>
+                    <p class="main-project-description-body">Semi-rounded Corner is a small visual study focused on balanced spacing, soft edges, and a clear structure. More details, project notes, and future updates will be added here as the design continues to develop. Additional notes will follow. <span id="description-end-anchor">The next iteration will document the final direction.</span></p>
+                    <div class="main-project-description-section-divider main-project-description-end-divider" aria-hidden="true"></div>
                 </section>
                 <section class="main-project-tab-panel" id="panel-update" role="tabpanel" aria-labelledby="tab-update" hidden>
                     <h2 class="main-project-description-section-title">Update</h2>
@@ -547,6 +548,22 @@
             const projectSwitcherButtons = projectSwitcher
                 ? Array.from(projectSwitcher.querySelectorAll('.main-project-switcher-button'))
                 : [];
+            const descriptionPanel = document.getElementById('panel-description');
+            const descriptionEndAnchor = document.getElementById('description-end-anchor');
+            const descriptionEndDivider = descriptionPanel?.querySelector('.main-project-description-end-divider');
+            const descriptionBody = descriptionPanel?.querySelector('.main-project-description-body');
+            function syncDescriptionEndDivider() {
+                if (!descriptionPanel || descriptionPanel.hidden || !descriptionEndAnchor || !descriptionEndDivider) return;
+                const anchorLines = Array.from(descriptionEndAnchor.getClientRects());
+                if (!anchorLines.length) return;
+                const finalLine = anchorLines[anchorLines.length - 1];
+                const panelTop = descriptionPanel.getBoundingClientRect().top;
+                descriptionEndDivider.style.top = `${finalLine.bottom - panelTop + 8}px`;
+            }
+            if (descriptionBody && 'ResizeObserver' in window) {
+                new ResizeObserver(syncDescriptionEndDivider).observe(descriptionBody);
+            }
+            window.addEventListener('resize', syncDescriptionEndDivider, { passive: true });
             let projectSwitcherSliderFrame = null;
             function sizeProjectSwitcherButtons() {
                 if (!projectSwitcherButtons.length) return;
@@ -594,6 +611,9 @@
                     const panel = document.getElementById(button.getAttribute('aria-controls'));
                     if (panel) panel.hidden = !isSelected;
                 });
+                if (selectedIndex === projectSwitcherButtons.findIndex(button => button.getAttribute('aria-controls') === 'panel-description')) {
+                    syncDescriptionEndDivider();
+                }
                 projectSwitcherButtons[selectedIndex].scrollIntoView({ behavior: 'auto', block: 'nearest', inline: 'nearest' });
             }
             sizeProjectSwitcherButtons();
