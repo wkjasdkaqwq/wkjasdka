@@ -703,6 +703,8 @@
                 } else {
                     projectSwitcher.style.setProperty('--switcher-index', String(selectedIndex));
                 }
+                const descriptionIndex = projectSwitcherButtons.findIndex(button => button.getAttribute('aria-controls') === 'panel-description');
+                const isDescriptionSelected = selectedIndex === descriptionIndex;
                 projectSwitcherButtons.forEach((button, buttonIndex) => {
                     const isSelected = buttonIndex === selectedIndex;
                     button.setAttribute('aria-selected', String(isSelected));
@@ -713,9 +715,11 @@
                         panel.style.display = isSelected ? '' : 'none';
                     }
                 });
-                const descriptionIndex = projectSwitcherButtons.findIndex(button => button.getAttribute('aria-controls') === 'panel-description');
-                const isDescriptionSelected = selectedIndex === descriptionIndex;
-                if (compatibilitySection) compatibilitySection.hidden = !isDescriptionSelected;
+                if (compatibilitySection) {
+                    compatibilitySection.hidden = !isDescriptionSelected;
+                    if (isDescriptionSelected) compatibilitySection.style.removeProperty('display');
+                    else compatibilitySection.style.setProperty('display', 'none', 'important');
+                }
                 if (isDescriptionSelected) {
                     syncDescriptionEndDivider();
                 }
