@@ -272,6 +272,7 @@
         .main-project-switcher-track { position: relative; display: flex; align-items: center; gap: .2rem; box-sizing: border-box; width: max-content; height: 100%; min-width: 100%; padding: .2rem; }
         .main-project-switcher-track::before { content: ""; position: absolute; top: .2rem; bottom: .2rem; left: .2rem; z-index: 0; width: var(--switcher-button-width); border-radius: 1rem; background: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, .12); transform: translateX(calc(var(--switcher-index) * (var(--switcher-button-width) + .2rem))); transition: transform .24s cubic-bezier(.2, .8, .2, 1); }
         .main-project-switcher-button { position: relative; z-index: 1; display: flex; align-items: center; justify-content: center; box-sizing: border-box; height: 1.9rem; flex: 0 0 var(--switcher-button-width); width: var(--switcher-button-width); min-width: var(--switcher-button-width); padding: .35rem .65rem; border: 0; border-radius: 1rem; outline: none; background: transparent; color: #666; cursor: pointer; font: inherit; font-size: .842rem; font-weight: 416; line-height: 1.2; text-align: center; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; transition: color .2s ease, transform .15s ease; }
+        .main-project-switcher-button:not(:last-child)::after { content: ""; position: absolute; top: 50%; right: -.1rem; z-index: 2; width: .2rem; height: .2rem; border-radius: 50%; background: #999; pointer-events: none; transform: translate(50%, -50%); }
         .main-project-switcher-button[aria-selected="true"] { color: #333; }
         .main-project-switcher-button:active { transform: translateY(1px); }
         .main-project-switcher-button:focus-visible { outline: 2px solid #64b5f6; outline-offset: -2px; }
@@ -279,6 +280,7 @@
         html.dark-mode .main-project-switcher-track::before { background: #243545; box-shadow: 0 1px 3px rgba(0, 0, 0, .35); }
         html.dark-mode .main-project-switcher-button { color: #a0aeb8; }
         html.dark-mode .main-project-switcher-button[aria-selected="true"] { color: #fff; }
+        html.dark-mode .main-project-switcher-button:not(:last-child)::after { background: #7890a0; }
         .main-image-module { display: block; flex: 0 0 64px; width: 64px; height: 64px; margin: 0; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); object-fit: contain; transform: scale(1.5); transform-origin: center; cursor: pointer; transition: transform .3s ease, box-shadow .3s ease, background-color .2s ease; }
         .main-image-module.is-highlighted { box-shadow: 0 8px 20px rgba(0,0,0,.18); }
         @media (hover: hover) and (pointer: fine) {
