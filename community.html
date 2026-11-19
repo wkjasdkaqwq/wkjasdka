@@ -613,10 +613,14 @@
             let compatibilityPressedPointer = null;
             compatibilityVersionButtons.forEach(button => {
                 button.addEventListener('pointerdown', event => {
-                    if (!compatibilityTouchMedia.matches || event.pointerType === 'mouse') return;
+                    if (event.pointerType === 'mouse') return;
                     compatibilityPressedPointer = event.pointerId;
                     button.classList.add('is-touch-pressed');
-                });
+                }, { capture: true });
+                button.addEventListener('touchstart', () => {
+                    compatibilityPressedPointer = null;
+                    button.classList.add('is-touch-pressed');
+                }, { capture: true, passive: true });
                 button.addEventListener('click', () => button.classList.add('is-highlighted'));
             });
             ['pointerup', 'pointercancel'].forEach(type => {
@@ -625,6 +629,11 @@
                     compatibilityVersionButtons.forEach(button => button.classList.remove('is-touch-pressed'));
                     compatibilityPressedPointer = null;
                 });
+            });
+            ['touchend', 'touchcancel'].forEach(type => {
+                document.addEventListener(type, () => {
+                    compatibilityVersionButtons.forEach(button => button.classList.remove('is-touch-pressed'));
+                }, { capture: true, passive: true });
             });
             document.addEventListener('pointerdown', event => {
                 const targetButton = event.target.closest('.compatibility-version-button');
