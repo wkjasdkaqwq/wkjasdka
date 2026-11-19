@@ -319,7 +319,6 @@
         .compatibility-loader-button { gap: 6px; }
         .compatibility-loader-icon { display: block; width: 1em; height: 1em; object-fit: contain; }
         .compatibility-version-button { display: inline-flex; align-items: center; justify-content: center; box-sizing: content-box; min-height: 16px; padding: 7px 8px; border: 1px solid #FFB380; border-radius: 999px; background: #FFDAB9; color: #E67E22; box-shadow: 0 4px 12px rgba(255, 218, 185, .5); cursor: pointer; font: inherit; font-size: 1rem; font-weight: 600; line-height: 1; user-select: none; -webkit-tap-highlight-color: transparent; touch-action: manipulation; transition: transform .4s cubic-bezier(.34, 1.56, .64, 1), box-shadow .4s cubic-bezier(.34, 1.56, .64, 1), background-color .4s cubic-bezier(.34, 1.56, .64, 1), border-color .4s cubic-bezier(.34, 1.56, .64, 1); }
-        .compatibility-version-button.compatibility-loader-button { box-sizing: border-box; }
         .compatibility-version-button, .compatibility-version-button * { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
         .compatibility-version-button:focus-visible { outline: 2px solid #64b5f6; outline-offset: 2px; }
         @media (hover: hover) and (pointer: fine) {
@@ -564,12 +563,30 @@
                                     <img class="compatibility-loader-icon" src="index/fabric.png" alt="" aria-hidden="true">
                                     <span>Fabric</span>
                                 </button>
-                                <button class="compatibility-version-button compatibility-loader-button" type="button" data-loader="forge">Forge</button>
-                                <button class="compatibility-version-button compatibility-loader-button" type="button" data-loader="neoforge">NeoForge</button>
-                                <button class="compatibility-version-button compatibility-loader-button" type="button" data-loader="quilt">Quilt</button>
-                                <button class="compatibility-version-button compatibility-loader-button" type="button" data-loader="rift">Rift</button>
-                                <button class="compatibility-version-button compatibility-loader-button" type="button" data-loader="liteloader">LiteLoader</button>
-                                <button class="compatibility-version-button compatibility-loader-button" type="button" data-loader="legacy-fabric">Legacy Fabric</button>
+                                <button class="compatibility-version-button compatibility-loader-button" type="button" data-loader="forge">
+                                    <img class="compatibility-loader-icon" src="index/loader-icons/forge.png" alt="" aria-hidden="true">
+                                    <span>Forge</span>
+                                </button>
+                                <button class="compatibility-version-button compatibility-loader-button" type="button" data-loader="legacy-fabric">
+                                    <img class="compatibility-loader-icon" src="index/loader-icons/legacy-fabric.png" alt="" aria-hidden="true">
+                                    <span>Legacy Fabric</span>
+                                </button>
+                                <button class="compatibility-version-button compatibility-loader-button" type="button" data-loader="liteloader">
+                                    <img class="compatibility-loader-icon" src="index/loader-icons/liteloader.png" alt="" aria-hidden="true">
+                                    <span>LiteLoader</span>
+                                </button>
+                                <button class="compatibility-version-button compatibility-loader-button" type="button" data-loader="neoforge">
+                                    <img class="compatibility-loader-icon" src="index/loader-icons/neoforge.png" alt="" aria-hidden="true">
+                                    <span>NeoForge</span>
+                                </button>
+                                <button class="compatibility-version-button compatibility-loader-button" type="button" data-loader="quilt">
+                                    <img class="compatibility-loader-icon" src="index/loader-icons/quilt.svg" alt="" aria-hidden="true">
+                                    <span>Quilt</span>
+                                </button>
+                                <button class="compatibility-version-button compatibility-loader-button" type="button" data-loader="rift">
+                                    <img class="compatibility-loader-icon" src="index/loader-icons/rift.png" alt="" aria-hidden="true">
+                                    <span>Rift</span>
+                                </button>
                             </div>
                             <p class="compatibility-edition-label compatibility-loader-label">Environments required</p>
                             <div class="compatibility-version-list" aria-label="Required environments">
@@ -639,31 +656,6 @@
             const compatibilityPlaceholder = document.createComment('compatibility-section-placeholder');
             const compatibilityContent = document.getElementById('compatibility-content');
             const compatibilityVersionButtons = Array.from(document.querySelectorAll('.compatibility-version-button'));
-            const compatibilityLoaderButtons = Array.from(document.querySelectorAll('.compatibility-loader-button'));
-            function syncCompatibilityLoaderButtonWidths() {
-                if (!compatibilitySection?.isConnected || compatibilitySection.hidden || descriptionPanel?.hidden || compatibilityLoaderButtons.some(button => !button.isConnected)) return;
-                compatibilityLoaderButtons.forEach(button => button.style.removeProperty('width'));
-                const measuredWidths = compatibilityLoaderButtons.map(button => button.getBoundingClientRect().width);
-                const widestButton = Math.ceil(Math.max(...measuredWidths));
-                if (!Number.isFinite(widestButton) || widestButton <= 0) return;
-                compatibilityLoaderButtons.forEach(button => button.style.width = `${widestButton}px`);
-            }
-            syncCompatibilityLoaderButtonWidths();
-            window.requestAnimationFrame(syncCompatibilityLoaderButtonWidths);
-            window.addEventListener('load', syncCompatibilityLoaderButtonWidths, { once: true });
-            window.addEventListener('resize', syncCompatibilityLoaderButtonWidths, { passive: true });
-            if (document.fonts?.ready) document.fonts.ready.then(syncCompatibilityLoaderButtonWidths);
-            const mainContentForLoaderWidth = document.getElementById('mainContent');
-            if (mainContentForLoaderWidth && 'MutationObserver' in window) {
-                const loaderWidthUnlockObserver = new MutationObserver(() => {
-                    if (!mainContentForLoaderWidth.hasAttribute('inert')) {
-                        window.requestAnimationFrame(syncCompatibilityLoaderButtonWidths);
-                        loaderWidthUnlockObserver.disconnect();
-                    }
-                });
-                loaderWidthUnlockObserver.observe(mainContentForLoaderWidth, { attributes: true, attributeFilter: ['inert'] });
-                if (!mainContentForLoaderWidth.hasAttribute('inert')) window.requestAnimationFrame(syncCompatibilityLoaderButtonWidths);
-            }
             const compatibilityTouchMedia = window.matchMedia('(hover: none), (pointer: coarse)');
             let compatibilityPressedPointer = null;
             compatibilityVersionButtons.forEach(button => {
@@ -718,7 +710,6 @@
                     }
                     compatibilitySection.hidden = false;
                     compatibilitySection.style.removeProperty('display');
-                    syncCompatibilityLoaderButtonWidths();
                     return;
                 }
                 compatibilitySection.hidden = true;
