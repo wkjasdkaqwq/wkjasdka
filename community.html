@@ -517,7 +517,7 @@
                 projectSwitcherButtons.forEach((button, buttonIndex) => {
                     button.setAttribute('aria-selected', String(buttonIndex === selectedIndex));
                 });
-                projectSwitcherButtons[selectedIndex].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+                projectSwitcherButtons[selectedIndex].scrollIntoView({ behavior: 'auto', block: 'nearest', inline: 'nearest' });
             }
             sizeProjectSwitcherButtons();
             projectSwitcherButtons.forEach((button, index) => {
