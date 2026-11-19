@@ -316,9 +316,10 @@
         .compatibility-edition-label { margin: 0; color: #555; font-size: 1rem; line-height: 1.2; }
         .compatibility-version-list { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 8px; }
         .compatibility-loader-label { margin-top: 16px; }
-        .compatibility-loader-button { box-sizing: border-box; gap: 6px; }
+        .compatibility-loader-button { gap: 6px; }
         .compatibility-loader-icon { display: block; width: 1em; height: 1em; object-fit: contain; }
         .compatibility-version-button { display: inline-flex; align-items: center; justify-content: center; box-sizing: content-box; min-height: 16px; padding: 7px 8px; border: 1px solid #FFB380; border-radius: 999px; background: #FFDAB9; color: #E67E22; box-shadow: 0 4px 12px rgba(255, 218, 185, .5); cursor: pointer; font: inherit; font-size: 1rem; font-weight: 600; line-height: 1; user-select: none; -webkit-tap-highlight-color: transparent; touch-action: manipulation; transition: transform .4s cubic-bezier(.34, 1.56, .64, 1), box-shadow .4s cubic-bezier(.34, 1.56, .64, 1), background-color .4s cubic-bezier(.34, 1.56, .64, 1), border-color .4s cubic-bezier(.34, 1.56, .64, 1); }
+        .compatibility-version-button.compatibility-loader-button { box-sizing: border-box; }
         .compatibility-version-button, .compatibility-version-button * { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
         .compatibility-version-button:focus-visible { outline: 2px solid #64b5f6; outline-offset: 2px; }
         @media (hover: hover) and (pointer: fine) {
@@ -640,12 +641,16 @@
             const compatibilityVersionButtons = Array.from(document.querySelectorAll('.compatibility-version-button'));
             const compatibilityLoaderButtons = Array.from(document.querySelectorAll('.compatibility-loader-button'));
             function syncCompatibilityLoaderButtonWidths() {
-                if (!compatibilityLoaderButtons.length || compatibilityLoaderButtons.some(button => !button.isConnected)) return;
+                if (!compatibilitySection?.isConnected || compatibilitySection.hidden || descriptionPanel?.hidden || compatibilityLoaderButtons.some(button => !button.isConnected)) return;
                 compatibilityLoaderButtons.forEach(button => button.style.removeProperty('width'));
-                const widestButton = Math.ceil(Math.max(...compatibilityLoaderButtons.map(button => button.getBoundingClientRect().width)));
+                const measuredWidths = compatibilityLoaderButtons.map(button => button.getBoundingClientRect().width);
+                const widestButton = Math.ceil(Math.max(...measuredWidths));
+                if (!Number.isFinite(widestButton) || widestButton <= 0) return;
                 compatibilityLoaderButtons.forEach(button => button.style.width = `${widestButton}px`);
             }
             syncCompatibilityLoaderButtonWidths();
+            window.requestAnimationFrame(syncCompatibilityLoaderButtonWidths);
+            window.addEventListener('load', syncCompatibilityLoaderButtonWidths, { once: true });
             window.addEventListener('resize', syncCompatibilityLoaderButtonWidths, { passive: true });
             if (document.fonts?.ready) document.fonts.ready.then(syncCompatibilityLoaderButtonWidths);
             const compatibilityTouchMedia = window.matchMedia('(hover: none), (pointer: coarse)');
