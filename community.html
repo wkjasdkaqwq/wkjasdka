@@ -39,6 +39,8 @@
     })();
   </script>
     <title data-i18n="documentTitle">Liuyanlin Community — Semi-rounded Corners</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/fontawesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/solid.min.css">
     <style>
 ::selection {
   background: #E67E22;
@@ -313,11 +315,64 @@
         .main-project-description-body { max-width: 72ch; margin: 14px 0 0; color: #666; font-size: 1rem; line-height: 1.65; }
         .main-project-compatibility-section { position: absolute; top: 0; right: 0; left: 0; z-index: 1; }
         .main-project-compatibility-content { height: 0; margin-top: 16px; }
+        .main-project-tag-section { position: absolute; top: 0; right: 0; left: 0; }
+        .main-project-tag-content { margin-top: 16px; }
+        .main-project-developer-section { position: absolute; top: 0; right: 0; left: 0; }
+        .main-project-developer-content { margin-top: 16px; }
+        .main-project-link-section { position: absolute; top: 0; right: 0; left: 0; }
+        .main-project-detail-section { position: absolute; top: 0; right: 0; left: 0; }
+        .detail-license-row { display: flex; align-items: center; gap: 4px; margin-top: 16px; }
+        .detail-license-scale { display: grid; place-items: center; flex: 0 0 50px; width: 50px; height: 50px; color: #e67e22; font-size: 1.425rem; line-height: 1; }
+        .detail-license-scale .fa-scale-balanced { -webkit-text-stroke: .85px #c56b1d; }
+        .detail-license-text { margin: 0 0 0 -7px; color: #666; font-size: 1rem; line-height: 1.65; }
+        .detail-release-row, .detail-last-updated-row { display: flex; align-items: center; gap: 4px; margin-top: -7px; }
+        .detail-metadata-icon-slot { display: grid; place-items: center; flex: 0 0 50px; width: 50px; height: 50px; color: #e67e22; }
+        .detail-metadata-icon { position: relative; isolation: isolate; display: block; width: 1.63875rem; height: 1.63875rem; }
+        .detail-metadata-icon::before, .detail-metadata-icon::after { content: ""; position: absolute; inset: 0; background-color: currentColor; -webkit-mask-position: center; mask-position: center; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-size: contain; mask-size: contain; }
+        .detail-release-icon::before, .detail-release-icon::after { -webkit-mask-image: url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.2/icons/file-earmark-arrow-up.svg"); mask-image: url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.2/icons/file-earmark-arrow-up.svg"); }
+        .detail-last-updated-icon::before, .detail-last-updated-icon::after { -webkit-mask-image: url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.2/icons/pencil-square.svg"); mask-image: url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.2/icons/pencil-square.svg"); }
+        .detail-last-updated-icon { transform: scale(.9409); }
+        .detail-metadata-icon::before { z-index: 0; background-color: #c56b1d; transform: scale(1.07826); }
+        .detail-metadata-icon::after { z-index: 1; }
+        .detail-release-text, .detail-last-updated-text { margin: 0 0 0 -7px; color: #666; font-size: 1rem; line-height: 1.65; }
+        .detail-license-trigger { padding: 0; border: 0; background: transparent; color: #e67e22; cursor: pointer; font: inherit; font-weight: 700; text-decoration: none; text-underline-offset: 2px; }
+        .detail-license-trigger:focus-visible { outline: 2px solid #64b5f6; outline-offset: 2px; }
+        @media (hover: hover) and (pointer: fine) {
+            .detail-license-trigger:hover { text-decoration: underline; }
+        }
+        @media (hover: none), (pointer: coarse) {
+            .detail-license-trigger:active { text-decoration: underline; }
+        }
+        .mit-license-dialog { box-sizing: border-box; width: min(320px, calc(100vw - 40px)); max-width: calc(100vw - 40px); padding: 24px; border: 1px solid #c2c2c2; border-radius: 16px; background: #fff; color: #333; box-shadow: 0 18px 48px rgba(0, 0, 0, .22); }
+        .mit-license-dialog::backdrop { background: rgba(0, 0, 0, .48); }
+        .mit-license-dialog p { margin: 0; font-size: 1rem; line-height: 1.65; }
+        @keyframes mitLicenseDialogIn { from { opacity: 0; transform: translateY(10px) scale(.94); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        @keyframes mitLicenseDialogOut { from { opacity: 1; transform: translateY(0) scale(1); } to { opacity: 0; transform: translateY(8px) scale(.94); } }
+        @keyframes mitLicenseBackdropIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes mitLicenseBackdropOut { from { opacity: 1; } to { opacity: 0; } }
+        .mit-license-dialog[open] { animation: mitLicenseDialogIn 180ms cubic-bezier(.2, .75, .25, 1) both; }
+        .mit-license-dialog[open]::backdrop { animation: mitLicenseBackdropIn 180ms ease-out both; }
+        .mit-license-dialog.is-closing { animation: mitLicenseDialogOut 180ms ease-in both; }
+        .mit-license-dialog.is-closing::backdrop { animation: mitLicenseBackdropOut 180ms ease-in both; }
+        @media (prefers-reduced-motion: reduce) {
+            .mit-license-dialog[open], .mit-license-dialog[open]::backdrop, .mit-license-dialog.is-closing, .mit-license-dialog.is-closing::backdrop { animation-duration: .01ms; }
+        }
+        .main-project-developer-content .compatibility-version-list { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; margin-top: 8px; }
+        .main-project-developer-button-slot { display: grid; place-items: center; flex: 0 0 58px; width: 58px; height: 58px; }
+        .compatibility-version-button.main-project-developer-button { position: relative; box-sizing: border-box; width: 50px; height: 50px; min-height: 50px; flex: 0 0 50px; aspect-ratio: 1; padding: 0; border-radius: 50%; }
+        .main-project-developer-crown { position: absolute; right: -3px; bottom: -3px; display: grid; place-items: center; box-sizing: border-box; width: 21px; height: 21px; border: 1px solid #e67e22; border-radius: 50%; background: #fff; color: #e67e22; font-size: 11px; line-height: 1; }
+        @media (hover: hover) and (pointer: fine) {
+            .main-project-developer-crown::before { position: relative; top: 1px; }
+        }
         .compatibility-edition-label { margin: 0; color: #555; font-size: 1rem; line-height: 1.2; }
         .compatibility-version-list { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 8px; }
         .compatibility-loader-label { margin-top: 16px; }
         .compatibility-loader-button { gap: 6px; }
         .compatibility-loader-icon { display: block; width: 1em; height: 1em; object-fit: contain; }
+        .compatibility-environment-button { gap: 6px; }
+        .compatibility-environment-icon { display: inline-block; flex: 0 0 1em; width: 1em; height: 1em; background-color: currentColor; -webkit-mask-position: center; mask-position: center; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-size: contain; mask-size: contain; }
+        .compatibility-environment-button[data-environment="client"] .compatibility-environment-icon { -webkit-mask-image: url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.2/icons/display.svg"); mask-image: url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.2/icons/display.svg"); }
+        .compatibility-environment-button[data-environment="server"] .compatibility-environment-icon { -webkit-mask-image: url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.2/icons/hdd-stack-fill.svg"); mask-image: url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.2/icons/hdd-stack-fill.svg"); }
         .compatibility-version-button { display: inline-flex; align-items: center; justify-content: center; box-sizing: content-box; min-height: 16px; padding: 7px 8px; border: 1px solid #FFB380; border-radius: 999px; background: #FFDAB9; color: #E67E22; box-shadow: 0 4px 12px rgba(255, 218, 185, .5); cursor: pointer; font: inherit; font-size: 1rem; font-weight: 600; line-height: 1; user-select: none; -webkit-tap-highlight-color: transparent; touch-action: manipulation; transition: transform .4s cubic-bezier(.34, 1.56, .64, 1), box-shadow .4s cubic-bezier(.34, 1.56, .64, 1), background-color .4s cubic-bezier(.34, 1.56, .64, 1), border-color .4s cubic-bezier(.34, 1.56, .64, 1); }
         .compatibility-version-button, .compatibility-version-button * { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
         .compatibility-version-button:focus-visible { outline: 2px solid #64b5f6; outline-offset: 2px; }
@@ -335,6 +390,13 @@
         html.dark-mode .main-project-description-section-title { color: #e0e0e0; }
         html.dark-mode .main-project-description-section-divider { background: #385066; }
         html.dark-mode .main-project-description-body { color: #a0a0a0; }
+        html.dark-mode .detail-license-scale { color: #e67e22; }
+        html.dark-mode .detail-license-scale .fa-scale-balanced { -webkit-text-stroke-color: #ffc58a; -webkit-text-stroke-width: .85px; }
+        html.dark-mode .detail-metadata-icon::before { background-color: #ffc58a; }
+        html.dark-mode .detail-license-text { color: #a0a0a0; }
+        html.dark-mode .detail-release-text, html.dark-mode .detail-last-updated-text { color: #a0a0a0; }
+        html.dark-mode .detail-license-trigger { color: #ffb380; }
+        html.dark-mode .mit-license-dialog { border-color: #385066; background: #1f2933; color: #e0e0e0; }
         html.dark-mode .compatibility-edition-label { color: #c5ced6; }
         html.dark-mode .compatibility-version-button { border-color: #a66a3d; background: #3b3028; color: #ffc08a; box-shadow: 0 4px 12px rgba(0, 0, 0, .25); }
         @media (hover: hover) and (pointer: fine) {
@@ -590,11 +652,64 @@
                             </div>
                             <p class="compatibility-edition-label compatibility-loader-label">Environments required</p>
                             <div class="compatibility-version-list" aria-label="Required environments">
-                                <button class="compatibility-version-button" type="button" data-environment="client">Client</button>
-                                <button class="compatibility-version-button" type="button" data-environment="server">Server</button>
+                                <button class="compatibility-version-button compatibility-environment-button" type="button" data-environment="client"><span class="compatibility-environment-icon" aria-hidden="true"></span><span>Client</span></button>
+                                <button class="compatibility-version-button compatibility-environment-button" type="button" data-environment="server"><span class="compatibility-environment-icon" aria-hidden="true"></span><span>Server</span></button>
                             </div>
                         </div>
                         <div class="main-project-description-section-divider" aria-hidden="true"></div>
+                    </section>
+                    <section class="main-project-tag-section" id="tag-section" aria-labelledby="tag-section-title">
+                        <h2 class="main-project-description-section-title main-project-description-title" id="tag-section-title">Tag</h2>
+                        <div class="main-project-description-section-divider" aria-hidden="true"></div>
+                        <div class="main-project-tag-content">
+                            <div class="compatibility-version-list" aria-label="Tag options">
+                                <button class="compatibility-version-button compatibility-environment-button" type="button" aria-label="Example">Example</button>
+                                <button class="compatibility-version-button compatibility-environment-button" type="button" aria-label="Example">Example</button>
+                            </div>
+                        </div>
+                        <div class="main-project-description-section-divider" aria-hidden="true"></div>
+                    </section>
+                    <section class="main-project-developer-section" id="developer-section" aria-labelledby="developer-section-title">
+                        <h2 class="main-project-description-section-title main-project-description-title" id="developer-section-title">Developer</h2>
+                        <div class="main-project-description-section-divider" aria-hidden="true"></div>
+                        <div class="main-project-developer-content">
+                            <div class="compatibility-version-list" aria-label="Developer options">
+                                <div class="main-project-developer-button-slot">
+                                    <button class="compatibility-version-button compatibility-environment-button main-project-developer-button" type="button" aria-label="Developer 1">
+                                        <i class="main-project-developer-crown fa-solid fa-crown" aria-hidden="true"></i>
+                                    </button>
+                                </div>
+                                <div class="main-project-developer-button-slot"><button class="compatibility-version-button compatibility-environment-button main-project-developer-button" type="button" aria-label="Developer 2"></button></div>
+                                <div class="main-project-developer-button-slot"><button class="compatibility-version-button compatibility-environment-button main-project-developer-button" type="button" aria-label="Developer 3"></button></div>
+                                <div class="main-project-developer-button-slot"><button class="compatibility-version-button compatibility-environment-button main-project-developer-button" type="button" aria-label="Developer 4"></button></div>
+                            </div>
+                        </div>
+                        <div class="main-project-description-section-divider" aria-hidden="true"></div>
+                    </section>
+                    <section class="main-project-link-section" id="link-section" aria-labelledby="link-section-title">
+                        <h2 class="main-project-description-section-title main-project-description-title" id="link-section-title">Link</h2>
+                        <div class="main-project-description-section-divider" aria-hidden="true"></div>
+                        <div class="main-project-description-section-divider" aria-hidden="true"></div>
+                    </section>
+                    <section class="main-project-detail-section" id="detail-section" aria-labelledby="detail-section-title">
+                        <h2 class="main-project-description-section-title main-project-description-title" id="detail-section-title">Detail</h2>
+                        <div class="main-project-description-section-divider" aria-hidden="true"></div>
+                        <div class="detail-license-row">
+                            <span class="detail-license-scale" aria-hidden="true"><i class="fa-solid fa-scale-balanced"></i></span>
+                            <p class="detail-license-text">Licensed <button class="detail-license-trigger" id="mit-license-trigger" type="button" aria-haspopup="dialog" aria-controls="mit-license-dialog">MIT</button></p>
+                        </div>
+                        <div class="detail-release-row">
+                            <span class="detail-metadata-icon-slot" aria-hidden="true"><span class="detail-metadata-icon detail-release-icon"></span></span>
+                            <p class="detail-release-text"><span>Release Date</span> <time datetime="2022-11-29T00:00:00">2022.11.29 00:00:00</time></p>
+                        </div>
+                        <div class="detail-last-updated-row">
+                            <span class="detail-metadata-icon-slot" aria-hidden="true"><span class="detail-metadata-icon detail-last-updated-icon"></span></span>
+                            <p class="detail-last-updated-text">Last Updated</p>
+                        </div>
+                        <div class="main-project-description-section-divider" aria-hidden="true"></div>
+                        <dialog class="mit-license-dialog" id="mit-license-dialog" aria-labelledby="mit-license-title">
+                            <p id="mit-license-title">MIT License</p>
+                        </dialog>
                     </section>
                 </section>
                 <section class="main-project-tab-panel" id="panel-update" role="tabpanel" aria-labelledby="tab-update" hidden>
@@ -653,8 +768,27 @@
             const descriptionEndDivider = descriptionPanel?.querySelector('.main-project-description-end-divider');
             const descriptionBody = descriptionPanel?.querySelector('.main-project-description-body');
             const compatibilitySection = document.getElementById('compatibility-section');
+            const tagSection = document.getElementById('tag-section');
+            const developerSection = document.getElementById('developer-section');
+            const linkSection = document.getElementById('link-section');
+            const detailSection = document.getElementById('detail-section');
+            const mitLicenseTrigger = document.getElementById('mit-license-trigger');
+            const mitLicenseDialog = document.getElementById('mit-license-dialog');
+            const closeMitLicenseDialog = () => {
+                if (!mitLicenseDialog?.open || mitLicenseDialog.classList.contains('is-closing')) return;
+                if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                    mitLicenseDialog.close();
+                    return;
+                }
+                mitLicenseDialog.classList.add('is-closing');
+                window.setTimeout(() => {
+                    if (mitLicenseDialog.open) mitLicenseDialog.close();
+                    mitLicenseDialog.classList.remove('is-closing');
+                }, 200);
+            };
             const compatibilityPlaceholder = document.createComment('compatibility-section-placeholder');
             const compatibilityContent = document.getElementById('compatibility-content');
+            const lowerDivider = document.querySelector('.main-project-lower-divider');
             const compatibilityVersionButtons = Array.from(document.querySelectorAll('.compatibility-version-button'));
             const compatibilityTouchMedia = window.matchMedia('(hover: none), (pointer: coarse)');
             let compatibilityPressedPointer = null;
@@ -669,6 +803,22 @@
                     button.classList.add('is-touch-pressed');
                 }, { capture: true, passive: true });
                 button.addEventListener('click', () => button.classList.add('is-highlighted'));
+            });
+            mitLicenseTrigger?.addEventListener('click', () => {
+                if (mitLicenseDialog && !mitLicenseDialog.open) {
+                    mitLicenseDialog.classList.remove('is-closing');
+                    mitLicenseDialog.showModal();
+                }
+            });
+            mitLicenseDialog?.addEventListener('cancel', event => {
+                event.preventDefault();
+                closeMitLicenseDialog();
+            });
+            mitLicenseDialog?.addEventListener('click', event => {
+                const bounds = mitLicenseDialog.getBoundingClientRect();
+                if (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom) {
+                    closeMitLicenseDialog();
+                }
             });
             ['pointerup', 'pointercancel'].forEach(type => {
                 document.addEventListener(type, event => {
@@ -688,6 +838,29 @@
                     if (button !== targetButton) button.classList.remove('is-highlighted');
                 });
             }, { passive: true });
+            function syncLowerDividerHeight() {
+                if (!lowerDivider) return;
+                const dividerTop = lowerDivider.getBoundingClientRect().top;
+                const activePanel = document.querySelector('.main-project-tab-panel:not([hidden])');
+                let contentBottom = activePanel ? activePanel.getBoundingClientRect().bottom : dividerTop;
+                if (compatibilitySection?.isConnected && !compatibilitySection.hidden) {
+                    contentBottom = Math.max(contentBottom, compatibilitySection.getBoundingClientRect().bottom);
+                }
+                if (tagSection?.isConnected && !descriptionPanel?.hidden && tagSection.getClientRects().length) {
+                    contentBottom = Math.max(contentBottom, tagSection.getBoundingClientRect().bottom);
+                }
+                if (developerSection?.isConnected && !descriptionPanel?.hidden && developerSection.getClientRects().length) {
+                    contentBottom = Math.max(contentBottom, developerSection.getBoundingClientRect().bottom);
+                }
+                if (linkSection?.isConnected && !descriptionPanel?.hidden && linkSection.getClientRects().length) {
+                    contentBottom = Math.max(contentBottom, linkSection.getBoundingClientRect().bottom);
+                }
+                if (detailSection?.isConnected && !descriptionPanel?.hidden && detailSection.getClientRects().length) {
+                    contentBottom = Math.max(contentBottom, detailSection.getBoundingClientRect().bottom);
+                }
+                const requiredHeight = Math.ceil(contentBottom - dividerTop + 32);
+                lowerDivider.style.height = `${Math.max(260, window.innerHeight, requiredHeight)}px`;
+            }
             function syncDescriptionEndDivider() {
                 if (!descriptionPanel || descriptionPanel.hidden || !descriptionEndAnchor || !descriptionEndDivider) return;
                 const anchorLines = Array.from(descriptionEndAnchor.getClientRects());
@@ -700,6 +873,23 @@
                     compatibilitySection.style.top = `${dividerBottom - panelTop + 24}px`;
                     const descriptionHeight = descriptionBody?.getBoundingClientRect().height || 0;
                     compatibilityContent.style.height = `${Math.max(descriptionHeight, compatibilityContent.scrollHeight)}px`;
+                    if (tagSection) {
+                        const compatibilityBottom = compatibilitySection.getBoundingClientRect().bottom;
+                        tagSection.style.top = `${compatibilityBottom - panelTop + 24}px`;
+                    }
+                    if (developerSection && tagSection) {
+                        const tagBottom = tagSection.getBoundingClientRect().bottom;
+                        developerSection.style.top = `${tagBottom - panelTop + 24}px`;
+                    }
+                    if (linkSection && developerSection) {
+                        const developerBottom = developerSection.getBoundingClientRect().bottom;
+                        linkSection.style.top = `${developerBottom - panelTop + 24}px`;
+                    }
+                    if (detailSection && linkSection) {
+                        const linkBottom = linkSection.getBoundingClientRect().bottom;
+                        detailSection.style.top = `${linkBottom - panelTop + 24}px`;
+                    }
+                    syncLowerDividerHeight();
                 }
             }
             function setCompatibilityVisible(isVisible) {
@@ -723,6 +913,10 @@
                 new ResizeObserver(syncDescriptionEndDivider).observe(descriptionBody);
             }
             window.addEventListener('resize', syncDescriptionEndDivider, { passive: true });
+            window.addEventListener('resize', syncLowerDividerHeight, { passive: true });
+            if (window.visualViewport) {
+                window.visualViewport.addEventListener('resize', syncLowerDividerHeight, { passive: true });
+            }
             let projectSwitcherSliderFrame = null;
             function sizeProjectSwitcherButtons() {
                 if (!projectSwitcherButtons.length) return;
@@ -779,6 +973,7 @@
                 if (isDescriptionSelected) {
                     syncDescriptionEndDivider();
                 }
+                syncLowerDividerHeight();
                 projectSwitcherButtons[selectedIndex].scrollIntoView({ behavior: 'auto', block: 'nearest', inline: 'nearest' });
             }
             sizeProjectSwitcherButtons();
