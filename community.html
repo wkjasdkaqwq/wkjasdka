@@ -307,7 +307,14 @@
         .community-gallery-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 16px; margin-top: 14px; }
         .community-gallery-item { display: flex; min-width: 0; flex-direction: column; overflow: hidden; margin: 0; border: 1px solid #c2c2c2; border-radius: 12px; background: #fff; box-shadow: 0 4px 12px rgba(0, 0, 0, .06); }
         .community-gallery-frame { display: grid; place-items: center; overflow: hidden; box-sizing: border-box; width: 100%; aspect-ratio: 450 / 200; background: #f1f1f1; }
-        .community-gallery-frame img { display: block; width: 100%; height: 100%; object-fit: contain; }
+        .community-gallery-preview-trigger { display: block; overflow: hidden; box-sizing: border-box; width: 100%; height: 100%; padding: 0; border: 0; background: transparent; cursor: zoom-in; touch-action: manipulation; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+        .community-gallery-frame img { display: block; width: 100%; height: 100%; object-fit: contain; pointer-events: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; -webkit-user-drag: none; user-drag: none; }
+        .community-gallery-preview-dialog { position: fixed; inset: 0; display: none; place-items: center; box-sizing: border-box; width: 100vw; height: 100vh; height: 100dvh; max-width: none; max-height: none; margin: 0; padding: 48px 16px 16px; border: 0; overflow: hidden; background: rgba(0, 0, 0, .94); color: #fff; }
+        .community-gallery-preview-dialog[open] { display: grid; }
+        .community-gallery-preview-dialog::backdrop { background: rgba(0, 0, 0, .94); }
+        .community-gallery-preview-image { display: block; max-width: calc(100vw - 32px); max-height: calc(100vh - 80px); max-height: calc(100dvh - 80px); object-fit: contain; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; -webkit-user-drag: none; user-drag: none; }
+        .community-gallery-preview-close { position: absolute; top: max(12px, env(safe-area-inset-top)); right: max(12px, env(safe-area-inset-right)); display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 1px solid rgba(255, 255, 255, .45); border-radius: 50%; background: rgba(20, 20, 20, .72); color: #fff; cursor: pointer; font: inherit; font-size: 28px; line-height: 1; -webkit-user-select: none; user-select: none; }
+        .community-gallery-preview-close:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
         .community-gallery-item figcaption { box-sizing: border-box; padding: 10px 12px; color: #666; font-size: .9rem; line-height: 1.4; }
         html.dark-mode .community-gallery-item { border-color: #385066; background: #162636; box-shadow: 0 4px 12px rgba(0, 0, 0, .22); }
         html.dark-mode .community-gallery-frame { background: #0c1822; }
@@ -781,15 +788,15 @@
                     <div class="main-project-description-section-divider" aria-hidden="true"></div>
                     <div class="community-gallery-grid" aria-label="Project gallery">
                         <figure class="community-gallery-item">
-                            <div class="community-gallery-frame"><img src="resource/test/tmp-alpha.png" alt="Blue TEST ALPHA lettering on a transparent background" width="450" height="200" loading="lazy" decoding="async"></div>
+                            <div class="community-gallery-frame"><button class="community-gallery-preview-trigger" type="button" aria-label="Preview transparent background image" aria-haspopup="dialog" aria-controls="community-gallery-preview-dialog"><img src="resource/test/tmp-alpha.png" alt="Blue TEST ALPHA lettering on a transparent background" width="450" height="200" loading="lazy" decoding="async" draggable="false"></button></div>
                             <figcaption>Transparent background</figcaption>
                         </figure>
                         <figure class="community-gallery-item">
-                            <div class="community-gallery-frame"><img src="resource/test/tmp-black.png" alt="White TEST BLACK lettering on a black background" width="450" height="200" loading="lazy" decoding="async"></div>
+                            <div class="community-gallery-frame"><button class="community-gallery-preview-trigger" type="button" aria-label="Preview black background image" aria-haspopup="dialog" aria-controls="community-gallery-preview-dialog"><img src="resource/test/tmp-black.png" alt="White TEST BLACK lettering on a black background" width="450" height="200" loading="lazy" decoding="async" draggable="false"></button></div>
                             <figcaption>Black background</figcaption>
                         </figure>
                         <figure class="community-gallery-item">
-                            <div class="community-gallery-frame"><img src="resource/test/tmp-whtie.png" alt="Black TEST WHITE lettering on a white background" width="450" height="200" loading="lazy" decoding="async"></div>
+                            <div class="community-gallery-frame"><button class="community-gallery-preview-trigger" type="button" aria-label="Preview white background image" aria-haspopup="dialog" aria-controls="community-gallery-preview-dialog"><img src="resource/test/tmp-whtie.png" alt="Black TEST WHITE lettering on a white background" width="450" height="200" loading="lazy" decoding="async" draggable="false"></button></div>
                             <figcaption>White background</figcaption>
                         </figure>
                     </div>
@@ -812,6 +819,10 @@
             </div>
         </div>
     </main>
+    <dialog class="community-gallery-preview-dialog" id="community-gallery-preview-dialog" aria-label="Gallery image preview">
+        <button class="community-gallery-preview-close" type="button" aria-label="Close image preview">&times;</button>
+        <img class="community-gallery-preview-image" alt="" draggable="false">
+    </dialog>
     <script>
         (function () {
             const menuButton = document.getElementById('menuBtn');
@@ -847,6 +858,24 @@
                 action.addEventListener('contextmenu', (event) => event.preventDefault());
             });
             const detailSection = document.getElementById('detail-section');
+            const galleryPreviewDialog = document.getElementById('community-gallery-preview-dialog');
+            const galleryPreviewImage = galleryPreviewDialog?.querySelector('.community-gallery-preview-image');
+            const galleryPreviewClose = galleryPreviewDialog?.querySelector('.community-gallery-preview-close');
+            document.querySelectorAll('.community-gallery-preview-trigger').forEach((trigger) => {
+                trigger.addEventListener('dragstart', event => event.preventDefault());
+                trigger.addEventListener('click', () => {
+                    const sourceImage = trigger.querySelector('img');
+                    if (!sourceImage || !galleryPreviewDialog || !galleryPreviewImage || galleryPreviewDialog.open) return;
+                    galleryPreviewImage.src = sourceImage.currentSrc || sourceImage.src;
+                    galleryPreviewImage.alt = sourceImage.alt;
+                    galleryPreviewDialog.showModal();
+                    galleryPreviewClose?.focus({ preventScroll: true });
+                });
+            });
+            galleryPreviewClose?.addEventListener('click', () => galleryPreviewDialog?.close());
+            galleryPreviewDialog?.addEventListener('click', event => {
+                if (event.target === galleryPreviewDialog) galleryPreviewDialog.close();
+            });
             const mitLicenseTrigger = document.getElementById('mit-license-trigger');
             const mitLicenseDialog = document.getElementById('mit-license-dialog');
             const closeMitLicenseDialog = () => {
