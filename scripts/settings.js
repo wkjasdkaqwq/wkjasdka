@@ -46,6 +46,7 @@
     let languageComposing = false;
     let suppressCompositionSubmit = false;
     let suppressLanguageFocusOpen = false;
+    let languagePointerFocusPending = false;
     let languageDialogLift = 0;
     let languageViewportBaseline = null;
     let languageViewportKeyboardVisible = false;
@@ -749,16 +750,22 @@
     languageOpen.addEventListener('click', openLanguage);
     languageClose.addEventListener('click', () => closeLanguage());
     languageSelectCard.addEventListener('pointerdown', event => {
-      if (event.target === languageSelect && languageDropdown.hidden && !languageSelect.disabled) languageSelect.readOnly = false;
+      if (event.target !== languageSelect || !languageDropdown.hidden || languageSelect.disabled) return;
+      languagePointerFocusPending = true;
+      // Mouse users should not enter edit mode until the click is confirmed;
+      // touch and pen retain the existing early unlock for reliable input.
+      if (event.pointerType !== 'mouse') languageSelect.readOnly = false;
     });
     languageSelectCard.addEventListener('pointercancel', () => {
+      languagePointerFocusPending = false;
       if (languageDropdown.hidden) languageSelect.readOnly = true;
     });
     languageSelect.addEventListener('focus', () => {
-      if (!suppressLanguageFocusOpen && languageModal.classList.contains('open')) openLanguageOptions();
+      if (!languagePointerFocusPending && !suppressLanguageFocusOpen && languageModal.classList.contains('open')) openLanguageOptions();
     });
     languageSelect.addEventListener('blur', () => { languageViewportKeyboardVisible = false; });
     languageSelectCard.addEventListener('click', () => {
+      languagePointerFocusPending = false;
       if (languageSelect.disabled) return;
       openLanguageOptions();
       languageSelect.focus({ preventScroll: true });
@@ -908,6 +915,7 @@
     });
     ['pointerup', 'pointercancel'].forEach(type => {
       document.addEventListener(type, event => {
+        languagePointerFocusPending = false;
         if (event.pointerId === pressedThemePointer) releaseThemeTouchPress();
       });
     });
