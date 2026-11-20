@@ -1,6 +1,6 @@
 # Bootstrap Icons
 
-Client, Server, Release Date, and Last Updated icons are loaded from the Bootstrap Icons 1.13.2 CDN distribution; the SVG files are intentionally not stored in this repository.
+Client and Server icons are loaded from the Bootstrap Icons 1.13.2 CDN distribution. The original Release Date and Last Updated SVG paths are inlined in `community.html` so that a uniform vector outline can be applied.
 
 - Client — `display.svg`: <https://github.com/twbs/icons/blob/main/icons/display.svg>
 - Server — `hdd-stack-fill.svg`: <https://github.com/twbs/icons/blob/main/icons/hdd-stack-fill.svg>
