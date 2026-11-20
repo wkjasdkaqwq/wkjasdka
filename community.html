@@ -315,6 +315,8 @@
         .main-project-compatibility-content { height: 0; margin-top: 16px; }
         .main-project-tag-section { position: absolute; top: 0; right: 0; left: 0; }
         .main-project-tag-content { margin-top: 16px; }
+        .main-project-developer-section { position: absolute; top: 0; right: 0; left: 0; }
+        .main-project-developer-content { margin-top: 16px; }
         .compatibility-edition-label { margin: 0; color: #555; font-size: 1rem; line-height: 1.2; }
         .compatibility-version-list { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 8px; }
         .compatibility-loader-label { margin-top: 16px; }
@@ -613,6 +615,17 @@
                         </div>
                         <div class="main-project-description-section-divider" aria-hidden="true"></div>
                     </section>
+                    <section class="main-project-developer-section" id="developer-section" aria-labelledby="developer-section-title">
+                        <h2 class="main-project-description-section-title main-project-description-title" id="developer-section-title">Developer</h2>
+                        <div class="main-project-description-section-divider" aria-hidden="true"></div>
+                        <div class="main-project-developer-content">
+                            <div class="compatibility-version-list" aria-label="Developer options">
+                                <button class="compatibility-version-button compatibility-environment-button" type="button" aria-label="Developer option 1"></button>
+                                <button class="compatibility-version-button compatibility-environment-button" type="button" aria-label="Developer option 2"></button>
+                            </div>
+                        </div>
+                        <div class="main-project-description-section-divider" aria-hidden="true"></div>
+                    </section>
                 </section>
                 <section class="main-project-tab-panel" id="panel-update" role="tabpanel" aria-labelledby="tab-update" hidden>
                     <h2 class="main-project-description-section-title">Update</h2>
@@ -671,6 +684,7 @@
             const descriptionBody = descriptionPanel?.querySelector('.main-project-description-body');
             const compatibilitySection = document.getElementById('compatibility-section');
             const tagSection = document.getElementById('tag-section');
+            const developerSection = document.getElementById('developer-section');
             const compatibilityPlaceholder = document.createComment('compatibility-section-placeholder');
             const compatibilityContent = document.getElementById('compatibility-content');
             const lowerDivider = document.querySelector('.main-project-lower-divider');
@@ -718,6 +732,9 @@
                 if (tagSection?.isConnected && !descriptionPanel?.hidden && tagSection.getClientRects().length) {
                     contentBottom = Math.max(contentBottom, tagSection.getBoundingClientRect().bottom);
                 }
+                if (developerSection?.isConnected && !descriptionPanel?.hidden && developerSection.getClientRects().length) {
+                    contentBottom = Math.max(contentBottom, developerSection.getBoundingClientRect().bottom);
+                }
                 const requiredHeight = Math.ceil(contentBottom - dividerTop + 32);
                 lowerDivider.style.height = `${Math.max(260, window.innerHeight, requiredHeight)}px`;
             }
@@ -736,6 +753,10 @@
                     if (tagSection) {
                         const compatibilityBottom = compatibilitySection.getBoundingClientRect().bottom;
                         tagSection.style.top = `${compatibilityBottom - panelTop + 24}px`;
+                    }
+                    if (developerSection && tagSection) {
+                        const tagBottom = tagSection.getBoundingClientRect().bottom;
+                        developerSection.style.top = `${tagBottom - panelTop + 24}px`;
                     }
                     syncLowerDividerHeight();
                 }
