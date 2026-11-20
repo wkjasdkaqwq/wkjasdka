@@ -313,6 +313,8 @@
         .main-project-description-body { max-width: 72ch; margin: 14px 0 0; color: #666; font-size: 1rem; line-height: 1.65; }
         .main-project-compatibility-section { position: absolute; top: 0; right: 0; left: 0; z-index: 1; }
         .main-project-compatibility-content { height: 0; margin-top: 16px; }
+        .main-project-tag-section { position: absolute; top: 0; right: 0; left: 0; }
+        .main-project-tag-content { margin-top: 16px; }
         .compatibility-edition-label { margin: 0; color: #555; font-size: 1rem; line-height: 1.2; }
         .compatibility-version-list { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 8px; }
         .compatibility-loader-label { margin-top: 16px; }
@@ -597,7 +599,13 @@
                                 <button class="compatibility-version-button compatibility-environment-button" type="button" data-environment="client"><span class="compatibility-environment-icon" aria-hidden="true"></span><span>Client</span></button>
                                 <button class="compatibility-version-button compatibility-environment-button" type="button" data-environment="server"><span class="compatibility-environment-icon" aria-hidden="true"></span><span>Server</span></button>
                             </div>
-                            <p class="compatibility-edition-label compatibility-loader-label">Tag</p>
+                        </div>
+                        <div class="main-project-description-section-divider" aria-hidden="true"></div>
+                    </section>
+                    <section class="main-project-tag-section" id="tag-section" aria-labelledby="tag-section-title">
+                        <h2 class="main-project-description-section-title main-project-description-title" id="tag-section-title">Tag</h2>
+                        <div class="main-project-description-section-divider" aria-hidden="true"></div>
+                        <div class="main-project-tag-content">
                             <div class="compatibility-version-list" aria-label="Tag options">
                                 <button class="compatibility-version-button compatibility-environment-button" type="button" aria-label="Example">Example</button>
                                 <button class="compatibility-version-button compatibility-environment-button" type="button" aria-label="Example">Example</button>
@@ -662,6 +670,7 @@
             const descriptionEndDivider = descriptionPanel?.querySelector('.main-project-description-end-divider');
             const descriptionBody = descriptionPanel?.querySelector('.main-project-description-body');
             const compatibilitySection = document.getElementById('compatibility-section');
+            const tagSection = document.getElementById('tag-section');
             const compatibilityPlaceholder = document.createComment('compatibility-section-placeholder');
             const compatibilityContent = document.getElementById('compatibility-content');
             const lowerDivider = document.querySelector('.main-project-lower-divider');
@@ -706,6 +715,9 @@
                 if (compatibilitySection?.isConnected && !compatibilitySection.hidden) {
                     contentBottom = Math.max(contentBottom, compatibilitySection.getBoundingClientRect().bottom);
                 }
+                if (tagSection?.isConnected && !descriptionPanel?.hidden && tagSection.getClientRects().length) {
+                    contentBottom = Math.max(contentBottom, tagSection.getBoundingClientRect().bottom);
+                }
                 const requiredHeight = Math.ceil(contentBottom - dividerTop + 32);
                 lowerDivider.style.height = `${Math.max(260, window.innerHeight, requiredHeight)}px`;
             }
@@ -721,6 +733,10 @@
                     compatibilitySection.style.top = `${dividerBottom - panelTop + 24}px`;
                     const descriptionHeight = descriptionBody?.getBoundingClientRect().height || 0;
                     compatibilityContent.style.height = `${Math.max(descriptionHeight, compatibilityContent.scrollHeight)}px`;
+                    if (tagSection) {
+                        const compatibilityBottom = compatibilitySection.getBoundingClientRect().bottom;
+                        tagSection.style.top = `${compatibilityBottom - panelTop + 24}px`;
+                    }
                     syncLowerDividerHeight();
                 }
             }
