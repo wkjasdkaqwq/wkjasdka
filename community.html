@@ -313,9 +313,10 @@
         .main-project-description-body { max-width: 72ch; margin: 14px 0 0; color: #666; font-size: 1rem; line-height: 1.65; }
         .main-project-compatibility-section { position: absolute; top: 0; right: 0; left: 0; z-index: 1; }
         .main-project-compatibility-content { height: 0; margin-top: 16px; }
-        .main-project-compatibility-content > .main-project-description-title { margin-top: 1.5rem; }
-        .main-project-compatibility-content > .main-project-description-title + .main-project-description-section-divider { margin-top: .5rem; }
-        .main-project-compatibility-content > .main-project-description-section-divider + .compatibility-version-list { margin-top: .75rem; }
+        .compatibility-detail-block { margin-top: 1.5rem; }
+        .compatibility-detail-block > .main-project-description-title + .main-project-description-section-divider { margin-top: .5rem; }
+        .compatibility-detail-block > .main-project-description-section-divider + .compatibility-version-list { margin-top: .75rem; }
+        .compatibility-detail-block > .compatibility-version-list + .main-project-description-section-divider { margin-top: .75rem; }
         .compatibility-edition-label { margin: 0; color: #555; font-size: 1rem; line-height: 1.2; }
         .compatibility-version-list { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 8px; }
         .compatibility-loader-label { margin-top: 16px; }
@@ -605,24 +606,33 @@
                                 <button class="compatibility-version-button compatibility-environment-button" type="button" aria-label="Example">Example</button>
                                 <button class="compatibility-version-button compatibility-environment-button" type="button" aria-label="Example">Example</button>
                             </div>
-                            <h2 class="main-project-description-section-title main-project-description-title">Developer</h2>
-                            <div class="main-project-description-section-divider" aria-hidden="true"></div>
-                            <div class="compatibility-version-list" aria-label="Developer options">
-                                <button class="compatibility-version-button compatibility-environment-button" type="button" aria-label="Developer option 1"></button>
-                                <button class="compatibility-version-button compatibility-environment-button" type="button" aria-label="Developer option 2"></button>
-                            </div>
-                            <h2 class="main-project-description-section-title main-project-description-title">Link</h2>
-                            <div class="main-project-description-section-divider" aria-hidden="true"></div>
-                            <div class="compatibility-version-list" aria-label="Link options">
-                                <button class="compatibility-version-button compatibility-environment-button" type="button" aria-label="Link option 1"></button>
-                                <button class="compatibility-version-button compatibility-environment-button" type="button" aria-label="Link option 2"></button>
-                            </div>
-                            <h2 class="main-project-description-section-title main-project-description-title">Detail</h2>
-                            <div class="main-project-description-section-divider" aria-hidden="true"></div>
-                            <div class="compatibility-version-list" aria-label="Detail options">
-                                <button class="compatibility-version-button compatibility-environment-button" type="button" aria-label="Detail option 1"></button>
-                                <button class="compatibility-version-button compatibility-environment-button" type="button" aria-label="Detail option 2"></button>
-                            </div>
+                            <section class="compatibility-detail-block" aria-labelledby="developer-section-title">
+                                <h2 class="main-project-description-section-title main-project-description-title" id="developer-section-title">Developer</h2>
+                                <div class="main-project-description-section-divider" aria-hidden="true"></div>
+                                <div class="compatibility-version-list" aria-label="Developer options">
+                                    <button class="compatibility-version-button compatibility-environment-button" type="button" aria-label="Developer option 1"></button>
+                                    <button class="compatibility-version-button compatibility-environment-button" type="button" aria-label="Developer option 2"></button>
+                                </div>
+                                <div class="main-project-description-section-divider" aria-hidden="true"></div>
+                            </section>
+                            <section class="compatibility-detail-block" aria-labelledby="link-section-title">
+                                <h2 class="main-project-description-section-title main-project-description-title" id="link-section-title">Link</h2>
+                                <div class="main-project-description-section-divider" aria-hidden="true"></div>
+                                <div class="compatibility-version-list" aria-label="Link options">
+                                    <button class="compatibility-version-button compatibility-environment-button" type="button" aria-label="Link option 1"></button>
+                                    <button class="compatibility-version-button compatibility-environment-button" type="button" aria-label="Link option 2"></button>
+                                </div>
+                                <div class="main-project-description-section-divider" aria-hidden="true"></div>
+                            </section>
+                            <section class="compatibility-detail-block" aria-labelledby="detail-section-title">
+                                <h2 class="main-project-description-section-title main-project-description-title" id="detail-section-title">Detail</h2>
+                                <div class="main-project-description-section-divider" aria-hidden="true"></div>
+                                <div class="compatibility-version-list" aria-label="Detail options">
+                                    <button class="compatibility-version-button compatibility-environment-button" type="button" aria-label="Detail option 1"></button>
+                                    <button class="compatibility-version-button compatibility-environment-button" type="button" aria-label="Detail option 2"></button>
+                                </div>
+                                <div class="main-project-description-section-divider" aria-hidden="true"></div>
+                            </section>
                         </div>
                         <div class="main-project-description-section-divider" aria-hidden="true"></div>
                     </section>
