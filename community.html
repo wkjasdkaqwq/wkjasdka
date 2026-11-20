@@ -320,7 +320,8 @@
         .main-project-developer-section { position: absolute; top: 0; right: 0; left: 0; }
         .main-project-developer-content { margin-top: 16px; }
         .main-project-developer-content .compatibility-version-list { display: flex; flex-direction: column; align-items: flex-start; gap: 14px; margin-top: 8px; }
-        .compatibility-version-button.main-project-developer-button { position: relative; box-sizing: border-box; width: 58px; height: 58px; min-height: 58px; flex: 0 0 58px; aspect-ratio: 1; padding: 0; border-radius: 50%; }
+        .main-project-developer-button-slot { display: grid; place-items: center; flex: 0 0 58px; width: 58px; height: 58px; }
+        .compatibility-version-button.main-project-developer-button { position: relative; box-sizing: border-box; width: 50px; height: 50px; min-height: 50px; flex: 0 0 50px; aspect-ratio: 1; padding: 0; border-radius: 50%; }
         .main-project-developer-crown { position: absolute; right: -3px; bottom: -3px; display: grid; place-items: center; box-sizing: border-box; width: 21px; height: 21px; border: 1px solid #e67e22; border-radius: 50%; background: #fff; color: #e67e22; font-size: 11px; line-height: 1; }
         .compatibility-edition-label { margin: 0; color: #555; font-size: 1rem; line-height: 1.2; }
         .compatibility-version-list { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 8px; }
@@ -625,12 +626,14 @@
                         <div class="main-project-description-section-divider" aria-hidden="true"></div>
                         <div class="main-project-developer-content">
                             <div class="compatibility-version-list" aria-label="Developer options">
-                                <button class="compatibility-version-button compatibility-environment-button main-project-developer-button" type="button" aria-label="Developer 1">
-                                    <i class="main-project-developer-crown fa-solid fa-crown" aria-hidden="true"></i>
-                                </button>
-                                <button class="compatibility-version-button compatibility-environment-button main-project-developer-button" type="button" aria-label="Developer 2"></button>
-                                <button class="compatibility-version-button compatibility-environment-button main-project-developer-button" type="button" aria-label="Developer 3"></button>
-                                <button class="compatibility-version-button compatibility-environment-button main-project-developer-button" type="button" aria-label="Developer 4"></button>
+                                <div class="main-project-developer-button-slot">
+                                    <button class="compatibility-version-button compatibility-environment-button main-project-developer-button" type="button" aria-label="Developer 1">
+                                        <i class="main-project-developer-crown fa-solid fa-crown" aria-hidden="true"></i>
+                                    </button>
+                                </div>
+                                <div class="main-project-developer-button-slot"><button class="compatibility-version-button compatibility-environment-button main-project-developer-button" type="button" aria-label="Developer 2"></button></div>
+                                <div class="main-project-developer-button-slot"><button class="compatibility-version-button compatibility-environment-button main-project-developer-button" type="button" aria-label="Developer 3"></button></div>
+                                <div class="main-project-developer-button-slot"><button class="compatibility-version-button compatibility-environment-button main-project-developer-button" type="button" aria-label="Developer 4"></button></div>
                             </div>
                         </div>
                         <div class="main-project-description-section-divider" aria-hidden="true"></div>
