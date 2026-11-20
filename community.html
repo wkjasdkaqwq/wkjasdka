@@ -325,13 +325,15 @@
         .detail-license-scale { display: grid; place-items: center; flex: 0 0 50px; width: 50px; height: 50px; color: #e67e22; font-size: 1.425rem; line-height: 1; }
         .detail-license-scale .fa-scale-balanced { -webkit-text-stroke: 1px #c56b1d; }
         .detail-license-text { margin: 0 0 0 -7px; color: #666; font-size: 1rem; line-height: 1.65; }
-        .detail-release-row { display: flex; align-items: center; gap: 4px; margin-top: -7px; }
-        .detail-release-icon-slot { display: grid; place-items: center; flex: 0 0 50px; width: 50px; height: 50px; color: #e67e22; }
-        .detail-release-icon { position: relative; isolation: isolate; display: block; width: 1.63875rem; height: 1.63875rem; }
-        .detail-release-icon::before, .detail-release-icon::after { content: ""; position: absolute; inset: 0; background-color: currentColor; -webkit-mask-image: url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.2/icons/file-earmark-arrow-up.svg"); mask-image: url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.2/icons/file-earmark-arrow-up.svg"); -webkit-mask-position: center; mask-position: center; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-size: contain; mask-size: contain; }
-        .detail-release-icon::before { z-index: 0; background-color: #c56b1d; transform: scale(1.07826); }
-        .detail-release-icon::after { z-index: 1; }
-        .detail-release-text { margin: 0 0 0 -7px; color: #666; font-size: 1rem; line-height: 1.65; }
+        .detail-release-row, .detail-last-updated-row { display: flex; align-items: center; gap: 4px; margin-top: -7px; }
+        .detail-metadata-icon-slot { display: grid; place-items: center; flex: 0 0 50px; width: 50px; height: 50px; color: #e67e22; }
+        .detail-metadata-icon { position: relative; isolation: isolate; display: block; width: 1.63875rem; height: 1.63875rem; }
+        .detail-metadata-icon::before, .detail-metadata-icon::after { content: ""; position: absolute; inset: 0; background-color: currentColor; -webkit-mask-position: center; mask-position: center; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-size: contain; mask-size: contain; }
+        .detail-release-icon::before, .detail-release-icon::after { -webkit-mask-image: url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.2/icons/file-earmark-arrow-up.svg"); mask-image: url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.2/icons/file-earmark-arrow-up.svg"); }
+        .detail-last-updated-icon::before, .detail-last-updated-icon::after { -webkit-mask-image: url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.2/icons/pencil-square.svg"); mask-image: url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.2/icons/pencil-square.svg"); }
+        .detail-metadata-icon::before { z-index: 0; background-color: #c56b1d; transform: scale(1.07826); }
+        .detail-metadata-icon::after { z-index: 1; }
+        .detail-release-text, .detail-last-updated-text { margin: 0 0 0 -7px; color: #666; font-size: 1rem; line-height: 1.65; }
         .detail-license-trigger { padding: 0; border: 0; background: transparent; color: #e67e22; cursor: pointer; font: inherit; font-weight: 700; text-decoration: none; text-underline-offset: 2px; }
         .detail-license-trigger:focus-visible { outline: 2px solid #64b5f6; outline-offset: 2px; }
         @media (hover: hover) and (pointer: fine) {
@@ -389,9 +391,9 @@
         html.dark-mode .main-project-description-body { color: #a0a0a0; }
         html.dark-mode .detail-license-scale { color: #e67e22; }
         html.dark-mode .detail-license-scale .fa-scale-balanced { -webkit-text-stroke-color: #ffc58a; -webkit-text-stroke-width: 1px; }
-        html.dark-mode .detail-release-icon::before { background-color: #ffc58a; }
+        html.dark-mode .detail-metadata-icon::before { background-color: #ffc58a; }
         html.dark-mode .detail-license-text { color: #a0a0a0; }
-        html.dark-mode .detail-release-text { color: #a0a0a0; }
+        html.dark-mode .detail-release-text, html.dark-mode .detail-last-updated-text { color: #a0a0a0; }
         html.dark-mode .detail-license-trigger { color: #ffb380; }
         html.dark-mode .mit-license-dialog { border-color: #385066; background: #1f2933; color: #e0e0e0; }
         html.dark-mode .compatibility-edition-label { color: #c5ced6; }
@@ -696,8 +698,12 @@
                             <p class="detail-license-text">Licensed <button class="detail-license-trigger" id="mit-license-trigger" type="button" aria-haspopup="dialog" aria-controls="mit-license-dialog">MIT</button></p>
                         </div>
                         <div class="detail-release-row">
-                            <span class="detail-release-icon-slot" aria-hidden="true"><span class="detail-release-icon"></span></span>
+                            <span class="detail-metadata-icon-slot" aria-hidden="true"><span class="detail-metadata-icon detail-release-icon"></span></span>
                             <p class="detail-release-text"><span>Release Date</span> <time datetime="2022-11-29T00:00:00">2022.11.29 00:00:00</time></p>
+                        </div>
+                        <div class="detail-last-updated-row">
+                            <span class="detail-metadata-icon-slot" aria-hidden="true"><span class="detail-metadata-icon detail-last-updated-icon"></span></span>
+                            <p class="detail-last-updated-text">Last Updated</p>
                         </div>
                         <div class="main-project-description-section-divider" aria-hidden="true"></div>
                         <dialog class="mit-license-dialog" id="mit-license-dialog" aria-labelledby="mit-license-title">
