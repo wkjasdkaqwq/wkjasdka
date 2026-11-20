@@ -71,6 +71,13 @@
       z-index: 999;
     }
 
+    html.dark-mode .animated-btn {
+      color: #ffc08a;
+      background-color: #3b3028;
+      border-color: #a66a3d;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, .25);
+    }
+
     .animated-btn:hover {
       transform: translateX(-50%) scale(1.12);
       box-shadow: 0 8px 20px rgba(255, 218, 185, 0.8);
@@ -163,6 +170,37 @@
       .animated-btn.is-highlighted.is-touch-pressed:hover {
         background-color: #FFCF97;
         border-color: #FF8142;
+      }
+
+      html.dark-mode .animated-btn:hover:not(.is-highlighted) {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, .25);
+        background-color: #3b3028;
+        border-color: #a66a3d;
+      }
+
+      html.dark-mode .animated-btn.is-highlighted {
+        box-shadow: 0 8px 20px rgba(0, 0, 0, .35);
+        background-color: #4a382b;
+        border-color: #d18a58;
+      }
+
+      html.dark-mode .animated-btn.is-touch-pressed,
+      html.dark-mode .animated-btn:active,
+      html.dark-mode .animated-btn:hover.is-touch-pressed,
+      html.dark-mode .animated-btn:hover:active,
+      html.dark-mode .animated-btn.is-highlighted.is-touch-pressed,
+      html.dark-mode .animated-btn.is-highlighted:active,
+      html.dark-mode .animated-btn.is-highlighted:hover.is-touch-pressed,
+      html.dark-mode .animated-btn.is-highlighted:hover:active {
+        background-color: #FFCF97;
+        border-color: #FF8142;
+        color: #E67E22;
+        box-shadow: 0 2px 6px rgba(255, 218, 185, .5);
+        transition-duration: .4s, .4s, 0s, 0s;
+      }
+
+      html.dark-mode .animated-btn:not(.is-touch-pressed):not(:active) {
+        transition-duration: .4s, .4s, 0s, 0s;
       }
     }
     .animated-btn:focus-visible { outline: 3px solid #7B3D00; outline-offset: 3px; }
