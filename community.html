@@ -319,6 +319,7 @@
         .main-project-tag-content { margin-top: 16px; }
         .main-project-developer-section { position: absolute; top: 0; right: 0; left: 0; }
         .main-project-developer-content { margin-top: 16px; }
+        .main-project-link-section { position: absolute; top: 0; right: 0; left: 0; }
         .main-project-developer-content .compatibility-version-list { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; margin-top: 8px; }
         .main-project-developer-button-slot { display: grid; place-items: center; flex: 0 0 58px; width: 58px; height: 58px; }
         .compatibility-version-button.main-project-developer-button { position: relative; box-sizing: border-box; width: 50px; height: 50px; min-height: 50px; flex: 0 0 50px; aspect-ratio: 1; padding: 0; border-radius: 50%; }
@@ -641,6 +642,11 @@
                         </div>
                         <div class="main-project-description-section-divider" aria-hidden="true"></div>
                     </section>
+                    <section class="main-project-link-section" id="link-section" aria-labelledby="link-section-title">
+                        <h2 class="main-project-description-section-title main-project-description-title" id="link-section-title">Link</h2>
+                        <div class="main-project-description-section-divider" aria-hidden="true"></div>
+                        <div class="main-project-description-section-divider" aria-hidden="true"></div>
+                    </section>
                 </section>
                 <section class="main-project-tab-panel" id="panel-update" role="tabpanel" aria-labelledby="tab-update" hidden>
                     <h2 class="main-project-description-section-title">Update</h2>
@@ -700,6 +706,7 @@
             const compatibilitySection = document.getElementById('compatibility-section');
             const tagSection = document.getElementById('tag-section');
             const developerSection = document.getElementById('developer-section');
+            const linkSection = document.getElementById('link-section');
             const compatibilityPlaceholder = document.createComment('compatibility-section-placeholder');
             const compatibilityContent = document.getElementById('compatibility-content');
             const lowerDivider = document.querySelector('.main-project-lower-divider');
@@ -750,6 +757,9 @@
                 if (developerSection?.isConnected && !descriptionPanel?.hidden && developerSection.getClientRects().length) {
                     contentBottom = Math.max(contentBottom, developerSection.getBoundingClientRect().bottom);
                 }
+                if (linkSection?.isConnected && !descriptionPanel?.hidden && linkSection.getClientRects().length) {
+                    contentBottom = Math.max(contentBottom, linkSection.getBoundingClientRect().bottom);
+                }
                 const requiredHeight = Math.ceil(contentBottom - dividerTop + 32);
                 lowerDivider.style.height = `${Math.max(260, window.innerHeight, requiredHeight)}px`;
             }
@@ -772,6 +782,10 @@
                     if (developerSection && tagSection) {
                         const tagBottom = tagSection.getBoundingClientRect().bottom;
                         developerSection.style.top = `${tagBottom - panelTop + 24}px`;
+                    }
+                    if (linkSection && developerSection) {
+                        const developerBottom = developerSection.getBoundingClientRect().bottom;
+                        linkSection.style.top = `${developerBottom - panelTop + 24}px`;
                     }
                     syncLowerDividerHeight();
                 }
