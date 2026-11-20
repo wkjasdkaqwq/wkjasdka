@@ -1136,6 +1136,21 @@
                     projectSwitcherButtons[nextIndex].focus();
                 });
             });
+            document.addEventListener('keydown', event => {
+                if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches || event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+                const target = event.target;
+                if (target instanceof Element && (target.isContentEditable || target.closest('input, textarea, select, [contenteditable]:not([contenteditable="false"]), [role="textbox"]'))) return;
+                if (document.querySelector('dialog[open]')) return;
+                const key = event.key.toLowerCase();
+                if (key !== 'q' && key !== 'e') return;
+                const currentIndex = projectSwitcherButtons.findIndex(button => button.getAttribute('aria-selected') === 'true');
+                if (currentIndex < 0 || projectSwitcherButtons.length === 0) return;
+                event.preventDefault();
+                const direction = key === 'q' ? -1 : 1;
+                const nextIndex = (currentIndex + direction + projectSwitcherButtons.length) % projectSwitcherButtons.length;
+                selectProjectSection(nextIndex);
+                projectSwitcherButtons[nextIndex].focus({ preventScroll: true });
+            });
             const descriptionAnimationTimers = new WeakMap();
             function animateDescriptionHeight(description, from, to, onComplete) {
                 const previousTimer = descriptionAnimationTimers.get(description);
