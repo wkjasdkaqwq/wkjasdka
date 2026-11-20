@@ -331,6 +331,7 @@
         .detail-metadata-icon path { fill: currentColor; stroke: #c56b1d; stroke-width: .85px; stroke-linejoin: round; vector-effect: non-scaling-stroke; paint-order: fill stroke; }
         .detail-last-updated-icon { transform: scale(.9409); }
         .detail-release-text, .detail-last-updated-text { margin: 0 0 0 -7px; color: #666; font-size: 1rem; line-height: 1.65; }
+        .detail-metadata-label { color: #999; }
         .detail-license-trigger { padding: 0; border: 0; background: transparent; color: #e67e22; cursor: pointer; font: inherit; font-weight: 700; text-decoration: none; text-underline-offset: 2px; }
         .detail-license-trigger:focus-visible { outline: 2px solid #64b5f6; outline-offset: 2px; }
         @media (hover: hover) and (pointer: fine) {
@@ -391,6 +392,7 @@
         html.dark-mode .detail-metadata-icon path { stroke: #ffc58a; }
         html.dark-mode .detail-license-text { color: #a0a0a0; }
         html.dark-mode .detail-release-text, html.dark-mode .detail-last-updated-text { color: #a0a0a0; }
+        html.dark-mode .detail-metadata-label { color: #c5ced6; }
         html.dark-mode .detail-license-trigger { color: #ffb380; }
         html.dark-mode .mit-license-dialog { border-color: #385066; background: #1f2933; color: #e0e0e0; }
         html.dark-mode .compatibility-edition-label { color: #c5ced6; }
@@ -692,7 +694,7 @@
                         <div class="main-project-description-section-divider" aria-hidden="true"></div>
                         <div class="detail-license-row">
                             <span class="detail-license-scale" aria-hidden="true"><i class="fa-solid fa-scale-balanced"></i></span>
-                            <p class="detail-license-text">Licensed <button class="detail-license-trigger" id="mit-license-trigger" type="button" aria-haspopup="dialog" aria-controls="mit-license-dialog">MIT</button></p>
+                            <p class="detail-license-text"><span class="detail-metadata-label">Licensed</span> <button class="detail-license-trigger" id="mit-license-trigger" type="button" aria-haspopup="dialog" aria-controls="mit-license-dialog">MIT</button></p>
                         </div>
                         <div class="detail-release-row">
                             <span class="detail-metadata-icon-slot" aria-hidden="true">
@@ -701,7 +703,7 @@
                                     <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2M9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5z" />
                                 </svg>
                             </span>
-                            <p class="detail-release-text"><span>Release Date</span> <time datetime="2022-11-29T00:00:00">2022.11.29 00:00:00</time></p>
+                            <p class="detail-release-text"><span class="detail-metadata-label">Release Date</span> <time datetime="2022-11-29T00:00:00">2022.11.29 00:00:00</time></p>
                         </div>
                         <div class="detail-last-updated-row">
                             <span class="detail-metadata-icon-slot" aria-hidden="true">
@@ -710,7 +712,7 @@
                                     <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z" />
                                 </svg>
                             </span>
-                            <p class="detail-last-updated-text">Last Updated</p>
+                            <p class="detail-last-updated-text"><span class="detail-metadata-label">Last Updated</span></p>
                         </div>
                         <div class="main-project-description-section-divider" aria-hidden="true"></div>
                         <dialog class="mit-license-dialog" id="mit-license-dialog" aria-labelledby="mit-license-title">
