@@ -304,6 +304,13 @@
         .main-project-tab-panel[hidden] { display: none; }
         .main-project-tab-empty { margin: 14px 0 0; color: #666; font-size: 1rem; line-height: 1.5; }
         html.dark-mode .main-project-tab-empty { color: #a0aeb8; }
+        .community-gallery-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 16px; margin-top: 14px; }
+        .community-gallery-item { display: flex; min-width: 0; flex-direction: column; gap: 8px; margin: 0; }
+        .community-gallery-frame { display: grid; place-items: center; overflow: hidden; box-sizing: border-box; width: 100%; aspect-ratio: 450 / 200; border: 1px solid #c2c2c2; border-radius: 12px; background: #f1f1f1; }
+        .community-gallery-frame img { display: block; width: 100%; height: 100%; object-fit: contain; }
+        .community-gallery-item figcaption { color: #666; font-size: .9rem; line-height: 1.4; }
+        html.dark-mode .community-gallery-frame { border-color: #385066; background: #0c1822; }
+        html.dark-mode .community-gallery-item figcaption { color: #a0aeb8; }
         .main-project-description-section { position: absolute; top: calc(1.32rem * 1.2 + .3rem + 4.2rem - 8px + 24px + 12px + 2.55rem + 32px + 16px); right: -34px; left: -34px; z-index: 1; }
         #compatibility-section[hidden] { display: none !important; }
         .main-project-description-section-title { margin: 0; color: #333; font-size: 1.5rem; font-weight: 700; line-height: 1.2; }
@@ -771,7 +778,20 @@
                 <section class="main-project-tab-panel" id="panel-gallery" role="tabpanel" aria-labelledby="tab-gallery" hidden>
                     <h2 class="main-project-description-section-title">Semi-rounded Corner</h2>
                     <div class="main-project-description-section-divider" aria-hidden="true"></div>
-                    <p class="main-project-tab-empty">No gallery items have been added yet.</p>
+                    <div class="community-gallery-grid" aria-label="Project gallery">
+                        <figure class="community-gallery-item">
+                            <div class="community-gallery-frame"><img src="resource/test/tmp-alpha.png" alt="Blue TEST ALPHA lettering on a transparent background" width="450" height="200" loading="lazy" decoding="async"></div>
+                            <figcaption>Transparent background</figcaption>
+                        </figure>
+                        <figure class="community-gallery-item">
+                            <div class="community-gallery-frame"><img src="resource/test/tmp-black.png" alt="White TEST BLACK lettering on a black background" width="450" height="200" loading="lazy" decoding="async"></div>
+                            <figcaption>Black background</figcaption>
+                        </figure>
+                        <figure class="community-gallery-item">
+                            <div class="community-gallery-frame"><img src="resource/test/tmp-whtie.png" alt="Black TEST WHITE lettering on a white background" width="450" height="200" loading="lazy" decoding="async"></div>
+                            <figcaption>White background</figcaption>
+                        </figure>
+                    </div>
                 </section>
                 <section class="main-project-tab-panel" id="panel-changelog" role="tabpanel" aria-labelledby="tab-changelog" hidden>
                     <h2 class="main-project-description-section-title">Semi-rounded Corner</h2>
