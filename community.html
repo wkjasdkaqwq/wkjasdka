@@ -325,7 +325,14 @@
         @keyframes community-gallery-image-in { from { opacity: 0; transform: translateY(8px) scale(.94); } to { opacity: 1; transform: translateY(0) scale(1); } }
         @keyframes community-gallery-image-out { from { opacity: 1; transform: translateY(0) scale(1); } to { opacity: 0; transform: translateY(4px) scale(.97); } }
         .community-gallery-preview-toolbar { position: absolute; right: 0; bottom: max(16px, env(safe-area-inset-bottom)); left: 0; display: flex; justify-content: center; pointer-events: none; }
-        .community-gallery-preview-toolbar-track { display: flex; align-items: center; justify-content: center; min-width: 60px; min-height: 60px; padding: 6px 12px; border: 1px solid rgba(255, 255, 255, .22); border-radius: 999px; background: rgba(28, 32, 36, .78); box-shadow: 0 8px 28px rgba(0, 0, 0, .28); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); pointer-events: auto; }
+        .community-gallery-preview-toolbar-track { display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 60px; padding: 6px 12px; border: 1px solid rgba(255, 255, 255, .22); border-radius: 999px; background: rgba(28, 32, 36, .78); box-shadow: 0 8px 28px rgba(0, 0, 0, .28); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); pointer-events: auto; }
+        .community-gallery-preview-nav { display: flex; align-items: center; height: 44px; overflow: hidden; border: 1px solid rgba(255, 255, 255, .3); border-radius: 999px; background: rgba(255, 255, 255, .1); }
+        .community-gallery-preview-nav-button { display: grid; place-items: center; width: 40px; height: 44px; padding: 0; border: 0; background: transparent; color: #fff; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: background-color .16s ease, transform .16s ease; }
+        .community-gallery-preview-nav-button:hover { background: rgba(255, 255, 255, .16); }
+        .community-gallery-preview-nav-button:active { transform: scale(.92); }
+        .community-gallery-preview-nav-button:focus-visible { outline: 2px solid #fff; outline-offset: -3px; }
+        .community-gallery-preview-nav-button svg { display: block; width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+        .community-gallery-preview-page { display: grid; place-items: center; align-self: stretch; min-width: 54px; padding: 0 8px; border-right: 1px solid rgba(255, 255, 255, .22); border-left: 1px solid rgba(255, 255, 255, .22); color: rgba(255, 255, 255, .9); font-size: .82rem; font-variant-numeric: tabular-nums; line-height: 1; }
         .community-gallery-preview-close { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 1px solid rgba(255, 255, 255, .45); border-radius: 50%; background: rgba(255, 255, 255, .12); color: #fff; cursor: pointer; font: inherit; font-size: 28px; line-height: 1; -webkit-user-select: none; user-select: none; transition: background-color .16s ease, transform .16s ease; }
         .community-gallery-preview-close:hover { background: rgba(255, 255, 255, .24); }
         .community-gallery-preview-close:active { transform: scale(.94); }
@@ -849,6 +856,11 @@
     <dialog class="community-gallery-preview-dialog" id="community-gallery-preview-dialog" aria-label="Gallery image preview">
         <div class="community-gallery-preview-toolbar" role="toolbar" aria-label="Image preview controls">
             <div class="community-gallery-preview-toolbar-track">
+                <div class="community-gallery-preview-nav" role="group" aria-label="Image navigation">
+                    <button class="community-gallery-preview-nav-button" type="button" data-gallery-preview-step="-1" aria-label="Previous image" title="Previous image"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
+                    <span class="community-gallery-preview-page" aria-live="polite" aria-atomic="true">1 / 3</span>
+                    <button class="community-gallery-preview-nav-button" type="button" data-gallery-preview-step="1" aria-label="Next image" title="Next image"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
+                </div>
                 <button class="community-gallery-preview-close" type="button" aria-label="Close image preview" title="Close preview">&times;</button>
             </div>
         </div>
@@ -892,6 +904,21 @@
             const galleryPreviewDialog = document.getElementById('community-gallery-preview-dialog');
             const galleryPreviewImage = galleryPreviewDialog?.querySelector('.community-gallery-preview-image');
             const galleryPreviewClose = galleryPreviewDialog?.querySelector('.community-gallery-preview-close');
+            const galleryPreviewImages = Array.from(document.querySelectorAll('.community-gallery-preview-trigger img'));
+            const galleryPreviewPage = galleryPreviewDialog?.querySelector('.community-gallery-preview-page');
+            const galleryPreviewNavigationButtons = galleryPreviewDialog?.querySelectorAll('[data-gallery-preview-step]') || [];
+            let galleryPreviewIndex = 0;
+            const showGalleryPreviewImage = index => {
+                if (!galleryPreviewImage || galleryPreviewImages.length === 0) return;
+                galleryPreviewIndex = (index + galleryPreviewImages.length) % galleryPreviewImages.length;
+                const sourceImage = galleryPreviewImages[galleryPreviewIndex];
+                galleryPreviewImage.src = sourceImage.currentSrc || sourceImage.src;
+                galleryPreviewImage.alt = sourceImage.alt;
+                if (galleryPreviewPage) {
+                    galleryPreviewPage.textContent = `${galleryPreviewIndex + 1} / ${galleryPreviewImages.length}`;
+                    galleryPreviewPage.setAttribute('aria-label', `Image ${galleryPreviewIndex + 1} of ${galleryPreviewImages.length}`);
+                }
+            };
             let galleryPreviewCloseTimer = 0;
             const closeGalleryPreview = () => {
                 if (!galleryPreviewDialog?.open || galleryPreviewDialog.classList.contains('is-closing')) return;
@@ -918,10 +945,15 @@
                 trigger.addEventListener('click', () => {
                     const sourceImage = trigger.querySelector('img');
                     if (!sourceImage || !galleryPreviewDialog || !galleryPreviewImage || galleryPreviewDialog.open) return;
-                    galleryPreviewImage.src = sourceImage.currentSrc || sourceImage.src;
-                    galleryPreviewImage.alt = sourceImage.alt;
+                    showGalleryPreviewImage(galleryPreviewImages.indexOf(sourceImage));
                     galleryPreviewDialog.showModal();
                     galleryPreviewClose?.focus({ preventScroll: true });
+                });
+            });
+            galleryPreviewNavigationButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    if (!galleryPreviewDialog?.open) return;
+                    showGalleryPreviewImage(galleryPreviewIndex + Number(button.dataset.galleryPreviewStep));
                 });
             });
             galleryPreviewClose?.addEventListener('click', closeGalleryPreview);
