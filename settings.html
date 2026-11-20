@@ -288,6 +288,23 @@
     html.dark-mode .theme-option.is-touch-pressed { background-color: #2B211B; border-color: #8B5837; }
     html.dark-mode .theme-option:has(input:checked):active,
     html.dark-mode .theme-option.is-touch-pressed:has(input:checked) { background-color: #422B1C; border-color: #D57118; }
+    @media (hover: hover) and (pointer: fine) {
+      html.dark-mode .theme-option:active,
+      html.dark-mode .theme-option:has(input:checked):active {
+        background-color: #FFCF97;
+        border-color: #FF8142;
+        color: #E67E22;
+        box-shadow: 0 6px 16px rgba(255,218,185,.6);
+        transition-duration: .4s, .4s, 0s, 0s, 0s;
+      }
+      html.dark-mode .shortcuts-close:active,
+      html.dark-mode .language-close:active {
+        background-color: #FFCF97;
+        color: #E67E22;
+        box-shadow: 0 6px 16px rgba(255,218,185,.6);
+        transition-duration: .4s, 0s, 0s, .4s;
+      }
+    }
     .language-options .language-choice[aria-selected="true"] { background: #dedede; color: #4c4c4c; }
     html.dark-mode .language-options .language-choice[aria-selected="true"] { background: #3a3a3a; color: #dedede; }
     @media (prefers-reduced-motion: reduce) { .language-dialog, .language-wait-overlay { transition: none; } .language-dropdown { animation: none; } }
