@@ -328,6 +328,17 @@
         .mit-license-dialog { box-sizing: border-box; width: min(320px, calc(100vw - 40px)); max-width: calc(100vw - 40px); padding: 24px; border: 1px solid #c2c2c2; border-radius: 16px; background: #fff; color: #333; box-shadow: 0 18px 48px rgba(0, 0, 0, .22); }
         .mit-license-dialog::backdrop { background: rgba(0, 0, 0, .48); }
         .mit-license-dialog p { margin: 0; font-size: 1rem; line-height: 1.65; }
+        @keyframes mitLicenseDialogIn { from { opacity: 0; transform: translateY(10px) scale(.94); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        @keyframes mitLicenseDialogOut { from { opacity: 1; transform: translateY(0) scale(1); } to { opacity: 0; transform: translateY(8px) scale(.94); } }
+        @keyframes mitLicenseBackdropIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes mitLicenseBackdropOut { from { opacity: 1; } to { opacity: 0; } }
+        .mit-license-dialog[open] { animation: mitLicenseDialogIn 180ms cubic-bezier(.2, .75, .25, 1) both; }
+        .mit-license-dialog[open]::backdrop { animation: mitLicenseBackdropIn 180ms ease-out both; }
+        .mit-license-dialog.is-closing { animation: mitLicenseDialogOut 180ms ease-in both; }
+        .mit-license-dialog.is-closing::backdrop { animation: mitLicenseBackdropOut 180ms ease-in both; }
+        @media (prefers-reduced-motion: reduce) {
+            .mit-license-dialog[open], .mit-license-dialog[open]::backdrop, .mit-license-dialog.is-closing, .mit-license-dialog.is-closing::backdrop { animation-duration: .01ms; }
+        }
         .main-project-developer-content .compatibility-version-list { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; margin-top: 8px; }
         .main-project-developer-button-slot { display: grid; place-items: center; flex: 0 0 58px; width: 58px; height: 58px; }
         .compatibility-version-button.main-project-developer-button { position: relative; box-sizing: border-box; width: 50px; height: 50px; min-height: 50px; flex: 0 0 50px; aspect-ratio: 1; padding: 0; border-radius: 50%; }
@@ -735,6 +746,18 @@
             const detailSection = document.getElementById('detail-section');
             const mitLicenseTrigger = document.getElementById('mit-license-trigger');
             const mitLicenseDialog = document.getElementById('mit-license-dialog');
+            const closeMitLicenseDialog = () => {
+                if (!mitLicenseDialog?.open || mitLicenseDialog.classList.contains('is-closing')) return;
+                if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                    mitLicenseDialog.close();
+                    return;
+                }
+                mitLicenseDialog.classList.add('is-closing');
+                window.setTimeout(() => {
+                    if (mitLicenseDialog.open) mitLicenseDialog.close();
+                    mitLicenseDialog.classList.remove('is-closing');
+                }, 200);
+            };
             const compatibilityPlaceholder = document.createComment('compatibility-section-placeholder');
             const compatibilityContent = document.getElementById('compatibility-content');
             const lowerDivider = document.querySelector('.main-project-lower-divider');
@@ -754,12 +777,19 @@
                 button.addEventListener('click', () => button.classList.add('is-highlighted'));
             });
             mitLicenseTrigger?.addEventListener('click', () => {
-                if (mitLicenseDialog && !mitLicenseDialog.open) mitLicenseDialog.showModal();
+                if (mitLicenseDialog && !mitLicenseDialog.open) {
+                    mitLicenseDialog.classList.remove('is-closing');
+                    mitLicenseDialog.showModal();
+                }
+            });
+            mitLicenseDialog?.addEventListener('cancel', event => {
+                event.preventDefault();
+                closeMitLicenseDialog();
             });
             mitLicenseDialog?.addEventListener('click', event => {
                 const bounds = mitLicenseDialog.getBoundingClientRect();
                 if (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom) {
-                    mitLicenseDialog.close();
+                    closeMitLicenseDialog();
                 }
             });
             ['pointerup', 'pointercancel'].forEach(type => {
