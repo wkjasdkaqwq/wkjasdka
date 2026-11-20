@@ -322,9 +322,16 @@
         .main-project-link-section { position: absolute; top: 0; right: 0; left: 0; }
         .main-project-detail-section { position: absolute; top: 0; right: 0; left: 0; }
         .detail-license-row { display: flex; align-items: center; gap: 12px; margin-top: 16px; }
+        .detail-license-scale { display: grid; place-items: center; flex: 0 0 50px; width: 50px; height: 50px; color: #e67e22; font-size: 1.5rem; line-height: 1; }
         .detail-license-text { margin: 0; color: #666; font-size: 1rem; line-height: 1.65; }
-        .detail-license-trigger { padding: 0; border: 0; background: transparent; color: #e67e22; cursor: pointer; font: inherit; font-weight: 700; text-decoration: underline; text-underline-offset: 2px; }
+        .detail-license-trigger { padding: 0; border: 0; background: transparent; color: #e67e22; cursor: pointer; font: inherit; font-weight: 700; text-decoration: none; text-underline-offset: 2px; }
         .detail-license-trigger:focus-visible { outline: 2px solid #64b5f6; outline-offset: 2px; }
+        @media (hover: hover) and (pointer: fine) {
+            .detail-license-trigger:hover { text-decoration: underline; }
+        }
+        @media (hover: none), (pointer: coarse) {
+            .detail-license-trigger:active { text-decoration: underline; }
+        }
         .mit-license-dialog { box-sizing: border-box; width: min(320px, calc(100vw - 40px)); max-width: calc(100vw - 40px); padding: 24px; border: 1px solid #c2c2c2; border-radius: 16px; background: #fff; color: #333; box-shadow: 0 18px 48px rgba(0, 0, 0, .22); }
         .mit-license-dialog::backdrop { background: rgba(0, 0, 0, .48); }
         .mit-license-dialog p { margin: 0; font-size: 1rem; line-height: 1.65; }
@@ -372,6 +379,7 @@
         html.dark-mode .main-project-description-section-title { color: #e0e0e0; }
         html.dark-mode .main-project-description-section-divider { background: #385066; }
         html.dark-mode .main-project-description-body { color: #a0a0a0; }
+        html.dark-mode .detail-license-scale { color: #ffc08a; }
         html.dark-mode .detail-license-text { color: #a0a0a0; }
         html.dark-mode .detail-license-trigger { color: #ffb380; }
         html.dark-mode .mit-license-dialog { border-color: #385066; background: #1f2933; color: #e0e0e0; }
@@ -673,9 +681,7 @@
                         <h2 class="main-project-description-section-title main-project-description-title" id="detail-section-title">Detail</h2>
                         <div class="main-project-description-section-divider" aria-hidden="true"></div>
                         <div class="detail-license-row">
-                            <button class="compatibility-version-button compatibility-environment-button main-project-developer-button" type="button" aria-label="License details">
-                                <i class="fa-solid fa-scale-balanced" aria-hidden="true"></i>
-                            </button>
+                            <span class="detail-license-scale" aria-hidden="true"><i class="fa-solid fa-scale-balanced"></i></span>
                             <p class="detail-license-text">Licensed <button class="detail-license-trigger" id="mit-license-trigger" type="button" aria-haspopup="dialog" aria-controls="mit-license-dialog">MIT</button></p>
                         </div>
                         <div class="main-project-description-section-divider" aria-hidden="true"></div>
