@@ -311,12 +311,13 @@
         .community-gallery-frame:hover, .community-gallery-preview-trigger:hover, .community-gallery-preview-trigger:active { background-color: #e1e1e1; }
         .community-gallery-preview-trigger:active { transform: translate(3px, 3px); }
         .community-gallery-frame img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center; pointer-events: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; -webkit-user-drag: none; user-drag: none; }
-        .community-gallery-preview-dialog { position: fixed; inset: 0; display: none; place-items: center; box-sizing: border-box; width: 100vw; height: 100vh; height: 100dvh; max-width: none; max-height: none; margin: 0; padding: 16px 16px 88px; border: 0; overflow: hidden; background: transparent; color: #fff; }
+        .community-gallery-preview-dialog { position: fixed; inset: 0; display: none; place-items: center; box-sizing: border-box; width: 100vw; height: 100vh; height: 100dvh; max-width: none; max-height: none; margin: 0; padding: 16px 16px 88px; border: 0; overflow: hidden; background: transparent; color: #fff; cursor: zoom-in; touch-action: none; }
         .community-gallery-preview-dialog[open] { display: grid; animation: community-gallery-preview-fade-in .22s ease-out both; }
         .community-gallery-preview-dialog[open].is-closing { animation: community-gallery-preview-fade-out .18s ease-in both; }
         .community-gallery-preview-dialog::backdrop { background: rgba(0, 0, 0, .94); }
         .community-gallery-preview-dialog[open]::backdrop { animation: community-gallery-preview-fade-in .22s ease-out both; }
         .community-gallery-preview-dialog[open].is-closing::backdrop { animation: community-gallery-preview-fade-out .18s ease-in both; }
+        .community-gallery-preview-zoom-surface { display: grid; place-items: center; width: max-content; height: max-content; max-width: calc(100vw - 32px); max-height: calc(100vh - 120px); max-height: calc(100dvh - 120px); transform: translate3d(var(--community-gallery-pan-x, 0px), var(--community-gallery-pan-y, 0px), 0) scale(var(--community-gallery-preview-zoom, 1)); transform-origin: center; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-user-drag: none; will-change: transform; cursor: zoom-in; }
         .community-gallery-preview-image { display: block; max-width: calc(100vw - 32px); max-height: calc(100vh - 120px); max-height: calc(100dvh - 120px); object-fit: contain; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; -webkit-user-drag: none; user-drag: none; }
         .community-gallery-preview-dialog[open] .community-gallery-preview-image { animation: community-gallery-image-in .26s cubic-bezier(.2, .8, .2, 1) both; }
         .community-gallery-preview-dialog[open].is-closing .community-gallery-preview-image { animation: community-gallery-image-out .18s ease-in both; }
@@ -339,6 +340,7 @@
         .community-gallery-preview-close:hover { border-color: #d18a58; background: #4a382b; color: #ffc08a; box-shadow: 0 8px 20px rgba(0, 0, 0, .35); }
         .community-gallery-preview-close:active { border-color: #FF9C5A; background: #FFC38D; color: #E67E22; box-shadow: 0 6px 16px rgba(255, 218, 185, .6); transform: translateY(2px) scale(.98); transition-duration: .1s; }
         .community-gallery-preview-close:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+        .community-gallery-preview-toolbar, .community-gallery-preview-toolbar * { cursor: default; }
         @media (hover: none), (pointer: coarse) {
             .community-gallery-preview-nav-button:not(:disabled):hover:not(:active) { background: transparent; color: #fff; box-shadow: none; }
             .community-gallery-preview-close:hover:not(:active) { border-color: rgba(255, 255, 255, .45); background: rgba(255, 255, 255, .12); color: #fff; box-shadow: none; }
@@ -872,7 +874,9 @@
                 <button class="community-gallery-preview-close" type="button" aria-label="Close image preview" title="Close preview">&times;</button>
             </div>
         </div>
-        <img class="community-gallery-preview-image" alt="" draggable="false">
+        <div class="community-gallery-preview-zoom-surface">
+            <img class="community-gallery-preview-image" alt="" draggable="false">
+        </div>
     </dialog>
     <script>
         (function () {
@@ -911,13 +915,83 @@
             const detailSection = document.getElementById('detail-section');
             const galleryPreviewDialog = document.getElementById('community-gallery-preview-dialog');
             const galleryPreviewImage = galleryPreviewDialog?.querySelector('.community-gallery-preview-image');
+            const galleryPreviewZoomSurface = galleryPreviewDialog?.querySelector('.community-gallery-preview-zoom-surface');
             const galleryPreviewClose = galleryPreviewDialog?.querySelector('.community-gallery-preview-close');
             const galleryPreviewImages = Array.from(document.querySelectorAll('.community-gallery-preview-trigger img'));
             const galleryPreviewPage = galleryPreviewDialog?.querySelector('.community-gallery-preview-page');
             const galleryPreviewNavigationButtons = galleryPreviewDialog?.querySelectorAll('[data-gallery-preview-step]') || [];
             let galleryPreviewIndex = 0;
+            const galleryPreviewMinZoom = 1;
+            const galleryPreviewMaxZoom = 5;
+            let galleryPreviewZoom = galleryPreviewMinZoom;
+            let galleryPreviewPanX = 0;
+            let galleryPreviewPanY = 0;
+            const galleryPreviewPointers = new Map();
+            let galleryPreviewGesture = null;
+            let galleryPreviewSuppressBackdropClickUntil = 0;
+            const applyGalleryPreviewTransform = () => {
+                if (!galleryPreviewZoomSurface) return;
+                galleryPreviewZoomSurface.style.setProperty('--community-gallery-preview-zoom', String(galleryPreviewZoom));
+                galleryPreviewZoomSurface.style.setProperty('--community-gallery-pan-x', `${galleryPreviewPanX}px`);
+                galleryPreviewZoomSurface.style.setProperty('--community-gallery-pan-y', `${galleryPreviewPanY}px`);
+                galleryPreviewZoomSurface.style.cursor = galleryPreviewZoom > galleryPreviewMinZoom ? 'zoom-out' : 'zoom-in';
+            };
+            const resetGalleryPreviewZoom = () => {
+                galleryPreviewZoom = galleryPreviewMinZoom;
+                galleryPreviewPanX = 0;
+                galleryPreviewPanY = 0;
+                galleryPreviewPointers.clear();
+                galleryPreviewGesture = null;
+                applyGalleryPreviewTransform();
+            };
+            const getGalleryPreviewBaseCenter = () => {
+                const rect = galleryPreviewZoomSurface.getBoundingClientRect();
+                return { x: rect.left + rect.width / 2 - galleryPreviewPanX, y: rect.top + rect.height / 2 - galleryPreviewPanY };
+            };
+            const setGalleryPreviewZoomAt = (nextZoom, x, y) => {
+                const center = getGalleryPreviewBaseCenter();
+                const clampedZoom = Math.max(galleryPreviewMinZoom, Math.min(galleryPreviewMaxZoom, nextZoom));
+                const ratio = clampedZoom / galleryPreviewZoom;
+                if (clampedZoom === galleryPreviewMinZoom) {
+                    galleryPreviewPanX = 0;
+                    galleryPreviewPanY = 0;
+                } else {
+                    galleryPreviewPanX = x - center.x - ratio * (x - center.x - galleryPreviewPanX);
+                    galleryPreviewPanY = y - center.y - ratio * (y - center.y - galleryPreviewPanY);
+                }
+                galleryPreviewZoom = clampedZoom;
+                applyGalleryPreviewTransform();
+            };
+            const getGalleryPreviewMidpoint = points => ({
+                x: (points[0].x + points[1].x) / 2,
+                y: (points[0].y + points[1].y) / 2
+            });
+            const startGalleryPreviewGesture = () => {
+                const activePointers = Array.from(galleryPreviewPointers.entries()).slice(0, 2);
+                if (activePointers.length === 2) {
+                    const a = activePointers[0][1];
+                    const b = activePointers[1][1];
+                    const center = getGalleryPreviewBaseCenter();
+                    galleryPreviewGesture = {
+                        type: 'pinch',
+                        startDistance: Math.hypot(b.x - a.x, b.y - a.y),
+                        startMidpoint: getGalleryPreviewMidpoint([a, b]),
+                        startZoom: galleryPreviewZoom,
+                        startPanX: galleryPreviewPanX,
+                        startPanY: galleryPreviewPanY,
+                        centerX: center.x,
+                        centerY: center.y
+                    };
+                } else if (activePointers.length === 1 && galleryPreviewZoom > galleryPreviewMinZoom) {
+                    const [pointerId, point] = activePointers[0];
+                    galleryPreviewGesture = { type: 'pan', pointerId, startX: point.x, startY: point.y, startPanX: galleryPreviewPanX, startPanY: galleryPreviewPanY };
+                } else {
+                    galleryPreviewGesture = null;
+                }
+            };
             const showGalleryPreviewImage = index => {
                 if (!galleryPreviewImage || galleryPreviewImages.length === 0) return;
+                resetGalleryPreviewZoom();
                 galleryPreviewIndex = Math.max(0, Math.min(index, galleryPreviewImages.length - 1));
                 const sourceImage = galleryPreviewImages[galleryPreviewIndex];
                 galleryPreviewImage.src = sourceImage.currentSrc || sourceImage.src;
@@ -947,6 +1021,7 @@
                 window.clearTimeout(galleryPreviewCloseTimer);
                 galleryPreviewCloseTimer = 0;
                 galleryPreviewDialog.classList.remove('is-closing');
+                resetGalleryPreviewZoom();
             });
             galleryPreviewDialog?.addEventListener('cancel', event => {
                 event.preventDefault();
@@ -970,8 +1045,63 @@
             });
             galleryPreviewClose?.addEventListener('click', closeGalleryPreview);
             galleryPreviewDialog?.addEventListener('click', event => {
+                if (event.target === galleryPreviewDialog && Date.now() < galleryPreviewSuppressBackdropClickUntil) {
+                    galleryPreviewSuppressBackdropClickUntil = 0;
+                    event.preventDefault();
+                    event.stopPropagation();
+                    return;
+                }
                 if (event.target === galleryPreviewDialog) closeGalleryPreview();
             });
+            galleryPreviewDialog?.addEventListener('wheel', event => {
+                if (!galleryPreviewDialog.open || event.target.closest('.community-gallery-preview-toolbar')) return;
+                event.preventDefault();
+                const factor = event.deltaY < 0 ? 1.15 : 1 / 1.15;
+                setGalleryPreviewZoomAt(galleryPreviewZoom * factor, event.clientX, event.clientY);
+            }, { passive: false });
+            galleryPreviewZoomSurface?.addEventListener('click', event => {
+                if (window.matchMedia('(hover: none), (pointer: coarse)').matches) return;
+                const nextZoom = galleryPreviewZoom > galleryPreviewMinZoom ? galleryPreviewMinZoom : 2;
+                setGalleryPreviewZoomAt(nextZoom, event.clientX, event.clientY);
+            });
+            galleryPreviewDialog?.addEventListener('pointerdown', event => {
+                if (!galleryPreviewDialog.open || event.pointerType !== 'touch' || event.target.closest('.community-gallery-preview-toolbar')) return;
+                if (galleryPreviewPointers.size > 0) galleryPreviewSuppressBackdropClickUntil = Date.now() + 750;
+                galleryPreviewPointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+                startGalleryPreviewGesture();
+            });
+            galleryPreviewDialog?.addEventListener('pointermove', event => {
+                if (!galleryPreviewPointers.has(event.pointerId)) return;
+                galleryPreviewSuppressBackdropClickUntil = Date.now() + 750;
+                galleryPreviewPointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+                if (galleryPreviewGesture?.type === 'pinch' && galleryPreviewPointers.size >= 2) {
+                    const activePointers = Array.from(galleryPreviewPointers.values()).slice(0, 2);
+                    const distance = Math.hypot(activePointers[1].x - activePointers[0].x, activePointers[1].y - activePointers[0].y);
+                    const midpoint = getGalleryPreviewMidpoint(activePointers);
+                    const nextZoom = Math.max(galleryPreviewMinZoom, Math.min(galleryPreviewMaxZoom, galleryPreviewGesture.startZoom * distance / Math.max(1, galleryPreviewGesture.startDistance)));
+                    const ratio = nextZoom / galleryPreviewGesture.startZoom;
+                    if (nextZoom === galleryPreviewMinZoom) {
+                        galleryPreviewPanX = 0;
+                        galleryPreviewPanY = 0;
+                    } else {
+                        galleryPreviewPanX = midpoint.x - galleryPreviewGesture.centerX - ratio * (galleryPreviewGesture.startMidpoint.x - galleryPreviewGesture.centerX - galleryPreviewGesture.startPanX);
+                        galleryPreviewPanY = midpoint.y - galleryPreviewGesture.centerY - ratio * (galleryPreviewGesture.startMidpoint.y - galleryPreviewGesture.centerY - galleryPreviewGesture.startPanY);
+                    }
+                    galleryPreviewZoom = nextZoom;
+                    applyGalleryPreviewTransform();
+                } else if (galleryPreviewGesture?.type === 'pan' && galleryPreviewPointers.size === 1 && galleryPreviewGesture.pointerId === event.pointerId) {
+                    galleryPreviewPanX = galleryPreviewGesture.startPanX + event.clientX - galleryPreviewGesture.startX;
+                    galleryPreviewPanY = galleryPreviewGesture.startPanY + event.clientY - galleryPreviewGesture.startY;
+                    applyGalleryPreviewTransform();
+                }
+            });
+            const finishGalleryPreviewPointer = event => {
+                if (!galleryPreviewPointers.has(event.pointerId)) return;
+                galleryPreviewPointers.delete(event.pointerId);
+                startGalleryPreviewGesture();
+            };
+            galleryPreviewDialog?.addEventListener('pointerup', finishGalleryPreviewPointer);
+            galleryPreviewDialog?.addEventListener('pointercancel', finishGalleryPreviewPointer);
             const mitLicenseTrigger = document.getElementById('mit-license-trigger');
             const mitLicenseDialog = document.getElementById('mit-license-dialog');
             const closeMitLicenseDialog = () => {
