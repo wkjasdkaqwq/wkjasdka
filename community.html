@@ -321,6 +321,13 @@
         .main-project-developer-content { margin-top: 16px; }
         .main-project-link-section { position: absolute; top: 0; right: 0; left: 0; }
         .main-project-detail-section { position: absolute; top: 0; right: 0; left: 0; }
+        .detail-license-row { display: flex; align-items: center; gap: 12px; margin-top: 16px; }
+        .detail-license-text { margin: 0; color: #666; font-size: 1rem; line-height: 1.65; }
+        .detail-license-trigger { padding: 0; border: 0; background: transparent; color: #e67e22; cursor: pointer; font: inherit; font-weight: 700; text-decoration: underline; text-underline-offset: 2px; }
+        .detail-license-trigger:focus-visible { outline: 2px solid #64b5f6; outline-offset: 2px; }
+        .mit-license-dialog { box-sizing: border-box; width: min(320px, calc(100vw - 40px)); max-width: calc(100vw - 40px); padding: 24px; border: 1px solid #c2c2c2; border-radius: 16px; background: #fff; color: #333; box-shadow: 0 18px 48px rgba(0, 0, 0, .22); }
+        .mit-license-dialog::backdrop { background: rgba(0, 0, 0, .48); }
+        .mit-license-dialog p { margin: 0; font-size: 1rem; line-height: 1.65; }
         .main-project-developer-content .compatibility-version-list { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; margin-top: 8px; }
         .main-project-developer-button-slot { display: grid; place-items: center; flex: 0 0 58px; width: 58px; height: 58px; }
         .compatibility-version-button.main-project-developer-button { position: relative; box-sizing: border-box; width: 50px; height: 50px; min-height: 50px; flex: 0 0 50px; aspect-ratio: 1; padding: 0; border-radius: 50%; }
@@ -354,6 +361,9 @@
         html.dark-mode .main-project-description-section-title { color: #e0e0e0; }
         html.dark-mode .main-project-description-section-divider { background: #385066; }
         html.dark-mode .main-project-description-body { color: #a0a0a0; }
+        html.dark-mode .detail-license-text { color: #a0a0a0; }
+        html.dark-mode .detail-license-trigger { color: #ffb380; }
+        html.dark-mode .mit-license-dialog { border-color: #385066; background: #1f2933; color: #e0e0e0; }
         html.dark-mode .compatibility-edition-label { color: #c5ced6; }
         html.dark-mode .compatibility-version-button { border-color: #a66a3d; background: #3b3028; color: #ffc08a; box-shadow: 0 4px 12px rgba(0, 0, 0, .25); }
         @media (hover: hover) and (pointer: fine) {
@@ -651,7 +661,16 @@
                     <section class="main-project-detail-section" id="detail-section" aria-labelledby="detail-section-title">
                         <h2 class="main-project-description-section-title main-project-description-title" id="detail-section-title">Detail</h2>
                         <div class="main-project-description-section-divider" aria-hidden="true"></div>
+                        <div class="detail-license-row">
+                            <button class="compatibility-version-button compatibility-environment-button main-project-developer-button" type="button" aria-label="License details">
+                                <i class="fa-solid fa-scale-balanced" aria-hidden="true"></i>
+                            </button>
+                            <p class="detail-license-text">Licensed <button class="detail-license-trigger" id="mit-license-trigger" type="button" aria-haspopup="dialog" aria-controls="mit-license-dialog">MIT</button></p>
+                        </div>
                         <div class="main-project-description-section-divider" aria-hidden="true"></div>
+                        <dialog class="mit-license-dialog" id="mit-license-dialog" aria-labelledby="mit-license-title">
+                            <p id="mit-license-title">MIT License</p>
+                        </dialog>
                     </section>
                 </section>
                 <section class="main-project-tab-panel" id="panel-update" role="tabpanel" aria-labelledby="tab-update" hidden>
@@ -714,6 +733,8 @@
             const developerSection = document.getElementById('developer-section');
             const linkSection = document.getElementById('link-section');
             const detailSection = document.getElementById('detail-section');
+            const mitLicenseTrigger = document.getElementById('mit-license-trigger');
+            const mitLicenseDialog = document.getElementById('mit-license-dialog');
             const compatibilityPlaceholder = document.createComment('compatibility-section-placeholder');
             const compatibilityContent = document.getElementById('compatibility-content');
             const lowerDivider = document.querySelector('.main-project-lower-divider');
@@ -731,6 +752,15 @@
                     button.classList.add('is-touch-pressed');
                 }, { capture: true, passive: true });
                 button.addEventListener('click', () => button.classList.add('is-highlighted'));
+            });
+            mitLicenseTrigger?.addEventListener('click', () => {
+                if (mitLicenseDialog && !mitLicenseDialog.open) mitLicenseDialog.showModal();
+            });
+            mitLicenseDialog?.addEventListener('click', event => {
+                const bounds = mitLicenseDialog.getBoundingClientRect();
+                if (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom) {
+                    mitLicenseDialog.close();
+                }
             });
             ['pointerup', 'pointercancel'].forEach(type => {
                 document.addEventListener(type, event => {
