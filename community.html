@@ -323,7 +323,7 @@
         .main-project-detail-section { position: absolute; top: 0; right: 0; left: 0; }
         .detail-license-row { display: flex; align-items: center; gap: 4px; margin-top: 16px; }
         .detail-license-scale { display: grid; place-items: center; flex: 0 0 50px; width: 50px; height: 50px; color: #e67e22; font-size: 1.425rem; line-height: 1; }
-        .detail-license-scale .fa-scale-balanced { -webkit-text-stroke: .85px #c56b1d; transform: translate(1px, 1px) scale(.9); }
+        .detail-license-scale .fa-scale-balanced { -webkit-text-stroke: .85px #c56b1d; }
         .detail-license-text { margin: 0 0 0 -7px; color: #666; font-size: 1rem; line-height: 1.65; }
         .detail-release-row, .detail-last-updated-row { display: flex; align-items: center; gap: 4px; margin-top: -7px; }
         .detail-metadata-icon-slot { display: grid; place-items: center; flex: 0 0 50px; width: 50px; height: 50px; color: #e67e22; }
@@ -331,8 +331,7 @@
         .detail-metadata-icon::before, .detail-metadata-icon::after { content: ""; position: absolute; inset: 0; background-color: currentColor; -webkit-mask-position: center; mask-position: center; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-size: contain; mask-size: contain; }
         .detail-release-icon::before, .detail-release-icon::after { -webkit-mask-image: url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.2/icons/file-earmark-arrow-up.svg"); mask-image: url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.2/icons/file-earmark-arrow-up.svg"); }
         .detail-last-updated-icon::before, .detail-last-updated-icon::after { -webkit-mask-image: url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.2/icons/pencil-square.svg"); mask-image: url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.2/icons/pencil-square.svg"); }
-        .detail-release-icon { transform: translate(.5px, 1px) scaleX(1.15) scaleY(.9); }
-        .detail-last-updated-icon { transform: translateY(1px); }
+        .detail-last-updated-icon { transform: scale(.9409); }
         .detail-metadata-icon::before { z-index: 0; background-color: #c56b1d; transform: scale(1.07826); }
         .detail-metadata-icon::after { z-index: 1; }
         .detail-release-text, .detail-last-updated-text { margin: 0 0 0 -7px; color: #666; font-size: 1rem; line-height: 1.65; }
