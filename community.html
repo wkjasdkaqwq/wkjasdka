@@ -311,10 +311,19 @@
         .community-gallery-frame:hover, .community-gallery-preview-trigger:hover, .community-gallery-preview-trigger:active { background-color: #e1e1e1; }
         .community-gallery-preview-trigger:active { transform: translate(3px, 3px); }
         .community-gallery-frame img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center; pointer-events: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; -webkit-user-drag: none; user-drag: none; }
-        .community-gallery-preview-dialog { position: fixed; inset: 0; display: none; place-items: center; box-sizing: border-box; width: 100vw; height: 100vh; height: 100dvh; max-width: none; max-height: none; margin: 0; padding: 48px 16px 16px; border: 0; overflow: hidden; background: rgba(0, 0, 0, .94); color: #fff; }
-        .community-gallery-preview-dialog[open] { display: grid; }
+        .community-gallery-preview-dialog { position: fixed; inset: 0; display: none; place-items: center; box-sizing: border-box; width: 100vw; height: 100vh; height: 100dvh; max-width: none; max-height: none; margin: 0; padding: 48px 16px 16px; border: 0; overflow: hidden; background: transparent; color: #fff; }
+        .community-gallery-preview-dialog[open] { display: grid; animation: community-gallery-preview-fade-in .22s ease-out both; }
+        .community-gallery-preview-dialog[open].is-closing { animation: community-gallery-preview-fade-out .18s ease-in both; }
         .community-gallery-preview-dialog::backdrop { background: rgba(0, 0, 0, .94); }
+        .community-gallery-preview-dialog[open]::backdrop { animation: community-gallery-preview-fade-in .22s ease-out both; }
+        .community-gallery-preview-dialog[open].is-closing::backdrop { animation: community-gallery-preview-fade-out .18s ease-in both; }
         .community-gallery-preview-image { display: block; max-width: calc(100vw - 32px); max-height: calc(100vh - 80px); max-height: calc(100dvh - 80px); object-fit: contain; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; -webkit-user-drag: none; user-drag: none; }
+        .community-gallery-preview-dialog[open] .community-gallery-preview-image { animation: community-gallery-image-in .26s cubic-bezier(.2, .8, .2, 1) both; }
+        .community-gallery-preview-dialog[open].is-closing .community-gallery-preview-image { animation: community-gallery-image-out .18s ease-in both; }
+        @keyframes community-gallery-preview-fade-in { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes community-gallery-preview-fade-out { from { opacity: 1; } to { opacity: 0; } }
+        @keyframes community-gallery-image-in { from { opacity: 0; transform: translateY(8px) scale(.94); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        @keyframes community-gallery-image-out { from { opacity: 1; transform: translateY(0) scale(1); } to { opacity: 0; transform: translateY(4px) scale(.97); } }
         .community-gallery-preview-close { position: absolute; top: max(12px, env(safe-area-inset-top)); right: max(12px, env(safe-area-inset-right)); display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 1px solid rgba(255, 255, 255, .45); border-radius: 50%; background: rgba(20, 20, 20, .72); color: #fff; cursor: pointer; font: inherit; font-size: 28px; line-height: 1; -webkit-user-select: none; user-select: none; }
         .community-gallery-preview-close:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
         .community-gallery-item figcaption { box-sizing: border-box; padding: 10px 12px 2px; border-top: 1px solid #c2c2c2; color: #666; font-size: .9rem; line-height: 1.4; }
@@ -331,6 +340,7 @@
         html.dark-mode .community-gallery-caption { color: #f5f5f5; }
         @media (prefers-reduced-motion: reduce) {
             .community-gallery-frame, .community-gallery-preview-trigger { transition-duration: .01ms; }
+            .community-gallery-preview-dialog[open], .community-gallery-preview-dialog[open]::backdrop, .community-gallery-preview-dialog[open] .community-gallery-preview-image { animation-duration: .01ms !important; }
         }
         .main-project-description-section { position: absolute; top: calc(1.32rem * 1.2 + .3rem + 4.2rem - 8px + 24px + 12px + 2.55rem + 32px + 16px); right: -34px; left: -34px; z-index: 1; }
         #compatibility-section[hidden] { display: none !important; }
@@ -874,6 +884,27 @@
             const galleryPreviewDialog = document.getElementById('community-gallery-preview-dialog');
             const galleryPreviewImage = galleryPreviewDialog?.querySelector('.community-gallery-preview-image');
             const galleryPreviewClose = galleryPreviewDialog?.querySelector('.community-gallery-preview-close');
+            let galleryPreviewCloseTimer = 0;
+            const closeGalleryPreview = () => {
+                if (!galleryPreviewDialog?.open || galleryPreviewDialog.classList.contains('is-closing')) return;
+                if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                    galleryPreviewDialog.close();
+                    return;
+                }
+                galleryPreviewDialog.classList.add('is-closing');
+                galleryPreviewCloseTimer = window.setTimeout(() => {
+                    if (galleryPreviewDialog.open) galleryPreviewDialog.close();
+                }, 180);
+            };
+            galleryPreviewDialog?.addEventListener('close', () => {
+                window.clearTimeout(galleryPreviewCloseTimer);
+                galleryPreviewCloseTimer = 0;
+                galleryPreviewDialog.classList.remove('is-closing');
+            });
+            galleryPreviewDialog?.addEventListener('cancel', event => {
+                event.preventDefault();
+                closeGalleryPreview();
+            });
             document.querySelectorAll('.community-gallery-preview-trigger').forEach((trigger) => {
                 trigger.addEventListener('dragstart', event => event.preventDefault());
                 trigger.addEventListener('click', () => {
@@ -885,9 +916,9 @@
                     galleryPreviewClose?.focus({ preventScroll: true });
                 });
             });
-            galleryPreviewClose?.addEventListener('click', () => galleryPreviewDialog?.close());
+            galleryPreviewClose?.addEventListener('click', closeGalleryPreview);
             galleryPreviewDialog?.addEventListener('click', event => {
-                if (event.target === galleryPreviewDialog) galleryPreviewDialog.close();
+                if (event.target === galleryPreviewDialog) closeGalleryPreview();
             });
             const mitLicenseTrigger = document.getElementById('mit-license-trigger');
             const mitLicenseDialog = document.getElementById('mit-license-dialog');
