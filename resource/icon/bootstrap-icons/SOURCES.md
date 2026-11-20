@@ -1,8 +1,9 @@
 # Bootstrap Icons
 
-These two SVGs are copied from the official Bootstrap Icons repository (MIT License):
+Client and Server environment icons are loaded from the Bootstrap Icons 1.13.2 CDN distribution; the SVG files are intentionally not stored in this repository.
 
-- `display.svg` — <https://github.com/twbs/icons/blob/main/icons/display.svg>
-- `hdd-stack-fill.svg` — <https://github.com/twbs/icons/blob/main/icons/hdd-stack-fill.svg>
+- Client — `display.svg`: <https://github.com/twbs/icons/blob/main/icons/display.svg>
+- Server — `hdd-stack-fill.svg`: <https://github.com/twbs/icons/blob/main/icons/hdd-stack-fill.svg>
+- CDN base: <https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.2/icons/>
 
-The upstream license is included as `LICENSE.txt`.
+The upstream license is retained as `LICENSE.txt`.
