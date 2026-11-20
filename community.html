@@ -327,7 +327,10 @@
         .detail-license-text { margin: 0 0 0 -7px; color: #666; font-size: 1rem; line-height: 1.65; }
         .detail-release-row { display: flex; align-items: center; gap: 4px; margin-top: 8px; }
         .detail-release-icon-slot { display: grid; place-items: center; flex: 0 0 50px; width: 50px; height: 50px; color: #e67e22; }
-        .detail-release-icon { display: block; width: 1.425rem; height: 1.425rem; background-color: currentColor; -webkit-mask-image: url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.2/icons/file-earmark-arrow-up.svg"); mask-image: url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.2/icons/file-earmark-arrow-up.svg"); -webkit-mask-position: center; mask-position: center; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-size: contain; mask-size: contain; }
+        .detail-release-icon { position: relative; isolation: isolate; display: block; width: 1.425rem; height: 1.425rem; }
+        .detail-release-icon::before, .detail-release-icon::after { content: ""; position: absolute; inset: 0; background-color: currentColor; -webkit-mask-image: url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.2/icons/file-earmark-arrow-up.svg"); mask-image: url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.2/icons/file-earmark-arrow-up.svg"); -webkit-mask-position: center; mask-position: center; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-size: contain; mask-size: contain; }
+        .detail-release-icon::before { z-index: 0; background-color: #c56b1d; transform: scale(1.09); }
+        .detail-release-icon::after { z-index: 1; }
         .detail-release-text { margin: 0 0 0 -7px; color: #666; font-size: 1rem; line-height: 1.65; }
         .detail-license-trigger { padding: 0; border: 0; background: transparent; color: #e67e22; cursor: pointer; font: inherit; font-weight: 700; text-decoration: none; text-underline-offset: 2px; }
         .detail-license-trigger:focus-visible { outline: 2px solid #64b5f6; outline-offset: 2px; }
@@ -386,6 +389,7 @@
         html.dark-mode .main-project-description-body { color: #a0a0a0; }
         html.dark-mode .detail-license-scale { color: #e67e22; }
         html.dark-mode .detail-license-scale .fa-scale-balanced { -webkit-text-stroke-color: #ffc58a; -webkit-text-stroke-width: 1px; }
+        html.dark-mode .detail-release-icon::before { background-color: #ffc58a; }
         html.dark-mode .detail-license-text { color: #a0a0a0; }
         html.dark-mode .detail-release-text { color: #a0a0a0; }
         html.dark-mode .detail-license-trigger { color: #ffb380; }
