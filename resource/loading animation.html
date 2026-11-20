@@ -4,6 +4,41 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WKJASDKA LOADING ANIMATION</title>
+    <script>
+        (() => {
+            const themeKey = 'wkjasdka-dark-mode';
+            const root = document.documentElement;
+            const systemTheme = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+            const savedTheme = () => {
+                try {
+                    const value = localStorage.getItem(themeKey);
+                    if (value === 'dark' || value === 'true') return 'dark';
+                    if (value === 'light' || value === 'false') return 'light';
+                    return 'system';
+                } catch (_) {
+                    return 'system';
+                }
+            };
+            const applyTheme = () => {
+                const preference = savedTheme();
+                const dark = preference === 'dark' || (preference === 'system' && Boolean(systemTheme && systemTheme.matches));
+                root.classList.toggle('dark-mode', dark);
+                root.classList.toggle('light-mode', !dark);
+                root.style.colorScheme = dark ? 'dark' : 'light';
+            };
+            applyTheme();
+            window.addEventListener('storage', event => {
+                if (event.key === themeKey || event.key === null) applyTheme();
+            });
+            if (systemTheme) {
+                const onSystemThemeChange = () => {
+                    if (savedTheme() === 'system') applyTheme();
+                };
+                if (systemTheme.addEventListener) systemTheme.addEventListener('change', onSystemThemeChange);
+                else if (systemTheme.addListener) systemTheme.addListener(onSystemThemeChange);
+            }
+        })();
+    </script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { min-height: 100vh; padding-top: 50px; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
@@ -36,6 +71,13 @@
       z-index: 999;
     }
 
+    html.dark-mode .animated-btn {
+      color: #ffc08a;
+      background-color: #3b3028;
+      border-color: #a66a3d;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, .25);
+    }
+
     .animated-btn:hover {
       transform: translateX(-50%) scale(1.12);
       box-shadow: 0 8px 20px rgba(255, 218, 185, 0.8);
@@ -56,12 +98,29 @@
     }
 
     @media (hover: hover) and (pointer: fine) {
+      html.dark-mode { color-scheme: dark; background: #07121C; color: #e0e0e0; }
+      html.dark-mode body { background: #07121C; color: #e0e0e0; }
+      html.dark-mode .animated-btn {
+        color: #ffc08a;
+        background-color: #3b3028;
+        border-color: #a66a3d;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, .25);
+      }
+
       .animated-btn:hover {
         transform: translateX(-50%) scale(1.12);
       }
 
       .animated-btn:active {
         transform: translateX(-50%) scale(1.08);
+      }
+
+      html.dark-mode .animated-btn:active {
+        background-color: #FFCF97;
+        border-color: #FF8142;
+        color: #E67E22;
+        box-shadow: 0 6px 16px rgba(255, 218, 185, .6);
+        transition-duration: .4s, .4s, 0s, 0s;
       }
     }
 
@@ -111,6 +170,37 @@
       .animated-btn.is-highlighted.is-touch-pressed:hover {
         background-color: #FFCF97;
         border-color: #FF8142;
+      }
+
+      html.dark-mode .animated-btn:hover:not(.is-highlighted) {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, .25);
+        background-color: #3b3028;
+        border-color: #a66a3d;
+      }
+
+      html.dark-mode .animated-btn.is-highlighted {
+        box-shadow: 0 8px 20px rgba(0, 0, 0, .35);
+        background-color: #4a382b;
+        border-color: #d18a58;
+      }
+
+      html.dark-mode .animated-btn.is-touch-pressed,
+      html.dark-mode .animated-btn:active,
+      html.dark-mode .animated-btn:hover.is-touch-pressed,
+      html.dark-mode .animated-btn:hover:active,
+      html.dark-mode .animated-btn.is-highlighted.is-touch-pressed,
+      html.dark-mode .animated-btn.is-highlighted:active,
+      html.dark-mode .animated-btn.is-highlighted:hover.is-touch-pressed,
+      html.dark-mode .animated-btn.is-highlighted:hover:active {
+        background-color: #FFCF97;
+        border-color: #FF8142;
+        color: #E67E22;
+        box-shadow: 0 2px 6px rgba(255, 218, 185, .5);
+        transition-duration: .4s, .4s, 0s, 0s;
+      }
+
+      html.dark-mode .animated-btn:not(.is-touch-pressed):not(:active) {
+        transition-duration: .4s, .4s, 0s, 0s;
       }
     }
     .animated-btn:focus-visible { outline: 3px solid #7B3D00; outline-offset: 3px; }
