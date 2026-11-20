@@ -370,17 +370,8 @@
         .compatibility-environment-icon { display: inline-block; flex: 0 0 1em; width: 1em; height: 1em; background-color: currentColor; -webkit-mask-position: center; mask-position: center; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-size: contain; mask-size: contain; }
         .compatibility-environment-button[data-environment="client"] .compatibility-environment-icon { -webkit-mask-image: url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.2/icons/display.svg"); mask-image: url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.2/icons/display.svg"); }
         .compatibility-environment-button[data-environment="server"] .compatibility-environment-icon { -webkit-mask-image: url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.2/icons/hdd-stack-fill.svg"); mask-image: url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.2/icons/hdd-stack-fill.svg"); }
-        .main-project-link-content { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; margin-top: 14px; }
-        .main-project-link-button { display: inline-flex; align-items: center; justify-content: flex-start; gap: 8px; box-sizing: content-box; min-height: 16px; padding: 7px 8px; border: 1px solid #FFB380; border-radius: 999px; background: #FFDAB9; color: #E67E22; box-shadow: 0 4px 12px rgba(255, 218, 185, .5); cursor: pointer; font: inherit; font-size: 1rem; font-weight: 600; line-height: 1; user-select: none; -webkit-tap-highlight-color: transparent; touch-action: manipulation; transition: transform .4s cubic-bezier(.34, 1.56, .64, 1), box-shadow .4s cubic-bezier(.34, 1.56, .64, 1), background-color .4s cubic-bezier(.34, 1.56, .64, 1), border-color .4s cubic-bezier(.34, 1.56, .64, 1); }
-        .main-project-link-button:focus-visible { outline: 2px solid #64b5f6; outline-offset: 2px; }
-        .main-project-link-icon { display: block; flex: 0 0 1em; width: 1em; height: 1em; fill: currentColor; }
-        @media (hover: hover) and (pointer: fine) {
-            .main-project-link-button:hover { transform: scale(1.12); background: #FFE4C4; border-color: #FF9966; box-shadow: 0 8px 20px rgba(255, 218, 185, .8); }
-            .main-project-link-button:active { transform: scale(1.08); background: #FFC38D; border-color: #FF9C5A; box-shadow: 0 6px 16px rgba(255, 218, 185, .6); }
-        }
-        @media (hover: none), (pointer: coarse) {
-            .main-project-link-button:active { transform: translateY(2px) scale(.98); background: #FFC38D; border-color: #FF9C5A; box-shadow: 0 2px 6px rgba(255, 218, 185, .5); }
-        }
+        .main-project-link-row { display: flex; align-items: center; gap: 4px; margin-top: 16px; }
+        .main-project-link-icon { background-color: currentColor; -webkit-mask-image: url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.2/icons/globe.svg"); mask-image: url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.2/icons/globe.svg"); -webkit-mask-position: center; mask-position: center; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-size: contain; mask-size: contain; }
         .compatibility-version-button { display: inline-flex; align-items: center; justify-content: center; box-sizing: content-box; min-height: 16px; padding: 7px 8px; border: 1px solid #FFB380; border-radius: 999px; background: #FFDAB9; color: #E67E22; box-shadow: 0 4px 12px rgba(255, 218, 185, .5); cursor: pointer; font: inherit; font-size: 1rem; font-weight: 600; line-height: 1; user-select: none; -webkit-tap-highlight-color: transparent; touch-action: manipulation; transition: transform .4s cubic-bezier(.34, 1.56, .64, 1), box-shadow .4s cubic-bezier(.34, 1.56, .64, 1), background-color .4s cubic-bezier(.34, 1.56, .64, 1), border-color .4s cubic-bezier(.34, 1.56, .64, 1); }
         .compatibility-version-button, .compatibility-version-button * { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
         .compatibility-version-button:focus-visible { outline: 2px solid #64b5f6; outline-offset: 2px; }
@@ -407,14 +398,6 @@
         html.dark-mode .detail-license-trigger { color: #ffb380; }
         html.dark-mode .mit-license-dialog { border-color: #385066; background: #1f2933; color: #e0e0e0; }
         html.dark-mode .compatibility-edition-label { color: #c5ced6; }
-        html.dark-mode .main-project-link-button { border-color: #a66a3d; background: #3b3028; color: #ffc08a; box-shadow: 0 4px 12px rgba(0, 0, 0, .25); }
-        @media (hover: hover) and (pointer: fine) {
-            html.dark-mode .main-project-link-button:hover { border-color: #d18a58; background: #4a382b; box-shadow: 0 8px 20px rgba(0, 0, 0, .35); }
-            html.dark-mode .main-project-link-button:active { border-color: #FF9C5A; background: #FFC38D; color: #E67E22; box-shadow: 0 6px 16px rgba(255, 218, 185, .6); }
-        }
-        @media (hover: none), (pointer: coarse) {
-            html.dark-mode .main-project-link-button:active { border-color: #FF9C5A; background: #FFC38D; color: #E67E22; box-shadow: 0 2px 6px rgba(255, 218, 185, .5); }
-        }
         html.dark-mode .compatibility-version-button { border-color: #a66a3d; background: #3b3028; color: #ffc08a; box-shadow: 0 4px 12px rgba(0, 0, 0, .25); }
         @media (hover: hover) and (pointer: fine) {
             html.dark-mode .compatibility-version-button:hover { border-color: #d18a58; background: #4a382b; box-shadow: 0 8px 20px rgba(0, 0, 0, .35); }
@@ -706,13 +689,11 @@
                     <section class="main-project-link-section" id="link-section" aria-labelledby="link-section-title">
                         <h2 class="main-project-description-section-title main-project-description-title" id="link-section-title">Link</h2>
                         <div class="main-project-description-section-divider" aria-hidden="true"></div>
-                        <div class="main-project-link-content">
-                            <button class="main-project-link-button" type="button">
-                                <svg class="main-project-link-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
-                                    <path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m7.5-6.923c-.67.204-1.335.82-1.887 1.855A8 8 0 0 0 5.145 4H7.5zM4.09 4a9.3 9.3 0 0 1 .64-1.539 7 7 0 0 1 .597-.933A7.03 7.03 0 0 0 2.255 4zm-.582 3.5c.03-.877.138-1.718.312-2.5H1.674a7 7 0 0 0-.656 2.5zM4.847 5a12.5 12.5 0 0 0-.338 2.5H7.5V5zM8.5 5v2.5h2.99a12.5 12.5 0 0 0-.337-2.5zM4.51 8.5a12.5 12.5 0 0 0 .337 2.5H7.5V8.5zm3.99 0V11h2.653c.187-.765.306-1.608.338-2.5zM5.145 12q.208.58.468 1.068c.552 1.035 1.218 1.65 1.887 1.855V12zm.182 2.472a7 7 0 0 1-.597-.933A9.3 9.3 0 0 1 4.09 12H2.255a7 7 0 0 0 3.072 2.472M3.82 11a13.7 13.7 0 0 1-.312-2.5h-2.49c.062.89.291 1.733.656 2.5zm6.853 3.472A7 7 0 0 0 13.745 12H11.91a9.3 9.3 0 0 1-.64 1.539 7 7 0 0 1-.597.933M8.5 12v2.923c.67-.204 1.335-.82 1.887-1.855q.26-.487.468-1.068zm3.68-1h2.146c.365-.767.594-1.61.656-2.5h-2.49a13.7 13.7 0 0 0-.312 2.5m2.802-3.5a7 7 0 0 0-.656-2.5H12.18c.174.782.282 1.623.312 2.5zM11.27 2.461c.247.464.462.98.64 1.539h1.835a7 7 0 0 0-3.072-2.472c.218.284.418.598.597.933M10.855 4a8 8 0 0 0-.468-1.068C9.835 1.897 9.17 1.282 8.5 1.077V4z"/>
-                                </svg>
-                                <span>Official site</span>
-                            </button>
+                        <div class="main-project-link-row">
+                            <span class="detail-metadata-icon-slot" aria-hidden="true">
+                                <span class="detail-metadata-icon main-project-link-icon" aria-hidden="true"></span>
+                            </span>
+                            <p class="detail-release-text"><button class="detail-license-trigger" type="button">Official site</button></p>
                         </div>
                         <div class="main-project-description-section-divider" aria-hidden="true"></div>
                     </section>
