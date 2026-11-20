@@ -330,6 +330,8 @@
         .community-gallery-preview-nav-button { display: grid; place-items: center; width: 40px; height: 44px; padding: 0; border: 0; background: transparent; color: #fff; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: background-color .16s ease, transform .16s ease; }
         .community-gallery-preview-nav-button:hover { background: rgba(255, 255, 255, .16); }
         .community-gallery-preview-nav-button:active { transform: scale(.92); }
+        .community-gallery-preview-nav-button:disabled { opacity: .38; cursor: default; }
+        .community-gallery-preview-nav-button:disabled:active { transform: none; }
         .community-gallery-preview-nav-button:focus-visible { outline: 2px solid #fff; outline-offset: -3px; }
         .community-gallery-preview-nav-button svg { display: block; width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
         .community-gallery-preview-page { display: grid; place-items: center; align-self: stretch; min-width: 54px; padding: 0 8px; border-right: 1px solid rgba(255, 255, 255, .22); border-left: 1px solid rgba(255, 255, 255, .22); color: rgba(255, 255, 255, .9); font-size: .82rem; font-variant-numeric: tabular-nums; line-height: 1; }
@@ -910,10 +912,14 @@
             let galleryPreviewIndex = 0;
             const showGalleryPreviewImage = index => {
                 if (!galleryPreviewImage || galleryPreviewImages.length === 0) return;
-                galleryPreviewIndex = (index + galleryPreviewImages.length) % galleryPreviewImages.length;
+                galleryPreviewIndex = Math.max(0, Math.min(index, galleryPreviewImages.length - 1));
                 const sourceImage = galleryPreviewImages[galleryPreviewIndex];
                 galleryPreviewImage.src = sourceImage.currentSrc || sourceImage.src;
                 galleryPreviewImage.alt = sourceImage.alt;
+                galleryPreviewNavigationButtons.forEach(button => {
+                    const step = Number(button.dataset.galleryPreviewStep);
+                    button.disabled = (step < 0 && galleryPreviewIndex === 0) || (step > 0 && galleryPreviewIndex === galleryPreviewImages.length - 1);
+                });
                 if (galleryPreviewPage) {
                     galleryPreviewPage.textContent = `${galleryPreviewIndex + 1} / ${galleryPreviewImages.length}`;
                     galleryPreviewPage.setAttribute('aria-label', `Image ${galleryPreviewIndex + 1} of ${galleryPreviewImages.length}`);
