@@ -363,6 +363,7 @@
             .community-gallery-preview-dialog[open] { cursor: default; }
             .community-gallery-preview-dialog[open].is-edge-left { cursor: url("resource/icon/bootstrap-icons/arrow-right.svg") 8 8, none; }
             .community-gallery-preview-dialog[open].is-edge-right { cursor: url("resource/icon/bootstrap-icons/arrow-left.svg") 8 8, none; }
+            .community-gallery-preview-dialog[open].is-edge-unavailable { cursor: not-allowed; }
         }
         @media (hover: none), (pointer: coarse) {
             .community-gallery-preview-nav-button:not(:disabled):hover:not(:active) { background: transparent; color: #fff; box-shadow: none; }
@@ -955,8 +956,13 @@
             let galleryPreviewEdgeDirection = 0;
             const updateGalleryPreviewEdgeCursor = () => {
                 if (!galleryPreviewDialog) return;
-                galleryPreviewDialog.classList.toggle('is-edge-left', galleryPreviewEdgeDirection === -1 && galleryPreviewIndex > 0);
-                galleryPreviewDialog.classList.toggle('is-edge-right', galleryPreviewEdgeDirection === 1 && galleryPreviewIndex < galleryPreviewImages.length - 1);
+                galleryPreviewDialog.classList.toggle('is-edge-left', galleryPreviewEdgeDirection === -1);
+                galleryPreviewDialog.classList.toggle('is-edge-right', galleryPreviewEdgeDirection === 1);
+                galleryPreviewDialog.classList.toggle('is-edge-unavailable', (galleryPreviewEdgeDirection === -1 && galleryPreviewIndex === 0) || (galleryPreviewEdgeDirection === 1 && galleryPreviewIndex >= galleryPreviewImages.length - 1));
+            };
+            const getGalleryPreviewEdgeDirection = clientX => {
+                const edgeWidth = 48;
+                return clientX <= edgeWidth ? -1 : clientX >= window.innerWidth - edgeWidth ? 1 : 0;
             };
             const resetGalleryPreviewEdgeCursor = () => {
                 galleryPreviewEdgeDirection = 0;
@@ -1329,16 +1335,23 @@
             });
             galleryPreviewDialog?.addEventListener('pointermove', event => {
                 if (!galleryPreviewDialog.open || event.pointerType !== 'mouse' || !galleryPreviewDesktopPointer.matches) return;
-                const edgeWidth = 48;
-                const direction = event.clientX <= edgeWidth ? -1 : event.clientX >= window.innerWidth - edgeWidth ? 1 : 0;
+                const direction = getGalleryPreviewEdgeDirection(event.clientX);
                 if (direction === galleryPreviewEdgeDirection) return;
                 galleryPreviewEdgeDirection = direction;
                 updateGalleryPreviewEdgeCursor();
-                if (!direction) return;
-                const nextIndex = galleryPreviewIndex + direction;
-                if (nextIndex < 0 || nextIndex >= galleryPreviewImages.length) return;
-                showGalleryPreviewImage(nextIndex);
             });
+            galleryPreviewDialog?.addEventListener('click', event => {
+                if (!galleryPreviewDialog.open || !galleryPreviewDesktopPointer.matches || event.detail === 0 || (event.pointerType && event.pointerType !== 'mouse')) return;
+                if (event.target.closest('.community-gallery-preview-toolbar')) return;
+                const direction = getGalleryPreviewEdgeDirection(event.clientX);
+                if (!direction) return;
+                galleryPreviewEdgeDirection = direction;
+                updateGalleryPreviewEdgeCursor();
+                event.preventDefault();
+                event.stopPropagation();
+                const nextIndex = galleryPreviewIndex + direction;
+                if (nextIndex >= 0 && nextIndex < galleryPreviewImages.length) showGalleryPreviewImage(nextIndex);
+            }, true);
             galleryPreviewDialog?.addEventListener('pointerleave', resetGalleryPreviewEdgeCursor);
             galleryPreviewDialog?.addEventListener('wheel', event => {
                 if (!galleryPreviewDialog.open || event.target.closest('.community-gallery-preview-toolbar')) return;
