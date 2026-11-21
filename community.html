@@ -1009,6 +1009,8 @@
             let galleryPreviewPanY = 0;
             let galleryPreviewReturnFrame = 0;
             const galleryPreviewPointers = new Map();
+            const galleryPreviewActiveTouchPointers = new Set();
+            let galleryPreviewTouchGestureBlocked = false;
             let galleryPreviewGesture = null;
             let galleryPreviewLastTap = null;
             let galleryPreviewHadMultiplePointers = false;
@@ -1419,6 +1421,11 @@
                 galleryPreviewNavigationFrame = 0;
                 galleryPreviewNavigationTargetIndex = null;
                 galleryPreviewNavigationQueue.length = 0;
+                galleryPreviewActiveTouchPointers.clear();
+                galleryPreviewPointers.clear();
+                galleryPreviewTouchGestureBlocked = false;
+                galleryPreviewHadMultiplePointers = false;
+                galleryPreviewGesture = null;
                 galleryPreviewDialog.classList.remove('is-closing');
                 galleryPreviewClose?.classList.remove('is-open-focus');
                 resetGalleryPreviewEdgeCursor();
@@ -1503,11 +1510,18 @@
             });
             galleryPreviewDialog?.addEventListener('pointerdown', event => {
                 if (!galleryPreviewDialog.open || event.pointerType !== 'touch') return;
-                if (galleryPreviewPointers.size > 0) {
+                galleryPreviewActiveTouchPointers.add(event.pointerId);
+                if (galleryPreviewTouchGestureBlocked) return;
+                if (galleryPreviewActiveTouchPointers.size >= 2) {
+                    galleryPreviewTouchGestureBlocked = true;
                     galleryPreviewHadMultiplePointers = true;
                     galleryPreviewLastTap = null;
                     galleryPreviewSuppressBackdropClickUntil = Date.now() + 750;
                     cancelGalleryPreviewDismissForMultitouch();
+                    if (galleryPreviewSwipeActive) settleGalleryPreviewSwipe(null);
+                    galleryPreviewPointers.clear();
+                    galleryPreviewGesture = null;
+                    return;
                 }
                 if (event.target.closest('.community-gallery-preview-toolbar button')) {
                     galleryPreviewLastTap = null;
@@ -1529,12 +1543,11 @@
                 }
                 galleryPreviewZoomSurface?.classList.remove('is-double-tap-animating');
                 galleryPreviewLastTap = null;
-                if (galleryPreviewPointers.size === 0) galleryPreviewHadMultiplePointers = false;
-                if (galleryPreviewPointers.size > 0) galleryPreviewSuppressBackdropClickUntil = Date.now() + 750;
                 galleryPreviewPointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
                 startGalleryPreviewGesture();
             });
             galleryPreviewDialog?.addEventListener('pointermove', event => {
+                if (galleryPreviewTouchGestureBlocked) return;
                 if (!galleryPreviewPointers.has(event.pointerId)) return;
                 galleryPreviewSuppressBackdropClickUntil = Date.now() + 750;
                 const trackedPointer = galleryPreviewPointers.get(event.pointerId);
@@ -1571,6 +1584,18 @@
                 }
             });
             const finishGalleryPreviewPointer = event => {
+                if (event.pointerType === 'touch') galleryPreviewActiveTouchPointers.delete(event.pointerId);
+                if (galleryPreviewTouchGestureBlocked) {
+                    galleryPreviewPointers.delete(event.pointerId);
+                    if (galleryPreviewActiveTouchPointers.size === 0) {
+                        galleryPreviewTouchGestureBlocked = false;
+                        galleryPreviewHadMultiplePointers = false;
+                        galleryPreviewGesture = null;
+                        galleryPreviewLastTap = null;
+                        galleryPreviewPointers.clear();
+                    }
+                    return;
+                }
                 if (!galleryPreviewPointers.has(event.pointerId)) return;
                 const activePointerCount = galleryPreviewPointers.size;
                 const point = galleryPreviewPointers.get(event.pointerId);
