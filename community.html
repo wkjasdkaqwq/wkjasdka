@@ -421,7 +421,9 @@
         .main-project-tag-content { margin-top: 16px; }
         .main-project-developer-section { position: absolute; top: 0; right: 0; left: 0; }
         .main-project-developer-content { margin-top: 16px; }
-        .main-project-changelog-content { position: relative; box-sizing: border-box; margin-top: 16px; padding-bottom: 24px; --changelog-frame-left: 70px; --changelog-frame-top: 69px; --changelog-frame-radius: 12px; --changelog-frame-stroke: 5px; --changelog-line-top: 54px; --changelog-avatar-anchor-offset: 4px; --changelog-avatar-anchor-y-offset: -4px; }
+        .main-project-changelog-list { display: flex; flex-direction: column; gap: 50px; margin-top: 16px; }
+        .main-project-changelog-list > .main-project-changelog-content { margin-top: 0; }
+        .main-project-changelog-content { position: relative; box-sizing: border-box; padding-bottom: 24px; --changelog-frame-left: 70px; --changelog-frame-top: 69px; --changelog-frame-radius: 12px; --changelog-frame-stroke: 5px; --changelog-line-top: 54px; --changelog-avatar-anchor-offset: 4px; --changelog-avatar-anchor-y-offset: -4px; }
         .main-project-changelog-content::after { content: ""; position: absolute; z-index: 0; background: #c2c2c2; pointer-events: none; top: var(--changelog-line-top); bottom: 14px; left: 27px; width: 5px; border-radius: 0 0 999px 999px; }
         .main-project-changelog-frame { position: relative; box-sizing: border-box; min-height: 34px; margin: calc(var(--changelog-frame-top) - 58px) 8px 0 var(--changelog-frame-left); padding: 16px 18px 16px 14px; }
         .main-project-changelog-frame::before {
@@ -932,26 +934,76 @@
                 <section class="main-project-tab-panel" id="panel-changelog" role="tabpanel" aria-labelledby="tab-changelog" hidden>
                     <h2 class="main-project-description-section-title">Semi-rounded Corner</h2>
                     <div class="main-project-description-section-divider" aria-hidden="true"></div>
-                    <div class="main-project-changelog-content">
-                        <div class="main-project-changelog-avatars" role="group" aria-label="Repository avatar and creation time">
-                            <div class="main-project-changelog-avatar-stack">
-                                <button class="compatibility-version-button main-project-changelog-avatar" type="button" aria-label="GitHub profile avatar">
+                    <div class="main-project-changelog-list">
+                        <div class="main-project-changelog-content">
+                            <div class="main-project-changelog-avatars" role="group" aria-label="Repository avatar and creation time">
+                                <div class="main-project-changelog-avatar-stack">
+                                    <button class="compatibility-version-button main-project-changelog-avatar" type="button" aria-label="GitHub profile avatar">
                                     <img class="main-project-changelog-avatar-image" src="https://github.com/wkjasdkaqwq.png" alt="" width="26" height="26" loading="lazy" decoding="async" draggable="false">
-                                </button>
+                                    </button>
+                                </div>
+                                <time class="main-project-changelog-created-at" datetime="2025-10-23T10:04:15Z" aria-label="Repository created at 2025-10-23 10:04:15 UTC">2025.10.23 10:04:15 UTC</time>
                             </div>
-                            <time class="main-project-changelog-created-at" datetime="2025-10-23T10:04:15Z" aria-label="Repository created at 2025-10-23 10:04:15 UTC">2025.10.23 10:04:15 UTC</time>
+                            <div class="main-project-changelog-button-slot">
+                                <button class="compatibility-version-button main-project-changelog-button" type="button" aria-label="Changelog button"></button>
+                            </div>
+                            <div class="main-project-changelog-frame">
+                                <div class="main-project-changelog-entry">
+                                    <img class="main-project-changelog-entry-image" src="resource/test/tmp-alpha.png" alt="Transparent test image with blue TEST ALPHA lettering" width="450" height="200" loading="lazy" decoding="async" draggable="false">
+                                    <div class="main-project-changelog-entry-copy">
+                                        <h3 class="main-project-changelog-entry-title">Semi-rounded Corner</h3>
+                                        <p class="main-project-changelog-entry-version">v1.0.0</p>
+                                        <p class="main-project-changelog-entry-description">This sample changelog text wraps naturally beside the image on wider screens, then flows below it on compact screens. It demonstrates how multiple lines of content can expand the frame without a fixed height.</p>
+                                        <p>A second paragraph adds more content to show that the bottom frame line and the connector below it continue to follow the content height as the layout changes.</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="main-project-changelog-button-slot">
-                            <button class="compatibility-version-button main-project-changelog-button" type="button" aria-label="Changelog button"></button>
+                        <div class="main-project-changelog-content">
+                            <div class="main-project-changelog-avatars" role="group" aria-label="Repository avatar and creation time">
+                                <div class="main-project-changelog-avatar-stack">
+                                    <button class="compatibility-version-button main-project-changelog-avatar" type="button" aria-label="GitHub profile avatar">
+                                    <img class="main-project-changelog-avatar-image" src="https://github.com/wkjasdkaqwq.png" alt="" width="26" height="26" loading="lazy" decoding="async" draggable="false">
+                                    </button>
+                                </div>
+                                <time class="main-project-changelog-created-at" datetime="2025-10-23T10:04:15Z" aria-label="Repository created at 2025-10-23 10:04:15 UTC">2025.10.23 10:04:15 UTC</time>
+                            </div>
+                            <div class="main-project-changelog-button-slot">
+                                <button class="compatibility-version-button main-project-changelog-button" type="button" aria-label="Changelog button"></button>
+                            </div>
+                            <div class="main-project-changelog-frame">
+                                <div class="main-project-changelog-entry">
+                                    <img class="main-project-changelog-entry-image" src="resource/test/tmp-alpha.png" alt="Transparent test image with blue TEST ALPHA lettering" width="450" height="200" loading="lazy" decoding="async" draggable="false">
+                                    <div class="main-project-changelog-entry-copy">
+                                        <h3 class="main-project-changelog-entry-title">Semi-rounded Corner</h3>
+                                        <p class="main-project-changelog-entry-version">v1.0.0</p>
+                                        <p class="main-project-changelog-entry-description">This sample changelog text wraps naturally beside the image on wider screens, then flows below it on compact screens. It demonstrates how multiple lines of content can expand the frame without a fixed height.</p>
+                                        <p>A second paragraph adds more content to show that the bottom frame line and the connector below it continue to follow the content height as the layout changes.</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="main-project-changelog-frame">
-                            <div class="main-project-changelog-entry">
-                                <img class="main-project-changelog-entry-image" src="resource/test/tmp-alpha.png" alt="Transparent test image with blue TEST ALPHA lettering" width="450" height="200" loading="lazy" decoding="async" draggable="false">
-                                <div class="main-project-changelog-entry-copy">
-                                    <h3 class="main-project-changelog-entry-title">Semi-rounded Corner</h3>
-                                    <p class="main-project-changelog-entry-version">v1.0.0</p>
-                                    <p class="main-project-changelog-entry-description">This sample changelog text wraps naturally beside the image on wider screens, then flows below it on compact screens. It demonstrates how multiple lines of content can expand the frame without a fixed height.</p>
-                                    <p>A second paragraph adds more content to show that the bottom frame line and the connector below it continue to follow the content height as the layout changes.</p>
+                        <div class="main-project-changelog-content">
+                            <div class="main-project-changelog-avatars" role="group" aria-label="Repository avatar and creation time">
+                                <div class="main-project-changelog-avatar-stack">
+                                    <button class="compatibility-version-button main-project-changelog-avatar" type="button" aria-label="GitHub profile avatar">
+                                    <img class="main-project-changelog-avatar-image" src="https://github.com/wkjasdkaqwq.png" alt="" width="26" height="26" loading="lazy" decoding="async" draggable="false">
+                                    </button>
+                                </div>
+                                <time class="main-project-changelog-created-at" datetime="2025-10-23T10:04:15Z" aria-label="Repository created at 2025-10-23 10:04:15 UTC">2025.10.23 10:04:15 UTC</time>
+                            </div>
+                            <div class="main-project-changelog-button-slot">
+                                <button class="compatibility-version-button main-project-changelog-button" type="button" aria-label="Changelog button"></button>
+                            </div>
+                            <div class="main-project-changelog-frame">
+                                <div class="main-project-changelog-entry">
+                                    <img class="main-project-changelog-entry-image" src="resource/test/tmp-alpha.png" alt="Transparent test image with blue TEST ALPHA lettering" width="450" height="200" loading="lazy" decoding="async" draggable="false">
+                                    <div class="main-project-changelog-entry-copy">
+                                        <h3 class="main-project-changelog-entry-title">Semi-rounded Corner</h3>
+                                        <p class="main-project-changelog-entry-version">v1.0.0</p>
+                                        <p class="main-project-changelog-entry-description">This sample changelog text wraps naturally beside the image on wider screens, then flows below it on compact screens. It demonstrates how multiple lines of content can expand the frame without a fixed height.</p>
+                                        <p>A second paragraph adds more content to show that the bottom frame line and the connector below it continue to follow the content height as the layout changes.</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
