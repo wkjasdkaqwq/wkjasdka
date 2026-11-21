@@ -318,6 +318,7 @@
         .community-gallery-preview-dialog[open]::backdrop { animation: community-gallery-preview-fade-in .22s ease-out both; }
         .community-gallery-preview-dialog[open].is-closing::backdrop { animation: community-gallery-preview-fade-out .18s ease-in both; }
         .community-gallery-preview-zoom-surface { display: grid; place-items: center; width: max-content; height: max-content; max-width: calc(100vw - 32px); max-height: calc(100vh - 120px); max-height: calc(100dvh - 120px); transform: translate3d(var(--community-gallery-pan-x, 0px), var(--community-gallery-pan-y, 0px), 0) scale(var(--community-gallery-preview-zoom, 1)); transform-origin: center; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-user-drag: none; will-change: transform; cursor: zoom-in; }
+        .community-gallery-preview-zoom-surface.is-double-tap-animating { transition: transform .28s cubic-bezier(.22, .61, .36, 1); }
         .community-gallery-preview-image { display: block; max-width: calc(100vw - 32px); max-height: calc(100vh - 120px); max-height: calc(100dvh - 120px); object-fit: contain; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; -webkit-user-drag: none; user-drag: none; }
         .community-gallery-preview-dialog[open] .community-gallery-preview-image { animation: community-gallery-image-in .26s cubic-bezier(.2, .8, .2, 1) both; }
         .community-gallery-preview-dialog[open].is-closing .community-gallery-preview-image { animation: community-gallery-image-out .18s ease-in both; }
@@ -363,7 +364,7 @@
         html.dark-mode .community-gallery-item figcaption { border-top-color: #385066; color: #a0aeb8; }
         html.dark-mode .community-gallery-caption { color: #f5f5f5; }
         @media (prefers-reduced-motion: reduce) {
-            .community-gallery-frame, .community-gallery-preview-trigger { transition-duration: .01ms; }
+            .community-gallery-frame, .community-gallery-preview-trigger, .community-gallery-preview-zoom-surface { transition-duration: .01ms; }
             .community-gallery-preview-dialog[open], .community-gallery-preview-dialog[open]::backdrop, .community-gallery-preview-dialog[open] .community-gallery-preview-image { animation-duration: .01ms !important; }
         }
         .main-project-description-section { position: absolute; top: calc(1.32rem * 1.2 + .3rem + 4.2rem - 8px + 24px + 12px + 2.55rem + 32px + 16px); right: -34px; left: -34px; z-index: 1; }
@@ -987,6 +988,7 @@
             };
             const resetGalleryPreviewZoom = () => {
                 cancelGalleryPreviewReturn();
+                galleryPreviewZoomSurface?.classList.remove('is-double-tap-animating');
                 galleryPreviewZoom = galleryPreviewMinZoom;
                 galleryPreviewPanX = 0;
                 galleryPreviewPanY = 0;
@@ -1014,6 +1016,21 @@
                 galleryPreviewZoom = clampedZoom;
                 applyGalleryPreviewTransform();
             };
+            const animateGalleryPreviewZoomAt = (x, y) => {
+                const nextZoom = galleryPreviewZoom > galleryPreviewMinZoom ? galleryPreviewMinZoom : 2;
+                if (!galleryPreviewZoomSurface || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                    setGalleryPreviewZoomAt(nextZoom, x, y);
+                    return;
+                }
+                galleryPreviewZoomSurface.classList.add('is-double-tap-animating');
+                galleryPreviewZoomSurface.getBoundingClientRect();
+                setGalleryPreviewZoomAt(nextZoom, x, y);
+            };
+            galleryPreviewZoomSurface?.addEventListener('transitionend', event => {
+                if (event.target === galleryPreviewZoomSurface && event.propertyName === 'transform') {
+                    galleryPreviewZoomSurface.classList.remove('is-double-tap-animating');
+                }
+            });
             const getGalleryPreviewMidpoint = points => ({
                 x: (points[0].x + points[1].x) / 2,
                 y: (points[0].y + points[1].y) / 2
@@ -1130,10 +1147,11 @@
                     Math.hypot(event.clientX - galleryPreviewLastTap.x, event.clientY - galleryPreviewLastTap.y) <= galleryPreviewDoubleTapDistance) {
                     galleryPreviewLastTap = null;
                     galleryPreviewSuppressBackdropClickUntil = tapTime + 750;
-                    setGalleryPreviewZoomAt(galleryPreviewZoom > galleryPreviewMinZoom ? galleryPreviewMinZoom : 2, event.clientX, event.clientY);
+                    animateGalleryPreviewZoomAt(event.clientX, event.clientY);
                     event.preventDefault();
                     return;
                 }
+                galleryPreviewZoomSurface?.classList.remove('is-double-tap-animating');
                 galleryPreviewLastTap = null;
                 if (galleryPreviewPointers.size > 0) galleryPreviewHadMultiplePointers = true;
                 else galleryPreviewHadMultiplePointers = false;
