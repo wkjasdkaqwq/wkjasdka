@@ -333,6 +333,7 @@
         .community-gallery-preview-nav-button:last-child { border-radius: 0 999px 999px 0; }
         .community-gallery-preview-nav-button:not(:disabled):hover { background: #4a382b; color: #ffc08a; box-shadow: inset 0 0 0 1px #d18a58, inset 0 0 10px rgba(209, 138, 88, .28); }
         .community-gallery-preview-nav-button:active:not(:disabled) { background: #FFC38D; color: #E67E22; box-shadow: inset 0 0 0 1px #FF9C5A, inset 0 0 14px rgba(255, 218, 185, .6); transform: translate(3px, 3px) scale(.98); transition-duration: .1s; }
+        .community-gallery-preview-nav-button:has(+ .community-gallery-preview-page):active:not(:disabled) { clip-path: inset(0 3px 0 0); }
         .community-gallery-preview-nav-button:disabled { opacity: .38; cursor: default; }
         .community-gallery-preview-nav-button:disabled:active { transform: none; }
         .community-gallery-preview-nav-button:focus-visible { outline: 2px solid #fff; outline-offset: -3px; }
