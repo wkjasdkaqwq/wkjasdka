@@ -423,7 +423,7 @@
         .main-project-developer-content { margin-top: 16px; }
         .main-project-changelog-content { position: relative; box-sizing: border-box; margin-top: 16px; padding-bottom: 24px; --changelog-frame-top: 69px; --changelog-frame-height: 34px; --changelog-frame-radius: 12px; --changelog-line-top: 54px; }
         .main-project-changelog-content::before, .main-project-changelog-content::after { content: ""; position: absolute; z-index: 0; background: #c2c2c2; pointer-events: none; }
-        .main-project-changelog-content::before { top: var(--changelog-frame-top); right: 8px; left: 70px; height: var(--changelog-frame-height); box-sizing: border-box; background: transparent; border: 5px solid #c2c2c2; border-left-color: transparent; border-radius: var(--changelog-frame-radius); }
+        .main-project-changelog-content::before { top: var(--changelog-frame-top); right: 8px; left: 70px; height: var(--changelog-frame-height); box-sizing: border-box; background: transparent; border: 5px solid #c2c2c2; border-left: 0; border-radius: var(--changelog-frame-radius); clip-path: inset(0 round var(--changelog-frame-radius)); }
         .main-project-changelog-content::after { border-radius: 999px; }
         .main-project-changelog-content::after { top: var(--changelog-line-top); left: 27px; width: 5px; height: calc(var(--changelog-frame-top) + var(--changelog-frame-height) + 10px - var(--changelog-line-top)); border-radius: 0 0 999px 999px; }
         .main-project-changelog-button-slot { position: relative; z-index: 1; display: grid; place-items: center; width: 58px; height: 58px; }
