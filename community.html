@@ -428,9 +428,8 @@
         .main-project-changelog-content[data-changelog-type="release"] { --changelog-line-color: #2eaf62; --changelog-line-shadow: 0 0 8px 2px rgba(46, 175, 98, .52); }
         .main-project-changelog-content[data-changelog-type="beta"] { --changelog-line-color: #e5b523; --changelog-line-shadow: 0 0 8px 2px rgba(229, 181, 35, .55); }
         .main-project-changelog-content[data-changelog-type="alpha"] { --changelog-line-color: #df4a4a; --changelog-line-shadow: 0 0 8px 2px rgba(223, 74, 74, .5); }
-        .main-project-changelog-content[data-changelog-collapsed="true"]::before { content: ""; position: absolute; z-index: 0; top: var(--changelog-frame-top); right: 8px; left: var(--changelog-frame-left); height: var(--changelog-frame-stroke); border-radius: 999px; background: #c2c2c2; pointer-events: none; }
-        html.dark-mode .main-project-changelog-content[data-changelog-collapsed="true"]::before { background: #385066; }
-        .main-project-changelog-frame { position: relative; box-sizing: border-box; min-height: 34px; margin: calc(var(--changelog-frame-top) - 58px) 8px 0 var(--changelog-frame-left); padding: 16px 18px 16px 14px; }
+        .main-project-changelog-frame { position: relative; display: grid; grid-template-rows: 1fr; box-sizing: border-box; min-height: 34px; margin: calc(var(--changelog-frame-top) - 58px) 8px 0 var(--changelog-frame-left); padding: 16px 18px 16px 14px; transition: grid-template-rows .42s ease, padding-top .42s ease, padding-bottom .42s ease; }
+        .main-project-changelog-content[data-changelog-collapsed="true"] .main-project-changelog-frame { grid-template-rows: 0fr; min-height: 0; padding-top: var(--changelog-frame-stroke); padding-bottom: 0; }
         .main-project-changelog-frame::before {
             content: ""; position: absolute; z-index: 0; inset: 0;
             box-sizing: border-box; background: transparent; border: var(--changelog-frame-stroke) solid #c2c2c2; border-left: 0; border-radius: 0 var(--changelog-frame-radius) var(--changelog-frame-radius) 0;
@@ -441,8 +440,14 @@
                 radial-gradient(circle var(--changelog-half-stroke) at var(--changelog-half-stroke) var(--changelog-half-stroke), #000 98%, transparent 100%),
                 radial-gradient(circle var(--changelog-half-stroke) at var(--changelog-half-stroke) calc(100% - var(--changelog-half-stroke)), #000 98%, transparent 100%);
             -webkit-mask-image: var(--changelog-frame-mask); mask-image: var(--changelog-frame-mask);
+            transition: border-radius .42s ease, border-right-width .42s ease, border-bottom-width .42s ease;
         }
-        .main-project-changelog-entry { position: relative; z-index: 1; display: grid; grid-template-columns: minmax(0, 34%) minmax(0, 1fr); align-items: start; gap: 16px; }
+        .main-project-changelog-content[data-changelog-collapsed="true"] .main-project-changelog-frame::before { border-right-width: 0; border-bottom-width: 0; border-radius: 0 calc(var(--changelog-frame-stroke) / 2) calc(var(--changelog-frame-stroke) / 2) 0; }
+        .main-project-changelog-entry { position: relative; z-index: 1; display: grid; grid-template-columns: minmax(0, 34%) minmax(0, 1fr); align-items: start; gap: 16px; min-height: 0; overflow: hidden; transition: opacity .25s ease; }
+        .main-project-changelog-content[data-changelog-collapsed="true"] .main-project-changelog-entry { opacity: 0; }
+        @media (prefers-reduced-motion: reduce) {
+            .main-project-changelog-frame, .main-project-changelog-frame::before, .main-project-changelog-entry { transition: none; }
+        }
         .main-project-changelog-entry-image { display: block; width: 100%; max-width: 220px; height: auto; border-radius: 8px; object-fit: contain; }
         .main-project-changelog-entry-copy { min-width: 0; color: #333; font-size: 15px; line-height: 1.5; overflow-wrap: anywhere; }
         .main-project-changelog-entry-copy p { margin: 0; }
@@ -2253,6 +2258,12 @@
             if (descriptionBody && 'ResizeObserver' in window) {
                 new ResizeObserver(syncDescriptionEndDivider).observe(descriptionBody);
             }
+            const changelogPanel = document.getElementById('panel-changelog');
+            if (changelogPanel && 'ResizeObserver' in window) {
+                new ResizeObserver(() => {
+                    if (!changelogPanel.hidden) syncLowerDividerHeight();
+                }).observe(changelogPanel);
+            }
             window.addEventListener('resize', syncDescriptionEndDivider, { passive: true });
             window.addEventListener('resize', syncLowerDividerHeight, { passive: true });
             if (window.visualViewport) {
@@ -3538,8 +3549,9 @@
             button.setAttribute('aria-label', `${frame.hidden ? 'Expand' : 'Collapse'} ${label} changelog`);
             button.addEventListener('click', () => {
                 const expanded = button.getAttribute('aria-expanded') !== 'true';
-                frame.hidden = !expanded;
                 content.dataset.changelogCollapsed = String(!expanded);
+                frame.toggleAttribute('inert', !expanded);
+                frame.setAttribute('aria-hidden', String(!expanded));
                 button.setAttribute('aria-expanded', String(expanded));
                 button.setAttribute('aria-label', `${expanded ? 'Collapse' : 'Expand'} ${label} changelog`);
             });
