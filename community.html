@@ -421,10 +421,11 @@
         .main-project-tag-content { margin-top: 16px; }
         .main-project-developer-section { position: absolute; top: 0; right: 0; left: 0; }
         .main-project-developer-content { margin-top: 16px; }
-        .main-project-changelog-content { position: relative; box-sizing: border-box; margin-top: 16px; padding-bottom: 24px; --changelog-frame-left: 70px; --changelog-frame-top: 69px; --changelog-frame-height: 34px; --changelog-frame-radius: 12px; --changelog-frame-stroke: 5px; --changelog-line-top: 54px; --changelog-avatar-anchor-offset: 4px; --changelog-avatar-anchor-y-offset: -4px; }
-        .main-project-changelog-content::before, .main-project-changelog-content::after { content: ""; position: absolute; z-index: 0; background: #c2c2c2; pointer-events: none; }
-        .main-project-changelog-content::before {
-            top: var(--changelog-frame-top); right: 8px; left: var(--changelog-frame-left); height: var(--changelog-frame-height);
+        .main-project-changelog-content { position: relative; box-sizing: border-box; margin-top: 16px; padding-bottom: 24px; --changelog-frame-left: 70px; --changelog-frame-top: 69px; --changelog-frame-radius: 12px; --changelog-frame-stroke: 5px; --changelog-line-top: 54px; --changelog-avatar-anchor-offset: 4px; --changelog-avatar-anchor-y-offset: -4px; }
+        .main-project-changelog-content::after { content: ""; position: absolute; z-index: 0; background: #c2c2c2; pointer-events: none; top: var(--changelog-line-top); bottom: 14px; left: 27px; width: 5px; border-radius: 0 0 999px 999px; }
+        .main-project-changelog-frame { position: relative; box-sizing: border-box; min-height: 34px; margin: calc(var(--changelog-frame-top) - 58px) 8px 0 var(--changelog-frame-left); padding: 16px 18px 16px 14px; }
+        .main-project-changelog-frame::before {
+            content: ""; position: absolute; z-index: 0; inset: 0;
             box-sizing: border-box; background: transparent; border: var(--changelog-frame-stroke) solid #c2c2c2; border-left: 0; border-radius: 0 var(--changelog-frame-radius) var(--changelog-frame-radius) 0;
             /* Round the two horizontal line ends without turning them into a left edge. */
             --changelog-half-stroke: calc(var(--changelog-frame-stroke) / 2);
@@ -434,8 +435,18 @@
                 radial-gradient(circle var(--changelog-half-stroke) at var(--changelog-half-stroke) calc(100% - var(--changelog-half-stroke)), #000 98%, transparent 100%);
             -webkit-mask-image: var(--changelog-frame-mask); mask-image: var(--changelog-frame-mask);
         }
-        .main-project-changelog-content::after { border-radius: 999px; }
-        .main-project-changelog-content::after { top: var(--changelog-line-top); left: 27px; width: 5px; height: calc(var(--changelog-frame-top) + var(--changelog-frame-height) + 10px - var(--changelog-line-top)); border-radius: 0 0 999px 999px; }
+        .main-project-changelog-entry { position: relative; z-index: 1; display: grid; grid-template-columns: minmax(0, 34%) minmax(0, 1fr); align-items: start; gap: 16px; }
+        .main-project-changelog-entry-image { display: block; width: 100%; max-width: 220px; height: auto; border-radius: 8px; object-fit: contain; }
+        .main-project-changelog-entry-copy { min-width: 0; color: #333; font-size: 15px; line-height: 1.5; overflow-wrap: anywhere; }
+        .main-project-changelog-entry-copy p { margin: 0; }
+        .main-project-changelog-entry-copy p + p { margin-top: 10px; }
+        html.dark-mode .main-project-changelog-entry-copy { color: #e0e0e0; }
+        html.dark-mode .main-project-changelog-frame::before { border-color: #385066; }
+        @media (max-width: 640px) {
+            .main-project-changelog-frame { padding: 12px 12px 14px 10px; }
+            .main-project-changelog-entry { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+            .main-project-changelog-entry-image { max-width: min(100%, 240px); }
+        }
         .main-project-changelog-button-slot { position: relative; z-index: 1; display: grid; place-items: center; width: 58px; height: 58px; }
         .compatibility-version-button.main-project-changelog-button { box-sizing: border-box; width: 50px; height: 50px; min-height: 50px; padding: 0; border-radius: 50%; }
         .main-project-changelog-avatars { position: absolute; top: calc(var(--changelog-frame-top) + var(--changelog-avatar-anchor-y-offset)); left: calc(var(--changelog-frame-left) + var(--changelog-avatar-anchor-offset)); z-index: 1; display: flex; align-items: center; gap: 8px; height: 30px; transform: translateY(-100%); }
@@ -446,7 +457,6 @@
         .main-project-changelog-avatar:nth-child(n + 3) { display: none; }
         .main-project-changelog-created-at { color: #555; font-size: 14px; line-height: 1; white-space: nowrap; }
         html.dark-mode .main-project-changelog-created-at { color: #c5ced6; }
-        html.dark-mode .main-project-changelog-content::before { background: transparent; border-color: #385066; }
         html.dark-mode .main-project-changelog-content::after { background: #385066; }
         .main-project-link-section { position: absolute; top: 0; right: 0; left: 0; }
         .main-project-detail-section { position: absolute; top: 0; right: 0; left: 0; }
@@ -930,6 +940,15 @@
                         </div>
                         <div class="main-project-changelog-button-slot">
                             <button class="compatibility-version-button main-project-changelog-button" type="button" aria-label="Changelog button"></button>
+                        </div>
+                        <div class="main-project-changelog-frame">
+                            <div class="main-project-changelog-entry">
+                                <img class="main-project-changelog-entry-image" src="resource/test/tmp-alpha.png" alt="Transparent test image with blue TEST ALPHA lettering" width="450" height="200" loading="lazy" decoding="async" draggable="false">
+                                <div class="main-project-changelog-entry-copy">
+                                    <p>This sample changelog text wraps naturally beside the image on wider screens, then flows below it on compact screens. It demonstrates how multiple lines of content can expand the frame without a fixed height.</p>
+                                    <p>A second paragraph adds more content to show that the bottom frame line and the connector below it continue to follow the content height as the layout changes.</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </section>
