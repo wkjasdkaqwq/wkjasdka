@@ -440,6 +440,9 @@
         .main-project-changelog-entry-copy { min-width: 0; color: #333; font-size: 15px; line-height: 1.5; overflow-wrap: anywhere; }
         .main-project-changelog-entry-copy p { margin: 0; }
         .main-project-changelog-entry-copy p + p { margin-top: 10px; }
+        .main-project-changelog-entry-title, .main-project-changelog-entry-version { margin: 0; color: #F0F0F0; font-size: 1.4em; font-weight: 500; line-height: 1.2; }
+        .main-project-changelog-entry-version { margin-top: 4px; }
+        .main-project-changelog-entry-copy .main-project-changelog-entry-description { margin-top: 12px; }
         html.dark-mode .main-project-changelog-entry-copy { color: #e0e0e0; }
         html.dark-mode .main-project-changelog-frame::before { border-color: #385066; }
         @media (max-width: 640px) {
@@ -945,7 +948,9 @@
                             <div class="main-project-changelog-entry">
                                 <img class="main-project-changelog-entry-image" src="resource/test/tmp-alpha.png" alt="Transparent test image with blue TEST ALPHA lettering" width="450" height="200" loading="lazy" decoding="async" draggable="false">
                                 <div class="main-project-changelog-entry-copy">
-                                    <p>This sample changelog text wraps naturally beside the image on wider screens, then flows below it on compact screens. It demonstrates how multiple lines of content can expand the frame without a fixed height.</p>
+                                    <h3 class="main-project-changelog-entry-title">Semi-rounded Corner</h3>
+                                    <p class="main-project-changelog-entry-version">v1.0.0</p>
+                                    <p class="main-project-changelog-entry-description">This sample changelog text wraps naturally beside the image on wider screens, then flows below it on compact screens. It demonstrates how multiple lines of content can expand the frame without a fixed height.</p>
                                     <p>A second paragraph adds more content to show that the bottom frame line and the connector below it continue to follow the content height as the layout changes.</p>
                                 </div>
                             </div>
