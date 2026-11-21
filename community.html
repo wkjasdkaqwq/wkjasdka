@@ -364,6 +364,9 @@
         .community-gallery-preview-edge-cursor { display: none; }
         @media (hover: hover) and (pointer: fine) {
             .community-gallery-preview-dialog[open] { cursor: default; }
+            .community-gallery-preview-zoom-surface { cursor: grab; }
+            .community-gallery-preview-dialog.is-mouse-dragging, .community-gallery-preview-dialog.is-mouse-dragging * { cursor: grabbing !important; }
+            .community-gallery-preview-dialog.is-mouse-dragging::before, .community-gallery-preview-dialog.is-mouse-dragging::after { cursor: grabbing !important; }
             .community-gallery-preview-dialog[open].is-edge-left:not(.is-edge-unavailable), .community-gallery-preview-dialog[open].is-edge-right:not(.is-edge-unavailable) { cursor: none; }
             .community-gallery-preview-dialog[open].is-edge-unavailable { cursor: not-allowed; }
             .community-gallery-preview-dialog[open]::before, .community-gallery-preview-dialog[open]::after { content: ""; position: absolute; top: 0; bottom: 0; width: 48px; cursor: none; }
@@ -1010,6 +1013,10 @@
             let galleryPreviewPanX = 0;
             let galleryPreviewPanY = 0;
             let galleryPreviewReturnFrame = 0;
+            let galleryPreviewMouseDrag = null;
+            let galleryPreviewCancelledMouseDrag = false;
+            let galleryPreviewSuppressMouseClick = false;
+            let galleryPreviewSuppressMouseClickTimer = 0;
             const galleryPreviewPointers = new Map();
             const galleryPreviewActiveTouchPointers = new Set();
             let galleryPreviewTouchGestureBlocked = false;
@@ -1036,6 +1043,14 @@
             const cancelGalleryPreviewReturn = () => {
                 if (galleryPreviewReturnFrame) cancelAnimationFrame(galleryPreviewReturnFrame);
                 galleryPreviewReturnFrame = 0;
+            };
+            const stopGalleryPreviewMouseDrag = (cancelClick = false) => {
+                if (!galleryPreviewMouseDrag) return;
+                const pointerId = galleryPreviewMouseDrag.pointerId;
+                if (cancelClick) galleryPreviewCancelledMouseDrag = true;
+                galleryPreviewMouseDrag = null;
+                galleryPreviewDialog?.classList.remove('is-mouse-dragging');
+                if (galleryPreviewZoomSurface?.hasPointerCapture(pointerId)) galleryPreviewZoomSurface.releasePointerCapture(pointerId);
             };
             const clearGalleryPreviewSwipe = () => {
                 window.clearTimeout(galleryPreviewSwipeSettleTimer);
@@ -1219,6 +1234,7 @@
                 galleryPreviewReturnFrame = requestAnimationFrame(animateReturn);
             };
             const resetGalleryPreviewZoom = () => {
+                stopGalleryPreviewMouseDrag(true);
                 cancelGalleryPreviewReturn();
                 clearGalleryPreviewSwipe();
                 galleryPreviewZoomSurface?.classList.remove('is-double-tap-animating');
@@ -1236,8 +1252,9 @@
                 return { x: rect.left + rect.width / 2 - galleryPreviewPanX, y: rect.top + rect.height / 2 - galleryPreviewPanY };
             };
             const setGalleryPreviewZoomAt = (nextZoom, x, y) => {
-                const center = getGalleryPreviewBaseCenter();
                 const clampedZoom = Math.max(galleryPreviewMinZoom, Math.min(galleryPreviewMaxZoom, nextZoom));
+                if (clampedZoom === galleryPreviewZoom) return;
+                const center = getGalleryPreviewBaseCenter();
                 const ratio = clampedZoom / galleryPreviewZoom;
                 if (clampedZoom === galleryPreviewMinZoom) {
                     galleryPreviewPanX = 0;
@@ -1411,6 +1428,7 @@
             let galleryPreviewCloseTimer = 0;
             const closeGalleryPreview = () => {
                 if (!galleryPreviewDialog?.open || galleryPreviewDialog.classList.contains('is-closing')) return;
+                stopGalleryPreviewMouseDrag(true);
                 clearGalleryPreviewNavigation();
                 resetGalleryPreviewEdgeCursor();
                 if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -1487,13 +1505,17 @@
             });
             galleryPreviewDialog?.addEventListener('pointermove', event => {
                 if (!galleryPreviewDialog.open || event.pointerType !== 'mouse' || !galleryPreviewDesktopPointer.matches) return;
+                if (galleryPreviewMouseDrag) return;
                 trackGalleryPreviewDesktopPointer(event.clientX, event.clientY, event.target);
             });
             document.addEventListener('pointerleave', event => {
                 if (event.pointerType === 'mouse' && galleryPreviewDialog?.open) resetGalleryPreviewEdgeCursor();
             });
             window.addEventListener('blur', () => {
-                if (galleryPreviewDialog?.open) resetGalleryPreviewEdgeCursor();
+                if (galleryPreviewDialog?.open) {
+                    stopGalleryPreviewMouseDrag(true);
+                    resetGalleryPreviewEdgeCursor();
+                }
             });
             window.addEventListener('resize', () => {
                 if (galleryPreviewDialog?.open) {
@@ -1512,6 +1534,71 @@
                 event.preventDefault();
                 if (navigationButton && !navigationButton.disabled) navigationButton.focus({ preventScroll: true });
             }, true);
+            document.addEventListener('pointerdown', event => {
+                if (event.pointerType === 'mouse' && event.button === 0) galleryPreviewCancelledMouseDrag = false;
+            }, true);
+            galleryPreviewZoomSurface?.addEventListener('pointerdown', event => {
+                if (!galleryPreviewDialog?.open || galleryPreviewDialog.classList.contains('is-closing') ||
+                    event.pointerType !== 'mouse' || event.button !== 0 || !galleryPreviewDesktopPointer.matches ||
+                    getGalleryPreviewEdgeDirection(event.clientX) || galleryPreviewStage?.classList.contains('is-settling')) return;
+                clearGalleryPreviewNavigation();
+                cancelGalleryPreviewReturn();
+                galleryPreviewZoomSurface.classList.remove('is-double-tap-animating');
+                galleryPreviewMouseDrag = {
+                    pointerId: event.pointerId,
+                    startX: event.clientX,
+                    startY: event.clientY,
+                    startPanX: galleryPreviewPanX,
+                    startPanY: galleryPreviewPanY,
+                    moved: false
+                };
+                resetGalleryPreviewEdgeCursor();
+                galleryPreviewDialog.classList.add('is-mouse-dragging');
+                galleryPreviewZoomSurface.setPointerCapture(event.pointerId);
+            });
+            galleryPreviewZoomSurface?.addEventListener('pointermove', event => {
+                const drag = galleryPreviewMouseDrag;
+                if (!drag || event.pointerId !== drag.pointerId) return;
+                const deltaX = event.clientX - drag.startX;
+                const deltaY = event.clientY - drag.startY;
+                if (!drag.moved && Math.hypot(deltaX, deltaY) < 4) return;
+                drag.moved = true;
+                galleryPreviewPanX = drag.startPanX + deltaX;
+                galleryPreviewPanY = drag.startPanY + deltaY;
+                applyGalleryPreviewTransform();
+            });
+            document.addEventListener('mouseup', event => {
+                if (event.button !== 0 || event.sourceCapabilities?.firesTouchEvents ||
+                    (!galleryPreviewMouseDrag && !galleryPreviewCancelledMouseDrag)) return;
+                const suppressClick = galleryPreviewCancelledMouseDrag || galleryPreviewMouseDrag?.moved;
+                stopGalleryPreviewMouseDrag();
+                galleryPreviewCancelledMouseDrag = false;
+                if (suppressClick) {
+                    galleryPreviewSuppressMouseClick = true;
+                    window.clearTimeout(galleryPreviewSuppressMouseClickTimer);
+                    galleryPreviewSuppressMouseClickTimer = window.setTimeout(() => {
+                        galleryPreviewSuppressMouseClick = false;
+                        galleryPreviewSuppressMouseClickTimer = 0;
+                    }, 0);
+                }
+                if (galleryPreviewDialog?.open && !galleryPreviewDialog.classList.contains('is-closing')) {
+                    trackGalleryPreviewDesktopPointer(event.clientX, event.clientY, document.elementFromPoint(event.clientX, event.clientY));
+                }
+            }, true);
+            galleryPreviewZoomSurface?.addEventListener('pointercancel', event => {
+                if (galleryPreviewMouseDrag?.pointerId === event.pointerId) stopGalleryPreviewMouseDrag();
+            });
+            galleryPreviewZoomSurface?.addEventListener('lostpointercapture', event => {
+                if (galleryPreviewMouseDrag?.pointerId === event.pointerId) stopGalleryPreviewMouseDrag(true);
+            });
+            document.addEventListener('click', event => {
+                if (!galleryPreviewSuppressMouseClick || event.detail === 0 || (event.pointerType && event.pointerType !== 'mouse')) return;
+                galleryPreviewSuppressMouseClick = false;
+                window.clearTimeout(galleryPreviewSuppressMouseClickTimer);
+                galleryPreviewSuppressMouseClickTimer = 0;
+                event.preventDefault();
+                event.stopImmediatePropagation();
+            }, true);
             galleryPreviewDialog?.addEventListener('click', event => {
                 if (!galleryPreviewDialog.open || !galleryPreviewDesktopPointer.matches || event.detail === 0 || (event.pointerType && event.pointerType !== 'mouse')) return;
                 if (event.target.closest('.community-gallery-preview-toolbar')) return;
@@ -1524,13 +1611,21 @@
                 navigateGalleryPreview(direction);
             }, true);
             galleryPreviewDialog?.addEventListener('wheel', event => {
-                if (!galleryPreviewDialog.open || event.target.closest('.community-gallery-preview-toolbar')) return;
+                if (!galleryPreviewDialog.open || galleryPreviewDialog.classList.contains('is-closing') || event.target.closest('.community-gallery-preview-toolbar')) return;
                 event.preventDefault();
                 clearGalleryPreviewNavigation();
                 const factor = event.deltaY < 0 ? 1.15 : 1 / 1.15;
                 setGalleryPreviewZoomAt(galleryPreviewZoom * factor, event.clientX, event.clientY);
+                if (galleryPreviewMouseDrag) {
+                    galleryPreviewMouseDrag.moved = true;
+                    galleryPreviewMouseDrag.startX = event.clientX;
+                    galleryPreviewMouseDrag.startY = event.clientY;
+                    galleryPreviewMouseDrag.startPanX = galleryPreviewPanX;
+                    galleryPreviewMouseDrag.startPanY = galleryPreviewPanY;
+                }
             }, { passive: false });
             galleryPreviewZoomSurface?.addEventListener('click', event => {
+                if (galleryPreviewDialog.classList.contains('is-closing')) return;
                 if (window.matchMedia('(hover: none), (pointer: coarse)').matches) return;
                 clearGalleryPreviewNavigation();
                 const nextZoom = galleryPreviewZoom > galleryPreviewMinZoom ? galleryPreviewMinZoom : 2;
