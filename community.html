@@ -1297,20 +1297,13 @@
                 });
             };
             let galleryPreviewNavigationTimer = 0;
+            let galleryPreviewNavigationFrame = 0;
             let galleryPreviewNavigationTargetIndex = null;
             const galleryPreviewNavigationQueue = [];
-            const animateGalleryPreviewNavigation = nextIndex => {
+            const startGalleryPreviewNavigation = nextIndex => {
                 if (!galleryPreviewDialog?.open || !galleryPreviewStage || !galleryPreviewZoomSurface) return;
-                const plannedIndex = galleryPreviewNavigationQueue.length
-                    ? galleryPreviewNavigationQueue[galleryPreviewNavigationQueue.length - 1]
-                    : Number.isInteger(galleryPreviewNavigationTargetIndex) ? galleryPreviewNavigationTargetIndex : galleryPreviewIndex;
-                if (nextIndex < 0 || nextIndex >= galleryPreviewImages.length || nextIndex === plannedIndex) return;
-                if (galleryPreviewNavigationTimer) {
-                    galleryPreviewNavigationQueue.push(nextIndex);
-                    updateGalleryPreviewNavigationAvailability(nextIndex);
-                    return;
-                }
                 if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                    galleryPreviewNavigationTargetIndex = null;
                     showGalleryPreviewImage(nextIndex);
                     return;
                 }
@@ -1340,14 +1333,37 @@
                     galleryPreviewNavigationTargetIndex = null;
                     showGalleryPreviewImage(nextIndex);
                     const queuedIndex = galleryPreviewNavigationQueue.shift();
-                    if (Number.isInteger(queuedIndex)) animateGalleryPreviewNavigation(queuedIndex);
+                    if (Number.isInteger(queuedIndex)) {
+                        galleryPreviewNavigationTargetIndex = queuedIndex;
+                        galleryPreviewStage.getBoundingClientRect();
+                        galleryPreviewNavigationFrame = window.requestAnimationFrame(() => {
+                            galleryPreviewNavigationFrame = 0;
+                            galleryPreviewNavigationTargetIndex = null;
+                            startGalleryPreviewNavigation(queuedIndex);
+                        });
+                    }
                 }, 240);
+            };
+            const animateGalleryPreviewNavigation = nextIndex => {
+                if (!galleryPreviewDialog?.open || !galleryPreviewStage || !galleryPreviewZoomSurface) return;
+                const plannedIndex = galleryPreviewNavigationQueue.length
+                    ? galleryPreviewNavigationQueue[galleryPreviewNavigationQueue.length - 1]
+                    : Number.isInteger(galleryPreviewNavigationTargetIndex) ? galleryPreviewNavigationTargetIndex : galleryPreviewIndex;
+                if (nextIndex < 0 || nextIndex >= galleryPreviewImages.length || nextIndex === plannedIndex) return;
+                if (galleryPreviewNavigationTimer || galleryPreviewNavigationFrame) {
+                    galleryPreviewNavigationQueue.push(nextIndex);
+                    updateGalleryPreviewNavigationAvailability(nextIndex);
+                    return;
+                }
+                startGalleryPreviewNavigation(nextIndex);
             };
             let galleryPreviewCloseTimer = 0;
             const closeGalleryPreview = () => {
                 if (!galleryPreviewDialog?.open || galleryPreviewDialog.classList.contains('is-closing')) return;
                 window.clearTimeout(galleryPreviewNavigationTimer);
                 galleryPreviewNavigationTimer = 0;
+                window.cancelAnimationFrame(galleryPreviewNavigationFrame);
+                galleryPreviewNavigationFrame = 0;
                 galleryPreviewNavigationTargetIndex = null;
                 galleryPreviewNavigationQueue.length = 0;
                 resetGalleryPreviewEdgeCursor();
@@ -1380,6 +1396,8 @@
                 galleryPreviewCloseTimer = 0;
                 window.clearTimeout(galleryPreviewNavigationTimer);
                 galleryPreviewNavigationTimer = 0;
+                window.cancelAnimationFrame(galleryPreviewNavigationFrame);
+                galleryPreviewNavigationFrame = 0;
                 galleryPreviewNavigationTargetIndex = null;
                 galleryPreviewNavigationQueue.length = 0;
                 galleryPreviewDialog.classList.remove('is-closing');
