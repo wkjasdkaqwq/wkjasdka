@@ -311,7 +311,7 @@
         .community-gallery-frame:hover, .community-gallery-preview-trigger:hover, .community-gallery-preview-trigger:active { background-color: #e1e1e1; }
         .community-gallery-preview-trigger:active { transform: translate(3px, 3px); }
         .community-gallery-frame img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center; pointer-events: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; -webkit-user-drag: none; user-drag: none; }
-        .community-gallery-preview-dialog { position: fixed; inset: 0; display: none; place-items: center; box-sizing: border-box; width: 100vw; height: 100vh; height: 100dvh; max-width: none; max-height: none; margin: 0; padding: 16px 16px 88px; border: 0; overflow: hidden; background: transparent; color: #fff; cursor: zoom-in; touch-action: none; }
+        .community-gallery-preview-dialog { position: fixed; inset: 0; display: none; place-items: center; box-sizing: border-box; width: 100vw; height: 100vh; height: 100dvh; max-width: none; max-height: none; margin: 0; padding: 16px 16px 88px; border: 0; overflow: hidden; background: transparent; color: #fff; touch-action: none; }
         .community-gallery-preview-dialog[open] { display: grid; animation: community-gallery-preview-fade-in .22s ease-out both; }
         .community-gallery-preview-dialog[open].is-closing { animation: community-gallery-preview-fade-out .18s ease-in both; }
         .community-gallery-preview-dialog::backdrop { background: rgba(0, 0, 0, .94); }
@@ -328,7 +328,7 @@
         .community-gallery-preview-dialog.is-gesture-dismissing .community-gallery-preview-toolbar { opacity: 0; transition: opacity .16s ease-in; }
         .community-gallery-preview-dialog.is-gesture-dragging .community-gallery-preview-zoom-surface { transition: none; }
         .community-gallery-preview-dialog.is-gesture-settling .community-gallery-preview-zoom-surface { transition: filter .22s cubic-bezier(.2, .8, .2, 1), transform .22s cubic-bezier(.2, .8, .2, 1); }
-        .community-gallery-preview-zoom-surface { position: relative; z-index: 1; display: grid; place-items: center; width: max-content; height: max-content; max-width: calc(100vw - 32px); max-height: calc(100vh - 120px); max-height: calc(100dvh - 120px); transform: translate3d(calc(var(--community-gallery-pan-x, 0px) + var(--community-gallery-swipe-x, 0px)), var(--community-gallery-pan-y, 0px), 0) scale(calc(var(--community-gallery-preview-zoom, 1) * var(--community-gallery-dismiss-scale, 1))); filter: grayscale(var(--community-gallery-dismiss-grayscale, 0%)) brightness(var(--community-gallery-dismiss-brightness, 100%)); transform-origin: center; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-user-drag: none; will-change: transform; cursor: zoom-in; }
+        .community-gallery-preview-zoom-surface { position: relative; z-index: 1; display: grid; place-items: center; width: max-content; height: max-content; max-width: calc(100vw - 32px); max-height: calc(100vh - 120px); max-height: calc(100dvh - 120px); transform: translate3d(calc(var(--community-gallery-pan-x, 0px) + var(--community-gallery-swipe-x, 0px)), var(--community-gallery-pan-y, 0px), 0) scale(calc(var(--community-gallery-preview-zoom, 1) * var(--community-gallery-dismiss-scale, 1))); filter: grayscale(var(--community-gallery-dismiss-grayscale, 0%)) brightness(var(--community-gallery-dismiss-brightness, 100%)); transform-origin: center; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-user-drag: none; will-change: transform; }
         .community-gallery-preview-zoom-surface.is-double-tap-animating { transition: transform .28s cubic-bezier(.22, .61, .36, 1); }
         .community-gallery-preview-image { display: block; max-width: calc(100vw - 32px); max-height: calc(100vh - 120px); max-height: calc(100dvh - 120px); object-fit: contain; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; -webkit-user-drag: none; user-drag: none; }
         .community-gallery-preview-dialog[open] .community-gallery-preview-image { animation: community-gallery-image-in .26s cubic-bezier(.2, .8, .2, 1) both; }
@@ -359,6 +359,11 @@
         .community-gallery-preview-toolbar, .community-gallery-preview-toolbar * { cursor: default; }
         .community-gallery-preview-toolbar .community-gallery-preview-nav-button:not(:disabled), .community-gallery-preview-toolbar .community-gallery-preview-nav-button:not(:disabled) *, .community-gallery-preview-toolbar .community-gallery-preview-close, .community-gallery-preview-toolbar .community-gallery-preview-close * { cursor: pointer; }
         .community-gallery-preview-toolbar .community-gallery-preview-nav-button:disabled, .community-gallery-preview-toolbar .community-gallery-preview-nav-button:disabled * { cursor: not-allowed; }
+        @media (hover: hover) and (pointer: fine) {
+            .community-gallery-preview-dialog[open] { cursor: none; }
+            .community-gallery-preview-dialog[open].is-edge-left { cursor: url("resource/icon/bootstrap-icons/arrow-right.svg") 8 8, none; }
+            .community-gallery-preview-dialog[open].is-edge-right { cursor: url("resource/icon/bootstrap-icons/arrow-left.svg") 8 8, none; }
+        }
         @media (hover: none), (pointer: coarse) {
             .community-gallery-preview-nav-button:not(:disabled):hover:not(:active) { background: transparent; color: #fff; box-shadow: none; }
             .community-gallery-preview-close:hover:not(:active) { border-color: rgba(255, 255, 255, .45); background: rgba(255, 255, 255, .12); color: #fff; box-shadow: none; }
@@ -946,6 +951,17 @@
             const galleryPreviewPage = galleryPreviewDialog?.querySelector('.community-gallery-preview-page');
             const galleryPreviewNavigationButtons = galleryPreviewDialog?.querySelectorAll('[data-gallery-preview-step]') || [];
             let galleryPreviewIndex = 0;
+            const galleryPreviewDesktopPointer = window.matchMedia('(hover: hover) and (pointer: fine)');
+            let galleryPreviewEdgeDirection = 0;
+            const updateGalleryPreviewEdgeCursor = () => {
+                if (!galleryPreviewDialog) return;
+                galleryPreviewDialog.classList.toggle('is-edge-left', galleryPreviewEdgeDirection === -1 && galleryPreviewIndex > 0);
+                galleryPreviewDialog.classList.toggle('is-edge-right', galleryPreviewEdgeDirection === 1 && galleryPreviewIndex < galleryPreviewImages.length - 1);
+            };
+            const resetGalleryPreviewEdgeCursor = () => {
+                galleryPreviewEdgeDirection = 0;
+                updateGalleryPreviewEdgeCursor();
+            };
             const galleryPreviewMinZoom = 1;
             const galleryPreviewPinchMinZoom = 0.5;
             const galleryPreviewMaxZoom = 5;
@@ -977,7 +993,6 @@
                 galleryPreviewZoomSurface.style.setProperty('--community-gallery-preview-zoom', String(galleryPreviewZoom));
                 galleryPreviewZoomSurface.style.setProperty('--community-gallery-pan-x', `${galleryPreviewPanX}px`);
                 galleryPreviewZoomSurface.style.setProperty('--community-gallery-pan-y', `${galleryPreviewPanY}px`);
-                galleryPreviewZoomSurface.style.cursor = galleryPreviewZoom > galleryPreviewMinZoom ? 'zoom-out' : 'zoom-in';
             };
             const cancelGalleryPreviewReturn = () => {
                 if (galleryPreviewReturnFrame) cancelAnimationFrame(galleryPreviewReturnFrame);
@@ -1242,10 +1257,12 @@
                     galleryPreviewPage.textContent = `${galleryPreviewIndex + 1} / ${galleryPreviewImages.length}`;
                     galleryPreviewPage.setAttribute('aria-label', `Image ${galleryPreviewIndex + 1} of ${galleryPreviewImages.length}`);
                 }
+                updateGalleryPreviewEdgeCursor();
             };
             let galleryPreviewCloseTimer = 0;
             const closeGalleryPreview = () => {
                 if (!galleryPreviewDialog?.open || galleryPreviewDialog.classList.contains('is-closing')) return;
+                resetGalleryPreviewEdgeCursor();
                 if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
                     galleryPreviewDialog.close();
                     return;
@@ -1275,6 +1292,7 @@
                 galleryPreviewCloseTimer = 0;
                 galleryPreviewDialog.classList.remove('is-closing');
                 galleryPreviewClose?.classList.remove('is-open-focus');
+                resetGalleryPreviewEdgeCursor();
                 resetGalleryPreviewZoom();
             });
             galleryPreviewDialog?.addEventListener('cancel', event => {
@@ -1286,6 +1304,7 @@
                 trigger.addEventListener('click', () => {
                     const sourceImage = trigger.querySelector('img');
                     if (!sourceImage || !galleryPreviewDialog || !galleryPreviewImage || galleryPreviewDialog.open) return;
+                    resetGalleryPreviewEdgeCursor();
                     showGalleryPreviewImage(galleryPreviewImages.indexOf(sourceImage));
                     galleryPreviewDialog.showModal();
                     galleryPreviewClose?.focus({ preventScroll: true });
@@ -1308,6 +1327,19 @@
                     event.stopPropagation();
                 }
             });
+            galleryPreviewDialog?.addEventListener('pointermove', event => {
+                if (!galleryPreviewDialog.open || event.pointerType !== 'mouse' || !galleryPreviewDesktopPointer.matches) return;
+                const edgeWidth = 48;
+                const direction = event.clientX <= edgeWidth ? -1 : event.clientX >= window.innerWidth - edgeWidth ? 1 : 0;
+                if (direction === galleryPreviewEdgeDirection) return;
+                galleryPreviewEdgeDirection = direction;
+                updateGalleryPreviewEdgeCursor();
+                if (!direction) return;
+                const nextIndex = galleryPreviewIndex + direction;
+                if (nextIndex < 0 || nextIndex >= galleryPreviewImages.length) return;
+                showGalleryPreviewImage(nextIndex);
+            });
+            galleryPreviewDialog?.addEventListener('pointerleave', resetGalleryPreviewEdgeCursor);
             galleryPreviewDialog?.addEventListener('wheel', event => {
                 if (!galleryPreviewDialog.open || event.target.closest('.community-gallery-preview-toolbar')) return;
                 event.preventDefault();
