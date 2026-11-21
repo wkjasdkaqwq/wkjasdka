@@ -948,9 +948,9 @@
                                 <time class="main-project-changelog-created-at" datetime="2025-10-23T10:04:15Z" aria-label="Repository created at 2025-10-23 10:04:15 UTC">2025.10.23 10:04:15 UTC</time>
                             </div>
                             <div class="main-project-changelog-button-slot">
-                                <button class="compatibility-version-button main-project-changelog-button" type="button" aria-label="Changelog button"></button>
+                                <button class="compatibility-version-button main-project-changelog-button" type="button" aria-label="Collapse Release changelog" aria-expanded="true" aria-controls="main-project-changelog-frame-release"></button>
                             </div>
-                            <div class="main-project-changelog-frame">
+                            <div class="main-project-changelog-frame" id="main-project-changelog-frame-release">
                                 <div class="main-project-changelog-entry">
                                     <img class="main-project-changelog-entry-image" src="resource/test/tmp-alpha.png" alt="Transparent test image with blue TEST ALPHA lettering" width="450" height="200" loading="lazy" decoding="async" draggable="false">
                                     <div class="main-project-changelog-entry-copy">
@@ -972,9 +972,9 @@
                                 <time class="main-project-changelog-created-at" datetime="2025-10-23T10:04:15Z" aria-label="Repository created at 2025-10-23 10:04:15 UTC">2025.10.23 10:04:15 UTC</time>
                             </div>
                             <div class="main-project-changelog-button-slot">
-                                <button class="compatibility-version-button main-project-changelog-button" type="button" aria-label="Changelog button"></button>
+                                <button class="compatibility-version-button main-project-changelog-button" type="button" aria-label="Collapse Beta changelog" aria-expanded="true" aria-controls="main-project-changelog-frame-beta"></button>
                             </div>
-                            <div class="main-project-changelog-frame">
+                            <div class="main-project-changelog-frame" id="main-project-changelog-frame-beta">
                                 <div class="main-project-changelog-entry">
                                     <img class="main-project-changelog-entry-image" src="resource/test/tmp-alpha.png" alt="Transparent test image with blue TEST ALPHA lettering" width="450" height="200" loading="lazy" decoding="async" draggable="false">
                                     <div class="main-project-changelog-entry-copy">
@@ -996,9 +996,9 @@
                                 <time class="main-project-changelog-created-at" datetime="2025-10-23T10:04:15Z" aria-label="Repository created at 2025-10-23 10:04:15 UTC">2025.10.23 10:04:15 UTC</time>
                             </div>
                             <div class="main-project-changelog-button-slot">
-                                <button class="compatibility-version-button main-project-changelog-button" type="button" aria-label="Changelog button"></button>
+                                <button class="compatibility-version-button main-project-changelog-button" type="button" aria-label="Collapse Alpha changelog" aria-expanded="true" aria-controls="main-project-changelog-frame-alpha"></button>
                             </div>
-                            <div class="main-project-changelog-frame">
+                            <div class="main-project-changelog-frame" id="main-project-changelog-frame-alpha">
                                 <div class="main-project-changelog-entry">
                                     <img class="main-project-changelog-entry-image" src="resource/test/tmp-alpha.png" alt="Transparent test image with blue TEST ALPHA lettering" width="450" height="200" loading="lazy" decoding="async" draggable="false">
                                     <div class="main-project-changelog-entry-copy">
@@ -3508,6 +3508,24 @@
             });
             document.addEventListener('DOMContentLoaded', start, { once: true });
         })();
+    </script>
+    <script>
+        document.querySelectorAll('.main-project-changelog-button').forEach(button => {
+            const content = button.closest('.main-project-changelog-content');
+            const frame = content?.querySelector('.main-project-changelog-frame');
+            if (!content || !frame) return;
+            const type = content.dataset.changelogType || 'entry';
+            const label = type.charAt(0).toUpperCase() + type.slice(1);
+            button.setAttribute('aria-controls', frame.id);
+            button.setAttribute('aria-expanded', String(!frame.hidden));
+            button.setAttribute('aria-label', `${frame.hidden ? 'Expand' : 'Collapse'} ${label} changelog`);
+            button.addEventListener('click', () => {
+                const expanded = button.getAttribute('aria-expanded') !== 'true';
+                frame.hidden = !expanded;
+                button.setAttribute('aria-expanded', String(expanded));
+                button.setAttribute('aria-label', `${expanded ? 'Collapse' : 'Expand'} ${label} changelog`);
+            });
+        });
     </script>
 </body>
 </html>
