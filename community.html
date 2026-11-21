@@ -1513,15 +1513,19 @@
                 galleryPreviewActiveTouchPointers.add(event.pointerId);
                 if (galleryPreviewTouchGestureBlocked) return;
                 if (galleryPreviewActiveTouchPointers.size >= 2) {
-                    galleryPreviewTouchGestureBlocked = true;
                     galleryPreviewHadMultiplePointers = true;
                     galleryPreviewLastTap = null;
                     galleryPreviewSuppressBackdropClickUntil = Date.now() + 750;
-                    cancelGalleryPreviewDismissForMultitouch();
-                    if (galleryPreviewSwipeActive) settleGalleryPreviewSwipe(null);
-                    galleryPreviewPointers.clear();
-                    galleryPreviewGesture = null;
-                    return;
+                    const isVerticalDismissGesture = galleryPreviewDismissActive ||
+                        (galleryPreviewGesture?.type === 'swipe' && galleryPreviewGesture.axis === 'vertical');
+                    if (isVerticalDismissGesture) {
+                        galleryPreviewTouchGestureBlocked = true;
+                        cancelGalleryPreviewDismissForMultitouch();
+                        if (galleryPreviewSwipeActive) settleGalleryPreviewSwipe(null);
+                        galleryPreviewPointers.clear();
+                        galleryPreviewGesture = null;
+                        return;
+                    }
                 }
                 if (event.target.closest('.community-gallery-preview-toolbar button')) {
                     galleryPreviewLastTap = null;
