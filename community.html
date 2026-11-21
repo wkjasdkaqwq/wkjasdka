@@ -421,11 +421,11 @@
         .main-project-tag-content { margin-top: 16px; }
         .main-project-developer-section { position: absolute; top: 0; right: 0; left: 0; }
         .main-project-developer-content { margin-top: 16px; }
-        .main-project-changelog-content { position: relative; box-sizing: border-box; margin-top: 16px; padding-bottom: 24px; }
+        .main-project-changelog-content { position: relative; box-sizing: border-box; margin-top: 16px; padding-bottom: 24px; --changelog-frame-top: 69px; --changelog-frame-height: 34px; --changelog-line-top: 54px; }
         .main-project-changelog-content::before, .main-project-changelog-content::after { content: ""; position: absolute; z-index: 0; background: #c2c2c2; pointer-events: none; }
-        .main-project-changelog-content::before { top: 69px; right: -24px; left: 70px; height: 24px; box-sizing: border-box; background: transparent; border: 5px solid #c2c2c2; border-left: 0; border-radius: 12px; }
+        .main-project-changelog-content::before { top: var(--changelog-frame-top); right: 8px; left: 70px; height: var(--changelog-frame-height); box-sizing: border-box; background: transparent; border: 5px solid #c2c2c2; border-left: 0; border-radius: 12px; }
         .main-project-changelog-content::after { border-radius: 999px; }
-        .main-project-changelog-content::after { top: 54px; left: 27px; width: 5px; height: 49px; border-radius: 0 0 999px 999px; }
+        .main-project-changelog-content::after { top: var(--changelog-line-top); left: 27px; width: 5px; height: calc(var(--changelog-frame-top) + var(--changelog-frame-height) + 10px - var(--changelog-line-top)); border-radius: 0 0 999px 999px; }
         .main-project-changelog-button-slot { position: relative; z-index: 1; display: grid; place-items: center; width: 58px; height: 58px; }
         .compatibility-version-button.main-project-changelog-button { box-sizing: border-box; width: 50px; height: 50px; min-height: 50px; padding: 0; border-radius: 50%; }
         html.dark-mode .main-project-changelog-content::before { background: transparent; border-color: #385066; }
