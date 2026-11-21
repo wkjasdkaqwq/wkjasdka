@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preload" as="image" type="image/svg+xml" href="resource/icon/bootstrap-icons/arrow-left.svg">
+    <link rel="preload" as="image" type="image/svg+xml" href="resource/icon/bootstrap-icons/arrow-right.svg">
   <script>
     (function () {
       const themeKey = 'wkjasdka-dark-mode';
@@ -361,8 +363,8 @@
         .community-gallery-preview-toolbar .community-gallery-preview-nav-button:disabled, .community-gallery-preview-toolbar .community-gallery-preview-nav-button:disabled * { cursor: not-allowed; }
         @media (hover: hover) and (pointer: fine) {
             .community-gallery-preview-dialog[open] { cursor: default; }
-            .community-gallery-preview-dialog[open].is-edge-left { cursor: url("resource/icon/bootstrap-icons/arrow-left.svg") 24 24, none; }
-            .community-gallery-preview-dialog[open].is-edge-right { cursor: url("resource/icon/bootstrap-icons/arrow-right.svg") 24 24, none; }
+            .community-gallery-preview-dialog[open].is-edge-left { cursor: url("resource/icon/bootstrap-icons/arrow-left.svg") 0 24, default; }
+            .community-gallery-preview-dialog[open].is-edge-right { cursor: url("resource/icon/bootstrap-icons/arrow-right.svg") 47 24, default; }
             .community-gallery-preview-dialog[open].is-edge-unavailable { cursor: not-allowed; }
         }
         @media (hover: none), (pointer: coarse) {
