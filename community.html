@@ -1099,6 +1099,7 @@
             });
             galleryPreviewDialog?.addEventListener('cancel', event => {
                 event.preventDefault();
+                closeGalleryPreview();
             });
             document.querySelectorAll('.community-gallery-preview-trigger').forEach((trigger) => {
                 trigger.addEventListener('dragstart', event => event.preventDefault());
@@ -1136,11 +1137,15 @@
                 setGalleryPreviewZoomAt(nextZoom, event.clientX, event.clientY);
             });
             galleryPreviewDialog?.addEventListener('pointerdown', event => {
-                if (!galleryPreviewDialog.open || event.pointerType !== 'touch' || event.target.closest('.community-gallery-preview-toolbar')) return;
+                if (!galleryPreviewDialog.open || event.pointerType !== 'touch') return;
+                if (event.target.closest('.community-gallery-preview-toolbar')) {
+                    galleryPreviewLastTap = null;
+                    return;
+                }
                 cancelGalleryPreviewReturn();
                 const isImageTouch = Boolean(event.target.closest('.community-gallery-preview-zoom-surface'));
                 const tapTime = Date.now();
-                if (isImageTouch && galleryPreviewLastTap && tapTime - galleryPreviewLastTap.time <= galleryPreviewDoubleTapDelay &&
+                if (galleryPreviewLastTap && tapTime - galleryPreviewLastTap.time <= galleryPreviewDoubleTapDelay &&
                     Math.hypot(event.clientX - galleryPreviewLastTap.x, event.clientY - galleryPreviewLastTap.y) <= galleryPreviewDoubleTapDistance) {
                     galleryPreviewLastTap = null;
                     galleryPreviewSuppressBackdropClickUntil = tapTime + 750;
@@ -1190,9 +1195,8 @@
                 const gesture = galleryPreviewGesture;
                 const deltaX = event.clientX - (gesture?.startX ?? point.x);
                 const deltaY = event.clientY - (gesture?.startY ?? point.y);
-                const isSingleImageGesture = event.type === 'pointerup' && activePointerCount === 1 && !galleryPreviewHadMultiplePointers &&
-                    point.onImage && (gesture?.type === 'swipe' || gesture?.type === 'pan');
-                const isHorizontalSwipe = isSingleImageGesture && gesture.type === 'swipe' &&
+                const isSinglePreviewTouch = event.type === 'pointerup' && activePointerCount === 1 && !galleryPreviewHadMultiplePointers;
+                const isHorizontalSwipe = isSinglePreviewTouch && point.onImage && gesture?.type === 'swipe' &&
                     Math.abs(deltaX) >= galleryPreviewSwipeThreshold && Math.abs(deltaX) > Math.abs(deltaY) * 1.25;
                 if (isHorizontalSwipe) {
                     const nextIndex = galleryPreviewIndex + (deltaX < 0 ? 1 : -1);
@@ -1202,7 +1206,7 @@
                         showGalleryPreviewImage(nextIndex);
                         return;
                     }
-                } else if (isSingleImageGesture && Math.hypot(deltaX, deltaY) <= 12) {
+                } else if (isSinglePreviewTouch && Math.hypot(deltaX, deltaY) <= 12) {
                     galleryPreviewLastTap = { time: Date.now(), x: event.clientX, y: event.clientY };
                 } else if (event.type === 'pointerup' && activePointerCount === 1) {
                     galleryPreviewLastTap = null;
