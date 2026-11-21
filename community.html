@@ -966,6 +966,8 @@
             let galleryPreviewSwipeActive = false;
             let galleryPreviewSwipeSettleTimer = 0;
             let galleryPreviewDismissActive = false;
+            let galleryPreviewDismissDirection = 0;
+            let galleryPreviewDismissCancelled = false;
             let galleryPreviewDismissTimer = 0;
             const applyGalleryPreviewTransform = () => {
                 if (!galleryPreviewZoomSurface) return;
@@ -994,6 +996,8 @@
                 window.clearTimeout(galleryPreviewDismissTimer);
                 galleryPreviewDismissTimer = 0;
                 galleryPreviewDismissActive = false;
+                galleryPreviewDismissDirection = 0;
+                galleryPreviewDismissCancelled = false;
                 [galleryPreviewPreviousImage, galleryPreviewNextImage].forEach(image => {
                     if (!image) return;
                     image.classList.remove('is-visible');
@@ -1060,6 +1064,16 @@
             };
             const updateGalleryPreviewDismiss = rawDeltaY => {
                 if (!galleryPreviewZoomSurface) return;
+                if (galleryPreviewDismissCancelled) return;
+                const movementDirection = Math.sign(rawDeltaY);
+                if (!galleryPreviewDismissDirection && movementDirection) galleryPreviewDismissDirection = movementDirection;
+                if (galleryPreviewDismissDirection && movementDirection && movementDirection !== galleryPreviewDismissDirection) {
+                    galleryPreviewDismissCancelled = true;
+                    galleryPreviewZoomSurface.style.setProperty('--community-gallery-dismiss-scale', '1');
+                    galleryPreviewZoomSurface.style.setProperty('--community-gallery-dismiss-grayscale', '0%');
+                    galleryPreviewZoomSurface.style.setProperty('--community-gallery-dismiss-brightness', '100%');
+                    return;
+                }
                 window.clearTimeout(galleryPreviewDismissTimer);
                 galleryPreviewDismissTimer = 0;
                 galleryPreviewDialog?.classList.remove('is-gesture-settling');
@@ -1372,13 +1386,14 @@
                 const isSinglePreviewTouch = event.type === 'pointerup' && activePointerCount === 1 && !galleryPreviewHadMultiplePointers;
                 const isHorizontalSwipe = isSinglePreviewTouch && gesture?.type === 'swipe' && gesture.axis === 'horizontal' &&
                     Math.abs(deltaX) >= galleryPreviewSwipeThreshold && Math.abs(deltaX) > Math.abs(deltaY) * 1.25;
-                const isVerticalDismiss = isSinglePreviewTouch && gesture?.type === 'swipe' && gesture.axis === 'vertical' &&
+                if (gesture?.type === 'swipe' && gesture.axis === 'vertical' && galleryPreviewDismissActive) updateGalleryPreviewDismiss(deltaY);
+                const isVerticalDismiss = !galleryPreviewDismissCancelled && isSinglePreviewTouch && gesture?.type === 'swipe' && gesture.axis === 'vertical' &&
                     Math.abs(deltaY) >= galleryPreviewDismissThreshold && Math.abs(deltaY) > Math.abs(deltaX) * 1.5;
                 const requestedNextIndex = galleryPreviewIndex + (deltaX < 0 ? 1 : -1);
-                if (gesture?.type === 'swipe' && gesture.axis === 'vertical' && galleryPreviewDismissActive) updateGalleryPreviewDismiss(deltaY);
                 if (gesture?.type === 'swipe' && galleryPreviewDismissActive) {
                     galleryPreviewLastTap = null;
-                    if (isVerticalDismiss) dismissGalleryPreviewBySwipe();
+                    if (galleryPreviewDismissCancelled) clearGalleryPreviewSwipe();
+                    else if (isVerticalDismiss) dismissGalleryPreviewBySwipe();
                     else settleGalleryPreviewDismiss();
                 } else if (gesture?.type === 'swipe' && galleryPreviewSwipeActive) {
                     if (isHorizontalSwipe && requestedNextIndex >= 0 && requestedNextIndex < galleryPreviewImages.length) {
