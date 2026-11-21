@@ -421,6 +421,9 @@
         .main-project-tag-content { margin-top: 16px; }
         .main-project-developer-section { position: absolute; top: 0; right: 0; left: 0; }
         .main-project-developer-content { margin-top: 16px; }
+        .main-project-changelog-content { margin-top: 16px; }
+        .main-project-changelog-button-slot { display: grid; place-items: center; width: 58px; height: 58px; }
+        .compatibility-version-button.main-project-changelog-button { box-sizing: border-box; width: 50px; height: 50px; min-height: 50px; padding: 0; border-radius: 50%; }
         .main-project-link-section { position: absolute; top: 0; right: 0; left: 0; }
         .main-project-detail-section { position: absolute; top: 0; right: 0; left: 0; }
         .detail-license-row { display: flex; align-items: center; gap: 4px; margin-top: 16px; }
@@ -892,6 +895,11 @@
                 <section class="main-project-tab-panel" id="panel-changelog" role="tabpanel" aria-labelledby="tab-changelog" hidden>
                     <h2 class="main-project-description-section-title">Semi-rounded Corner</h2>
                     <div class="main-project-description-section-divider" aria-hidden="true"></div>
+                    <div class="main-project-changelog-content">
+                        <div class="main-project-changelog-button-slot">
+                            <button class="compatibility-version-button main-project-changelog-button" type="button" aria-label="Changelog button"></button>
+                        </div>
+                    </div>
                     <p class="main-project-tab-empty">No changelog entries have been published yet.</p>
                 </section>
                 <section class="main-project-tab-panel" id="panel-relation" role="tabpanel" aria-labelledby="tab-relation" hidden>
