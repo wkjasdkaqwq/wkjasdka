@@ -925,10 +925,13 @@
             const galleryPreviewNavigationButtons = galleryPreviewDialog?.querySelectorAll('[data-gallery-preview-step]') || [];
             let galleryPreviewIndex = 0;
             const galleryPreviewMinZoom = 1;
+            const galleryPreviewPinchMinZoom = 0.5;
             const galleryPreviewMaxZoom = 5;
+            const galleryPreviewReturnDuration = 220;
             let galleryPreviewZoom = galleryPreviewMinZoom;
             let galleryPreviewPanX = 0;
             let galleryPreviewPanY = 0;
+            let galleryPreviewReturnFrame = 0;
             const galleryPreviewPointers = new Map();
             let galleryPreviewGesture = null;
             let galleryPreviewSuppressBackdropClickUntil = 0;
@@ -939,7 +942,46 @@
                 galleryPreviewZoomSurface.style.setProperty('--community-gallery-pan-y', `${galleryPreviewPanY}px`);
                 galleryPreviewZoomSurface.style.cursor = galleryPreviewZoom > galleryPreviewMinZoom ? 'zoom-out' : 'zoom-in';
             };
+            const cancelGalleryPreviewReturn = () => {
+                if (galleryPreviewReturnFrame) cancelAnimationFrame(galleryPreviewReturnFrame);
+                galleryPreviewReturnFrame = 0;
+            };
+            const returnGalleryPreviewToDefault = () => {
+                if (galleryPreviewZoom > galleryPreviewMinZoom ||
+                    (galleryPreviewZoom === galleryPreviewMinZoom && galleryPreviewPanX === 0 && galleryPreviewPanY === 0)) return;
+                cancelGalleryPreviewReturn();
+                const startZoom = galleryPreviewZoom;
+                const startPanX = galleryPreviewPanX;
+                const startPanY = galleryPreviewPanY;
+                if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                    galleryPreviewZoom = galleryPreviewMinZoom;
+                    galleryPreviewPanX = 0;
+                    galleryPreviewPanY = 0;
+                    applyGalleryPreviewTransform();
+                    return;
+                }
+                const startTime = performance.now();
+                const animateReturn = now => {
+                    const progress = Math.min(1, (now - startTime) / galleryPreviewReturnDuration);
+                    const easedProgress = 1 - Math.pow(1 - progress, 3);
+                    galleryPreviewZoom = startZoom + (galleryPreviewMinZoom - startZoom) * easedProgress;
+                    galleryPreviewPanX = startPanX * (1 - easedProgress);
+                    galleryPreviewPanY = startPanY * (1 - easedProgress);
+                    applyGalleryPreviewTransform();
+                    if (progress < 1) {
+                        galleryPreviewReturnFrame = requestAnimationFrame(animateReturn);
+                    } else {
+                        galleryPreviewReturnFrame = 0;
+                        galleryPreviewZoom = galleryPreviewMinZoom;
+                        galleryPreviewPanX = 0;
+                        galleryPreviewPanY = 0;
+                        applyGalleryPreviewTransform();
+                    }
+                };
+                galleryPreviewReturnFrame = requestAnimationFrame(animateReturn);
+            };
             const resetGalleryPreviewZoom = () => {
+                cancelGalleryPreviewReturn();
                 galleryPreviewZoom = galleryPreviewMinZoom;
                 galleryPreviewPanX = 0;
                 galleryPreviewPanY = 0;
@@ -969,6 +1011,8 @@
                 x: (points[0].x + points[1].x) / 2,
                 y: (points[0].y + points[1].y) / 2
             });
+            const getGalleryPreviewRecenterFactor = zoom => Math.max(0, Math.min(1,
+                (zoom - galleryPreviewPinchMinZoom) / (galleryPreviewMinZoom - galleryPreviewPinchMinZoom)));
             const startGalleryPreviewGesture = () => {
                 const activePointers = Array.from(galleryPreviewPointers.entries()).slice(0, 2);
                 if (activePointers.length === 2) {
@@ -1069,6 +1113,7 @@
             });
             galleryPreviewDialog?.addEventListener('pointerdown', event => {
                 if (!galleryPreviewDialog.open || event.pointerType !== 'touch' || event.target.closest('.community-gallery-preview-toolbar')) return;
+                cancelGalleryPreviewReturn();
                 if (galleryPreviewPointers.size > 0) galleryPreviewSuppressBackdropClickUntil = Date.now() + 750;
                 galleryPreviewPointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
                 startGalleryPreviewGesture();
@@ -1081,15 +1126,16 @@
                     const activePointers = Array.from(galleryPreviewPointers.values()).slice(0, 2);
                     const distance = Math.hypot(activePointers[1].x - activePointers[0].x, activePointers[1].y - activePointers[0].y);
                     const midpoint = getGalleryPreviewMidpoint(activePointers);
-                    const nextZoom = Math.max(galleryPreviewMinZoom, Math.min(galleryPreviewMaxZoom, galleryPreviewGesture.startZoom * distance / Math.max(1, galleryPreviewGesture.startDistance)));
+                    const nextZoom = Math.max(galleryPreviewPinchMinZoom, Math.min(galleryPreviewMaxZoom, galleryPreviewGesture.startZoom * distance / Math.max(1, galleryPreviewGesture.startDistance)));
                     const ratio = nextZoom / galleryPreviewGesture.startZoom;
-                    if (nextZoom === galleryPreviewMinZoom) {
-                        galleryPreviewPanX = 0;
-                        galleryPreviewPanY = 0;
-                    } else {
-                        galleryPreviewPanX = midpoint.x - galleryPreviewGesture.centerX - ratio * (galleryPreviewGesture.startMidpoint.x - galleryPreviewGesture.centerX - galleryPreviewGesture.startPanX);
-                        galleryPreviewPanY = midpoint.y - galleryPreviewGesture.centerY - ratio * (galleryPreviewGesture.startMidpoint.y - galleryPreviewGesture.centerY - galleryPreviewGesture.startPanY);
-                    }
+                    const startRecenterFactor = getGalleryPreviewRecenterFactor(galleryPreviewGesture.startZoom);
+                    const normalizedStartPanX = startRecenterFactor > 0 ? galleryPreviewGesture.startPanX / startRecenterFactor : 0;
+                    const normalizedStartPanY = startRecenterFactor > 0 ? galleryPreviewGesture.startPanY / startRecenterFactor : 0;
+                    const rawPanX = midpoint.x - galleryPreviewGesture.centerX - ratio * (galleryPreviewGesture.startMidpoint.x - galleryPreviewGesture.centerX - normalizedStartPanX);
+                    const rawPanY = midpoint.y - galleryPreviewGesture.centerY - ratio * (galleryPreviewGesture.startMidpoint.y - galleryPreviewGesture.centerY - normalizedStartPanY);
+                    const recenterFactor = getGalleryPreviewRecenterFactor(nextZoom);
+                    galleryPreviewPanX = rawPanX * recenterFactor;
+                    galleryPreviewPanY = rawPanY * recenterFactor;
                     galleryPreviewZoom = nextZoom;
                     applyGalleryPreviewTransform();
                 } else if (galleryPreviewGesture?.type === 'pan' && galleryPreviewPointers.size === 1 && galleryPreviewGesture.pointerId === event.pointerId) {
@@ -1102,6 +1148,7 @@
                 if (!galleryPreviewPointers.has(event.pointerId)) return;
                 galleryPreviewPointers.delete(event.pointerId);
                 startGalleryPreviewGesture();
+                if (galleryPreviewPointers.size === 0 && galleryPreviewZoom <= galleryPreviewMinZoom) returnGalleryPreviewToDefault();
             };
             galleryPreviewDialog?.addEventListener('pointerup', finishGalleryPreviewPointer);
             galleryPreviewDialog?.addEventListener('pointercancel', finishGalleryPreviewPointer);
