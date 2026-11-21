@@ -1044,6 +1044,7 @@
             let galleryPreviewDismissCancelled = false;
             let galleryPreviewDismissTimer = 0;
             let galleryPreviewTouchTransformMoved = false;
+            let galleryPreviewPendingDescription = null;
             const updateGalleryPreviewDescriptionVisibility = () => {
                 if (!galleryPreviewDescription) return;
                 const isDefault = galleryPreviewZoom === galleryPreviewMinZoom && galleryPreviewPanX === 0 && galleryPreviewPanY === 0;
@@ -1052,8 +1053,21 @@
                     galleryPreviewDismissActive || galleryPreviewDialog?.classList.contains('is-gesture-settling') ||
                     galleryPreviewStage?.classList.contains('is-navigating') ||
                     galleryPreviewZoomSurface?.classList.contains('is-double-tap-animating');
-                galleryPreviewDescription.classList.toggle('is-hidden', !isDefault || Boolean(isMoving));
+                galleryPreviewDescription.classList.toggle('is-hidden', !isDefault || Boolean(isMoving) || galleryPreviewPendingDescription !== null);
             };
+            const finishGalleryPreviewDescriptionChange = () => {
+                if (!galleryPreviewDescription || galleryPreviewPendingDescription === null ||
+                    Number.parseFloat(getComputedStyle(galleryPreviewDescription).opacity) > 0) return;
+                galleryPreviewDescription.textContent = galleryPreviewPendingDescription;
+                galleryPreviewPendingDescription = null;
+                updateGalleryPreviewDescriptionVisibility();
+            };
+            galleryPreviewDescription?.addEventListener('transitionend', event => {
+                if (event.target === galleryPreviewDescription && event.propertyName === 'opacity') finishGalleryPreviewDescriptionChange();
+            });
+            galleryPreviewDescription?.addEventListener('transitioncancel', event => {
+                if (event.target === galleryPreviewDescription && event.propertyName === 'opacity') finishGalleryPreviewDescriptionChange();
+            });
             const applyGalleryPreviewTransform = () => {
                 if (!galleryPreviewZoomSurface) return;
                 galleryPreviewZoomSurface.style.setProperty('--community-gallery-preview-zoom', String(galleryPreviewZoom));
@@ -1424,7 +1438,18 @@
             };
             const updateGalleryPreviewPageIndicator = index => {
                 if (galleryPreviewDescription) {
-                    galleryPreviewDescription.textContent = galleryPreviewImages[index]?.closest('.community-gallery-item')?.querySelector('.community-gallery-caption')?.textContent.trim() || '';
+                    const description = galleryPreviewImages[index]?.closest('.community-gallery-item')?.querySelector('.community-gallery-caption')?.textContent.trim() || '';
+                    if (!galleryPreviewDialog?.open || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                        galleryPreviewPendingDescription = null;
+                        galleryPreviewDescription.textContent = description;
+                    } else {
+                        galleryPreviewPendingDescription = description === galleryPreviewDescription.textContent ? null : description;
+                        if (galleryPreviewPendingDescription !== null) {
+                            galleryPreviewDescription.classList.add('is-hidden');
+                            finishGalleryPreviewDescriptionChange();
+                        }
+                    }
+                    updateGalleryPreviewDescriptionVisibility();
                 }
                 if (!galleryPreviewPage) return;
                 galleryPreviewPage.textContent = `${index + 1} / ${galleryPreviewImages.length}`;
