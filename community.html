@@ -1293,9 +1293,43 @@
                 }
                 updateGalleryPreviewEdgeCursor();
             };
+            let galleryPreviewNavigationTimer = 0;
+            const animateGalleryPreviewNavigation = nextIndex => {
+                if (!galleryPreviewDialog?.open || !galleryPreviewStage || !galleryPreviewZoomSurface || galleryPreviewNavigationTimer ||
+                    nextIndex < 0 || nextIndex >= galleryPreviewImages.length || nextIndex === galleryPreviewIndex) return;
+                if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                    showGalleryPreviewImage(nextIndex);
+                    return;
+                }
+                const direction = nextIndex > galleryPreviewIndex ? 1 : -1;
+                const sideImage = direction > 0 ? galleryPreviewNextImage : galleryPreviewPreviousImage;
+                if (!sideImage) {
+                    showGalleryPreviewImage(nextIndex);
+                    return;
+                }
+                resetGalleryPreviewZoom();
+                galleryPreviewZoom = galleryPreviewMinZoom;
+                galleryPreviewPanX = 0;
+                galleryPreviewPanY = 0;
+                applyGalleryPreviewTransform();
+                sideImage.src = galleryPreviewImages[nextIndex].currentSrc || galleryPreviewImages[nextIndex].src;
+                sideImage.hidden = false;
+                sideImage.classList.add('is-visible');
+                sideImage.style.setProperty('--community-gallery-preview-side-offset', `${direction * window.innerWidth}px`);
+                galleryPreviewStage.classList.add('is-settling');
+                galleryPreviewStage.getBoundingClientRect();
+                sideImage.style.setProperty('--community-gallery-preview-side-offset', '0px');
+                galleryPreviewZoomSurface.style.setProperty('--community-gallery-swipe-x', `${-direction * window.innerWidth}px`);
+                galleryPreviewNavigationTimer = window.setTimeout(() => {
+                    galleryPreviewNavigationTimer = 0;
+                    showGalleryPreviewImage(nextIndex);
+                }, 240);
+            };
             let galleryPreviewCloseTimer = 0;
             const closeGalleryPreview = () => {
                 if (!galleryPreviewDialog?.open || galleryPreviewDialog.classList.contains('is-closing')) return;
+                window.clearTimeout(galleryPreviewNavigationTimer);
+                galleryPreviewNavigationTimer = 0;
                 resetGalleryPreviewEdgeCursor();
                 if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
                     galleryPreviewDialog.close();
@@ -1324,6 +1358,8 @@
             galleryPreviewDialog?.addEventListener('close', () => {
                 window.clearTimeout(galleryPreviewCloseTimer);
                 galleryPreviewCloseTimer = 0;
+                window.clearTimeout(galleryPreviewNavigationTimer);
+                galleryPreviewNavigationTimer = 0;
                 galleryPreviewDialog.classList.remove('is-closing');
                 galleryPreviewClose?.classList.remove('is-open-focus');
                 resetGalleryPreviewEdgeCursor();
@@ -1353,7 +1389,7 @@
             galleryPreviewNavigationButtons.forEach(button => {
                 button.addEventListener('click', () => {
                     if (!galleryPreviewDialog?.open) return;
-                    showGalleryPreviewImage(galleryPreviewIndex + Number(button.dataset.galleryPreviewStep));
+                    animateGalleryPreviewNavigation(galleryPreviewIndex + Number(button.dataset.galleryPreviewStep));
                 });
             });
             galleryPreviewClose?.addEventListener('click', closeGalleryPreview);
@@ -1387,7 +1423,7 @@
                 event.preventDefault();
                 event.stopPropagation();
                 const nextIndex = galleryPreviewIndex + direction;
-                if (nextIndex >= 0 && nextIndex < galleryPreviewImages.length) showGalleryPreviewImage(nextIndex);
+                if (nextIndex >= 0 && nextIndex < galleryPreviewImages.length) animateGalleryPreviewNavigation(nextIndex);
             }, true);
             galleryPreviewDialog?.addEventListener('wheel', event => {
                 if (!galleryPreviewDialog.open || event.target.closest('.community-gallery-preview-toolbar')) return;
