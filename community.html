@@ -1283,28 +1283,33 @@
                     else galleryPreviewNextImage.removeAttribute('src');
                     galleryPreviewNextImage.hidden = true;
                 }
-                galleryPreviewNavigationButtons.forEach(button => {
-                    const step = Number(button.dataset.galleryPreviewStep);
-                    button.disabled = (step < 0 && galleryPreviewIndex === 0) || (step > 0 && galleryPreviewIndex === galleryPreviewImages.length - 1);
-                });
+                updateGalleryPreviewNavigationAvailability(galleryPreviewIndex);
                 if (galleryPreviewPage) {
                     galleryPreviewPage.textContent = `${galleryPreviewIndex + 1} / ${galleryPreviewImages.length}`;
                     galleryPreviewPage.setAttribute('aria-label', `Image ${galleryPreviewIndex + 1} of ${galleryPreviewImages.length}`);
                 }
                 updateGalleryPreviewEdgeCursor();
             };
+            const updateGalleryPreviewNavigationAvailability = index => {
+                galleryPreviewNavigationButtons.forEach(button => {
+                    const step = Number(button.dataset.galleryPreviewStep);
+                    button.disabled = (step < 0 && index === 0) || (step > 0 && index === galleryPreviewImages.length - 1);
+                });
+            };
             let galleryPreviewNavigationTimer = 0;
             let galleryPreviewNavigationTargetIndex = null;
+            const galleryPreviewNavigationQueue = [];
             const animateGalleryPreviewNavigation = nextIndex => {
                 if (!galleryPreviewDialog?.open || !galleryPreviewStage || !galleryPreviewZoomSurface) return;
+                const plannedIndex = galleryPreviewNavigationQueue.length
+                    ? galleryPreviewNavigationQueue[galleryPreviewNavigationQueue.length - 1]
+                    : Number.isInteger(galleryPreviewNavigationTargetIndex) ? galleryPreviewNavigationTargetIndex : galleryPreviewIndex;
+                if (nextIndex < 0 || nextIndex >= galleryPreviewImages.length || nextIndex === plannedIndex) return;
                 if (galleryPreviewNavigationTimer) {
-                    window.clearTimeout(galleryPreviewNavigationTimer);
-                    galleryPreviewNavigationTimer = 0;
-                    const inFlightIndex = galleryPreviewNavigationTargetIndex;
-                    galleryPreviewNavigationTargetIndex = null;
-                    if (Number.isInteger(inFlightIndex)) showGalleryPreviewImage(inFlightIndex);
+                    galleryPreviewNavigationQueue.push(nextIndex);
+                    updateGalleryPreviewNavigationAvailability(nextIndex);
+                    return;
                 }
-                if (nextIndex < 0 || nextIndex >= galleryPreviewImages.length || nextIndex === galleryPreviewIndex) return;
                 if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
                     showGalleryPreviewImage(nextIndex);
                     return;
@@ -1329,10 +1334,13 @@
                 sideImage.style.setProperty('--community-gallery-preview-side-offset', '0px');
                 galleryPreviewZoomSurface.style.setProperty('--community-gallery-swipe-x', `${-direction * window.innerWidth}px`);
                 galleryPreviewNavigationTargetIndex = nextIndex;
+                updateGalleryPreviewNavigationAvailability(nextIndex);
                 galleryPreviewNavigationTimer = window.setTimeout(() => {
                     galleryPreviewNavigationTimer = 0;
                     galleryPreviewNavigationTargetIndex = null;
                     showGalleryPreviewImage(nextIndex);
+                    const queuedIndex = galleryPreviewNavigationQueue.shift();
+                    if (Number.isInteger(queuedIndex)) animateGalleryPreviewNavigation(queuedIndex);
                 }, 240);
             };
             let galleryPreviewCloseTimer = 0;
@@ -1341,6 +1349,7 @@
                 window.clearTimeout(galleryPreviewNavigationTimer);
                 galleryPreviewNavigationTimer = 0;
                 galleryPreviewNavigationTargetIndex = null;
+                galleryPreviewNavigationQueue.length = 0;
                 resetGalleryPreviewEdgeCursor();
                 if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
                     galleryPreviewDialog.close();
@@ -1372,6 +1381,7 @@
                 window.clearTimeout(galleryPreviewNavigationTimer);
                 galleryPreviewNavigationTimer = 0;
                 galleryPreviewNavigationTargetIndex = null;
+                galleryPreviewNavigationQueue.length = 0;
                 galleryPreviewDialog.classList.remove('is-closing');
                 galleryPreviewClose?.classList.remove('is-open-focus');
                 resetGalleryPreviewEdgeCursor();
@@ -1401,7 +1411,9 @@
             galleryPreviewNavigationButtons.forEach(button => {
                 button.addEventListener('click', () => {
                     if (!galleryPreviewDialog?.open) return;
-                    const activeIndex = Number.isInteger(galleryPreviewNavigationTargetIndex) ? galleryPreviewNavigationTargetIndex : galleryPreviewIndex;
+                    const activeIndex = galleryPreviewNavigationQueue.length
+                        ? galleryPreviewNavigationQueue[galleryPreviewNavigationQueue.length - 1]
+                        : Number.isInteger(galleryPreviewNavigationTargetIndex) ? galleryPreviewNavigationTargetIndex : galleryPreviewIndex;
                     animateGalleryPreviewNavigation(activeIndex + Number(button.dataset.galleryPreviewStep));
                 });
             });
@@ -1435,7 +1447,9 @@
                 updateGalleryPreviewEdgeCursor();
                 event.preventDefault();
                 event.stopPropagation();
-                const activeIndex = Number.isInteger(galleryPreviewNavigationTargetIndex) ? galleryPreviewNavigationTargetIndex : galleryPreviewIndex;
+                const activeIndex = galleryPreviewNavigationQueue.length
+                    ? galleryPreviewNavigationQueue[galleryPreviewNavigationQueue.length - 1]
+                    : Number.isInteger(galleryPreviewNavigationTargetIndex) ? galleryPreviewNavigationTargetIndex : galleryPreviewIndex;
                 const nextIndex = activeIndex + direction;
                 if (nextIndex >= 0 && nextIndex < galleryPreviewImages.length) animateGalleryPreviewNavigation(nextIndex);
             }, true);
