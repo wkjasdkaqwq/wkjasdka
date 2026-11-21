@@ -422,12 +422,10 @@
         .main-project-developer-section { position: absolute; top: 0; right: 0; left: 0; }
         .main-project-developer-content { margin-top: 16px; }
         .main-project-changelog-content { position: relative; box-sizing: border-box; margin-top: 16px; padding-bottom: 24px; }
-        .main-project-changelog-content::before, .main-project-changelog-content::after { content: ""; position: absolute; z-index: 0; border-radius: 999px; background: #c2c2c2; pointer-events: none; }
-        .main-project-changelog-content::before { top: 69px; right: 8px; left: 70px; height: 24px; box-sizing: border-box; background: transparent; border: 0; border-top: 5px solid #c2c2c2; border-right: 5px solid #c2c2c2; border-radius: 2.5px 12px 2.5px 0; }
+        .main-project-changelog-content::after { content: ""; position: absolute; z-index: 0; border-radius: 999px; background: #c2c2c2; pointer-events: none; }
         .main-project-changelog-content::after { top: 54px; left: 27px; width: 5px; height: 24px; border-radius: 0 0 999px 999px; }
         .main-project-changelog-button-slot { position: relative; z-index: 1; display: grid; place-items: center; width: 58px; height: 58px; }
         .compatibility-version-button.main-project-changelog-button { box-sizing: border-box; width: 50px; height: 50px; min-height: 50px; padding: 0; border-radius: 50%; }
-        html.dark-mode .main-project-changelog-content::before { border-color: #385066; }
         html.dark-mode .main-project-changelog-content::after { background: #385066; }
         .main-project-link-section { position: absolute; top: 0; right: 0; left: 0; }
         .main-project-detail-section { position: absolute; top: 0; right: 0; left: 0; }
