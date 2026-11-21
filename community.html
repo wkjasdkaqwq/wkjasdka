@@ -1020,6 +1020,7 @@
             let galleryPreviewSwipeSideBaseOffset = 0;
             let galleryPreviewSwipeActive = false;
             let galleryPreviewSwipeSettleTimer = 0;
+            let galleryPreviewSwipeSettleTargetIndex = null;
             let galleryPreviewDismissActive = false;
             let galleryPreviewDismissDirection = 0;
             let galleryPreviewDismissCancelled = false;
@@ -1037,6 +1038,7 @@
             const clearGalleryPreviewSwipe = () => {
                 window.clearTimeout(galleryPreviewSwipeSettleTimer);
                 galleryPreviewSwipeSettleTimer = 0;
+                galleryPreviewSwipeSettleTargetIndex = null;
                 galleryPreviewSwipeDeltaX = 0;
                 galleryPreviewSwipeSideImage = null;
                 galleryPreviewSwipeSideBaseOffset = 0;
@@ -1110,9 +1112,12 @@
                     }
                 }
                 const settleDelay = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 220;
+                galleryPreviewSwipeSettleTargetIndex = nextIndex;
                 galleryPreviewSwipeSettleTimer = window.setTimeout(() => {
                     galleryPreviewSwipeSettleTimer = 0;
-                    if (Number.isInteger(nextIndex)) showGalleryPreviewImage(nextIndex);
+                    const settledIndex = galleryPreviewSwipeSettleTargetIndex;
+                    galleryPreviewSwipeSettleTargetIndex = null;
+                    if (Number.isInteger(settledIndex)) showGalleryPreviewImage(settledIndex);
                     else clearGalleryPreviewSwipe();
                 }, settleDelay);
             };
@@ -1530,6 +1535,14 @@
                 if (event.target.closest('.community-gallery-preview-toolbar button')) {
                     galleryPreviewLastTap = null;
                     return;
+                }
+                if (galleryPreviewSwipeSettleTimer) {
+                    window.clearTimeout(galleryPreviewSwipeSettleTimer);
+                    galleryPreviewSwipeSettleTimer = 0;
+                    const settledIndex = galleryPreviewSwipeSettleTargetIndex;
+                    galleryPreviewSwipeSettleTargetIndex = null;
+                    if (Number.isInteger(settledIndex)) showGalleryPreviewImage(settledIndex);
+                    else clearGalleryPreviewSwipe();
                 }
                 if (galleryPreviewStage?.classList.contains('is-settling')) {
                     galleryPreviewLastTap = null;
