@@ -1015,6 +1015,7 @@
             let galleryPreviewReturnFrame = 0;
             let galleryPreviewMouseDrag = null;
             let galleryPreviewCancelledMouseDrag = false;
+            let galleryPreviewClickInterruptedReturn = false;
             let galleryPreviewSuppressMouseClick = false;
             let galleryPreviewSuppressMouseClickTimer = 0;
             const galleryPreviewPointers = new Map();
@@ -1199,8 +1200,8 @@
                 galleryPreviewZoomSurface?.style.setProperty('--community-gallery-dismiss-brightness', '100%');
                 galleryPreviewDismissTimer = window.setTimeout(clearGalleryPreviewSwipe, galleryPreviewReturnDuration);
             };
-            const returnGalleryPreviewToDefault = () => {
-                if (galleryPreviewZoom > galleryPreviewMinZoom ||
+            const returnGalleryPreviewToDefault = (includeZoomed = false) => {
+                if ((!includeZoomed && galleryPreviewZoom > galleryPreviewMinZoom) ||
                     (galleryPreviewZoom === galleryPreviewMinZoom && galleryPreviewPanX === 0 && galleryPreviewPanY === 0)) return;
                 cancelGalleryPreviewReturn();
                 const startZoom = galleryPreviewZoom;
@@ -1215,7 +1216,7 @@
                 }
                 const startTime = performance.now();
                 const animateReturn = now => {
-                    const progress = Math.min(1, (now - startTime) / galleryPreviewReturnDuration);
+                    const progress = Math.max(0, Math.min(1, (now - startTime) / galleryPreviewReturnDuration));
                     const easedProgress = 1 - Math.pow(1 - progress, 3);
                     galleryPreviewZoom = startZoom + (galleryPreviewMinZoom - startZoom) * easedProgress;
                     galleryPreviewPanX = startPanX * (1 - easedProgress);
@@ -1229,6 +1230,12 @@
                         galleryPreviewPanX = 0;
                         galleryPreviewPanY = 0;
                         applyGalleryPreviewTransform();
+                        if (galleryPreviewMouseDrag) {
+                            galleryPreviewMouseDrag.startX = galleryPreviewMouseDrag.lastX;
+                            galleryPreviewMouseDrag.startY = galleryPreviewMouseDrag.lastY;
+                            galleryPreviewMouseDrag.startPanX = galleryPreviewPanX;
+                            galleryPreviewMouseDrag.startPanY = galleryPreviewPanY;
+                        }
                     }
                 };
                 galleryPreviewReturnFrame = requestAnimationFrame(animateReturn);
@@ -1535,13 +1542,17 @@
                 if (navigationButton && !navigationButton.disabled) navigationButton.focus({ preventScroll: true });
             }, true);
             document.addEventListener('pointerdown', event => {
-                if (event.pointerType === 'mouse' && event.button === 0) galleryPreviewCancelledMouseDrag = false;
+                if (event.pointerType === 'mouse' && event.button === 0) {
+                    galleryPreviewCancelledMouseDrag = false;
+                    galleryPreviewClickInterruptedReturn = false;
+                }
             }, true);
             galleryPreviewZoomSurface?.addEventListener('pointerdown', event => {
                 if (!galleryPreviewDialog?.open || galleryPreviewDialog.classList.contains('is-closing') ||
                     event.pointerType !== 'mouse' || event.button !== 0 || !galleryPreviewDesktopPointer.matches ||
                     getGalleryPreviewEdgeDirection(event.clientX) || galleryPreviewStage?.classList.contains('is-settling')) return;
                 clearGalleryPreviewNavigation();
+                const wasReturning = Boolean(galleryPreviewReturnFrame);
                 cancelGalleryPreviewReturn();
                 galleryPreviewZoomSurface.classList.remove('is-double-tap-animating');
                 galleryPreviewMouseDrag = {
@@ -1552,6 +1563,7 @@
                     lastY: event.clientY,
                     startPanX: galleryPreviewPanX,
                     startPanY: galleryPreviewPanY,
+                    wasReturning,
                     moved: false
                 };
                 resetGalleryPreviewEdgeCursor();
@@ -1582,6 +1594,7 @@
                 if (event.button !== 0 || event.sourceCapabilities?.firesTouchEvents ||
                     (!galleryPreviewMouseDrag && !galleryPreviewCancelledMouseDrag)) return;
                 const suppressClick = galleryPreviewCancelledMouseDrag || galleryPreviewMouseDrag?.moved;
+                galleryPreviewClickInterruptedReturn = !suppressClick && Boolean(galleryPreviewMouseDrag?.wasReturning);
                 stopGalleryPreviewMouseDrag();
                 galleryPreviewCancelledMouseDrag = false;
                 if (suppressClick) {
@@ -1626,8 +1639,8 @@
                 event.preventDefault();
                 clearGalleryPreviewNavigation();
                 const factor = event.deltaY < 0 ? 1.15 : 1 / 1.15;
-                if (event.deltaY > 0 && galleryPreviewZoom === galleryPreviewMinZoom) {
-                    if (!galleryPreviewReturnFrame) returnGalleryPreviewToDefault();
+                if (event.deltaY > 0 && (galleryPreviewReturnFrame || galleryPreviewZoom * factor <= galleryPreviewMinZoom)) {
+                    if (!galleryPreviewReturnFrame) returnGalleryPreviewToDefault(true);
                 } else {
                     cancelGalleryPreviewReturn();
                     setGalleryPreviewZoomAt(galleryPreviewZoom * factor, event.clientX, event.clientY);
@@ -1646,8 +1659,10 @@
                 if (galleryPreviewDialog.classList.contains('is-closing')) return;
                 if (window.matchMedia('(hover: none), (pointer: coarse)').matches) return;
                 clearGalleryPreviewNavigation();
-                const nextZoom = galleryPreviewZoom > galleryPreviewMinZoom ? galleryPreviewMinZoom : 2;
-                setGalleryPreviewZoomAt(nextZoom, event.clientX, event.clientY);
+                const zoomIn = galleryPreviewClickInterruptedReturn || galleryPreviewZoom <= galleryPreviewMinZoom;
+                galleryPreviewClickInterruptedReturn = false;
+                if (zoomIn) setGalleryPreviewZoomAt(2, event.clientX, event.clientY);
+                else returnGalleryPreviewToDefault(true);
             });
             galleryPreviewDialog?.addEventListener('pointerdown', event => {
                 if (!galleryPreviewDialog.open || event.pointerType !== 'touch') return;
