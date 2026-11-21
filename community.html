@@ -421,10 +421,10 @@
         .main-project-tag-content { margin-top: 16px; }
         .main-project-developer-section { position: absolute; top: 0; right: 0; left: 0; }
         .main-project-developer-content { margin-top: 16px; }
-        .main-project-changelog-content { position: relative; box-sizing: border-box; margin-top: 16px; padding-bottom: 24px; --changelog-frame-top: 69px; --changelog-frame-height: 34px; --changelog-line-top: 54px; }
+        .main-project-changelog-content { position: relative; box-sizing: border-box; margin-top: 16px; padding-bottom: 24px; --changelog-frame-top: 69px; --changelog-frame-height: 34px; --changelog-frame-radius: 12px; --changelog-line-top: 54px; }
         .main-project-changelog-content::before, .main-project-changelog-content::after { content: ""; position: absolute; z-index: 0; background: #c2c2c2; pointer-events: none; }
-        .main-project-changelog-content::before { top: var(--changelog-frame-top); right: 8px; left: 70px; height: var(--changelog-frame-height); box-sizing: border-box; background: transparent; border: 5px solid #c2c2c2; border-left: 0; border-radius: 0 12px 12px 0; }
-        .main-project-changelog-frame-cap { position: absolute; left: 70px; z-index: 0; width: 5px; height: 5px; border-radius: 50%; background: #c2c2c2; pointer-events: none; }
+        .main-project-changelog-content::before { top: var(--changelog-frame-top); right: 8px; left: 70px; height: var(--changelog-frame-height); box-sizing: border-box; background: transparent; border: 5px solid #c2c2c2; border-left: 0; border-radius: var(--changelog-frame-radius); }
+        .main-project-changelog-frame-cap { position: absolute; left: calc(70px + var(--changelog-frame-radius) - 2.5px); z-index: 0; width: 5px; height: 5px; border-radius: 50%; background: #c2c2c2; pointer-events: none; }
         .main-project-changelog-frame-cap-top { top: var(--changelog-frame-top); }
         .main-project-changelog-frame-cap-bottom { top: calc(var(--changelog-frame-top) + var(--changelog-frame-height) - 5px); }
         .main-project-changelog-content::after { border-radius: 999px; }
