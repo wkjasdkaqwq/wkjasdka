@@ -1548,6 +1548,8 @@
                     pointerId: event.pointerId,
                     startX: event.clientX,
                     startY: event.clientY,
+                    lastX: event.clientX,
+                    lastY: event.clientY,
                     startPanX: galleryPreviewPanX,
                     startPanY: galleryPreviewPanY,
                     moved: false
@@ -1559,8 +1561,17 @@
             galleryPreviewZoomSurface?.addEventListener('pointermove', event => {
                 const drag = galleryPreviewMouseDrag;
                 if (!drag || event.pointerId !== drag.pointerId) return;
+                if (galleryPreviewReturnFrame) {
+                    cancelGalleryPreviewReturn();
+                    drag.startX = drag.lastX;
+                    drag.startY = drag.lastY;
+                    drag.startPanX = galleryPreviewPanX;
+                    drag.startPanY = galleryPreviewPanY;
+                }
                 const deltaX = event.clientX - drag.startX;
                 const deltaY = event.clientY - drag.startY;
+                drag.lastX = event.clientX;
+                drag.lastY = event.clientY;
                 if (!drag.moved && Math.hypot(deltaX, deltaY) < 4) return;
                 drag.moved = true;
                 galleryPreviewPanX = drag.startPanX + deltaX;
@@ -1615,11 +1626,18 @@
                 event.preventDefault();
                 clearGalleryPreviewNavigation();
                 const factor = event.deltaY < 0 ? 1.15 : 1 / 1.15;
-                setGalleryPreviewZoomAt(galleryPreviewZoom * factor, event.clientX, event.clientY);
+                if (event.deltaY > 0 && galleryPreviewZoom === galleryPreviewMinZoom) {
+                    if (!galleryPreviewReturnFrame) returnGalleryPreviewToDefault();
+                } else {
+                    cancelGalleryPreviewReturn();
+                    setGalleryPreviewZoomAt(galleryPreviewZoom * factor, event.clientX, event.clientY);
+                }
                 if (galleryPreviewMouseDrag) {
                     galleryPreviewMouseDrag.moved = true;
                     galleryPreviewMouseDrag.startX = event.clientX;
                     galleryPreviewMouseDrag.startY = event.clientY;
+                    galleryPreviewMouseDrag.lastX = event.clientX;
+                    galleryPreviewMouseDrag.lastY = event.clientY;
                     galleryPreviewMouseDrag.startPanX = galleryPreviewPanX;
                     galleryPreviewMouseDrag.startPanY = galleryPreviewPanY;
                 }
