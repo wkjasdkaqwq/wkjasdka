@@ -1099,7 +1099,6 @@
             });
             galleryPreviewDialog?.addEventListener('cancel', event => {
                 event.preventDefault();
-                closeGalleryPreview();
             });
             document.querySelectorAll('.community-gallery-preview-trigger').forEach((trigger) => {
                 trigger.addEventListener('dragstart', event => event.preventDefault());
@@ -1123,9 +1122,7 @@
                     galleryPreviewSuppressBackdropClickUntil = 0;
                     event.preventDefault();
                     event.stopPropagation();
-                    return;
                 }
-                if (event.target === galleryPreviewDialog) closeGalleryPreview();
             });
             galleryPreviewDialog?.addEventListener('wheel', event => {
                 if (!galleryPreviewDialog.open || event.target.closest('.community-gallery-preview-toolbar')) return;
