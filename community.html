@@ -1005,6 +1005,7 @@
             const galleryPreviewPinchMinZoom = 0.5;
             const galleryPreviewMaxZoom = 5;
             const galleryPreviewReturnDuration = 220;
+            const galleryPreviewWheelZoomDuration = 160;
             const galleryPreviewDoubleTapDelay = 320;
             const galleryPreviewDoubleTapDistance = 32;
             const galleryPreviewSwipeThreshold = 56;
@@ -1013,6 +1014,8 @@
             let galleryPreviewPanX = 0;
             let galleryPreviewPanY = 0;
             let galleryPreviewReturnFrame = 0;
+            let galleryPreviewWheelFrame = 0;
+            let galleryPreviewWheelAnimation = null;
             let galleryPreviewMouseDrag = null;
             let galleryPreviewCancelledMouseDrag = false;
             let galleryPreviewClickInterruptedReturn = false;
@@ -1045,6 +1048,11 @@
                 if (galleryPreviewReturnFrame) cancelAnimationFrame(galleryPreviewReturnFrame);
                 galleryPreviewReturnFrame = 0;
             };
+            const cancelGalleryPreviewWheel = () => {
+                if (galleryPreviewWheelFrame) cancelAnimationFrame(galleryPreviewWheelFrame);
+                galleryPreviewWheelFrame = 0;
+                galleryPreviewWheelAnimation = null;
+            };
             const stopGalleryPreviewMouseDrag = (cancelClick = false) => {
                 if (!galleryPreviewMouseDrag) return;
                 const pointerId = galleryPreviewMouseDrag.pointerId;
@@ -1052,6 +1060,13 @@
                 galleryPreviewMouseDrag = null;
                 galleryPreviewDialog?.classList.remove('is-mouse-dragging');
                 if (galleryPreviewZoomSurface?.hasPointerCapture(pointerId)) galleryPreviewZoomSurface.releasePointerCapture(pointerId);
+            };
+            const rebaseGalleryPreviewMouseDrag = () => {
+                if (!galleryPreviewMouseDrag) return;
+                galleryPreviewMouseDrag.startX = galleryPreviewMouseDrag.lastX;
+                galleryPreviewMouseDrag.startY = galleryPreviewMouseDrag.lastY;
+                galleryPreviewMouseDrag.startPanX = galleryPreviewPanX;
+                galleryPreviewMouseDrag.startPanY = galleryPreviewPanY;
             };
             const clearGalleryPreviewSwipe = () => {
                 window.clearTimeout(galleryPreviewSwipeSettleTimer);
@@ -1230,12 +1245,7 @@
                         galleryPreviewPanX = 0;
                         galleryPreviewPanY = 0;
                         applyGalleryPreviewTransform();
-                        if (galleryPreviewMouseDrag) {
-                            galleryPreviewMouseDrag.startX = galleryPreviewMouseDrag.lastX;
-                            galleryPreviewMouseDrag.startY = galleryPreviewMouseDrag.lastY;
-                            galleryPreviewMouseDrag.startPanX = galleryPreviewPanX;
-                            galleryPreviewMouseDrag.startPanY = galleryPreviewPanY;
-                        }
+                        rebaseGalleryPreviewMouseDrag();
                     }
                 };
                 galleryPreviewReturnFrame = requestAnimationFrame(animateReturn);
@@ -1243,6 +1253,7 @@
             const resetGalleryPreviewZoom = () => {
                 stopGalleryPreviewMouseDrag(true);
                 cancelGalleryPreviewReturn();
+                cancelGalleryPreviewWheel();
                 clearGalleryPreviewSwipe();
                 galleryPreviewZoomSurface?.classList.remove('is-double-tap-animating');
                 galleryPreviewZoom = galleryPreviewMinZoom;
@@ -1272,6 +1283,48 @@
                 }
                 galleryPreviewZoom = clampedZoom;
                 applyGalleryPreviewTransform();
+            };
+            const animateGalleryPreviewWheelTo = (targetZoom, targetPanX, targetPanY, direction, anchorX, anchorY) => {
+                if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                    cancelGalleryPreviewWheel();
+                    galleryPreviewZoom = targetZoom;
+                    galleryPreviewPanX = targetPanX;
+                    galleryPreviewPanY = targetPanY;
+                    applyGalleryPreviewTransform();
+                    rebaseGalleryPreviewMouseDrag();
+                    return;
+                }
+                galleryPreviewWheelAnimation = {
+                    startTime: performance.now(),
+                    startZoom: galleryPreviewZoom,
+                    startPanX: galleryPreviewPanX,
+                    startPanY: galleryPreviewPanY,
+                    targetZoom,
+                    targetPanX,
+                    targetPanY,
+                    direction,
+                    anchorX,
+                    anchorY
+                };
+                if (galleryPreviewWheelFrame) return;
+                const animateWheel = now => {
+                    const animation = galleryPreviewWheelAnimation;
+                    if (!animation) return;
+                    const progress = Math.max(0, Math.min(1, (now - animation.startTime) / galleryPreviewWheelZoomDuration));
+                    const easedProgress = 1 - Math.pow(1 - progress, 3);
+                    galleryPreviewZoom = animation.startZoom + (animation.targetZoom - animation.startZoom) * easedProgress;
+                    galleryPreviewPanX = animation.startPanX + (animation.targetPanX - animation.startPanX) * easedProgress;
+                    galleryPreviewPanY = animation.startPanY + (animation.targetPanY - animation.startPanY) * easedProgress;
+                    applyGalleryPreviewTransform();
+                    if (progress < 1) {
+                        galleryPreviewWheelFrame = requestAnimationFrame(animateWheel);
+                    } else {
+                        galleryPreviewWheelFrame = 0;
+                        galleryPreviewWheelAnimation = null;
+                        rebaseGalleryPreviewMouseDrag();
+                    }
+                };
+                galleryPreviewWheelFrame = requestAnimationFrame(animateWheel);
             };
             const animateGalleryPreviewZoomAt = (x, y) => {
                 const nextZoom = galleryPreviewZoom > galleryPreviewMinZoom ? galleryPreviewMinZoom : 2;
@@ -1436,6 +1489,7 @@
             const closeGalleryPreview = () => {
                 if (!galleryPreviewDialog?.open || galleryPreviewDialog.classList.contains('is-closing')) return;
                 stopGalleryPreviewMouseDrag(true);
+                cancelGalleryPreviewWheel();
                 clearGalleryPreviewNavigation();
                 resetGalleryPreviewEdgeCursor();
                 if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -1521,14 +1575,22 @@
             window.addEventListener('blur', () => {
                 if (galleryPreviewDialog?.open) {
                     stopGalleryPreviewMouseDrag(true);
+                    cancelGalleryPreviewWheel();
                     resetGalleryPreviewEdgeCursor();
                 }
             });
             window.addEventListener('resize', () => {
                 if (galleryPreviewDialog?.open) {
                     clearGalleryPreviewNavigation();
+                    cancelGalleryPreviewWheel();
+                    rebaseGalleryPreviewMouseDrag();
                     resetGalleryPreviewEdgeCursor();
                 }
+            });
+            document.addEventListener('visibilitychange', () => {
+                if (!document.hidden || !galleryPreviewDialog?.open) return;
+                cancelGalleryPreviewWheel();
+                rebaseGalleryPreviewMouseDrag();
             });
             galleryPreviewDialog?.addEventListener('mousedown', event => {
                 if (!galleryPreviewDialog.open || !galleryPreviewDesktopPointer.matches || event.button !== 0 ||
@@ -1554,6 +1616,7 @@
                 clearGalleryPreviewNavigation();
                 const wasReturning = Boolean(galleryPreviewReturnFrame);
                 cancelGalleryPreviewReturn();
+                cancelGalleryPreviewWheel();
                 galleryPreviewZoomSurface.classList.remove('is-double-tap-animating');
                 galleryPreviewMouseDrag = {
                     pointerId: event.pointerId,
@@ -1573,12 +1636,10 @@
             galleryPreviewZoomSurface?.addEventListener('pointermove', event => {
                 const drag = galleryPreviewMouseDrag;
                 if (!drag || event.pointerId !== drag.pointerId) return;
-                if (galleryPreviewReturnFrame) {
+                if (galleryPreviewReturnFrame || galleryPreviewWheelFrame) {
                     cancelGalleryPreviewReturn();
-                    drag.startX = drag.lastX;
-                    drag.startY = drag.lastY;
-                    drag.startPanX = galleryPreviewPanX;
-                    drag.startPanY = galleryPreviewPanY;
+                    cancelGalleryPreviewWheel();
+                    rebaseGalleryPreviewMouseDrag();
                 }
                 const deltaX = event.clientX - drag.startX;
                 const deltaY = event.clientY - drag.startY;
@@ -1637,28 +1698,44 @@
             galleryPreviewDialog?.addEventListener('wheel', event => {
                 if (!galleryPreviewDialog.open || galleryPreviewDialog.classList.contains('is-closing') || event.target.closest('.community-gallery-preview-toolbar')) return;
                 event.preventDefault();
+                if (event.deltaY === 0 || galleryPreviewActiveTouchPointers.size ||
+                    galleryPreviewStage?.classList.contains('is-settling') || galleryPreviewZoomSurface?.classList.contains('is-double-tap-animating')) return;
                 clearGalleryPreviewNavigation();
-                const factor = event.deltaY < 0 ? 1.15 : 1 / 1.15;
-                if (event.deltaY > 0 && (galleryPreviewReturnFrame || galleryPreviewZoom * factor <= galleryPreviewMinZoom)) {
+                const direction = event.deltaY < 0 ? 1 : -1;
+                const deltaPixels = Math.abs(event.deltaY) * (event.deltaMode === 1 ? 40 : event.deltaMode === 2 ? window.innerHeight : 1);
+                const factor = Math.pow(1.15, direction * Math.min(4, deltaPixels / 100));
+                const animation = galleryPreviewWheelAnimation;
+                const baseZoom = animation?.direction === direction ? animation.targetZoom : galleryPreviewZoom;
+                const targetZoom = Math.max(galleryPreviewMinZoom, Math.min(galleryPreviewMaxZoom, baseZoom * factor));
+                if (targetZoom === galleryPreviewMinZoom || (direction < 0 && galleryPreviewReturnFrame)) {
+                    cancelGalleryPreviewWheel();
+                    if (direction > 0) cancelGalleryPreviewReturn();
                     if (!galleryPreviewReturnFrame) returnGalleryPreviewToDefault(true);
                 } else {
                     cancelGalleryPreviewReturn();
-                    setGalleryPreviewZoomAt(galleryPreviewZoom * factor, event.clientX, event.clientY);
+                    if (targetZoom === galleryPreviewZoom) {
+                        cancelGalleryPreviewWheel();
+                    } else if (!animation || targetZoom !== animation.targetZoom || animation.direction !== direction ||
+                        event.clientX !== animation.anchorX || event.clientY !== animation.anchorY) {
+                        const center = getGalleryPreviewBaseCenter();
+                        const ratio = targetZoom / galleryPreviewZoom;
+                        const targetPanX = event.clientX - center.x - ratio * (event.clientX - center.x - galleryPreviewPanX);
+                        const targetPanY = event.clientY - center.y - ratio * (event.clientY - center.y - galleryPreviewPanY);
+                        animateGalleryPreviewWheelTo(targetZoom, targetPanX, targetPanY, direction, event.clientX, event.clientY);
+                    }
                 }
                 if (galleryPreviewMouseDrag) {
                     galleryPreviewMouseDrag.moved = true;
-                    galleryPreviewMouseDrag.startX = event.clientX;
-                    galleryPreviewMouseDrag.startY = event.clientY;
                     galleryPreviewMouseDrag.lastX = event.clientX;
                     galleryPreviewMouseDrag.lastY = event.clientY;
-                    galleryPreviewMouseDrag.startPanX = galleryPreviewPanX;
-                    galleryPreviewMouseDrag.startPanY = galleryPreviewPanY;
+                    rebaseGalleryPreviewMouseDrag();
                 }
             }, { passive: false });
             galleryPreviewZoomSurface?.addEventListener('click', event => {
                 if (galleryPreviewDialog.classList.contains('is-closing')) return;
                 if (window.matchMedia('(hover: none), (pointer: coarse)').matches) return;
                 clearGalleryPreviewNavigation();
+                cancelGalleryPreviewWheel();
                 const zoomIn = galleryPreviewClickInterruptedReturn || galleryPreviewZoom <= galleryPreviewMinZoom;
                 galleryPreviewClickInterruptedReturn = false;
                 if (zoomIn) setGalleryPreviewZoomAt(2, event.clientX, event.clientY);
@@ -1666,6 +1743,8 @@
             });
             galleryPreviewDialog?.addEventListener('pointerdown', event => {
                 if (!galleryPreviewDialog.open || event.pointerType !== 'touch') return;
+                cancelGalleryPreviewWheel();
+                rebaseGalleryPreviewMouseDrag();
                 galleryPreviewActiveTouchPointers.add(event.pointerId);
                 if (galleryPreviewTouchGestureBlocked) return;
                 if (galleryPreviewActiveTouchPointers.size >= 2) {
