@@ -1113,7 +1113,10 @@
                 }
                 const settleDelay = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 220;
                 galleryPreviewSwipeSettleTargetIndex = nextIndex;
-                if (Number.isInteger(nextIndex)) updateGalleryPreviewPageIndicator(nextIndex);
+                if (Number.isInteger(nextIndex)) {
+                    updateGalleryPreviewPageIndicator(nextIndex);
+                    updateGalleryPreviewNavigationAvailability(nextIndex);
+                }
                 galleryPreviewSwipeSettleTimer = window.setTimeout(() => {
                     galleryPreviewSwipeSettleTimer = 0;
                     const settledIndex = galleryPreviewSwipeSettleTargetIndex;
@@ -1463,11 +1466,20 @@
             });
             galleryPreviewNavigationButtons.forEach(button => {
                 button.addEventListener('click', () => {
-                    if (!galleryPreviewDialog?.open) return;
+                    if (!galleryPreviewDialog?.open || galleryPreviewDialog.classList.contains('is-closing')) return;
                     const activeIndex = galleryPreviewNavigationQueue.length
                         ? galleryPreviewNavigationQueue[galleryPreviewNavigationQueue.length - 1]
-                        : Number.isInteger(galleryPreviewNavigationTargetIndex) ? galleryPreviewNavigationTargetIndex : galleryPreviewIndex;
-                    animateGalleryPreviewNavigation(activeIndex + Number(button.dataset.galleryPreviewStep));
+                        : Number.isInteger(galleryPreviewNavigationTargetIndex) ? galleryPreviewNavigationTargetIndex
+                        : Number.isInteger(galleryPreviewSwipeSettleTargetIndex) ? galleryPreviewSwipeSettleTargetIndex : galleryPreviewIndex;
+                    const nextIndex = activeIndex + Number(button.dataset.galleryPreviewStep);
+                    if (nextIndex < 0 || nextIndex >= galleryPreviewImages.length) return;
+                    window.clearTimeout(galleryPreviewNavigationTimer);
+                    galleryPreviewNavigationTimer = 0;
+                    window.cancelAnimationFrame(galleryPreviewNavigationFrame);
+                    galleryPreviewNavigationFrame = 0;
+                    galleryPreviewNavigationTargetIndex = null;
+                    galleryPreviewNavigationQueue.length = 0;
+                    showGalleryPreviewImage(nextIndex);
                 });
             });
             galleryPreviewClose?.addEventListener('click', closeGalleryPreview);
