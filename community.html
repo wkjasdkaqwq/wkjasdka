@@ -948,6 +948,7 @@
             const galleryPreviewDoubleTapDelay = 320;
             const galleryPreviewDoubleTapDistance = 32;
             const galleryPreviewSwipeThreshold = 56;
+            const galleryPreviewDismissThreshold = 120;
             let galleryPreviewZoom = galleryPreviewMinZoom;
             let galleryPreviewPanX = 0;
             let galleryPreviewPanY = 0;
@@ -1239,7 +1240,7 @@
                 galleryPreviewZoomSurface.getBoundingClientRect();
                 const direction = deltaY < 0 ? -1 : 1;
                 galleryPreviewZoomSurface.style.setProperty('--community-gallery-dismiss-y', `${direction * (window.innerHeight + 80)}px`);
-                galleryPreviewZoomSurface.style.setProperty('--community-gallery-dismiss-scale', '.92');
+                galleryPreviewZoomSurface.style.setProperty('--community-gallery-dismiss-scale', '.75');
                 galleryPreviewZoomSurface.style.setProperty('--community-gallery-dismiss-opacity', '0');
                 galleryPreviewDismissTimer = window.setTimeout(() => {
                     galleryPreviewDismissTimer = 0;
@@ -1349,7 +1350,7 @@
                     const deltaY = event.clientY - galleryPreviewGesture.startY;
                     if (!galleryPreviewGesture.axis && Math.max(Math.abs(deltaX), Math.abs(deltaY)) >= 6) {
                         if (Math.abs(deltaX) > Math.abs(deltaY) * 1.25) galleryPreviewGesture.axis = 'horizontal';
-                        else if (Math.abs(deltaY) > Math.abs(deltaX) * 1.25) galleryPreviewGesture.axis = 'vertical';
+                        else if (Math.abs(deltaY) > Math.abs(deltaX) * 1.5) galleryPreviewGesture.axis = 'vertical';
                     }
                     if (galleryPreviewGesture.axis === 'horizontal') updateGalleryPreviewSwipe(deltaX);
                     else if (galleryPreviewGesture.axis === 'vertical') updateGalleryPreviewDismiss(deltaY);
@@ -1366,7 +1367,7 @@
                 const isHorizontalSwipe = isSinglePreviewTouch && gesture?.type === 'swipe' && gesture.axis === 'horizontal' &&
                     Math.abs(deltaX) >= galleryPreviewSwipeThreshold && Math.abs(deltaX) > Math.abs(deltaY) * 1.25;
                 const isVerticalDismiss = isSinglePreviewTouch && gesture?.type === 'swipe' && gesture.axis === 'vertical' &&
-                    Math.abs(deltaY) >= galleryPreviewSwipeThreshold && Math.abs(deltaY) > Math.abs(deltaX) * 1.25;
+                    Math.abs(deltaY) >= galleryPreviewDismissThreshold && Math.abs(deltaY) > Math.abs(deltaX) * 1.5;
                 const requestedNextIndex = galleryPreviewIndex + (deltaX < 0 ? 1 : -1);
                 if (gesture?.type === 'swipe' && galleryPreviewDismissActive) {
                     galleryPreviewLastTap = null;
