@@ -371,7 +371,7 @@
             .community-gallery-preview-dialog[open]:has([data-gallery-preview-step="1"]:disabled)::after { cursor: not-allowed; }
             .community-gallery-preview-dialog[open].is-edge-left.is-edge-unavailable::before, .community-gallery-preview-dialog[open].is-edge-right.is-edge-unavailable::after { cursor: not-allowed; }
             .community-gallery-preview-toolbar { z-index: 4; }
-            .community-gallery-preview-edge-cursor { position: absolute; top: 0; left: 0; z-index: 5; width: 48px; height: 48px; pointer-events: none; }
+            .community-gallery-preview-edge-cursor { position: absolute; top: 0; left: 0; z-index: 5; width: 36px; height: 36px; pointer-events: none; }
             .community-gallery-preview-dialog[open].is-edge-left:not(.is-edge-unavailable) .community-gallery-preview-edge-cursor, .community-gallery-preview-dialog[open].is-edge-right:not(.is-edge-unavailable) .community-gallery-preview-edge-cursor { display: block; }
             .community-gallery-preview-edge-cursor svg { display: none; width: 100%; height: 100%; }
             .community-gallery-preview-dialog.is-edge-left .community-gallery-preview-edge-cursor-left, .community-gallery-preview-dialog.is-edge-right .community-gallery-preview-edge-cursor-right { display: block; }
@@ -917,8 +917,8 @@
             </div>
         </div>
         <span class="community-gallery-preview-edge-cursor" aria-hidden="true">
-            <svg class="community-gallery-preview-edge-cursor-left" viewBox="0 0 16 16" fill="#fff" focusable="false"><path fill-rule="evenodd" stroke="#fff" stroke-width="0.06" stroke-linejoin="round" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"/></svg>
-            <svg class="community-gallery-preview-edge-cursor-right" viewBox="0 0 16 16" fill="#fff" focusable="false"><path fill-rule="evenodd" stroke="#fff" stroke-width="0.06" stroke-linejoin="round" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8"/></svg>
+            <svg class="community-gallery-preview-edge-cursor-left" viewBox="0 0 16 16" fill="#fff" focusable="false"><path fill-rule="evenodd" stroke="#fff" stroke-width="0.08" stroke-linejoin="round" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"/></svg>
+            <svg class="community-gallery-preview-edge-cursor-right" viewBox="0 0 16 16" fill="#fff" focusable="false"><path fill-rule="evenodd" stroke="#fff" stroke-width="0.08" stroke-linejoin="round" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8"/></svg>
         </span>
     </dialog>
     <script>
@@ -983,7 +983,7 @@
             const trackGalleryPreviewDesktopPointer = (clientX, clientY, target) => {
                 const direction = target?.closest('.community-gallery-preview-toolbar') ? 0 : getGalleryPreviewEdgeDirection(clientX);
                 if (direction && galleryPreviewEdgeCursor) {
-                    const size = 48;
+                    const size = 36;
                     const x = Math.max(0, Math.min(window.innerWidth - size, clientX - (direction === 1 ? size - 1 : 0)));
                     const y = Math.max(0, Math.min(window.innerHeight - size, clientY - size / 2));
                     galleryPreviewEdgeCursor.style.transform = `translate3d(${x}px, ${y}px, 0)`;
