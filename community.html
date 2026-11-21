@@ -438,7 +438,7 @@
         .main-project-changelog-content::after { top: var(--changelog-line-top); left: 27px; width: 5px; height: calc(var(--changelog-frame-top) + var(--changelog-frame-height) + 10px - var(--changelog-line-top)); border-radius: 0 0 999px 999px; }
         .main-project-changelog-button-slot { position: relative; z-index: 1; display: grid; place-items: center; width: 58px; height: 58px; }
         .compatibility-version-button.main-project-changelog-button { box-sizing: border-box; width: 50px; height: 50px; min-height: 50px; padding: 0; border-radius: 50%; }
-        .main-project-changelog-avatars { position: absolute; top: 43px; left: 78px; z-index: 1; display: flex; align-items: center; height: 58px; }
+        .main-project-changelog-avatars { position: absolute; top: calc(var(--changelog-frame-top) - 50px); left: 78px; z-index: 1; display: flex; align-items: center; height: 58px; }
         .main-project-changelog-avatar { display: block; box-sizing: border-box; width: 50px; height: 50px; flex: 0 0 50px; border: 2px solid #fff; border-radius: 50%; background: #f1f1f1; object-fit: cover; }
         .main-project-changelog-avatar + .main-project-changelog-avatar { margin-left: -14px; }
         .main-project-changelog-avatar:nth-child(n + 3) { display: none; }
