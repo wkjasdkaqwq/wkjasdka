@@ -359,23 +359,22 @@
         .community-gallery-preview-toolbar, .community-gallery-preview-toolbar * { cursor: default; }
         .community-gallery-preview-toolbar .community-gallery-preview-nav-button:not(:disabled), .community-gallery-preview-toolbar .community-gallery-preview-nav-button:not(:disabled) *, .community-gallery-preview-toolbar .community-gallery-preview-close, .community-gallery-preview-toolbar .community-gallery-preview-close * { cursor: pointer; }
         .community-gallery-preview-toolbar .community-gallery-preview-nav-button:disabled, .community-gallery-preview-toolbar .community-gallery-preview-nav-button:disabled * { cursor: not-allowed; }
+        .community-gallery-preview-edge-cursor { display: none; }
         @media (hover: hover) and (pointer: fine) {
-            .community-gallery-preview-dialog[open] {
-                --gallery-edge-left-cursor: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2248%22%20height%3D%2248%22%20fill%3D%22%23fff%22%20class%3D%22bi%20bi-arrow-left%22%20viewBox%3D%220%200%2016%2016%22%3E%0A%20%20%3Cpath%20fill-rule%3D%22evenodd%22%20stroke%3D%22%23fff%22%20stroke-width%3D%220.06%22%20stroke-linejoin%3D%22round%22%20d%3D%22M15%208a.5.5%200%200%200-.5-.5H2.707l3.147-3.146a.5.5%200%201%200-.708-.708l-4%204a.5.5%200%200%200%200%20.708l4%204a.5.5%200%200%200%20.708-.708L2.707%208.5H14.5A.5.5%200%200%200%2015%208%22%2F%3E%0A%3C%2Fsvg%3E%0A") 0 24, default;
-                --gallery-edge-right-cursor: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2248%22%20height%3D%2248%22%20fill%3D%22%23fff%22%20class%3D%22bi%20bi-arrow-right%22%20viewBox%3D%220%200%2016%2016%22%3E%0A%20%20%3Cpath%20fill-rule%3D%22evenodd%22%20stroke%3D%22%23fff%22%20stroke-width%3D%220.06%22%20stroke-linejoin%3D%22round%22%20d%3D%22M1%208a.5.5%200%200%201%20.5-.5h11.793l-3.147-3.146a.5.5%200%200%201%20.708-.708l4%204a.5.5%200%200%201%200%20.708l-4%204a.5.5%200%200%201-.708-.708L13.293%208.5H1.5A.5.5%200%200%201%201%208%22%2F%3E%0A%3C%2Fsvg%3E%0A") 47 24, default;
-                cursor: default;
-            }
-            .community-gallery-preview-dialog[open].is-edge-left { cursor: var(--gallery-edge-left-cursor); }
-            .community-gallery-preview-dialog[open].is-edge-right { cursor: var(--gallery-edge-right-cursor); }
+            .community-gallery-preview-dialog[open] { cursor: default; }
+            .community-gallery-preview-dialog[open].is-edge-left:not(.is-edge-unavailable), .community-gallery-preview-dialog[open].is-edge-right:not(.is-edge-unavailable) { cursor: none; }
             .community-gallery-preview-dialog[open].is-edge-unavailable { cursor: not-allowed; }
-            /* Let hit testing choose the edge cursor without waiting for pointermove. */
-            .community-gallery-preview-dialog[open]::before, .community-gallery-preview-dialog[open]::after { content: ""; position: absolute; top: 0; bottom: 0; width: 48px; }
-            .community-gallery-preview-dialog[open]::before { left: 0; z-index: 3; cursor: var(--gallery-edge-left-cursor); }
-            .community-gallery-preview-dialog[open]::after { right: 0; z-index: 2; cursor: var(--gallery-edge-right-cursor); }
+            .community-gallery-preview-dialog[open]::before, .community-gallery-preview-dialog[open]::after { content: ""; position: absolute; top: 0; bottom: 0; width: 48px; cursor: none; }
+            .community-gallery-preview-dialog[open]::before { left: 0; z-index: 3; }
+            .community-gallery-preview-dialog[open]::after { right: 0; z-index: 2; }
             .community-gallery-preview-dialog[open]:has([data-gallery-preview-step="-1"]:disabled)::before { cursor: not-allowed; }
             .community-gallery-preview-dialog[open]:has([data-gallery-preview-step="1"]:disabled)::after { cursor: not-allowed; }
             .community-gallery-preview-dialog[open].is-edge-left.is-edge-unavailable::before, .community-gallery-preview-dialog[open].is-edge-right.is-edge-unavailable::after { cursor: not-allowed; }
             .community-gallery-preview-toolbar { z-index: 4; }
+            .community-gallery-preview-edge-cursor { position: absolute; top: 0; left: 0; z-index: 5; width: 48px; height: 48px; pointer-events: none; }
+            .community-gallery-preview-dialog[open].is-edge-left:not(.is-edge-unavailable) .community-gallery-preview-edge-cursor, .community-gallery-preview-dialog[open].is-edge-right:not(.is-edge-unavailable) .community-gallery-preview-edge-cursor { display: block; }
+            .community-gallery-preview-edge-cursor svg { display: none; width: 100%; height: 100%; }
+            .community-gallery-preview-dialog.is-edge-left .community-gallery-preview-edge-cursor-left, .community-gallery-preview-dialog.is-edge-right .community-gallery-preview-edge-cursor-right { display: block; }
         }
         @media (hover: none), (pointer: coarse) {
             .community-gallery-preview-nav-button:not(:disabled):hover:not(:active) { background: transparent; color: #fff; box-shadow: none; }
@@ -917,6 +916,10 @@
                 <img class="community-gallery-preview-image" alt="" draggable="false">
             </div>
         </div>
+        <span class="community-gallery-preview-edge-cursor" aria-hidden="true">
+            <svg class="community-gallery-preview-edge-cursor-left" viewBox="0 0 16 16" fill="#fff" focusable="false"><path fill-rule="evenodd" stroke="#fff" stroke-width="0.06" stroke-linejoin="round" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"/></svg>
+            <svg class="community-gallery-preview-edge-cursor-right" viewBox="0 0 16 16" fill="#fff" focusable="false"><path fill-rule="evenodd" stroke="#fff" stroke-width="0.06" stroke-linejoin="round" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8"/></svg>
+        </span>
     </dialog>
     <script>
         (function () {
@@ -957,6 +960,7 @@
             const galleryPreviewStage = galleryPreviewDialog?.querySelector('.community-gallery-preview-stage');
             const galleryPreviewImage = galleryPreviewDialog?.querySelector('.community-gallery-preview-image');
             const galleryPreviewZoomSurface = galleryPreviewDialog?.querySelector('.community-gallery-preview-zoom-surface');
+            const galleryPreviewEdgeCursor = galleryPreviewDialog?.querySelector('.community-gallery-preview-edge-cursor');
             const galleryPreviewPreviousImage = galleryPreviewDialog?.querySelector('.community-gallery-preview-previous-image');
             const galleryPreviewNextImage = galleryPreviewDialog?.querySelector('.community-gallery-preview-next-image');
             const galleryPreviewClose = galleryPreviewDialog?.querySelector('.community-gallery-preview-close');
@@ -975,6 +979,18 @@
             const getGalleryPreviewEdgeDirection = clientX => {
                 const edgeWidth = 48;
                 return clientX <= edgeWidth ? -1 : clientX >= window.innerWidth - edgeWidth ? 1 : 0;
+            };
+            const trackGalleryPreviewDesktopPointer = (clientX, clientY, target) => {
+                const direction = target?.closest('.community-gallery-preview-toolbar') ? 0 : getGalleryPreviewEdgeDirection(clientX);
+                if (direction && galleryPreviewEdgeCursor) {
+                    const size = 48;
+                    const x = Math.max(0, Math.min(window.innerWidth - size, clientX - (direction === 1 ? size - 1 : 0)));
+                    const y = Math.max(0, Math.min(window.innerHeight - size, clientY - size / 2));
+                    galleryPreviewEdgeCursor.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+                }
+                if (direction === galleryPreviewEdgeDirection) return;
+                galleryPreviewEdgeDirection = direction;
+                updateGalleryPreviewEdgeCursor();
             };
             const resetGalleryPreviewEdgeCursor = () => {
                 galleryPreviewEdgeDirection = 0;
@@ -1319,12 +1335,15 @@
             });
             document.querySelectorAll('.community-gallery-preview-trigger').forEach((trigger) => {
                 trigger.addEventListener('dragstart', event => event.preventDefault());
-                trigger.addEventListener('click', () => {
+                trigger.addEventListener('click', event => {
                     const sourceImage = trigger.querySelector('img');
                     if (!sourceImage || !galleryPreviewDialog || !galleryPreviewImage || galleryPreviewDialog.open) return;
                     resetGalleryPreviewEdgeCursor();
                     showGalleryPreviewImage(galleryPreviewImages.indexOf(sourceImage));
                     galleryPreviewDialog.showModal();
+                    if (galleryPreviewDesktopPointer.matches && event.detail > 0 && (!event.pointerType || event.pointerType === 'mouse')) {
+                        trackGalleryPreviewDesktopPointer(event.clientX, event.clientY, document.elementFromPoint(event.clientX, event.clientY));
+                    }
                     galleryPreviewClose?.focus({ preventScroll: true });
                     if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
                         galleryPreviewClose?.classList.add('is-open-focus');
@@ -1347,10 +1366,16 @@
             });
             galleryPreviewDialog?.addEventListener('pointermove', event => {
                 if (!galleryPreviewDialog.open || event.pointerType !== 'mouse' || !galleryPreviewDesktopPointer.matches) return;
-                const direction = getGalleryPreviewEdgeDirection(event.clientX);
-                if (direction === galleryPreviewEdgeDirection) return;
-                galleryPreviewEdgeDirection = direction;
-                updateGalleryPreviewEdgeCursor();
+                trackGalleryPreviewDesktopPointer(event.clientX, event.clientY, event.target);
+            });
+            document.addEventListener('pointerleave', event => {
+                if (event.pointerType === 'mouse' && galleryPreviewDialog?.open) resetGalleryPreviewEdgeCursor();
+            });
+            window.addEventListener('blur', () => {
+                if (galleryPreviewDialog?.open) resetGalleryPreviewEdgeCursor();
+            });
+            window.addEventListener('resize', () => {
+                if (galleryPreviewDialog?.open) resetGalleryPreviewEdgeCursor();
             });
             galleryPreviewDialog?.addEventListener('click', event => {
                 if (!galleryPreviewDialog.open || !galleryPreviewDesktopPointer.matches || event.detail === 0 || (event.pointerType && event.pointerType !== 'mouse')) return;
