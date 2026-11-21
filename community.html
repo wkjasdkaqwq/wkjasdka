@@ -1113,6 +1113,7 @@
                 }
                 const settleDelay = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 220;
                 galleryPreviewSwipeSettleTargetIndex = nextIndex;
+                if (Number.isInteger(nextIndex)) updateGalleryPreviewPageIndicator(nextIndex);
                 galleryPreviewSwipeSettleTimer = window.setTimeout(() => {
                     galleryPreviewSwipeSettleTimer = 0;
                     const settledIndex = galleryPreviewSwipeSettleTargetIndex;
@@ -1310,11 +1311,13 @@
                     galleryPreviewNextImage.hidden = true;
                 }
                 updateGalleryPreviewNavigationAvailability(galleryPreviewIndex);
-                if (galleryPreviewPage) {
-                    galleryPreviewPage.textContent = `${galleryPreviewIndex + 1} / ${galleryPreviewImages.length}`;
-                    galleryPreviewPage.setAttribute('aria-label', `Image ${galleryPreviewIndex + 1} of ${galleryPreviewImages.length}`);
-                }
+                updateGalleryPreviewPageIndicator(galleryPreviewIndex);
                 updateGalleryPreviewEdgeCursor();
+            };
+            const updateGalleryPreviewPageIndicator = index => {
+                if (!galleryPreviewPage) return;
+                galleryPreviewPage.textContent = `${index + 1} / ${galleryPreviewImages.length}`;
+                galleryPreviewPage.setAttribute('aria-label', `Image ${index + 1} of ${galleryPreviewImages.length}`);
             };
             const updateGalleryPreviewNavigationAvailability = index => {
                 galleryPreviewNavigationButtons.forEach(button => {
@@ -1353,6 +1356,7 @@
                 sideImage.style.setProperty('--community-gallery-preview-side-offset', '0px');
                 galleryPreviewZoomSurface.style.setProperty('--community-gallery-swipe-x', `${-direction * window.innerWidth}px`);
                 galleryPreviewNavigationTargetIndex = nextIndex;
+                updateGalleryPreviewPageIndicator(nextIndex);
                 updateGalleryPreviewNavigationAvailability(nextIndex);
                 galleryPreviewNavigationTimer = window.setTimeout(() => {
                     galleryPreviewNavigationTimer = 0;
