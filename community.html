@@ -323,10 +323,10 @@
         .community-gallery-preview-side-image.is-visible { opacity: 1; visibility: visible; }
         .community-gallery-preview-stage.is-settling .community-gallery-preview-side-image { transition: transform .22s cubic-bezier(.2, .8, .2, 1); }
         .community-gallery-preview-stage.is-settling .community-gallery-preview-zoom-surface { transition: transform .22s cubic-bezier(.2, .8, .2, 1), opacity .22s cubic-bezier(.2, .8, .2, 1); }
-        .community-gallery-preview-dialog.is-gesture-dismissing .community-gallery-preview-zoom-surface { transition: filter .16s ease-in, transform .2s cubic-bezier(.2, .8, .2, 1) .16s; }
+        .community-gallery-preview-dialog.is-gesture-dismissing .community-gallery-preview-zoom-surface { transition: filter .36s cubic-bezier(.4, 0, .2, 1), transform .36s cubic-bezier(.4, 0, .2, 1); }
         .community-gallery-preview-dialog.is-gesture-dismissing::backdrop { transition: background-color .2s ease-in; background-color: transparent; }
         .community-gallery-preview-dialog.is-gesture-dismissing .community-gallery-preview-toolbar { opacity: 0; transition: opacity .16s ease-in; }
-        .community-gallery-preview-zoom-surface { position: relative; z-index: 1; display: grid; place-items: center; width: max-content; height: max-content; max-width: calc(100vw - 32px); max-height: calc(100vh - 120px); max-height: calc(100dvh - 120px); transform: translate3d(calc(var(--community-gallery-pan-x, 0px) + var(--community-gallery-swipe-x, 0px)), calc(var(--community-gallery-pan-y, 0px) + var(--community-gallery-dismiss-y, 0px)), 0) scale(calc(var(--community-gallery-preview-zoom, 1) * var(--community-gallery-dismiss-scale, 1))); filter: grayscale(var(--community-gallery-dismiss-grayscale, 0%)); transform-origin: center; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-user-drag: none; will-change: transform; cursor: zoom-in; }
+        .community-gallery-preview-zoom-surface { position: relative; z-index: 1; display: grid; place-items: center; width: max-content; height: max-content; max-width: calc(100vw - 32px); max-height: calc(100vh - 120px); max-height: calc(100dvh - 120px); transform: translate3d(calc(var(--community-gallery-pan-x, 0px) + var(--community-gallery-swipe-x, 0px)), var(--community-gallery-pan-y, 0px), 0) scale(calc(var(--community-gallery-preview-zoom, 1) * var(--community-gallery-dismiss-scale, 1))); filter: grayscale(var(--community-gallery-dismiss-grayscale, 0%)); transform-origin: center; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-user-drag: none; will-change: transform; cursor: zoom-in; }
         .community-gallery-preview-zoom-surface.is-double-tap-animating { transition: transform .28s cubic-bezier(.22, .61, .36, 1); }
         .community-gallery-preview-image { display: block; max-width: calc(100vw - 32px); max-height: calc(100vh - 120px); max-height: calc(100dvh - 120px); object-fit: contain; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; -webkit-user-drag: none; user-drag: none; }
         .community-gallery-preview-dialog[open] .community-gallery-preview-image { animation: community-gallery-image-in .26s cubic-bezier(.2, .8, .2, 1) both; }
@@ -963,7 +963,6 @@
             let galleryPreviewSwipeSideBaseOffset = 0;
             let galleryPreviewSwipeActive = false;
             let galleryPreviewSwipeSettleTimer = 0;
-            let galleryPreviewDismissDeltaY = 0;
             let galleryPreviewDismissActive = false;
             let galleryPreviewDismissTimer = 0;
             const applyGalleryPreviewTransform = () => {
@@ -987,12 +986,10 @@
                 galleryPreviewStage?.classList.remove('is-settling');
                 galleryPreviewDialog?.classList.remove('is-gesture-dismissing');
                 galleryPreviewZoomSurface?.style.setProperty('--community-gallery-swipe-x', '0px');
-                galleryPreviewZoomSurface?.style.removeProperty('--community-gallery-dismiss-y');
                 galleryPreviewZoomSurface?.style.removeProperty('--community-gallery-dismiss-scale');
                 galleryPreviewZoomSurface?.style.removeProperty('--community-gallery-dismiss-grayscale');
                 window.clearTimeout(galleryPreviewDismissTimer);
                 galleryPreviewDismissTimer = 0;
-                galleryPreviewDismissDeltaY = 0;
                 galleryPreviewDismissActive = false;
                 [galleryPreviewPreviousImage, galleryPreviewNextImage].forEach(image => {
                     if (!image) return;
@@ -1058,19 +1055,12 @@
                     else clearGalleryPreviewSwipe();
                 }, settleDelay);
             };
-            const updateGalleryPreviewDismiss = rawDeltaY => {
+            const updateGalleryPreviewDismiss = () => {
                 if (!galleryPreviewZoomSurface) return;
-                const viewportHeight = window.innerHeight;
-                galleryPreviewDismissDeltaY = Math.max(-viewportHeight, Math.min(viewportHeight, rawDeltaY));
                 galleryPreviewDismissActive = true;
-                galleryPreviewZoomSurface.style.setProperty('--community-gallery-dismiss-y', `${galleryPreviewDismissDeltaY}px`);
             };
             const settleGalleryPreviewDismiss = () => {
-                if (!galleryPreviewDismissActive || !galleryPreviewStage || !galleryPreviewZoomSurface) return;
-                galleryPreviewStage.classList.add('is-settling');
-                galleryPreviewStage.getBoundingClientRect();
-                galleryPreviewZoomSurface.style.setProperty('--community-gallery-dismiss-y', '0px');
-                galleryPreviewDismissTimer = window.setTimeout(clearGalleryPreviewSwipe, 220);
+                galleryPreviewDismissActive = false;
             };
             const returnGalleryPreviewToDefault = () => {
                 if (galleryPreviewZoom > galleryPreviewMinZoom ||
@@ -1346,7 +1336,7 @@
                         else if (Math.abs(deltaY) > Math.abs(deltaX) * 1.5) galleryPreviewGesture.axis = 'vertical';
                     }
                     if (galleryPreviewGesture.axis === 'horizontal') updateGalleryPreviewSwipe(deltaX);
-                    else if (galleryPreviewGesture.axis === 'vertical') updateGalleryPreviewDismiss(deltaY);
+                    else if (galleryPreviewGesture.axis === 'vertical') updateGalleryPreviewDismiss();
                 }
             });
             const finishGalleryPreviewPointer = event => {
