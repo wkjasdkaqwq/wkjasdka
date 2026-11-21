@@ -470,6 +470,15 @@
         .main-project-changelog-button-icon.is-collapsed { -webkit-mask-image: url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.2/icons/three-dots.svg"); mask-image: url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.2/icons/three-dots.svg"); }
         .main-project-changelog-button[aria-expanded="true"] .main-project-changelog-button-icon.is-expanded,
         .main-project-changelog-button[aria-expanded="false"] .main-project-changelog-button-icon.is-collapsed { display: block; }
+        .main-project-changelog-button-tooltip { position: absolute; top: 50%; left: calc(100% + 10px); z-index: 5; box-sizing: border-box; width: max-content; max-width: min(180px, calc(100vw - 100px)); padding: 7px 11px; border: 1px solid rgba(255, 153, 102, .65); border-radius: 9px; background: #fff7f0; color: #9b4f1c; box-shadow: 0 5px 16px rgba(70, 42, 20, .2); font-size: 13px; font-weight: 650; line-height: 1.2; text-align: center; white-space: nowrap; opacity: 0; visibility: hidden; transform: translate(4px, -50%); transition: opacity .14s ease, transform .14s ease, visibility .14s; pointer-events: none; }
+        .main-project-changelog-button-tooltip::before { content: ""; position: absolute; top: 50%; left: -6px; width: 10px; height: 10px; border-left: 1px solid rgba(255, 153, 102, .65); border-bottom: 1px solid rgba(255, 153, 102, .65); background: #fff7f0; transform: translateY(-50%) rotate(45deg); }
+        .main-project-changelog-button:focus-visible .main-project-changelog-button-tooltip,
+        .main-project-changelog-button[data-long-press-visible="true"] .main-project-changelog-button-tooltip { opacity: 1; visibility: visible; transform: translate(0, -50%); }
+        @media (hover: hover) and (pointer: fine) {
+            .main-project-changelog-button:hover .main-project-changelog-button-tooltip { opacity: 1; visibility: visible; transform: translate(0, -50%); }
+        }
+        html.dark-mode .main-project-changelog-button-tooltip { border-color: rgba(255, 153, 102, .7); background: #2d211c; color: #ffd1ad; box-shadow: 0 5px 16px rgba(0, 0, 0, .38); }
+        html.dark-mode .main-project-changelog-button-tooltip::before { border-color: rgba(255, 153, 102, .7); background: #2d211c; }
         .main-project-changelog-avatars { position: absolute; top: calc(var(--changelog-frame-top) + var(--changelog-avatar-anchor-y-offset)); left: calc(var(--changelog-frame-left) + var(--changelog-avatar-anchor-offset)); z-index: 1; display: flex; align-items: center; gap: 8px; height: 30px; transform: translateY(-100%); }
         .main-project-changelog-avatar-stack { display: flex; align-items: center; height: 30px; }
         .compatibility-version-button.main-project-changelog-avatar { position: relative; display: block; box-sizing: border-box; width: 30px; height: 30px; min-height: 30px; flex: 0 0 30px; padding: 0; border-radius: 50%; overflow: hidden; }
@@ -964,6 +973,7 @@
                                 <button class="compatibility-version-button main-project-changelog-button" type="button" aria-label="Collapse Release changelog" aria-expanded="true" aria-controls="main-project-changelog-frame-release">
                                     <span class="main-project-changelog-button-icon is-expanded" aria-hidden="true"></span>
                                     <span class="main-project-changelog-button-icon is-collapsed" aria-hidden="true"></span>
+                                    <span class="main-project-changelog-button-tooltip" aria-hidden="true">Release</span>
                                 </button>
                             </div>
                             <div class="main-project-changelog-frame" id="main-project-changelog-frame-release">
@@ -991,6 +1001,7 @@
                                 <button class="compatibility-version-button main-project-changelog-button" type="button" aria-label="Collapse Beta changelog" aria-expanded="true" aria-controls="main-project-changelog-frame-beta">
                                     <span class="main-project-changelog-button-icon is-expanded" aria-hidden="true"></span>
                                     <span class="main-project-changelog-button-icon is-collapsed" aria-hidden="true"></span>
+                                    <span class="main-project-changelog-button-tooltip" aria-hidden="true">Beta</span>
                                 </button>
                             </div>
                             <div class="main-project-changelog-frame" id="main-project-changelog-frame-beta">
@@ -1018,6 +1029,7 @@
                                 <button class="compatibility-version-button main-project-changelog-button" type="button" aria-label="Collapse Alpha changelog" aria-expanded="true" aria-controls="main-project-changelog-frame-alpha">
                                     <span class="main-project-changelog-button-icon is-expanded" aria-hidden="true"></span>
                                     <span class="main-project-changelog-button-icon is-collapsed" aria-hidden="true"></span>
+                                    <span class="main-project-changelog-button-tooltip" aria-hidden="true">Alpha</span>
                                 </button>
                             </div>
                             <div class="main-project-changelog-frame" id="main-project-changelog-frame-alpha">
@@ -3547,6 +3559,23 @@
             button.setAttribute('aria-controls', frame.id);
             button.setAttribute('aria-expanded', String(!frame.hidden));
             button.setAttribute('aria-label', `${frame.hidden ? 'Expand' : 'Collapse'} ${label} changelog`);
+            let longPressTimer = 0;
+            const clearLongPress = () => {
+                window.clearTimeout(longPressTimer);
+                longPressTimer = 0;
+                button.dataset.longPressVisible = 'false';
+            };
+            button.addEventListener('pointerdown', event => {
+                if (event.pointerType !== 'touch' && event.pointerType !== 'pen') return;
+                clearLongPress();
+                longPressTimer = window.setTimeout(() => {
+                    button.dataset.longPressVisible = 'true';
+                    longPressTimer = 0;
+                }, 1000);
+            });
+            ['pointerup', 'pointercancel', 'pointerleave', 'lostpointercapture'].forEach(type => {
+                button.addEventListener(type, clearLongPress);
+            });
             button.addEventListener('click', () => {
                 const expanded = button.getAttribute('aria-expanded') !== 'true';
                 content.dataset.changelogCollapsed = String(!expanded);
