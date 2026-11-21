@@ -1152,6 +1152,25 @@
                 galleryPreviewZoomSurface.style.setProperty('--community-gallery-dismiss-brightness', '100%');
                 galleryPreviewDismissTimer = window.setTimeout(clearGalleryPreviewSwipe, galleryPreviewReturnDuration);
             };
+            const cancelGalleryPreviewDismissForMultitouch = () => {
+                if (!galleryPreviewDismissActive) return;
+                galleryPreviewDismissActive = false;
+                galleryPreviewDismissCancelled = true;
+                window.clearTimeout(galleryPreviewDismissTimer);
+                galleryPreviewDismissTimer = 0;
+                galleryPreviewDialog?.classList.remove('is-gesture-dragging');
+                if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                    clearGalleryPreviewSwipe();
+                    return;
+                }
+                galleryPreviewStage?.classList.add('is-settling');
+                galleryPreviewDialog?.classList.add('is-gesture-settling');
+                galleryPreviewZoomSurface?.getBoundingClientRect();
+                galleryPreviewZoomSurface?.style.setProperty('--community-gallery-dismiss-scale', '1');
+                galleryPreviewZoomSurface?.style.setProperty('--community-gallery-dismiss-grayscale', '0%');
+                galleryPreviewZoomSurface?.style.setProperty('--community-gallery-dismiss-brightness', '100%');
+                galleryPreviewDismissTimer = window.setTimeout(clearGalleryPreviewSwipe, galleryPreviewReturnDuration);
+            };
             const returnGalleryPreviewToDefault = () => {
                 if (galleryPreviewZoom > galleryPreviewMinZoom ||
                     (galleryPreviewZoom === galleryPreviewMinZoom && galleryPreviewPanX === 0 && galleryPreviewPanY === 0)) return;
@@ -1484,6 +1503,12 @@
             });
             galleryPreviewDialog?.addEventListener('pointerdown', event => {
                 if (!galleryPreviewDialog.open || event.pointerType !== 'touch') return;
+                if (galleryPreviewPointers.size > 0) {
+                    galleryPreviewHadMultiplePointers = true;
+                    galleryPreviewLastTap = null;
+                    galleryPreviewSuppressBackdropClickUntil = Date.now() + 750;
+                    cancelGalleryPreviewDismissForMultitouch();
+                }
                 if (event.target.closest('.community-gallery-preview-toolbar button')) {
                     galleryPreviewLastTap = null;
                     return;
@@ -1504,8 +1529,7 @@
                 }
                 galleryPreviewZoomSurface?.classList.remove('is-double-tap-animating');
                 galleryPreviewLastTap = null;
-                if (galleryPreviewPointers.size > 0) galleryPreviewHadMultiplePointers = true;
-                else galleryPreviewHadMultiplePointers = false;
+                if (galleryPreviewPointers.size === 0) galleryPreviewHadMultiplePointers = false;
                 if (galleryPreviewPointers.size > 0) galleryPreviewSuppressBackdropClickUntil = Date.now() + 750;
                 galleryPreviewPointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
                 startGalleryPreviewGesture();
