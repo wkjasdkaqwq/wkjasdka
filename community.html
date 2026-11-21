@@ -357,7 +357,8 @@
         .community-gallery-preview-close:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
         .community-gallery-preview-close.is-open-focus:focus { outline: 2px solid #fff; outline-offset: 3px; }
         .community-gallery-preview-toolbar, .community-gallery-preview-toolbar * { cursor: default; }
-        .community-gallery-preview-toolbar .community-gallery-preview-nav-button:not(:disabled), .community-gallery-preview-toolbar .community-gallery-preview-close { cursor: pointer; }
+        .community-gallery-preview-toolbar .community-gallery-preview-nav-button:not(:disabled), .community-gallery-preview-toolbar .community-gallery-preview-nav-button:not(:disabled) *, .community-gallery-preview-toolbar .community-gallery-preview-close, .community-gallery-preview-toolbar .community-gallery-preview-close * { cursor: pointer; }
+        .community-gallery-preview-toolbar .community-gallery-preview-nav-button:disabled, .community-gallery-preview-toolbar .community-gallery-preview-nav-button:disabled * { cursor: not-allowed; }
         @media (hover: none), (pointer: coarse) {
             .community-gallery-preview-nav-button:not(:disabled):hover:not(:active) { background: transparent; color: #fff; box-shadow: none; }
             .community-gallery-preview-close:hover:not(:active) { border-color: rgba(255, 255, 255, .45); background: rgba(255, 255, 255, .12); color: #fff; box-shadow: none; }
