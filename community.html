@@ -438,11 +438,14 @@
         .main-project-changelog-content::after { top: var(--changelog-line-top); left: 27px; width: 5px; height: calc(var(--changelog-frame-top) + var(--changelog-frame-height) + 10px - var(--changelog-line-top)); border-radius: 0 0 999px 999px; }
         .main-project-changelog-button-slot { position: relative; z-index: 1; display: grid; place-items: center; width: 58px; height: 58px; }
         .compatibility-version-button.main-project-changelog-button { box-sizing: border-box; width: 50px; height: 50px; min-height: 50px; padding: 0; border-radius: 50%; }
-        .main-project-changelog-avatars { position: absolute; top: calc(var(--changelog-frame-top) + var(--changelog-avatar-anchor-y-offset)); left: calc(var(--changelog-frame-left) + var(--changelog-avatar-anchor-offset)); z-index: 1; display: flex; align-items: center; height: 30px; transform: translateY(-100%); }
+        .main-project-changelog-avatars { position: absolute; top: calc(var(--changelog-frame-top) + var(--changelog-avatar-anchor-y-offset)); left: calc(var(--changelog-frame-left) + var(--changelog-avatar-anchor-offset)); z-index: 1; display: flex; align-items: center; gap: 8px; height: 30px; transform: translateY(-100%); }
+        .main-project-changelog-avatar-stack { display: flex; align-items: center; height: 30px; }
         .compatibility-version-button.main-project-changelog-avatar { position: relative; display: block; box-sizing: border-box; width: 30px; height: 30px; min-height: 30px; flex: 0 0 30px; padding: 0; border-radius: 50%; overflow: hidden; }
         .main-project-changelog-avatar-image { display: block; width: 100%; height: 100%; border-radius: inherit; object-fit: cover; pointer-events: none; }
         .main-project-changelog-avatar + .main-project-changelog-avatar { margin-left: -9px; }
         .main-project-changelog-avatar:nth-child(n + 3) { display: none; }
+        .main-project-changelog-created-at { color: #555; font-size: 14px; line-height: 1; white-space: nowrap; }
+        html.dark-mode .main-project-changelog-created-at { color: #c5ced6; }
         html.dark-mode .main-project-changelog-content::before { background: transparent; border-color: #385066; }
         html.dark-mode .main-project-changelog-content::after { background: #385066; }
         .main-project-link-section { position: absolute; top: 0; right: 0; left: 0; }
@@ -917,10 +920,13 @@
                     <h2 class="main-project-description-section-title">Semi-rounded Corner</h2>
                     <div class="main-project-description-section-divider" aria-hidden="true"></div>
                     <div class="main-project-changelog-content">
-                        <div class="main-project-changelog-avatars" role="group" aria-label="Changelog contributors">
-                            <button class="compatibility-version-button main-project-changelog-avatar" type="button" aria-label="GitHub profile avatar">
-                                <img class="main-project-changelog-avatar-image" src="https://github.com/wkjasdkaqwq.png" alt="" width="26" height="26" loading="lazy" decoding="async" draggable="false">
-                            </button>
+                        <div class="main-project-changelog-avatars" role="group" aria-label="Repository avatar and creation time">
+                            <div class="main-project-changelog-avatar-stack">
+                                <button class="compatibility-version-button main-project-changelog-avatar" type="button" aria-label="GitHub profile avatar">
+                                    <img class="main-project-changelog-avatar-image" src="https://github.com/wkjasdkaqwq.png" alt="" width="26" height="26" loading="lazy" decoding="async" draggable="false">
+                                </button>
+                            </div>
+                            <time class="main-project-changelog-created-at" datetime="2025-10-23T10:04:15Z" aria-label="Repository created at 2025-10-23 10:04:15 UTC">2025.10.23 10:04:15 UTC</time>
                         </div>
                         <div class="main-project-changelog-button-slot">
                             <button class="compatibility-version-button main-project-changelog-button" type="button" aria-label="Changelog button"></button>
