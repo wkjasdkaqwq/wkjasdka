@@ -425,14 +425,13 @@
         .main-project-changelog-content::before, .main-project-changelog-content::after { content: ""; position: absolute; z-index: 0; background: #c2c2c2; pointer-events: none; }
         .main-project-changelog-content::before {
             top: var(--changelog-frame-top); right: 8px; left: 70px; height: var(--changelog-frame-height);
-            box-sizing: border-box; background: transparent; border: var(--changelog-frame-stroke) solid #c2c2c2; border-radius: var(--changelog-frame-radius);
-            /* Hide the left straight edge while preserving both rounded corners and their round line ends. */
+            box-sizing: border-box; background: transparent; border: var(--changelog-frame-stroke) solid #c2c2c2; border-left: 0; border-radius: 0 var(--changelog-frame-radius) var(--changelog-frame-radius) 0;
+            /* Round the two horizontal line ends without turning them into a left edge. */
             --changelog-half-stroke: calc(var(--changelog-frame-stroke) / 2);
             --changelog-frame-mask:
-                linear-gradient(to right, transparent var(--changelog-frame-stroke), #000 var(--changelog-frame-stroke)),
-                linear-gradient(to bottom, #000 var(--changelog-frame-radius), transparent var(--changelog-frame-radius) calc(100% - var(--changelog-frame-radius)), #000 calc(100% - var(--changelog-frame-radius))),
-                radial-gradient(circle var(--changelog-half-stroke) at var(--changelog-half-stroke) var(--changelog-frame-radius), #000 98%, transparent 100%),
-                radial-gradient(circle var(--changelog-half-stroke) at var(--changelog-half-stroke) calc(100% - var(--changelog-frame-radius)), #000 98%, transparent 100%);
+                linear-gradient(to right, transparent var(--changelog-half-stroke), #000 var(--changelog-half-stroke)),
+                radial-gradient(circle var(--changelog-half-stroke) at var(--changelog-half-stroke) var(--changelog-half-stroke), #000 98%, transparent 100%),
+                radial-gradient(circle var(--changelog-half-stroke) at var(--changelog-half-stroke) calc(100% - var(--changelog-half-stroke)), #000 98%, transparent 100%);
             -webkit-mask-image: var(--changelog-frame-mask); mask-image: var(--changelog-frame-mask);
         }
         .main-project-changelog-content::after { border-radius: 999px; }
