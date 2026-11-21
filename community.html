@@ -323,10 +323,10 @@
         .community-gallery-preview-side-image.is-visible { opacity: 1; visibility: visible; }
         .community-gallery-preview-stage.is-settling .community-gallery-preview-side-image { transition: transform .22s cubic-bezier(.2, .8, .2, 1); }
         .community-gallery-preview-stage.is-settling .community-gallery-preview-zoom-surface { transition: transform .22s cubic-bezier(.2, .8, .2, 1), opacity .22s cubic-bezier(.2, .8, .2, 1); }
-        .community-gallery-preview-dialog.is-gesture-dismissing .community-gallery-preview-zoom-surface { transition: transform .2s cubic-bezier(.2, .8, .2, 1), opacity .2s ease-in; }
+        .community-gallery-preview-dialog.is-gesture-dismissing .community-gallery-preview-zoom-surface { transition: filter .16s ease-in, transform .2s cubic-bezier(.2, .8, .2, 1) .16s; }
         .community-gallery-preview-dialog.is-gesture-dismissing::backdrop { transition: background-color .2s ease-in; background-color: transparent; }
         .community-gallery-preview-dialog.is-gesture-dismissing .community-gallery-preview-toolbar { opacity: 0; transition: opacity .16s ease-in; }
-        .community-gallery-preview-zoom-surface { position: relative; z-index: 1; display: grid; place-items: center; width: max-content; height: max-content; max-width: calc(100vw - 32px); max-height: calc(100vh - 120px); max-height: calc(100dvh - 120px); transform: translate3d(calc(var(--community-gallery-pan-x, 0px) + var(--community-gallery-swipe-x, 0px)), calc(var(--community-gallery-pan-y, 0px) + var(--community-gallery-dismiss-y, 0px)), 0) scale(calc(var(--community-gallery-preview-zoom, 1) * var(--community-gallery-dismiss-scale, 1))); opacity: var(--community-gallery-dismiss-opacity, 1); transform-origin: center; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-user-drag: none; will-change: transform; cursor: zoom-in; }
+        .community-gallery-preview-zoom-surface { position: relative; z-index: 1; display: grid; place-items: center; width: max-content; height: max-content; max-width: calc(100vw - 32px); max-height: calc(100vh - 120px); max-height: calc(100dvh - 120px); transform: translate3d(calc(var(--community-gallery-pan-x, 0px) + var(--community-gallery-swipe-x, 0px)), calc(var(--community-gallery-pan-y, 0px) + var(--community-gallery-dismiss-y, 0px)), 0) scale(calc(var(--community-gallery-preview-zoom, 1) * var(--community-gallery-dismiss-scale, 1))); filter: grayscale(var(--community-gallery-dismiss-grayscale, 0%)); transform-origin: center; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-user-drag: none; will-change: transform; cursor: zoom-in; }
         .community-gallery-preview-zoom-surface.is-double-tap-animating { transition: transform .28s cubic-bezier(.22, .61, .36, 1); }
         .community-gallery-preview-image { display: block; max-width: calc(100vw - 32px); max-height: calc(100vh - 120px); max-height: calc(100dvh - 120px); object-fit: contain; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; -webkit-user-drag: none; user-drag: none; }
         .community-gallery-preview-dialog[open] .community-gallery-preview-image { animation: community-gallery-image-in .26s cubic-bezier(.2, .8, .2, 1) both; }
@@ -989,7 +989,7 @@
                 galleryPreviewZoomSurface?.style.setProperty('--community-gallery-swipe-x', '0px');
                 galleryPreviewZoomSurface?.style.removeProperty('--community-gallery-dismiss-y');
                 galleryPreviewZoomSurface?.style.removeProperty('--community-gallery-dismiss-scale');
-                galleryPreviewZoomSurface?.style.removeProperty('--community-gallery-dismiss-opacity');
+                galleryPreviewZoomSurface?.style.removeProperty('--community-gallery-dismiss-grayscale');
                 window.clearTimeout(galleryPreviewDismissTimer);
                 galleryPreviewDismissTimer = 0;
                 galleryPreviewDismissDeltaY = 0;
@@ -1062,19 +1062,14 @@
                 if (!galleryPreviewZoomSurface) return;
                 const viewportHeight = window.innerHeight;
                 galleryPreviewDismissDeltaY = Math.max(-viewportHeight, Math.min(viewportHeight, rawDeltaY));
-                const progress = Math.min(1, Math.abs(galleryPreviewDismissDeltaY) / Math.max(1, viewportHeight * .72));
                 galleryPreviewDismissActive = true;
                 galleryPreviewZoomSurface.style.setProperty('--community-gallery-dismiss-y', `${galleryPreviewDismissDeltaY}px`);
-                galleryPreviewZoomSurface.style.setProperty('--community-gallery-dismiss-scale', String(1 - progress * .08));
-                galleryPreviewZoomSurface.style.setProperty('--community-gallery-dismiss-opacity', String(1 - progress * .45));
             };
             const settleGalleryPreviewDismiss = () => {
                 if (!galleryPreviewDismissActive || !galleryPreviewStage || !galleryPreviewZoomSurface) return;
                 galleryPreviewStage.classList.add('is-settling');
                 galleryPreviewStage.getBoundingClientRect();
                 galleryPreviewZoomSurface.style.setProperty('--community-gallery-dismiss-y', '0px');
-                galleryPreviewZoomSurface.style.setProperty('--community-gallery-dismiss-scale', '1');
-                galleryPreviewZoomSurface.style.setProperty('--community-gallery-dismiss-opacity', '1');
                 galleryPreviewDismissTimer = window.setTimeout(clearGalleryPreviewSwipe, 220);
             };
             const returnGalleryPreviewToDefault = () => {
@@ -1229,7 +1224,7 @@
                     if (galleryPreviewDialog.open) galleryPreviewDialog.close();
                 }, 180);
             };
-            const dismissGalleryPreviewBySwipe = deltaY => {
+            const dismissGalleryPreviewBySwipe = () => {
                 if (!galleryPreviewDialog?.open || !galleryPreviewStage || !galleryPreviewZoomSurface) return;
                 if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
                     closeGalleryPreview();
@@ -1238,14 +1233,12 @@
                 galleryPreviewStage.classList.add('is-settling');
                 galleryPreviewDialog.classList.add('is-gesture-dismissing');
                 galleryPreviewZoomSurface.getBoundingClientRect();
-                const direction = deltaY < 0 ? -1 : 1;
-                galleryPreviewZoomSurface.style.setProperty('--community-gallery-dismiss-y', `${direction * (window.innerHeight + 80)}px`);
-                galleryPreviewZoomSurface.style.setProperty('--community-gallery-dismiss-scale', '.75');
-                galleryPreviewZoomSurface.style.setProperty('--community-gallery-dismiss-opacity', '0');
+                galleryPreviewZoomSurface.style.setProperty('--community-gallery-dismiss-grayscale', '50%');
+                galleryPreviewZoomSurface.style.setProperty('--community-gallery-dismiss-scale', '.8');
                 galleryPreviewDismissTimer = window.setTimeout(() => {
                     galleryPreviewDismissTimer = 0;
                     if (galleryPreviewDialog.open) galleryPreviewDialog.close();
-                }, 200);
+                }, 380);
             };
             galleryPreviewDialog?.addEventListener('close', () => {
                 window.clearTimeout(galleryPreviewCloseTimer);
@@ -1371,7 +1364,7 @@
                 const requestedNextIndex = galleryPreviewIndex + (deltaX < 0 ? 1 : -1);
                 if (gesture?.type === 'swipe' && galleryPreviewDismissActive) {
                     galleryPreviewLastTap = null;
-                    if (isVerticalDismiss) dismissGalleryPreviewBySwipe(deltaY);
+                    if (isVerticalDismiss) dismissGalleryPreviewBySwipe();
                     else settleGalleryPreviewDismiss();
                 } else if (gesture?.type === 'swipe' && galleryPreviewSwipeActive) {
                     if (isHorizontalSwipe && requestedNextIndex >= 0 && requestedNextIndex < galleryPreviewImages.length) {
