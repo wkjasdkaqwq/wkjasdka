@@ -428,6 +428,8 @@
         .main-project-changelog-content[data-changelog-type="release"] { --changelog-line-color: #2eaf62; --changelog-line-shadow: 0 0 8px 2px rgba(46, 175, 98, .52); }
         .main-project-changelog-content[data-changelog-type="beta"] { --changelog-line-color: #e5b523; --changelog-line-shadow: 0 0 8px 2px rgba(229, 181, 35, .55); }
         .main-project-changelog-content[data-changelog-type="alpha"] { --changelog-line-color: #df4a4a; --changelog-line-shadow: 0 0 8px 2px rgba(223, 74, 74, .5); }
+        .main-project-changelog-content[data-changelog-collapsed="true"]::before { content: ""; position: absolute; z-index: 0; top: var(--changelog-frame-top); right: 8px; left: var(--changelog-frame-left); height: var(--changelog-frame-stroke); border-radius: 999px; background: #c2c2c2; pointer-events: none; }
+        html.dark-mode .main-project-changelog-content[data-changelog-collapsed="true"]::before { background: #385066; }
         .main-project-changelog-frame { position: relative; box-sizing: border-box; min-height: 34px; margin: calc(var(--changelog-frame-top) - 58px) 8px 0 var(--changelog-frame-left); padding: 16px 18px 16px 14px; }
         .main-project-changelog-frame::before {
             content: ""; position: absolute; z-index: 0; inset: 0;
@@ -3522,6 +3524,7 @@
             button.addEventListener('click', () => {
                 const expanded = button.getAttribute('aria-expanded') !== 'true';
                 frame.hidden = !expanded;
+                content.dataset.changelogCollapsed = String(!expanded);
                 button.setAttribute('aria-expanded', String(expanded));
                 button.setAttribute('aria-label', `${expanded ? 'Collapse' : 'Expand'} ${label} changelog`);
             });
