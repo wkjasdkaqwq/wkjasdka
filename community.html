@@ -345,12 +345,14 @@
         .community-gallery-preview-nav-button { position: relative; z-index: 0; display: grid; place-items: center; width: 40px; height: 44px; padding: 0; border: 0; border-radius: 0; overflow: hidden; background: transparent; color: #fff; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: background-color .16s ease, color .16s ease, box-shadow .16s ease, transform .16s ease; }
         .community-gallery-preview-nav-button:first-child { border-radius: 999px 0 0 999px; }
         .community-gallery-preview-nav-button:last-child { border-radius: 0 999px 999px 0; }
-        .community-gallery-preview-nav-button:not(:disabled):hover { background: #4a382b; color: #ffc08a; box-shadow: inset 0 0 0 1px #d18a58, inset 0 0 10px rgba(209, 138, 88, .28); }
-        .community-gallery-preview-nav-button:active:not(:disabled) { background: #FFC38D; color: #E67E22; box-shadow: inset 0 0 0 1px #FF9C5A, inset 0 0 14px rgba(255, 218, 185, .6); transform: translate(3px, 3px) scale(.98); transition-duration: .1s; }
-        .community-gallery-preview-nav-button:has(+ .community-gallery-preview-page):active:not(:disabled) { clip-path: inset(0 3px 0 0); }
-        .community-gallery-preview-nav-button:disabled { opacity: .38; cursor: not-allowed; }
-        .community-gallery-preview-nav-button:disabled:active { transform: none; }
+        .community-gallery-preview-nav-button:not(:disabled):not([aria-disabled="true"]):hover { background: #4a382b; color: #ffc08a; box-shadow: inset 0 0 0 1px #d18a58, inset 0 0 10px rgba(209, 138, 88, .28); }
+        .community-gallery-preview-nav-button:active:not(:disabled):not([aria-disabled="true"]) { background: #FFC38D; color: #E67E22; box-shadow: inset 0 0 0 1px #FF9C5A, inset 0 0 14px rgba(255, 218, 185, .6); transform: translate(3px, 3px) scale(.98); transition-duration: .1s; }
+        .community-gallery-preview-nav-button:has(+ .community-gallery-preview-page):active:not(:disabled):not([aria-disabled="true"]) { clip-path: inset(0 3px 0 0); }
+        .community-gallery-preview-nav-button:is(:disabled, [aria-disabled="true"]) { opacity: .38; cursor: not-allowed; }
+        .community-gallery-preview-nav-button:is(:disabled, [aria-disabled="true"]):active { transform: none; }
         .community-gallery-preview-nav-button:focus-visible { outline: 2px solid #fff; outline-offset: -3px; }
+        .community-gallery-preview-nav-button[aria-disabled="true"]:focus-visible { opacity: 1; }
+        .community-gallery-preview-nav-button[aria-disabled="true"]:focus-visible svg { opacity: .38; }
         .community-gallery-preview-nav-button svg { display: block; width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
         .community-gallery-preview-page { position: relative; z-index: 2; display: grid; place-items: center; align-self: stretch; min-width: 54px; padding: 0 8px; border-right: 1px solid rgba(255, 255, 255, .22); border-left: 1px solid rgba(255, 255, 255, .22); background: transparent; color: rgba(255, 255, 255, .9); font-size: .82rem; font-variant-numeric: tabular-nums; line-height: 1; }
         .community-gallery-preview-close { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 1px solid rgba(255, 255, 255, .45); border-radius: 50%; background: rgba(255, 255, 255, .12); color: #fff; cursor: pointer; font: inherit; font-size: 28px; line-height: 1; -webkit-user-select: none; user-select: none; transition: background-color .16s ease, border-color .16s ease, color .16s ease, box-shadow .16s ease, transform .16s ease; }
@@ -359,8 +361,8 @@
         .community-gallery-preview-close:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
         .community-gallery-preview-close.is-open-focus:focus { outline: 2px solid #fff; outline-offset: 3px; }
         .community-gallery-preview-toolbar, .community-gallery-preview-toolbar * { cursor: default; }
-        .community-gallery-preview-toolbar .community-gallery-preview-nav-button:not(:disabled), .community-gallery-preview-toolbar .community-gallery-preview-nav-button:not(:disabled) *, .community-gallery-preview-toolbar .community-gallery-preview-close, .community-gallery-preview-toolbar .community-gallery-preview-close * { cursor: pointer; }
-        .community-gallery-preview-toolbar .community-gallery-preview-nav-button:disabled, .community-gallery-preview-toolbar .community-gallery-preview-nav-button:disabled * { cursor: not-allowed; }
+        .community-gallery-preview-toolbar .community-gallery-preview-nav-button:not(:disabled):not([aria-disabled="true"]), .community-gallery-preview-toolbar .community-gallery-preview-nav-button:not(:disabled):not([aria-disabled="true"]) *, .community-gallery-preview-toolbar .community-gallery-preview-close, .community-gallery-preview-toolbar .community-gallery-preview-close * { cursor: pointer; }
+        .community-gallery-preview-toolbar .community-gallery-preview-nav-button:is(:disabled, [aria-disabled="true"]), .community-gallery-preview-toolbar .community-gallery-preview-nav-button:is(:disabled, [aria-disabled="true"]) * { cursor: not-allowed; }
         .community-gallery-preview-edge-cursor { display: none; }
         @media (hover: hover) and (pointer: fine) {
             .community-gallery-preview-dialog[open] { cursor: default; }
@@ -372,8 +374,8 @@
             .community-gallery-preview-dialog[open]::before, .community-gallery-preview-dialog[open]::after { content: ""; position: absolute; top: 0; bottom: 0; width: 48px; cursor: none; }
             .community-gallery-preview-dialog[open]::before { left: 0; z-index: 3; }
             .community-gallery-preview-dialog[open]::after { right: 0; z-index: 2; }
-            .community-gallery-preview-dialog[open]:has([data-gallery-preview-step="-1"]:disabled)::before { cursor: not-allowed; }
-            .community-gallery-preview-dialog[open]:has([data-gallery-preview-step="1"]:disabled)::after { cursor: not-allowed; }
+            .community-gallery-preview-dialog[open]:has([data-gallery-preview-step="-1"]:is(:disabled, [aria-disabled="true"]))::before { cursor: not-allowed; }
+            .community-gallery-preview-dialog[open]:has([data-gallery-preview-step="1"]:is(:disabled, [aria-disabled="true"]))::after { cursor: not-allowed; }
             .community-gallery-preview-dialog[open].is-edge-left.is-edge-unavailable::before, .community-gallery-preview-dialog[open].is-edge-right.is-edge-unavailable::after { cursor: not-allowed; }
             .community-gallery-preview-toolbar { z-index: 4; }
             .community-gallery-preview-edge-cursor { position: absolute; top: 0; left: 0; z-index: 5; width: 36px; height: 36px; pointer-events: none; }
@@ -382,9 +384,9 @@
             .community-gallery-preview-dialog.is-edge-left .community-gallery-preview-edge-cursor-left, .community-gallery-preview-dialog.is-edge-right .community-gallery-preview-edge-cursor-right { display: block; }
         }
         @media (hover: none), (pointer: coarse) {
-            .community-gallery-preview-nav-button:not(:disabled):hover:not(:active) { background: transparent; color: #fff; box-shadow: none; }
+            .community-gallery-preview-nav-button:not(:disabled):not([aria-disabled="true"]):hover:not(:active) { background: transparent; color: #fff; box-shadow: none; }
             .community-gallery-preview-close:hover:not(:active) { border-color: rgba(255, 255, 255, .45); background: rgba(255, 255, 255, .12); color: #fff; box-shadow: none; }
-            .community-gallery-preview-nav-button:active:not(:disabled) { box-shadow: inset 0 0 0 1px #FF9C5A, 0 2px 6px rgba(255, 218, 185, .5); }
+            .community-gallery-preview-nav-button:active:not(:disabled):not([aria-disabled="true"]) { box-shadow: inset 0 0 0 1px #FF9C5A, 0 2px 6px rgba(255, 218, 185, .5); }
             .community-gallery-preview-close:active { box-shadow: 0 2px 6px rgba(255, 218, 185, .5); }
         }
         .community-gallery-item figcaption { box-sizing: border-box; padding: 10px 12px 2px; border-top: 1px solid #c2c2c2; color: #666; font-size: .9rem; line-height: 1.4; }
@@ -1404,7 +1406,9 @@
             const updateGalleryPreviewNavigationAvailability = index => {
                 galleryPreviewNavigationButtons.forEach(button => {
                     const step = Number(button.dataset.galleryPreviewStep);
-                    button.disabled = (step < 0 && index === 0) || (step > 0 && index === galleryPreviewImages.length - 1);
+                    const unavailable = (step < 0 && index === 0) || (step > 0 && index === galleryPreviewImages.length - 1);
+                    button.setAttribute('aria-disabled', String(unavailable));
+                    button.disabled = unavailable;
                 });
             };
             const galleryPreviewNavigationLayers = new Map();
@@ -1553,8 +1557,28 @@
             });
             galleryPreviewNavigationButtons.forEach(button => {
                 button.addEventListener('click', () => {
-                    navigateGalleryPreview(Number(button.dataset.galleryPreviewStep));
+                    if (button.getAttribute('aria-disabled') !== 'true') navigateGalleryPreview(Number(button.dataset.galleryPreviewStep));
                 });
+                button.addEventListener('blur', () => {
+                    if (button.getAttribute('aria-disabled') === 'true') button.disabled = true;
+                });
+            });
+            document.addEventListener('keydown', event => {
+                if (!galleryPreviewDialog?.open || galleryPreviewDialog.classList.contains('is-closing') ||
+                    !galleryPreviewDesktopPointer.matches || event.defaultPrevented || event.isComposing ||
+                    event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+                const target = event.target;
+                if (target instanceof Element && (target.isContentEditable || target.closest('input, textarea, select, [contenteditable]:not([contenteditable="false"]), [role="textbox"]'))) return;
+                const key = event.key.toLowerCase();
+                const step = key === 'arrowleft' || key === 'q' ? -1 : key === 'arrowright' || key === 'e' ? 1 : 0;
+                if (!step) return;
+                const button = Array.from(galleryPreviewNavigationButtons).find(item => Number(item.dataset.galleryPreviewStep) === step);
+                if (!button) return;
+                event.preventDefault();
+                navigateGalleryPreview(step);
+                // An unavailable edge button may still receive keyboard focus, but remains aria-disabled.
+                if (button.disabled) button.disabled = false;
+                button.focus({ preventScroll: true });
             });
             galleryPreviewClose?.addEventListener('click', closeGalleryPreview);
             galleryPreviewDialog?.addEventListener('click', event => {
@@ -1601,7 +1625,7 @@
                 if (!navigationButton && !isEdgeNavigation) return;
                 // A navigation press must not start a text selection if the pointer crosses the page counter.
                 event.preventDefault();
-                if (navigationButton && !navigationButton.disabled) navigationButton.focus({ preventScroll: true });
+                if (navigationButton && !navigationButton.disabled && navigationButton.getAttribute('aria-disabled') !== 'true') navigationButton.focus({ preventScroll: true });
             }, true);
             document.addEventListener('pointerdown', event => {
                 if (event.pointerType === 'mouse' && event.button === 0) {
