@@ -424,7 +424,10 @@
         .main-project-changelog-list { display: flex; flex-direction: column; gap: 50px; margin-top: 16px; }
         .main-project-changelog-list > .main-project-changelog-content { margin-top: 0; }
         .main-project-changelog-content { position: relative; box-sizing: border-box; padding-bottom: 24px; --changelog-frame-left: 70px; --changelog-frame-top: 69px; --changelog-frame-radius: 12px; --changelog-frame-stroke: 5px; --changelog-line-top: 54px; --changelog-avatar-anchor-offset: 4px; --changelog-avatar-anchor-y-offset: -4px; }
-        .main-project-changelog-content::after { content: ""; position: absolute; z-index: 0; background: #c2c2c2; pointer-events: none; top: var(--changelog-line-top); bottom: 14px; left: 27px; width: 5px; border-radius: 0 0 999px 999px; }
+        .main-project-changelog-content::after { content: ""; position: absolute; z-index: 0; background: var(--changelog-line-color, #c2c2c2); box-shadow: var(--changelog-line-shadow, none); pointer-events: none; top: var(--changelog-line-top); bottom: 14px; left: 27px; width: 5px; border-radius: 0 0 999px 999px; }
+        .main-project-changelog-content[data-changelog-type="release"] { --changelog-line-color: #2eaf62; --changelog-line-shadow: 0 0 8px 2px rgba(46, 175, 98, .52); }
+        .main-project-changelog-content[data-changelog-type="beta"] { --changelog-line-color: #e5b523; --changelog-line-shadow: 0 0 8px 2px rgba(229, 181, 35, .55); }
+        .main-project-changelog-content[data-changelog-type="alpha"] { --changelog-line-color: #df4a4a; --changelog-line-shadow: 0 0 8px 2px rgba(223, 74, 74, .5); }
         .main-project-changelog-frame { position: relative; box-sizing: border-box; min-height: 34px; margin: calc(var(--changelog-frame-top) - 58px) 8px 0 var(--changelog-frame-left); padding: 16px 18px 16px 14px; }
         .main-project-changelog-frame::before {
             content: ""; position: absolute; z-index: 0; inset: 0;
@@ -462,7 +465,7 @@
         .main-project-changelog-avatar:nth-child(n + 3) { display: none; }
         .main-project-changelog-created-at { color: #555; font-size: 14px; line-height: 1; white-space: nowrap; }
         html.dark-mode .main-project-changelog-created-at { color: #c5ced6; }
-        html.dark-mode .main-project-changelog-content::after { background: #385066; }
+        html.dark-mode .main-project-changelog-content:not([data-changelog-type])::after { background: #385066; }
         .main-project-link-section { position: absolute; top: 0; right: 0; left: 0; }
         .main-project-detail-section { position: absolute; top: 0; right: 0; left: 0; }
         .detail-license-row { display: flex; align-items: center; gap: 4px; margin-top: 16px; }
@@ -935,7 +938,7 @@
                     <h2 class="main-project-description-section-title">Semi-rounded Corner</h2>
                     <div class="main-project-description-section-divider" aria-hidden="true"></div>
                     <div class="main-project-changelog-list">
-                        <div class="main-project-changelog-content">
+                        <div class="main-project-changelog-content" data-changelog-type="release">
                             <div class="main-project-changelog-avatars" role="group" aria-label="Repository avatar and creation time">
                                 <div class="main-project-changelog-avatar-stack">
                                     <button class="compatibility-version-button main-project-changelog-avatar" type="button" aria-label="GitHub profile avatar">
@@ -959,7 +962,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="main-project-changelog-content">
+                        <div class="main-project-changelog-content" data-changelog-type="beta">
                             <div class="main-project-changelog-avatars" role="group" aria-label="Repository avatar and creation time">
                                 <div class="main-project-changelog-avatar-stack">
                                     <button class="compatibility-version-button main-project-changelog-avatar" type="button" aria-label="GitHub profile avatar">
@@ -983,7 +986,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="main-project-changelog-content">
+                        <div class="main-project-changelog-content" data-changelog-type="alpha">
                             <div class="main-project-changelog-avatars" role="group" aria-label="Repository avatar and creation time">
                                 <div class="main-project-changelog-avatar-stack">
                                     <button class="compatibility-version-button main-project-changelog-avatar" type="button" aria-label="GitHub profile avatar">
