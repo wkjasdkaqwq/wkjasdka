@@ -351,8 +351,6 @@
         .community-gallery-preview-nav-button:is(:disabled, [aria-disabled="true"]) { opacity: .38; cursor: not-allowed; }
         .community-gallery-preview-nav-button:is(:disabled, [aria-disabled="true"]):active { transform: none; }
         .community-gallery-preview-nav-button:focus-visible { outline: 2px solid #fff; outline-offset: -3px; }
-        .community-gallery-preview-nav-button[aria-disabled="true"]:focus-visible { opacity: 1; }
-        .community-gallery-preview-nav-button[aria-disabled="true"]:focus-visible svg { opacity: .38; }
         .community-gallery-preview-nav-button svg { display: block; width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
         .community-gallery-preview-page { position: relative; z-index: 2; display: grid; place-items: center; align-self: stretch; min-width: 54px; padding: 0 8px; border-right: 1px solid rgba(255, 255, 255, .22); border-left: 1px solid rgba(255, 255, 255, .22); background: transparent; color: rgba(255, 255, 255, .9); font-size: .82rem; font-variant-numeric: tabular-nums; line-height: 1; }
         .community-gallery-preview-close { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 1px solid rgba(255, 255, 255, .45); border-radius: 50%; background: rgba(255, 255, 255, .12); color: #fff; cursor: pointer; font: inherit; font-size: 28px; line-height: 1; -webkit-user-select: none; user-select: none; transition: background-color .16s ease, border-color .16s ease, color .16s ease, box-shadow .16s ease, transform .16s ease; }
@@ -1408,6 +1406,7 @@
                     const step = Number(button.dataset.galleryPreviewStep);
                     const unavailable = (step < 0 && index === 0) || (step > 0 && index === galleryPreviewImages.length - 1);
                     button.setAttribute('aria-disabled', String(unavailable));
+                    if (unavailable && document.activeElement === button) button.blur();
                     button.disabled = unavailable;
                 });
             };
@@ -1559,9 +1558,6 @@
                 button.addEventListener('click', () => {
                     if (button.getAttribute('aria-disabled') !== 'true') navigateGalleryPreview(Number(button.dataset.galleryPreviewStep));
                 });
-                button.addEventListener('blur', () => {
-                    if (button.getAttribute('aria-disabled') === 'true') button.disabled = true;
-                });
             });
             document.addEventListener('keydown', event => {
                 if (!galleryPreviewDialog?.open || galleryPreviewDialog.classList.contains('is-closing') ||
@@ -1576,9 +1572,14 @@
                 if (!button) return;
                 event.preventDefault();
                 navigateGalleryPreview(step);
-                // An unavailable edge button may still receive keyboard focus, but remains aria-disabled.
-                if (button.disabled) button.disabled = false;
-                button.focus({ preventScroll: true });
+                if (!button.disabled) {
+                    button.focus({ preventScroll: true });
+                } else {
+                    // Do not leave a stale navigation focus when the requested direction is unavailable.
+                    galleryPreviewNavigationButtons.forEach(item => {
+                        if (document.activeElement === item) item.blur();
+                    });
+                }
             });
             galleryPreviewClose?.addEventListener('click', closeGalleryPreview);
             galleryPreviewDialog?.addEventListener('click', event => {
