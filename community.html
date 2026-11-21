@@ -1354,7 +1354,6 @@
                 const nextIndex = galleryPreviewIndex + direction;
                 if (nextIndex >= 0 && nextIndex < galleryPreviewImages.length) showGalleryPreviewImage(nextIndex);
             }, true);
-            galleryPreviewDialog?.addEventListener('pointerleave', resetGalleryPreviewEdgeCursor);
             galleryPreviewDialog?.addEventListener('wheel', event => {
                 if (!galleryPreviewDialog.open || event.target.closest('.community-gallery-preview-toolbar')) return;
                 event.preventDefault();
