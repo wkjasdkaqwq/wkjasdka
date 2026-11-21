@@ -439,10 +439,10 @@
         .main-project-changelog-button-slot { position: relative; z-index: 1; display: grid; place-items: center; width: 58px; height: 58px; }
         .compatibility-version-button.main-project-changelog-button { box-sizing: border-box; width: 50px; height: 50px; min-height: 50px; padding: 0; border-radius: 50%; }
         .main-project-changelog-avatars { position: absolute; top: calc(var(--changelog-frame-top) + var(--changelog-avatar-anchor-y-offset)); left: calc(var(--changelog-frame-left) + var(--changelog-avatar-anchor-offset)); z-index: 1; display: flex; align-items: center; height: 30px; transform: translateY(-100%); }
-        .main-project-changelog-avatar { display: block; box-sizing: border-box; width: 30px; height: 30px; flex: 0 0 30px; border: 2px solid #fff; border-radius: 50%; background: #f1f1f1; object-fit: cover; }
+        .compatibility-version-button.main-project-changelog-avatar { position: relative; display: block; box-sizing: border-box; width: 30px; height: 30px; min-height: 30px; flex: 0 0 30px; padding: 0; border-radius: 50%; overflow: hidden; }
+        .main-project-changelog-avatar-image { display: block; width: 100%; height: 100%; border-radius: inherit; object-fit: cover; pointer-events: none; }
         .main-project-changelog-avatar + .main-project-changelog-avatar { margin-left: -9px; }
         .main-project-changelog-avatar:nth-child(n + 3) { display: none; }
-        html.dark-mode .main-project-changelog-avatar { border-color: #162636; }
         html.dark-mode .main-project-changelog-content::before { background: transparent; border-color: #385066; }
         html.dark-mode .main-project-changelog-content::after { background: #385066; }
         .main-project-link-section { position: absolute; top: 0; right: 0; left: 0; }
@@ -918,7 +918,9 @@
                     <div class="main-project-description-section-divider" aria-hidden="true"></div>
                     <div class="main-project-changelog-content">
                         <div class="main-project-changelog-avatars" role="group" aria-label="Changelog contributors">
-                            <img class="main-project-changelog-avatar" src="https://github.com/wkjasdkaqwq.png" alt="GitHub profile avatar" width="30" height="30" loading="lazy" decoding="async" draggable="false">
+                            <button class="compatibility-version-button main-project-changelog-avatar" type="button" aria-label="GitHub profile avatar">
+                                <img class="main-project-changelog-avatar-image" src="https://github.com/wkjasdkaqwq.png" alt="" width="26" height="26" loading="lazy" decoding="async" draggable="false">
+                            </button>
                         </div>
                         <div class="main-project-changelog-button-slot">
                             <button class="compatibility-version-button main-project-changelog-button" type="button" aria-label="Changelog button"></button>
