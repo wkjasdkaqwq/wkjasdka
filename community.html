@@ -3,8 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="preload" as="image" type="image/svg+xml" href="resource/icon/bootstrap-icons/arrow-left.svg">
-    <link rel="preload" as="image" type="image/svg+xml" href="resource/icon/bootstrap-icons/arrow-right.svg">
   <script>
     (function () {
       const themeKey = 'wkjasdka-dark-mode';
@@ -362,10 +360,22 @@
         .community-gallery-preview-toolbar .community-gallery-preview-nav-button:not(:disabled), .community-gallery-preview-toolbar .community-gallery-preview-nav-button:not(:disabled) *, .community-gallery-preview-toolbar .community-gallery-preview-close, .community-gallery-preview-toolbar .community-gallery-preview-close * { cursor: pointer; }
         .community-gallery-preview-toolbar .community-gallery-preview-nav-button:disabled, .community-gallery-preview-toolbar .community-gallery-preview-nav-button:disabled * { cursor: not-allowed; }
         @media (hover: hover) and (pointer: fine) {
-            .community-gallery-preview-dialog[open] { cursor: default; }
-            .community-gallery-preview-dialog[open].is-edge-left { cursor: url("resource/icon/bootstrap-icons/arrow-left.svg") 0 24, default; }
-            .community-gallery-preview-dialog[open].is-edge-right { cursor: url("resource/icon/bootstrap-icons/arrow-right.svg") 47 24, default; }
+            .community-gallery-preview-dialog[open] {
+                --gallery-edge-left-cursor: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2248%22%20height%3D%2248%22%20fill%3D%22%23fff%22%20class%3D%22bi%20bi-arrow-left%22%20viewBox%3D%220%200%2016%2016%22%3E%0A%20%20%3Cpath%20fill-rule%3D%22evenodd%22%20stroke%3D%22%23fff%22%20stroke-width%3D%220.06%22%20stroke-linejoin%3D%22round%22%20d%3D%22M15%208a.5.5%200%200%200-.5-.5H2.707l3.147-3.146a.5.5%200%201%200-.708-.708l-4%204a.5.5%200%200%200%200%20.708l4%204a.5.5%200%200%200%20.708-.708L2.707%208.5H14.5A.5.5%200%200%200%2015%208%22%2F%3E%0A%3C%2Fsvg%3E%0A") 0 24, default;
+                --gallery-edge-right-cursor: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2248%22%20height%3D%2248%22%20fill%3D%22%23fff%22%20class%3D%22bi%20bi-arrow-right%22%20viewBox%3D%220%200%2016%2016%22%3E%0A%20%20%3Cpath%20fill-rule%3D%22evenodd%22%20stroke%3D%22%23fff%22%20stroke-width%3D%220.06%22%20stroke-linejoin%3D%22round%22%20d%3D%22M1%208a.5.5%200%200%201%20.5-.5h11.793l-3.147-3.146a.5.5%200%200%201%20.708-.708l4%204a.5.5%200%200%201%200%20.708l-4%204a.5.5%200%200%201-.708-.708L13.293%208.5H1.5A.5.5%200%200%201%201%208%22%2F%3E%0A%3C%2Fsvg%3E%0A") 47 24, default;
+                cursor: default;
+            }
+            .community-gallery-preview-dialog[open].is-edge-left { cursor: var(--gallery-edge-left-cursor); }
+            .community-gallery-preview-dialog[open].is-edge-right { cursor: var(--gallery-edge-right-cursor); }
             .community-gallery-preview-dialog[open].is-edge-unavailable { cursor: not-allowed; }
+            /* Let hit testing choose the edge cursor without waiting for pointermove. */
+            .community-gallery-preview-dialog[open]::before, .community-gallery-preview-dialog[open]::after { content: ""; position: absolute; top: 0; bottom: 0; width: 48px; }
+            .community-gallery-preview-dialog[open]::before { left: 0; z-index: 3; cursor: var(--gallery-edge-left-cursor); }
+            .community-gallery-preview-dialog[open]::after { right: 0; z-index: 2; cursor: var(--gallery-edge-right-cursor); }
+            .community-gallery-preview-dialog[open]:has([data-gallery-preview-step="-1"]:disabled)::before { cursor: not-allowed; }
+            .community-gallery-preview-dialog[open]:has([data-gallery-preview-step="1"]:disabled)::after { cursor: not-allowed; }
+            .community-gallery-preview-dialog[open].is-edge-left.is-edge-unavailable::before, .community-gallery-preview-dialog[open].is-edge-right.is-edge-unavailable::after { cursor: not-allowed; }
+            .community-gallery-preview-toolbar { z-index: 4; }
         }
         @media (hover: none), (pointer: coarse) {
             .community-gallery-preview-nav-button:not(:disabled):hover:not(:active) { background: transparent; color: #fff; box-shadow: none; }
