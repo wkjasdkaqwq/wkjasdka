@@ -355,6 +355,7 @@
         .community-gallery-preview-close:hover { border-color: #d18a58; background: #4a382b; color: #ffc08a; box-shadow: 0 8px 20px rgba(0, 0, 0, .35); }
         .community-gallery-preview-close:active { border-color: #FF9C5A; background: #FFC38D; color: #E67E22; box-shadow: 0 6px 16px rgba(255, 218, 185, .6); transform: translateY(2px) scale(.98); transition-duration: .1s; }
         .community-gallery-preview-close:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+        .community-gallery-preview-close.is-open-focus:focus { outline: 2px solid #fff; outline-offset: 3px; }
         .community-gallery-preview-toolbar, .community-gallery-preview-toolbar * { cursor: default; }
         @media (hover: none), (pointer: coarse) {
             .community-gallery-preview-nav-button:not(:disabled):hover:not(:active) { background: transparent; color: #fff; box-shadow: none; }
@@ -1271,6 +1272,7 @@
                 window.clearTimeout(galleryPreviewCloseTimer);
                 galleryPreviewCloseTimer = 0;
                 galleryPreviewDialog.classList.remove('is-closing');
+                galleryPreviewClose?.classList.remove('is-open-focus');
                 resetGalleryPreviewZoom();
             });
             galleryPreviewDialog?.addEventListener('cancel', event => {
@@ -1285,6 +1287,9 @@
                     showGalleryPreviewImage(galleryPreviewImages.indexOf(sourceImage));
                     galleryPreviewDialog.showModal();
                     galleryPreviewClose?.focus({ preventScroll: true });
+                    if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+                        galleryPreviewClose?.classList.add('is-open-focus');
+                    }
                 });
             });
             galleryPreviewNavigationButtons.forEach(button => {
