@@ -394,9 +394,9 @@
         .main-project-relation-card-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 16px; }
         .main-project-relation-card-grid[hidden] { display: none; }
         .main-project-relation-card { display: flex; box-sizing: border-box; min-height: 132px; overflow: hidden; border: 1px solid #c2c2c2; border-radius: 12px; background: #fff; box-shadow: 0 4px 12px rgba(0, 0, 0, .06); }
-        .main-project-relation-card-image { flex: 0 0 40%; min-width: 0; }
+        .main-project-relation-card-image { flex: 0 0 20%; min-width: 0; }
         .main-project-relation-card-divider { flex: 0 0 1px; background: #c2c2c2; }
-        .main-project-relation-card-description { display: flex; flex: 1 1 60%; align-items: center; min-width: 0; box-sizing: border-box; padding: 14px 16px; color: #555; font-size: 1rem; font-weight: 500; overflow-wrap: anywhere; }
+        .main-project-relation-card-description { display: flex; flex: 1 1 80%; align-items: center; min-width: 0; box-sizing: border-box; padding: 14px 16px; color: #555; font-size: 1rem; font-weight: 500; overflow-wrap: anywhere; }
         .main-project-relation-card-description p { margin: 0; }
         html.dark-mode .main-project-relation-card { border-color: #385066; background: #172633; box-shadow: 0 4px 12px rgba(0, 0, 0, .18); }
         html.dark-mode .main-project-relation-card-divider { background: #385066; }
@@ -1340,7 +1340,7 @@
                                 <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .4.8L10 8v4a.5.5 0 0 1-.2.4l-3 2A.5.5 0 0 1 6 14V8L1.6 1.8a.5.5 0 0 1-.1-.3z"/></svg>
                             </button>
                             <div class="main-project-relation-search">
-                                <input class="main-project-relation-search-input" type="search" aria-label="Search related projects" placeholder="Search projects" autocomplete="off">
+                                <input class="main-project-relation-search-input" type="search" aria-label="Search related projects" placeholder="Search projects" autocomplete="off" enterkeyhint="done">
                                 <svg class="main-project-relation-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="m16 16 4.5 4.5"></path></svg>
                             </div>
                         </div>
@@ -3048,9 +3048,20 @@
                 dependencies: Array.from({ length: 150 }, (_, index) => ({ id: `dependency-${index + 1}`, label: getRelationCardLabel(index) })),
                 dependents: Array.from({ length: 150 }, (_, index) => ({ id: `dependent-${index + 1}`, label: getRelationCardLabel(index) }))
             };
+            const relationSearch = document.querySelector('.main-project-relation-search');
+            const relationSearchInput = relationSearch?.querySelector('.main-project-relation-search-input');
+            const relationSearchStates = {
+                dependencies: relationSearchInput?.value || '',
+                dependents: ''
+            };
+            const getRelationFilteredRecords = relationKey => {
+                const query = (relationSearchStates[relationKey] || '').trim().toLocaleLowerCase();
+                if (!query) return relationCardRecords[relationKey];
+                return relationCardRecords[relationKey].filter(record => record.label.toLocaleLowerCase().includes(query));
+            };
             let activeRelationKey = relationSwitcher?.dataset.activeRelation === 'dependents' ? 'dependents' : 'dependencies';
             const initialRelationPage = Math.max(1, Number.parseInt(relationPagination?.dataset.currentPage, 10) || 1);
-            const getRelationTotalPages = (relationKey, pageSize) => Math.max(1, Math.ceil(relationCardRecords[relationKey].length / pageSize));
+            const getRelationTotalPages = (relationKey, pageSize) => Math.max(1, Math.ceil(getRelationFilteredRecords(relationKey).length / pageSize));
             const relationPaginationStates = {
                 dependencies: { currentPage: initialRelationPage, totalPages: getRelationTotalPages('dependencies', 20), pageSize: 20 },
                 dependents: { currentPage: 1, totalPages: getRelationTotalPages('dependents', 20), pageSize: 20 }
@@ -3105,7 +3116,7 @@
                     if (!isActive) return;
                     const relationState = relationPaginationStates[relationKey];
                     const firstCardIndex = (relationState.currentPage - 1) * relationState.pageSize;
-                    const visibleCards = relationCardRecords[relationKey].slice(firstCardIndex, firstCardIndex + relationState.pageSize);
+                    const visibleCards = getRelationFilteredRecords(relationKey).slice(firstCardIndex, firstCardIndex + relationState.pageSize);
                     cardList.replaceChildren(...visibleCards.map(cardRecord => {
                         const card = document.createElement('div');
                         card.className = 'main-project-relation-card';
@@ -3243,7 +3254,6 @@
             });
             renderRelationPagination(relationPaginationStates[activeRelationKey].currentPage);
             renderRelationCards();
-            const relationSearch = document.querySelector('.main-project-relation-search');
             const relationSearchTouchMedia = window.matchMedia('(hover: none), (pointer: coarse)');
             let relationSearchPressedPointer = null;
             relationSearch?.addEventListener('pointerdown', event => {
@@ -3267,13 +3277,13 @@
                     relationSearch?.classList.remove('is-touch-highlighted');
                 }
             });
-            const relationSearchInput = relationSearch?.querySelector('.main-project-relation-search-input');
-            const relationSearchStates = {
-                dependencies: relationSearchInput?.value || '',
-                dependents: ''
-            };
             relationSearchInput?.addEventListener('input', () => {
                 relationSearchStates[activeRelationKey] = relationSearchInput.value;
+                const relationState = relationPaginationStates[activeRelationKey];
+                relationState.totalPages = getRelationTotalPages(activeRelationKey, relationState.pageSize);
+                relationState.currentPage = 1;
+                renderRelationPagination(1);
+                renderRelationCards();
             });
             relationSwitchButtons.forEach(button => {
                 button.addEventListener('click', () => {
@@ -3283,6 +3293,8 @@
                     relationSearchStates[activeRelationKey] = relationSearchInput?.value || '';
                     activeRelationKey = nextRelationKey;
                     const nextRelationState = relationPaginationStates[activeRelationKey];
+                    nextRelationState.totalPages = getRelationTotalPages(activeRelationKey, nextRelationState.pageSize);
+                    nextRelationState.currentPage = Math.min(nextRelationState.currentPage, nextRelationState.totalPages);
                     if (relationPagination) relationPagination.dataset.totalPages = String(nextRelationState.totalPages);
                     if (relationSearchInput) relationSearchInput.value = relationSearchStates[activeRelationKey];
                     if (relationPageSizeControl) relationPageSizeControl.dataset.expanded = 'false';
@@ -3397,7 +3409,12 @@
                 relationSearchFocusPending = false;
                 updateRelationKeyboardViewport();
             });
-            relationSearchInput?.addEventListener('keydown', () => relationSearchInput.classList.remove('is-mobile-focus-hidden'));
+            relationSearchInput?.addEventListener('keydown', event => {
+                relationSearchInput.classList.remove('is-mobile-focus-hidden');
+                if (event.key !== 'Enter' || event.isComposing || !relationSearchTouchMedia.matches) return;
+                event.preventDefault();
+                relationSearchInput.blur();
+            });
             relationSearchInput?.addEventListener('blur', () => {
                 relationKeyboardClosing = relationKeyboardVisible;
                 relationSearchFocusPending = false;
