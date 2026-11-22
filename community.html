@@ -321,6 +321,16 @@
         .main-project-relation-button[aria-pressed="true"]:active,
         html.dark-mode .main-project-relation-button[aria-pressed="true"]:hover,
         html.dark-mode .main-project-relation-button[aria-pressed="true"]:active { border-color: transparent; background: transparent; box-shadow: none; transition: color .18s ease, transform .1s ease; }
+        .main-project-relation-search { display: flex; align-items: center; box-sizing: border-box; min-height: 42px; gap: 10px; margin: 16px 3px 0; padding: 0 12px; border: 1px solid #c2c2c2; border-radius: 10px; background: #fff; transition: border-color .18s ease, box-shadow .18s ease; }
+        .main-project-relation-search:focus-within { border-color: #FF9C5A; box-shadow: 0 0 0 2px rgba(230, 126, 34, .18); }
+        .main-project-relation-search-icon { display: block; flex: 0 0 16px; width: 16px; height: 16px; color: #E67E22; }
+        .main-project-relation-search-input { box-sizing: border-box; flex: 1 1 auto; min-width: 0; width: 100%; padding: 10px 0; border: 0; outline: 0; background: transparent; color: #242424; font: inherit; font-size: 1rem; -webkit-appearance: none; appearance: none; }
+        .main-project-relation-search-input::placeholder { color: #777; opacity: 1; }
+        html.dark-mode .main-project-relation-search { border-color: #385066; background: #1f303f; }
+        html.dark-mode .main-project-relation-search:focus-within { border-color: #d18a58; box-shadow: 0 0 0 2px rgba(209, 138, 88, .2); }
+        html.dark-mode .main-project-relation-search-icon { color: #ffc08a; }
+        html.dark-mode .main-project-relation-search-input { color: #e0e0e0; }
+        html.dark-mode .main-project-relation-search-input::placeholder { color: #a0aeb8; }
         html.dark-mode .main-project-switcher { border-color: #385066; background: #081824; }
         html.dark-mode .main-project-switcher-track::before { background: #243545; box-shadow: 0 1px 3px rgba(0, 0, 0, .35); }
         html.dark-mode .main-project-switcher-button { color: #a0aeb8; }
@@ -1087,6 +1097,10 @@
                         </div>
                     </div>
                     <div class="main-project-description-section-divider" aria-hidden="true"></div>
+                    <label class="main-project-relation-search">
+                        <svg class="main-project-relation-search-icon" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path fill-rule="evenodd" d="M11 6a5 5 0 1 1-10 0 5 5 0 0 1 10 0m-.9 4.804a6 6 0 1 1 .707-.707l3.387 3.387a.5.5 0 0 1-.707.707z"/></svg>
+                        <input class="main-project-relation-search-input" type="search" aria-label="Search related projects" placeholder="Search projects" autocomplete="off">
+                    </label>
                 </section>
                 <section class="main-project-tab-panel" id="panel-comment" role="tabpanel" aria-labelledby="tab-comment" hidden>
                     <h2 class="main-project-description-section-title">Semi-rounded Corner</h2>
