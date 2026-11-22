@@ -3575,6 +3575,27 @@
                 hoverTimer = 0;
                 button.dataset.hoverVisible = 'false';
             };
+            const closeTooltip = () => {
+                longPressTriggered = false;
+                button.dataset.longPressVisible = 'false';
+                clearHover();
+            };
+            document.addEventListener('pointerdown', event => {
+                if (!tooltip.contains(event.target)) closeTooltip();
+            }, true);
+            document.addEventListener('touchstart', event => {
+                if (!tooltip.contains(event.target)) closeTooltip();
+            }, { capture: true, passive: true });
+            document.addEventListener('wheel', event => {
+                if (!tooltip.contains(event.target)) closeTooltip();
+            }, { capture: true, passive: true });
+            document.addEventListener('keydown', event => {
+                if (!tooltip.contains(event.target)) closeTooltip();
+            }, true);
+            window.addEventListener('blur', closeTooltip);
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) closeTooltip();
+            });
             button.addEventListener('pointerenter', event => {
                 if (event.pointerType !== 'mouse') return;
                 clearHover();
@@ -3616,8 +3637,7 @@
                     event.stopPropagation();
                     return;
                 }
-                longPressTriggered = false;
-                button.dataset.longPressVisible = 'false';
+                closeTooltip();
             }, true);
             tooltip.addEventListener('click', event => {
                 event.preventDefault();
