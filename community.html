@@ -594,15 +594,15 @@
         @media (hover: none), (pointer: coarse) {
             .detail-license-trigger:active { text-decoration: underline; }
         }
-        .mit-license-dialog { position: fixed; inset: calc(var(--community-navbar-height) + 16px) 0 16px; box-sizing: border-box; width: min(320px, calc(100vw - 40px)); height: fit-content; max-width: calc(100vw - 40px); max-height: calc(100vh - var(--community-navbar-height) - 32px); max-height: calc(100dvh - var(--community-navbar-height) - 32px); margin: auto; overflow: visible; padding: 0; border: 0; background: transparent; color: #333; }
+        .mit-license-dialog { --mit-license-edge-gap: 11px; position: fixed; inset: calc(var(--community-navbar-height) + var(--mit-license-edge-gap)) 0 var(--mit-license-edge-gap); box-sizing: border-box; width: min(340px, calc(100vw - 20px)); height: fit-content; max-width: calc(100vw - 20px); max-height: max(0px, calc(100vh - var(--community-navbar-height) - var(--mit-license-edge-gap) - var(--mit-license-edge-gap))); max-height: max(0px, calc(100dvh - var(--community-navbar-height) - var(--mit-license-edge-gap) - var(--mit-license-edge-gap))); margin: auto; overflow: visible; padding: 0; border: 0; background: transparent; color: #333; }
         .mit-license-surface { position: relative; width: 100%; }
-        .mit-license-card { box-sizing: border-box; width: 100%; max-height: calc(100vh - var(--community-navbar-height) - 32px); max-height: calc(100dvh - var(--community-navbar-height) - 32px); overflow-y: auto; overscroll-behavior-y: contain; padding: 24px; border: 1px solid #c2c2c2; border-radius: 16px; background: #fff; box-shadow: 0 18px 48px rgba(0, 0, 0, .22); }
+        .mit-license-card { box-sizing: border-box; width: 100%; height: var(--mit-license-target-height, auto); max-height: max(0px, calc(100vh - var(--community-navbar-height) - var(--mit-license-edge-gap) - var(--mit-license-edge-gap))); max-height: max(0px, calc(100dvh - var(--community-navbar-height) - var(--mit-license-edge-gap) - var(--mit-license-edge-gap))); overflow-y: auto; overscroll-behavior-y: contain; padding: 24px; border: 1px solid #c2c2c2; border-radius: 16px; background: #fff; box-shadow: 0 18px 48px rgba(0, 0, 0, .22); }
         .mit-license-dialog::backdrop { inset: var(--community-navbar-height) 0 0; background: rgba(0, 0, 0, .48); }
         .mit-license-dialog p { margin: 0; font-size: 1rem; line-height: 1.65; }
         .mit-license-card p + p { margin-top: 1em; }
         .mit-license-scrollbar { display: none; }
-        @media (min-width: 601px) and (hover: hover) and (pointer: fine) {
-            .mit-license-dialog { width: min(720px, calc(100vw - 48px)); max-width: calc(100vw - 48px); }
+        @media (hover: hover) and (pointer: fine) {
+            .mit-license-dialog { --mit-license-edge-gap: 6px; width: calc(100vw - 48px); max-width: calc(100vw - 48px); }
         }
         @media (hover: hover) and (pointer: fine) {
             .mit-license-card { padding-right: 36px; scrollbar-width: none; -ms-overflow-style: none; }
@@ -2303,6 +2303,25 @@
             let mitLicenseMenuOpenOnPointerDown = false;
             let mitLicenseLogoLabel;
             let mitLicenseScrollbarDrag = null;
+            const updateMitLicenseCardSize = () => {
+                if (!mitLicenseDialog?.open || mitLicenseDialog.classList.contains('is-closing') || !mitLicenseCard) return;
+                const isDesktop = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+                const hadDesktopWidth = isDesktop && window.matchMedia('(min-width: 601px)').matches;
+                const previousWidth = mitLicenseCard.style.width;
+                const previousHeight = mitLicenseCard.style.height;
+                const previousMaxHeight = mitLicenseCard.style.maxHeight;
+                const previousScrollTop = mitLicenseCard.scrollTop;
+                // Measure the former card width before text reflow can shrink the requested expansion.
+                mitLicenseCard.style.width = hadDesktopWidth ? 'min(720px, calc(100vw - 48px))' : 'min(320px, calc(100vw - 40px))';
+                mitLicenseCard.style.height = 'auto';
+                mitLicenseCard.style.maxHeight = `calc(${window.CSS?.supports('height', '100dvh') ? '100dvh' : '100vh'} - var(--community-navbar-height) - 32px)`;
+                const previousCardHeight = parseFloat(getComputedStyle(mitLicenseCard).height);
+                mitLicenseCard.style.width = previousWidth;
+                mitLicenseCard.style.height = previousHeight;
+                mitLicenseCard.style.maxHeight = previousMaxHeight;
+                if (Number.isFinite(previousCardHeight)) mitLicenseCard.style.setProperty('--mit-license-target-height', `${previousCardHeight + (isDesktop ? 20 : 10)}px`);
+                mitLicenseCard.scrollTop = previousScrollTop;
+            };
             const updateMitLicenseScrollbar = () => {
                 if (!mitLicenseCard || !mitLicenseScrollbar || !mitLicenseScrollbarThumb) return;
                 const trackHeight = mitLicenseScrollbar.clientHeight;
@@ -2324,10 +2343,15 @@
                 const progress = travel > 0 ? (event.clientY - trackBounds.top - mitLicenseScrollbarDrag.offset) / travel : 0;
                 mitLicenseCard.scrollTop = Math.max(0, Math.min(1, progress)) * scrollRange;
             };
+            const updateMitLicenseLayout = () => {
+                updateMitLicenseCardSize();
+                updateMitLicenseScrollbar();
+            };
             mitLicenseCard?.addEventListener('scroll', updateMitLicenseScrollbar, { passive: true });
-            window.addEventListener('resize', updateMitLicenseScrollbar, { passive: true });
+            window.addEventListener('resize', updateMitLicenseLayout, { passive: true });
+            window.visualViewport?.addEventListener('resize', updateMitLicenseLayout, { passive: true });
             if (window.ResizeObserver && mitLicenseCard && mitLicenseText) {
-                const mitLicenseResizeObserver = new ResizeObserver(updateMitLicenseScrollbar);
+                const mitLicenseResizeObserver = new ResizeObserver(updateMitLicenseLayout);
                 mitLicenseResizeObserver.observe(mitLicenseCard);
                 mitLicenseResizeObserver.observe(mitLicenseText);
             }
@@ -2424,7 +2448,7 @@
                     try {
                         mitLicenseDialog.showModal();
                         if (mitLicenseCard) mitLicenseCard.scrollTop = 0;
-                        updateMitLicenseScrollbar();
+                        updateMitLicenseLayout();
                         mitLicenseLogoLabel = logoLink.getAttribute('aria-label');
                         logoLink.setAttribute('aria-label', 'Scroll MIT license to top or close');
                     } catch (error) {
