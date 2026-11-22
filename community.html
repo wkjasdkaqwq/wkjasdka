@@ -400,16 +400,17 @@
         .main-project-relation-page-size-icon { display: block; width: 15px; height: 15px; background-color: currentColor; filter: drop-shadow(0 0 .09px currentColor); pointer-events: none; -webkit-mask-position: center; mask-position: center; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-size: contain; mask-size: contain; }
         .main-project-relation-page-size-control[data-expanded="false"] .main-project-relation-page-size-icon { -webkit-mask-image: url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.2/icons/chevron-up.svg"); mask-image: url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.2/icons/chevron-up.svg"); }
         .main-project-relation-page-size-control[data-expanded="true"] .main-project-relation-page-size-icon { -webkit-mask-image: url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.2/icons/chevron-down.svg"); mask-image: url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.2/icons/chevron-down.svg"); }
-        .main-project-relation-page-size-options { display: none; flex-direction: column; align-items: stretch; gap: 1.1px; padding: 4px 4px 5px; }
+        .main-project-relation-page-size-options { position: absolute; z-index: 5; top: 100%; right: -1.05px; left: -1.05px; display: flex; flex-direction: column; align-items: stretch; box-sizing: border-box; gap: 1.1px; max-height: 0; overflow: hidden; padding: 0 4px; border: 0 solid transparent; border-radius: 0 0 22px 22px; background: #fff; opacity: 0; pointer-events: none; transform: translateY(-7px) scaleY(.96); transform-origin: top center; box-shadow: 0 0 0 rgba(0, 0, 0, 0); transition: max-height .42s cubic-bezier(.22, .61, .36, 1), padding .42s cubic-bezier(.22, .61, .36, 1), border-width .42s ease, opacity .24s ease, transform .42s cubic-bezier(.22, .61, .36, 1), box-shadow .18s ease; }
         .main-project-relation-page-size-option { display: grid; place-items: center; box-sizing: border-box; width: 100%; min-width: 0; height: 28px; padding: 0 4px; border: 0; border-radius: 999px; background: transparent; color: inherit; cursor: pointer; font: inherit; font-size: .886rem; font-weight: 420; font-variant-numeric: tabular-nums; }
         .main-project-relation-page-size-option:hover { background: #f1f1f1; }
         .main-project-relation-page-size-option[aria-pressed="true"] { background: #ffe4c4; color: #e67e22; font-weight: 735; }
-        .main-project-relation-page-size-control[data-expanded="true"] .main-project-relation-page-size-pill { box-shadow: 0 4.3px 15.3px rgba(0, 0, 0, .16); }
-        .main-project-relation-page-size-control[data-expanded="true"] .main-project-relation-page-size-options { display: flex; border-top: 1.05px solid rgba(100, 100, 100, .22); }
+        .main-project-relation-page-size-control[data-expanded="true"] .main-project-relation-page-size-pill { border-radius: 22px 22px 0 0; border-bottom-color: transparent; box-shadow: 0 4.3px 15.3px rgba(0, 0, 0, .16); }
+        .main-project-relation-page-size-control[data-expanded="true"] .main-project-relation-page-size-options { max-height: 130px; padding: 4px 4px 5px; border-width: 1.05px; border-color: #c8c8c8; opacity: 1; pointer-events: auto; transform: translateY(0) scaleY(1); box-shadow: 0 4.3px 15.3px rgba(0, 0, 0, .16); }
         .main-project-relation-page-size-current:focus-visible, .main-project-relation-page-size-toggle:focus-visible, .main-project-relation-page-size-option:focus-visible { outline: 2.1px solid #64b5f6; outline-offset: 1.2px; }
         html.dark-mode .main-project-relation-page-size-pill { border-color: #465b6b; background: #172633; color: #c5ced6; box-shadow: 0 2.2px 9.7px rgba(0, 0, 0, .3); }
         html.dark-mode .main-project-relation-page-size-toggle { border-left-color: rgba(180, 200, 215, .25); }
-        html.dark-mode .main-project-relation-page-size-control[data-expanded="true"] .main-project-relation-page-size-options { border-top-color: rgba(180, 200, 215, .25); }
+        html.dark-mode .main-project-relation-page-size-control[data-expanded="true"] .main-project-relation-page-size-pill { box-shadow: 0 4.3px 15.3px rgba(0, 0, 0, .36); }
+        html.dark-mode .main-project-relation-page-size-control[data-expanded="true"] .main-project-relation-page-size-options { border-color: #465b6b; background: #172633; box-shadow: 0 4.3px 15.3px rgba(0, 0, 0, .36); }
         html.dark-mode .main-project-relation-page-size-option:hover { background: #2b3a46; }
         html.dark-mode .main-project-relation-page-size-option[aria-pressed="true"] { background: #49301f; color: #ffb27b; font-weight: 735; }
         @media (max-width: 600px) {
@@ -424,7 +425,7 @@
             .main-project-relation-page-size-current { flex-basis: 37px; min-width: 37px; font-size: .972rem; }
             .main-project-relation-page-size-toggle { flex-basis: 31px; width: 31px; }
             .main-project-relation-page-size-icon { width: 14px; height: 14px; }
-            .main-project-relation-page-size-options { gap: 1.1px; padding: 4px 4px 5px; }
+            .main-project-relation-page-size-options { gap: 1.1px; }
             .main-project-relation-page-size-option { height: 27px; padding: 0 4px; font-size: .842rem; }
         }
         @media (max-width: 340px) {
@@ -2965,6 +2966,7 @@
             const relationPageSizeCurrent = relationPageSizeControl?.querySelector('.main-project-relation-page-size-current');
             const relationPageSizeToggleButtons = relationPageSizeControl?.querySelectorAll('[data-page-size-toggle]') || [];
             const relationPageSizeOptions = relationPageSizeControl?.querySelectorAll('[data-page-size]') || [];
+            const relationPageSizeOptionsGroup = relationPageSizeControl?.querySelector('.main-project-relation-page-size-options');
             const relationPaginationCompactMedia = window.matchMedia('(max-width: 600px)');
             const relationSwitcher = document.querySelector('.main-project-relation-switcher');
             let activeRelationKey = relationSwitcher?.dataset.activeRelation === 'dependents' ? 'dependents' : 'dependencies';
@@ -3026,6 +3028,10 @@
                 if (!relationPageSizeControl || !relationPageSizeCurrent) return;
                 const expanded = relationPageSizeControl.dataset.expanded === 'true';
                 const pageSize = relationPaginationStates[activeRelationKey].pageSize;
+                if (relationPageSizeOptionsGroup) {
+                    relationPageSizeOptionsGroup.inert = !expanded;
+                    relationPageSizeOptionsGroup.setAttribute('aria-hidden', String(!expanded));
+                }
                 relationPageSizeCurrent.textContent = String(pageSize);
                 relationPageSizeCurrent.setAttribute('aria-expanded', String(expanded));
                 relationPageSizeCurrent.setAttribute('aria-label', `Cards per page: ${pageSize}. ${expanded ? 'Hide' : 'Show'} options`);
