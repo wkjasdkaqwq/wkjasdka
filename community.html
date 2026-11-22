@@ -3124,14 +3124,6 @@
                     renderRelationPageSizeControl();
                 });
             });
-            relationPageSizeControl?.addEventListener('pointerup', event => {
-                const button = event.target.closest?.('[data-page-size]');
-                if (!button || relationPageSizeOptionPresses.get(event.pointerId) !== button) return;
-                const selectedPageSize = relationPaginationStates[activeRelationKey].pageSize;
-                if (Number(button.dataset.pageSize) !== selectedPageSize) return;
-                relationPageSizeControl.dataset.expanded = 'false';
-                renderRelationPageSizeControl();
-            }, true);
             relationPageSizeOptions.forEach(button => {
                 button.addEventListener('pointerdown', event => {
                     if (event.button !== 0) return;
@@ -3141,6 +3133,7 @@
                 button.addEventListener('click', () => {
                     const pageSize = Number(button.dataset.pageSize);
                     if (![10, 20, 50, 100].includes(pageSize)) return;
+                    if (pageSize === relationPaginationStates[activeRelationKey].pageSize) return;
                     relationPaginationStates[activeRelationKey].pageSize = pageSize;
                     relationPageSizeControl.dataset.expanded = 'false';
                     renderRelationPageSizeControl();
