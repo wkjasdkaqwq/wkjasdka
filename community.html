@@ -2913,6 +2913,14 @@
             const relationPagination = document.querySelector('.main-project-relation-pagination');
             const relationPageList = relationPagination?.querySelector('.main-project-relation-page-list');
             const relationPaginationButtons = relationPagination?.querySelectorAll('[data-page-step]') || [];
+            const relationSwitcher = document.querySelector('.main-project-relation-switcher');
+            let activeRelationKey = relationSwitcher?.dataset.activeRelation === 'dependents' ? 'dependents' : 'dependencies';
+            const initialRelationTotalPages = Math.max(1, Number.parseInt(relationPagination?.dataset.totalPages, 10) || 1);
+            const initialRelationPage = Math.max(1, Number.parseInt(relationPagination?.dataset.currentPage, 10) || 1);
+            const relationPaginationStates = {
+                dependencies: { currentPage: initialRelationPage, totalPages: initialRelationTotalPages },
+                dependents: { currentPage: 1, totalPages: initialRelationTotalPages }
+            };
             const getRelationPageWindow = (currentPage, totalPages) => {
                 if (totalPages <= 7) return Array.from({ length: totalPages }, (_, index) => index + 1);
                 if (currentPage <= 3) return [1, 2, 3, 4, 5, 'ellipsis', totalPages];
@@ -2921,8 +2929,11 @@
             };
             const renderRelationPagination = currentPage => {
                 if (!relationPagination || !relationPageList) return;
-                const totalPages = Math.max(1, Number.parseInt(relationPagination.dataset.totalPages, 10) || 1);
+                const relationState = relationPaginationStates[activeRelationKey];
+                const totalPages = relationState.totalPages;
                 const page = Math.max(1, Math.min(totalPages, currentPage));
+                relationState.currentPage = page;
+                relationPagination.dataset.totalPages = String(totalPages);
                 relationPagination.dataset.currentPage = String(page);
                 relationPageList.replaceChildren(...getRelationPageWindow(page, totalPages).map(pageNumber => {
                     if (pageNumber === 'ellipsis') {
@@ -2957,7 +2968,7 @@
                     renderRelationPagination(Number(relationPagination.dataset.currentPage) + Number(button.dataset.pageStep));
                 });
             });
-            renderRelationPagination(Number(relationPagination?.dataset.currentPage) || 1);
+            renderRelationPagination(relationPaginationStates[activeRelationKey].currentPage);
             const relationSearch = document.querySelector('.main-project-relation-search');
             const relationSearchTouchMedia = window.matchMedia('(hover: none), (pointer: coarse)');
             let relationSearchPressedPointer = null;
@@ -2983,6 +2994,26 @@
                 }
             });
             const relationSearchInput = relationSearch?.querySelector('.main-project-relation-search-input');
+            const relationSearchStates = {
+                dependencies: relationSearchInput?.value || '',
+                dependents: ''
+            };
+            relationSearchInput?.addEventListener('input', () => {
+                relationSearchStates[activeRelationKey] = relationSearchInput.value;
+            });
+            relationSwitchButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const nextRelationKey = button.dataset.relation === 'dependents' ? 'dependents' : 'dependencies';
+                    if (nextRelationKey === activeRelationKey) return;
+                    relationPaginationStates[activeRelationKey].currentPage = Number(relationPagination?.dataset.currentPage) || 1;
+                    relationSearchStates[activeRelationKey] = relationSearchInput?.value || '';
+                    activeRelationKey = nextRelationKey;
+                    const nextRelationState = relationPaginationStates[activeRelationKey];
+                    if (relationPagination) relationPagination.dataset.totalPages = String(nextRelationState.totalPages);
+                    if (relationSearchInput) relationSearchInput.value = relationSearchStates[activeRelationKey];
+                    renderRelationPagination(nextRelationState.currentPage);
+                });
+            });
             const relationSearchScroller = document.getElementById('mainContent');
             const relationSearchViewport = window.visualViewport;
             const relationSearchOriginalPadding = lowerDivider?.style.paddingBottom || '';
