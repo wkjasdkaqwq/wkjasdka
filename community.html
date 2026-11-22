@@ -2265,9 +2265,11 @@
             const mitLicenseNavClose = document.getElementById('mit-license-nav-close');
             let mitLicenseRevealFrame = 0;
             let mitLicenseCloseTimer = 0;
+            let mitLicenseMouseDownOnClose = false;
             const hideMitLicenseNav = () => {
                 if (mitLicenseRevealFrame) window.cancelAnimationFrame(mitLicenseRevealFrame);
                 mitLicenseRevealFrame = 0;
+                mitLicenseMouseDownOnClose = false;
                 document.documentElement.classList.remove('is-mit-license-open');
                 mitLicenseDialog?.classList.remove('is-nav-visible');
                 if (document.activeElement === mitLicenseNavClose) mitLicenseDialog?.focus({ preventScroll: true });
@@ -2357,7 +2359,15 @@
                 mitLicenseDialog.classList.remove('is-closing');
                 hideMitLicenseNav();
             });
+            mitLicenseDialog?.addEventListener('pointerdown', event => {
+                mitLicenseMouseDownOnClose = event.pointerType === 'mouse' && !!mitLicenseNavClose?.contains(event.target);
+            });
             mitLicenseDialog?.addEventListener('click', event => {
+                // A drag from the close button can generate a backdrop click on release.
+                if (event.detail > 0 && mitLicenseMouseDownOnClose) {
+                    mitLicenseMouseDownOnClose = false;
+                    return;
+                }
                 const bounds = mitLicenseDialog.getBoundingClientRect();
                 const navbarBottom = document.getElementById('navbar')?.getBoundingClientRect().bottom ?? 0;
                 if (event.clientY >= navbarBottom && (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom)) {
