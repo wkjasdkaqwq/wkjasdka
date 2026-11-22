@@ -3124,18 +3124,20 @@
                     renderRelationPageSizeControl();
                 });
             });
+            relationPageSizeControl?.addEventListener('click', event => {
+                const button = event.target.closest?.('[data-page-size]');
+                if (!button || !relationPageSizeControl.contains(button)) return;
+                const pageSize = Number(button.dataset.pageSize);
+                if (![10, 20, 50, 100].includes(pageSize)) return;
+                relationPaginationStates[activeRelationKey].pageSize = pageSize;
+                relationPageSizeControl.dataset.expanded = 'false';
+                renderRelationPageSizeControl();
+            }, true);
             relationPageSizeOptions.forEach(button => {
                 button.addEventListener('pointerdown', event => {
                     if (event.button !== 0) return;
                     relationPageSizeOptionPresses.set(event.pointerId, button);
                     button.classList.add('is-gray-pressed');
-                });
-                button.addEventListener('click', () => {
-                    const pageSize = Number(button.dataset.pageSize);
-                    if (![10, 20, 50, 100].includes(pageSize)) return;
-                    relationPaginationStates[activeRelationKey].pageSize = pageSize;
-                    relationPageSizeControl.dataset.expanded = 'false';
-                    renderRelationPageSizeControl();
                 });
             });
             document.addEventListener('pointerdown', event => {
