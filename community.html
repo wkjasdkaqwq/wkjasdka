@@ -321,10 +321,15 @@
         .main-project-relation-button[aria-pressed="true"]:active,
         html.dark-mode .main-project-relation-button[aria-pressed="true"]:hover,
         html.dark-mode .main-project-relation-button[aria-pressed="true"]:active { border-color: transparent; background: transparent; box-shadow: none; transition: color .18s ease, transform .1s ease; }
-        .main-project-relation-search { position: relative; display: flex; align-items: center; justify-content: space-between; box-sizing: border-box; min-height: 46px; gap: .8rem; margin: 16px 3px 0; padding: .65rem 1rem; border: 2px solid #FFB380; border-radius: 24px; background: #FFDAB9; color: #E67E22; box-shadow: 0 4px 12px rgba(255, 218, 185, .38); cursor: text; font-size: 1rem; font-weight: 600; line-height: 1.2; text-align: left; transition: transform .3s cubic-bezier(.34, 1.56, .64, 1), box-shadow .3s ease, background-color .3s ease, border-color .3s ease, color .3s ease; }
+        .main-project-relation-search { position: relative; display: flex; align-items: center; justify-content: space-between; box-sizing: border-box; min-height: 46px; gap: .65rem; margin: 16px 3px 0; padding: .35rem .7rem; border: 2px solid #FFB380; border-radius: 24px; background: #FFDAB9; color: #E67E22; box-shadow: 0 4px 12px rgba(255, 218, 185, .38); cursor: text; font-size: 1rem; font-weight: 600; line-height: 1.2; text-align: left; transition: transform .3s cubic-bezier(.34, 1.56, .64, 1), box-shadow .3s ease, background-color .3s ease, border-color .3s ease, color .3s ease; }
         .main-project-relation-search-input { position: static; box-sizing: border-box; flex: 1 1 auto; width: 100%; min-width: 0; height: 1.5em; padding: 0; border: 0; outline: 0; background: transparent; color: inherit; font: inherit; line-height: 1.5; -webkit-appearance: none; appearance: none; -webkit-user-select: text; user-select: text; }
         .main-project-relation-search-input::placeholder { color: #888; opacity: 1; }
         .main-project-relation-search-input::-webkit-search-cancel-button, .main-project-relation-search-input::-webkit-search-decoration { -webkit-appearance: none; appearance: none; }
+        .main-project-relation-filter-button { display: grid; flex: 0 0 34px; place-items: center; width: 34px; height: 34px; margin: 0; padding: 0; border: 1px solid #FFB380; border-radius: 50%; background: rgba(255, 255, 255, .3); color: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation; transition: transform .18s ease, background-color .18s ease, border-color .18s ease, box-shadow .18s ease; }
+        .main-project-relation-filter-button svg { display: block; width: 17px; height: 17px; fill: currentColor; pointer-events: none; }
+        .main-project-relation-filter-button:hover { border-color: #FF9966; background: #FFE4C4; box-shadow: 0 3px 8px rgba(185, 93, 22, .2); }
+        .main-project-relation-filter-button:active { transform: translate(1px, 1px) scale(.94); border-color: #FF9C5A; background: #FFC38D; }
+        .main-project-relation-filter-button:focus-visible { outline: 2px solid #64b5f6; outline-offset: 2px; }
         .main-project-relation-search-icon { display: block; flex: 0 0 auto; width: 19px; height: 19px; pointer-events: none; }
         @media (hover: hover) and (pointer: fine) {
             .main-project-relation-search:hover { transform: translateY(-2px) scale(1.035); border-color: #FF9966; background: #FFE4C4; box-shadow: 0 8px 20px rgba(255, 218, 185, .65); }
@@ -333,6 +338,9 @@
         .main-project-relation-search:active, .main-project-relation-search.is-touch-pressed { background-color: #FFC38D; border-color: #FF9C5A; }
         html.dark-mode .main-project-relation-search { border-color: #9A623D; background: #30251E; color: #F2B27F; box-shadow: 0 4px 12px rgba(0, 0, 0, .18); }
         html.dark-mode .main-project-relation-search-input::placeholder { color: #a8a8a8; }
+        html.dark-mode .main-project-relation-filter-button { border-color: #9A623D; background: rgba(255, 255, 255, .06); }
+        html.dark-mode .main-project-relation-filter-button:hover { border-color: #E67E22; background: #49301F; box-shadow: 0 3px 8px rgba(0, 0, 0, .28); }
+        html.dark-mode .main-project-relation-filter-button:active { border-color: #FF8142; background: #FFCF97; color: #E67E22; }
         @media (hover: hover) and (pointer: fine) {
             html.dark-mode .main-project-relation-search:hover { border-color: #E67E22; background: #49301F; box-shadow: 0 8px 20px rgba(0, 0, 0, .28); }
             html.dark-mode .main-project-relation-search:active { border-color: #FF8142; background: #FFCF97; color: #E67E22; box-shadow: 0 6px 16px rgba(255, 218, 185, .6); transition-duration: .4s, .4s, 0s, 0s, 0s; }
@@ -1122,10 +1130,13 @@
                         </div>
                     </div>
                     <div class="main-project-description-section-divider" aria-hidden="true"></div>
-                    <label class="main-project-relation-search">
+                    <div class="main-project-relation-search">
                         <input class="main-project-relation-search-input" type="search" aria-label="Search related projects" placeholder="Search projects" autocomplete="off">
+                        <button class="main-project-relation-filter-button" type="button" aria-label="Filter related projects" title="Filter related projects">
+                            <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .4.8L10 8v4a.5.5 0 0 1-.2.4l-3 2A.5.5 0 0 1 6 14V8L1.6 1.8a.5.5 0 0 1-.1-.3z"/></svg>
+                        </button>
                         <svg class="main-project-relation-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="m16 16 4.5 4.5"></path></svg>
-                    </label>
+                    </div>
                 </section>
                 <section class="main-project-tab-panel" id="panel-comment" role="tabpanel" aria-labelledby="tab-comment" hidden>
                     <h2 class="main-project-description-section-title">Semi-rounded Corner</h2>
@@ -2453,8 +2464,9 @@
                 relationSearchPressedPointer = event.pointerId;
                 relationSearch.classList.add('is-touch-pressed');
             });
-            relationSearch?.addEventListener('click', () => {
+            relationSearch?.addEventListener('click', event => {
                 if (relationSearchTouchMedia.matches) relationSearch.classList.add('is-touch-highlighted');
+                if (!(event.target instanceof Element) || !event.target.closest('button, input')) relationSearchInput?.focus({ preventScroll: true });
             });
             ['pointerup', 'pointercancel'].forEach(type => {
                 document.addEventListener(type, event => {
