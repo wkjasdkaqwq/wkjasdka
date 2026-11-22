@@ -2154,11 +2154,13 @@
             let compatibilityPressedPointer = null;
             compatibilityVersionButtons.forEach(button => {
                 button.addEventListener('pointerdown', event => {
+                    if (event.target.closest('.main-project-changelog-button-tooltip')) return;
                     if (event.pointerType === 'mouse') return;
                     compatibilityPressedPointer = event.pointerId;
                     button.classList.add('is-touch-pressed');
                 }, { capture: true });
-                button.addEventListener('touchstart', () => {
+                button.addEventListener('touchstart', event => {
+                    if (event.target.closest('.main-project-changelog-button-tooltip')) return;
                     compatibilityPressedPointer = null;
                     button.classList.add('is-touch-pressed');
                 }, { capture: true, passive: true });
@@ -2193,6 +2195,7 @@
                 }, { capture: true, passive: true });
             });
             document.addEventListener('pointerdown', event => {
+                if (event.target.closest('.main-project-changelog-button-tooltip')) return;
                 const targetButton = event.target.closest('.compatibility-version-button');
                 compatibilityVersionButtons.forEach(button => {
                     if (button !== targetButton) button.classList.remove('is-highlighted');
