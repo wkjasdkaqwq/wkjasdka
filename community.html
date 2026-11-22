@@ -615,6 +615,10 @@
         .main-project-changelog-button[data-long-press-active="true"].is-touch-pressed { transform: none; box-shadow: 0 4px 12px rgba(255, 218, 185, .5); background: #FFDAB9; border-color: #FFB380; }
         html.dark-mode .main-project-changelog-button[data-long-press-active="true"]:active,
         html.dark-mode .main-project-changelog-button[data-long-press-active="true"].is-touch-pressed { box-shadow: 0 4px 12px rgba(0, 0, 0, .25); background: #3b3028; border-color: #a66a3d; color: #ffc08a; }
+        .main-project-changelog-button.is-tooltip-interacting:active,
+        .main-project-changelog-button.is-tooltip-interacting.is-touch-pressed { transform: none; box-shadow: 0 4px 12px rgba(255, 218, 185, .5); background: #FFDAB9; border-color: #FFB380; }
+        html.dark-mode .main-project-changelog-button.is-tooltip-interacting:active,
+        html.dark-mode .main-project-changelog-button.is-tooltip-interacting.is-touch-pressed { box-shadow: 0 4px 12px rgba(0, 0, 0, .25); background: #3b3028; border-color: #a66a3d; color: #ffc08a; }
         @media (max-width: 600px) {
             .main-project-lower-divider { right: -30px; left: -30px; }
             .main-project-tab-panel, .main-project-description-section { right: -14px; left: -14px; }
@@ -3581,14 +3585,26 @@
             const closeTooltip = () => {
                 longPressTriggered = false;
                 button.dataset.longPressVisible = 'false';
+                button.classList.remove('is-tooltip-interacting');
                 clearHover();
             };
             document.addEventListener('pointerdown', event => {
-                if (!tooltip.contains(event.target)) closeTooltip();
+                if (tooltip.contains(event.target)) {
+                    button.classList.add('is-tooltip-interacting');
+                    return;
+                }
+                closeTooltip();
             }, true);
             document.addEventListener('touchstart', event => {
-                if (!tooltip.contains(event.target)) closeTooltip();
+                if (tooltip.contains(event.target)) {
+                    button.classList.add('is-tooltip-interacting');
+                    return;
+                }
+                closeTooltip();
             }, { capture: true, passive: true });
+            ['pointerup', 'pointercancel', 'touchend', 'touchcancel'].forEach(type => {
+                document.addEventListener(type, () => button.classList.remove('is-tooltip-interacting'), true);
+            });
             document.addEventListener('wheel', event => {
                 if (!tooltip.contains(event.target)) closeTooltip();
             }, { capture: true, passive: true });
@@ -3608,6 +3624,7 @@
                 }, 1000);
             });
             button.addEventListener('pointerdown', event => {
+                if (tooltip.contains(event.target)) return;
                 if (event.pointerType !== 'touch' && event.pointerType !== 'pen') return;
                 clearLongPress();
                 longPressTriggered = false;
@@ -3626,6 +3643,7 @@
                 button.addEventListener(type, () => {
                     clearLongPress();
                     clearHover();
+                    button.classList.remove('is-tooltip-interacting');
                     button.dataset.longPressActive = 'false';
                 });
             });
