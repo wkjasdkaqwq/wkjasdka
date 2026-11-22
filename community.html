@@ -391,7 +391,6 @@
         html.dark-mode .main-project-relation-page-button { color: #c5ced6; }
         html.dark-mode .main-project-relation-page-button:hover, html.dark-mode .main-project-relation-page-button[aria-current="page"] { color: #ffb27b; }
         html.dark-mode .main-project-relation-page-ellipsis { color: #9eabb5; }
-        .main-project-tab-panel:has(.main-project-relation-switcher[data-active-relation="dependents"]) .main-project-relation-pagination { display: none; }
         @media (max-width: 600px) {
             .main-project-relation-pagination { gap: 2px; margin-top: 10px; }
             .main-project-relation-pagination-arrow { flex-basis: 30px; width: 30px; height: 32px; }
@@ -1261,7 +1260,7 @@
                                 <svg class="main-project-relation-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="m16 16 4.5 4.5"></path></svg>
                             </div>
                         </div>
-                        <nav class="main-project-relation-pagination" aria-label="Dependencies pages" data-total-pages="10" data-current-page="1">
+                        <nav class="main-project-relation-pagination" aria-label="Relation pages" data-total-pages="10" data-current-page="1">
                             <button class="main-project-relation-pagination-arrow" type="button" data-page-step="-1" aria-label="Previous page" title="Previous page" disabled>
                                 <img src="resource/icon/bootstrap-icons/arrow-left.svg" alt="" aria-hidden="true">
                             </button>
