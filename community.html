@@ -609,7 +609,7 @@
             html.has-community-scrollbars::-webkit-scrollbar, html.has-community-scrollbars body::-webkit-scrollbar, html.has-community-scrollbars #mainContent::-webkit-scrollbar { display: none; width: 0; height: 0; }
             .mit-license-scrollbar, .community-scrollbar { position: absolute; z-index: 1; top: 16px; right: 8px; bottom: 16px; display: block; width: 14px; visibility: hidden; border-radius: 999px; background: rgba(0, 0, 0, .07); cursor: pointer; pointer-events: none; touch-action: none; user-select: none; -webkit-user-select: none; }
             .mit-license-scrollbar.is-scrollable, .community-scrollbar.is-scrollable { visibility: visible; pointer-events: auto; }
-            .mit-license-scrollbar-thumb, .community-scrollbar-thumb { position: absolute; top: 0; right: 4px; left: 4px; border-radius: 999px; background: #a5a5a5; }
+            .mit-license-scrollbar-thumb, .community-scrollbar-thumb { position: absolute; top: 3px; right: 4px; left: 4px; border-radius: 999px; background: #a5a5a5; }
             .mit-license-scrollbar:hover .mit-license-scrollbar-thumb, .mit-license-scrollbar.is-dragging .mit-license-scrollbar-thumb, .community-scrollbar:hover .community-scrollbar-thumb, .community-scrollbar.is-dragging .community-scrollbar-thumb { background: #858585; }
             html.dark-mode .mit-license-scrollbar, html.dark-mode .community-scrollbar { background: rgba(255, 255, 255, .1); }
             html.dark-mode .mit-license-scrollbar-thumb, html.dark-mode .community-scrollbar-thumb { background: #7b8b98; }
@@ -1275,20 +1275,23 @@
                 const update = () => {
                     const current = metrics();
                     const trackHeight = track.clientHeight;
-                    const scrollable = desktopPointer.matches && isAvailable() && current && trackHeight > 0 && current.range > 1;
+                    const inset = parseFloat(getComputedStyle(thumb).top) || 0;
+                    const innerHeight = Math.max(0, trackHeight - inset * 2);
+                    const scrollable = desktopPointer.matches && isAvailable() && current && innerHeight > 0 && current.range > 1;
                     track.classList.toggle('is-scrollable', !!scrollable);
                     if (!scrollable) return;
-                    const thumbHeight = Math.min(trackHeight, Math.max(32, trackHeight * current.viewportHeight / current.scroller.scrollHeight));
+                    const thumbHeight = Math.min(innerHeight, Math.max(32, innerHeight * current.viewportHeight / current.scroller.scrollHeight));
                     const progress = Math.max(0, Math.min(1, current.scroller.scrollTop / current.range));
                     thumb.style.height = `${thumbHeight}px`;
-                    thumb.style.transform = `translateY(${(trackHeight - thumbHeight) * progress}px)`;
+                    thumb.style.transform = `translateY(${(innerHeight - thumbHeight) * progress}px)`;
                 };
                 const move = event => {
                     const current = metrics();
                     if (!drag || !current) return;
                     const bounds = track.getBoundingClientRect();
-                    const travel = bounds.height - thumb.getBoundingClientRect().height;
-                    const progress = travel > 0 ? (event.clientY - bounds.top - drag.offset) / travel : 0;
+                    const inset = (parseFloat(getComputedStyle(thumb).top) || 0) * bounds.height / track.clientHeight;
+                    const travel = bounds.height - inset * 2 - thumb.getBoundingClientRect().height;
+                    const progress = travel > 0 ? (event.clientY - bounds.top - inset - drag.offset) / travel : 0;
                     current.scroller.scrollTop = Math.max(0, Math.min(1, progress)) * current.range;
                     update();
                 };
@@ -2429,22 +2432,25 @@
             const updateMitLicenseScrollbar = () => {
                 if (!mitLicenseCard || !mitLicenseScrollbar || !mitLicenseScrollbarThumb) return;
                 const trackHeight = mitLicenseScrollbar.clientHeight;
+                const inset = parseFloat(getComputedStyle(mitLicenseScrollbarThumb).top) || 0;
+                const innerHeight = Math.max(0, trackHeight - inset * 2);
                 const scrollRange = Math.max(0, mitLicenseCard.scrollHeight - mitLicenseCard.clientHeight);
-                const scrollable = !!mitLicenseDialog?.open && trackHeight > 0 && scrollRange > 1;
+                const scrollable = !!mitLicenseDialog?.open && innerHeight > 0 && scrollRange > 1;
                 mitLicenseScrollbar.classList.toggle('is-scrollable', scrollable);
                 if (!scrollable) return;
-                const thumbHeight = Math.min(trackHeight, Math.max(32, trackHeight * mitLicenseCard.clientHeight / mitLicenseCard.scrollHeight));
+                const thumbHeight = Math.min(innerHeight, Math.max(32, innerHeight * mitLicenseCard.clientHeight / mitLicenseCard.scrollHeight));
                 const progress = Math.max(0, Math.min(1, mitLicenseCard.scrollTop / scrollRange));
                 mitLicenseScrollbarThumb.style.height = `${thumbHeight}px`;
-                mitLicenseScrollbarThumb.style.transform = `translateY(${(trackHeight - thumbHeight) * progress}px)`;
+                mitLicenseScrollbarThumb.style.transform = `translateY(${(innerHeight - thumbHeight) * progress}px)`;
             };
             const moveMitLicenseScrollbar = event => {
                 if (!mitLicenseScrollbarDrag || !mitLicenseCard || !mitLicenseScrollbar || !mitLicenseScrollbarThumb) return;
                 const trackBounds = mitLicenseScrollbar.getBoundingClientRect();
                 const thumbHeight = mitLicenseScrollbarThumb.getBoundingClientRect().height;
-                const travel = trackBounds.height - thumbHeight;
+                const inset = (parseFloat(getComputedStyle(mitLicenseScrollbarThumb).top) || 0) * trackBounds.height / mitLicenseScrollbar.clientHeight;
+                const travel = trackBounds.height - inset * 2 - thumbHeight;
                 const scrollRange = Math.max(0, mitLicenseCard.scrollHeight - mitLicenseCard.clientHeight);
-                const progress = travel > 0 ? (event.clientY - trackBounds.top - mitLicenseScrollbarDrag.offset) / travel : 0;
+                const progress = travel > 0 ? (event.clientY - trackBounds.top - inset - mitLicenseScrollbarDrag.offset) / travel : 0;
                 mitLicenseCard.scrollTop = Math.max(0, Math.min(1, progress)) * scrollRange;
             };
             const updateMitLicenseLayout = () => {
