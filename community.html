@@ -2372,7 +2372,7 @@
             });
             mitLicenseNavClose?.addEventListener('click', event => {
                 event.stopPropagation();
-                closeMitLicenseDialog();
+                closeMitLicenseDialog({ focusDialog: false });
             });
             mitLicenseDialog?.addEventListener('cancel', event => {
                 event.preventDefault();
