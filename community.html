@@ -3076,7 +3076,7 @@
                 relationPageSizeOptionPresses.forEach(option => option.classList.remove('is-gray-pressed'));
                 relationPageSizeOptionPresses.clear();
             };
-            const renderRelationPageSizeControl = () => {
+            const renderRelationPageSizeControl = ({ restoreFocus = true } = {}) => {
                 if (!relationPageSizeControl || !relationPageSizeCurrent) return;
                 const expanded = relationPageSizeControl.dataset.expanded === 'true';
                 if (!expanded) clearRelationPageSizeOptionPresses();
@@ -3084,7 +3084,7 @@
                 relationPageSizeCurrent.textContent = String(pageSize);
                 relationPageSizeCurrent.setAttribute('aria-expanded', String(expanded));
                 relationPageSizeCurrent.setAttribute('aria-label', `Cards per page: ${pageSize}. ${expanded ? 'Hide' : 'Show'} options`);
-                if (!expanded && relationPageSizeReveal?.contains(document.activeElement)) relationPageSizeCurrent.focus({ preventScroll: true });
+                if (restoreFocus && !expanded && relationPageSizeReveal?.contains(document.activeElement)) relationPageSizeCurrent.focus({ preventScroll: true });
                 relationPageSizeReveal?.toggleAttribute('inert', !expanded);
                 relationPageSizeReveal?.setAttribute('aria-hidden', String(!expanded));
                 relationPageSizeToggleButtons.forEach(button => {
@@ -3117,6 +3117,15 @@
                 relationPageSizePressedPointers.clear();
                 relationPageSizeControl?.classList.remove('is-touch-pressed');
                 clearRelationPageSizeOptionPresses();
+                if (relationPageSizeControl?.dataset.expanded === 'true') {
+                    relationPageSizeControl.dataset.expanded = 'false';
+                    renderRelationPageSizeControl({ restoreFocus: false });
+                }
+            });
+            document.addEventListener('visibilitychange', () => {
+                if (!document.hidden || relationPageSizeControl?.dataset.expanded !== 'true') return;
+                relationPageSizeControl.dataset.expanded = 'false';
+                renderRelationPageSizeControl({ restoreFocus: false });
             });
             relationPageSizeToggleButtons.forEach(button => {
                 button.addEventListener('click', () => {
