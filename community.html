@@ -3245,7 +3245,7 @@
                     renderRelationCards();
                 });
             });
-            const relationExternalActionSelector = 'button, a[href], input, select, textarea, [role="button"]';
+            const relationExternalActionSelector = 'button, a[href], input, select, textarea, [role="button"], .main-project-relation-search';
             let relationPageSizeBlockedPointerTarget = null;
             document.addEventListener('click', event => {
                 if (!(event.target instanceof Element)) return;
@@ -3271,6 +3271,10 @@
                 if (relationPageSizeControl?.dataset.expanded === 'true' && !relationPageSizeControl.contains(event.target)) {
                     const clickedAction = event.target instanceof Element ? event.target.closest(relationExternalActionSelector) : null;
                     if (clickedAction) relationPageSizeBlockedPointerTarget = clickedAction;
+                    if (event.target instanceof Element && event.target.closest('.main-project-relation-search')) {
+                        event.preventDefault();
+                        relationSearchFocusPending = false;
+                    }
                     relationPageSizeControl.dataset.expanded = 'false';
                     renderRelationPageSizeControl();
                 }
