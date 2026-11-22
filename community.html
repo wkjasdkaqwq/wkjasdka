@@ -3245,35 +3245,27 @@
                     renderRelationCards();
                 });
             });
-            const relationExternalActionSelector = 'button, a[href], input, select, textarea, [role="button"], .main-project-relation-search';
-            let relationPageSizeBlockedPointerTarget = null;
+            const relationExternalActionSelector = 'button, a[href], input, select, textarea, [role="button"], [role="slider"], .main-project-relation-search';
             document.addEventListener('click', event => {
                 if (!(event.target instanceof Element)) return;
                 const clickedAction = event.target.closest(relationExternalActionSelector);
-                const blockedPointerActivation = relationPageSizeBlockedPointerTarget && clickedAction && (clickedAction === relationPageSizeBlockedPointerTarget || relationPageSizeBlockedPointerTarget.contains(event.target));
                 const menuExpanded = relationPageSizeControl?.dataset.expanded === 'true';
                 const blockedByOpenMenu = menuExpanded && clickedAction && !relationPageSizeControl.contains(clickedAction);
-                if (!blockedPointerActivation && !blockedByOpenMenu) return;
-                if (blockedByOpenMenu) {
-                    relationPageSizeControl.dataset.expanded = 'false';
-                    renderRelationPageSizeControl();
-                }
-                relationPageSizeBlockedPointerTarget = null;
+                if (!blockedByOpenMenu) return;
+                relationPageSizeControl.dataset.expanded = 'false';
+                renderRelationPageSizeControl();
                 event.preventDefault();
                 event.stopImmediatePropagation();
             }, true);
-            document.addEventListener('pointerup', () => {
-                window.setTimeout(() => { relationPageSizeBlockedPointerTarget = null; }, 0);
-            }, { passive: true });
-            document.addEventListener('pointercancel', () => { relationPageSizeBlockedPointerTarget = null; }, { passive: true });
             document.addEventListener('pointerdown', event => {
                 if (relationPageSizeTouchMedia.matches && !relationPageSizeHeader?.contains(event.target)) relationPageSizeControl?.classList.remove('is-touch-highlighted');
                 if (relationPageSizeControl?.dataset.expanded === 'true' && !relationPageSizeControl.contains(event.target)) {
                     const clickedAction = event.target instanceof Element ? event.target.closest(relationExternalActionSelector) : null;
-                    if (clickedAction) relationPageSizeBlockedPointerTarget = clickedAction;
-                    if (event.target instanceof Element && event.target.closest('.main-project-relation-search')) {
-                        event.preventDefault();
-                        relationSearchFocusPending = false;
+                    if (clickedAction) {
+                        const nativeControl = event.target.closest('input, select, textarea, [role="slider"], .main-project-relation-search');
+                        if (nativeControl) event.preventDefault();
+                        if (event.target.closest('.main-project-relation-search')) relationSearchFocusPending = false;
+                        return;
                     }
                     relationPageSizeControl.dataset.expanded = 'false';
                     renderRelationPageSizeControl();
