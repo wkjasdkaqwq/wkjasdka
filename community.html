@@ -470,11 +470,11 @@
         .main-project-changelog-button-icon.is-collapsed { -webkit-mask-image: url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.2/icons/three-dots.svg"); mask-image: url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.2/icons/three-dots.svg"); }
         .main-project-changelog-button[aria-expanded="true"] .main-project-changelog-button-icon.is-expanded,
         .main-project-changelog-button[aria-expanded="false"] .main-project-changelog-button-icon.is-collapsed { display: block; }
-        .main-project-changelog-button-tooltip { position: absolute; top: 50%; left: calc(100% + 13.3px); z-index: 5; box-sizing: border-box; width: max-content; max-width: min(180px, calc(100vw - 100px)); padding: 7px 11px; border: 1px solid rgba(255, 153, 102, .65); border-radius: 9px; background: #fff7f0; color: #9b4f1c; box-shadow: 0 5px 16px rgba(70, 42, 20, .2); font-size: 13px; font-weight: 650; line-height: 1.2; text-align: center; white-space: nowrap; opacity: 0; visibility: hidden; transform: translate(4px, -50%) scale(1.3); transform-origin: left center; transition: opacity .14s ease, transform .14s ease, visibility .14s; pointer-events: auto; }
+        .main-project-changelog-button-tooltip { position: absolute; top: 50%; left: calc(50% + 25px + 13.3px); z-index: 5; box-sizing: border-box; width: max-content; max-width: min(180px, calc(100vw - 100px)); padding: 7px 11px; border: 1px solid rgba(255, 153, 102, .65); border-radius: 9px; background: #fff7f0; color: #9b4f1c; box-shadow: 0 5px 16px rgba(70, 42, 20, .2); font-size: 13px; font-weight: 650; line-height: 1.2; text-align: center; white-space: nowrap; opacity: 0; visibility: hidden; transform: translate(4px, -50%) scale(1.3); transform-origin: left center; transition: opacity .14s ease, transform .14s ease, visibility .14s; pointer-events: auto; }
         .main-project-changelog-button-tooltip::before { content: ""; position: absolute; top: 50%; left: -6px; width: 10px; height: 10px; border-left: 1px solid rgba(255, 153, 102, .65); border-bottom: 1px solid rgba(255, 153, 102, .65); background: #fff7f0; transform: translateY(-50%) rotate(45deg); }
-        .main-project-changelog-button[data-long-press-visible="true"] .main-project-changelog-button-tooltip,
-        .main-project-changelog-button[data-hover-visible="true"] .main-project-changelog-button-tooltip,
-        .main-project-changelog-button:focus-visible .main-project-changelog-button-tooltip { opacity: 1; visibility: visible; transform: translate(0, -50%) scale(1.3); }
+        .main-project-changelog-button[data-long-press-visible="true"] + .main-project-changelog-button-tooltip,
+        .main-project-changelog-button[data-hover-visible="true"] + .main-project-changelog-button-tooltip,
+        .main-project-changelog-button:focus-visible + .main-project-changelog-button-tooltip { opacity: 1; visibility: visible; transform: translate(0, -50%) scale(1.3); }
         html.dark-mode .main-project-changelog-button-tooltip { border-color: rgba(255, 153, 102, .7); background: #2d211c; color: #ffd1ad; box-shadow: 0 5px 16px rgba(0, 0, 0, .38); }
         html.dark-mode .main-project-changelog-button-tooltip::before { border-color: rgba(255, 153, 102, .7); background: #2d211c; }
         .main-project-changelog-avatars { position: absolute; top: calc(var(--changelog-frame-top) + var(--changelog-avatar-anchor-y-offset)); left: calc(var(--changelog-frame-left) + var(--changelog-avatar-anchor-offset)); z-index: 1; display: flex; align-items: center; gap: 8px; height: 30px; transform: translateY(-100%); }
@@ -615,10 +615,6 @@
         .main-project-changelog-button[data-long-press-active="true"].is-touch-pressed { transform: none; box-shadow: 0 4px 12px rgba(255, 218, 185, .5); background: #FFDAB9; border-color: #FFB380; }
         html.dark-mode .main-project-changelog-button[data-long-press-active="true"]:active,
         html.dark-mode .main-project-changelog-button[data-long-press-active="true"].is-touch-pressed { box-shadow: 0 4px 12px rgba(0, 0, 0, .25); background: #3b3028; border-color: #a66a3d; color: #ffc08a; }
-        .main-project-changelog-button.is-tooltip-interacting:active,
-        .main-project-changelog-button.is-tooltip-interacting.is-touch-pressed { transform: none; box-shadow: 0 4px 12px rgba(255, 218, 185, .5); background: #FFDAB9; border-color: #FFB380; }
-        html.dark-mode .main-project-changelog-button.is-tooltip-interacting:active,
-        html.dark-mode .main-project-changelog-button.is-tooltip-interacting.is-touch-pressed { box-shadow: 0 4px 12px rgba(0, 0, 0, .25); background: #3b3028; border-color: #a66a3d; color: #ffc08a; }
         @media (max-width: 600px) {
             .main-project-lower-divider { right: -30px; left: -30px; }
             .main-project-tab-panel, .main-project-description-section { right: -14px; left: -14px; }
@@ -979,8 +975,8 @@
                                 <button class="compatibility-version-button main-project-changelog-button" type="button" aria-label="Collapse Release changelog" aria-expanded="true" aria-controls="main-project-changelog-frame-release">
                                     <span class="main-project-changelog-button-icon is-expanded" aria-hidden="true"></span>
                                     <span class="main-project-changelog-button-icon is-collapsed" aria-hidden="true"></span>
-                                    <span class="main-project-changelog-button-tooltip" aria-hidden="true">Release</span>
                                 </button>
+                                <span class="main-project-changelog-button-tooltip" aria-hidden="true">Release</span>
                             </div>
                             <div class="main-project-changelog-frame" id="main-project-changelog-frame-release">
                                 <div class="main-project-changelog-entry">
@@ -1007,8 +1003,8 @@
                                 <button class="compatibility-version-button main-project-changelog-button" type="button" aria-label="Collapse Beta changelog" aria-expanded="true" aria-controls="main-project-changelog-frame-beta">
                                     <span class="main-project-changelog-button-icon is-expanded" aria-hidden="true"></span>
                                     <span class="main-project-changelog-button-icon is-collapsed" aria-hidden="true"></span>
-                                    <span class="main-project-changelog-button-tooltip" aria-hidden="true">Beta</span>
                                 </button>
+                                <span class="main-project-changelog-button-tooltip" aria-hidden="true">Beta</span>
                             </div>
                             <div class="main-project-changelog-frame" id="main-project-changelog-frame-beta">
                                 <div class="main-project-changelog-entry">
@@ -1035,8 +1031,8 @@
                                 <button class="compatibility-version-button main-project-changelog-button" type="button" aria-label="Collapse Alpha changelog" aria-expanded="true" aria-controls="main-project-changelog-frame-alpha">
                                     <span class="main-project-changelog-button-icon is-expanded" aria-hidden="true"></span>
                                     <span class="main-project-changelog-button-icon is-collapsed" aria-hidden="true"></span>
-                                    <span class="main-project-changelog-button-tooltip" aria-hidden="true">Alpha</span>
                                 </button>
+                                <span class="main-project-changelog-button-tooltip" aria-hidden="true">Alpha</span>
                             </div>
                             <div class="main-project-changelog-frame" id="main-project-changelog-frame-alpha">
                                 <div class="main-project-changelog-entry">
@@ -2158,13 +2154,11 @@
             let compatibilityPressedPointer = null;
             compatibilityVersionButtons.forEach(button => {
                 button.addEventListener('pointerdown', event => {
-                    if (event.target.closest('.main-project-changelog-button-tooltip')) return;
                     if (event.pointerType === 'mouse') return;
                     compatibilityPressedPointer = event.pointerId;
                     button.classList.add('is-touch-pressed');
                 }, { capture: true });
-                button.addEventListener('touchstart', event => {
-                    if (event.target.closest('.main-project-changelog-button-tooltip')) return;
+                button.addEventListener('touchstart', () => {
                     compatibilityPressedPointer = null;
                     button.classList.add('is-touch-pressed');
                 }, { capture: true, passive: true });
@@ -3568,48 +3562,45 @@
             button.setAttribute('aria-controls', frame.id);
             button.setAttribute('aria-expanded', String(!frame.hidden));
             button.setAttribute('aria-label', `${frame.hidden ? 'Expand' : 'Collapse'} ${label} changelog`);
-            const tooltip = button.querySelector('.main-project-changelog-button-tooltip');
-            if (!tooltip) return;
+            const tooltip = button.nextElementSibling;
+            if (!tooltip?.classList.contains('main-project-changelog-button-tooltip')) return;
             let longPressTimer = 0;
             let longPressTriggered = false;
             let hoverTimer = 0;
+            let hoverHideTimer = 0;
             const clearLongPress = () => {
                 window.clearTimeout(longPressTimer);
                 longPressTimer = 0;
             };
             const clearHover = () => {
                 window.clearTimeout(hoverTimer);
+                window.clearTimeout(hoverHideTimer);
                 hoverTimer = 0;
+                hoverHideTimer = 0;
                 button.dataset.hoverVisible = 'false';
+            };
+            const scheduleHoverHide = () => {
+                window.clearTimeout(hoverTimer);
+                window.clearTimeout(hoverHideTimer);
+                hoverTimer = 0;
+                if (button.dataset.hoverVisible !== 'true') {
+                    clearHover();
+                    return;
+                }
+                // Allow the pointer to cross the small gap between the button and tooltip.
+                hoverHideTimer = window.setTimeout(clearHover, 150);
             };
             const closeTooltip = () => {
                 longPressTriggered = false;
                 button.dataset.longPressVisible = 'false';
-                button.classList.remove('is-tooltip-interacting');
                 clearHover();
             };
             document.addEventListener('pointerdown', event => {
-                if (tooltip.contains(event.target)) {
-                    button.classList.add('is-tooltip-interacting');
-                    return;
-                }
-                closeTooltip();
+                if (!tooltip.contains(event.target)) closeTooltip();
             }, true);
             document.addEventListener('touchstart', event => {
-                if (tooltip.contains(event.target)) {
-                    button.classList.add('is-tooltip-interacting');
-                    return;
-                }
-                closeTooltip();
+                if (!tooltip.contains(event.target)) closeTooltip();
             }, { capture: true, passive: true });
-            ['pointerup', 'touchend'].forEach(type => {
-                document.addEventListener(type, () => {
-                    window.setTimeout(() => button.classList.remove('is-tooltip-interacting'), 0);
-                }, true);
-            });
-            ['pointercancel', 'touchcancel'].forEach(type => {
-                document.addEventListener(type, () => button.classList.remove('is-tooltip-interacting'), true);
-            });
             document.addEventListener('wheel', event => {
                 if (!tooltip.contains(event.target)) closeTooltip();
             }, { capture: true, passive: true });
@@ -3622,6 +3613,11 @@
             });
             button.addEventListener('pointerenter', event => {
                 if (event.pointerType !== 'mouse') return;
+                if (button.dataset.hoverVisible === 'true') {
+                    window.clearTimeout(hoverHideTimer);
+                    hoverHideTimer = 0;
+                    return;
+                }
                 clearHover();
                 hoverTimer = window.setTimeout(() => {
                     button.dataset.hoverVisible = 'true';
@@ -3629,7 +3625,6 @@
                 }, 1000);
             });
             button.addEventListener('pointerdown', event => {
-                if (tooltip.contains(event.target)) return;
                 if (event.pointerType !== 'touch' && event.pointerType !== 'pen') return;
                 clearLongPress();
                 longPressTriggered = false;
@@ -3645,12 +3640,20 @@
                 button.dataset.longPressActive = 'false';
             });
             ['pointercancel', 'pointerleave', 'lostpointercapture'].forEach(type => {
-                button.addEventListener(type, () => {
+                button.addEventListener(type, event => {
                     clearLongPress();
-                    clearHover();
-                    button.classList.remove('is-tooltip-interacting');
+                    if (type === 'pointerleave' && event.pointerType === 'mouse') scheduleHoverHide();
+                    else clearHover();
                     button.dataset.longPressActive = 'false';
                 });
+            });
+            tooltip.addEventListener('pointerenter', event => {
+                if (event.pointerType !== 'mouse') return;
+                window.clearTimeout(hoverHideTimer);
+                hoverHideTimer = 0;
+            });
+            tooltip.addEventListener('pointerleave', event => {
+                if (event.pointerType === 'mouse') scheduleHoverHide();
             });
             document.addEventListener('click', event => {
                 if (tooltip.contains(event.target)) {
