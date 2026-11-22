@@ -374,29 +374,29 @@
             .main-project-relation-search:focus-within:active { transform: scale(.97); background: #FFC38D; border-color: #FF9C5A; box-shadow: 0 3px 9px rgba(255, 218, 185, .45); }
             html.dark-mode .main-project-relation-search:focus-within:active { background: #FFCF97; border-color: #FF8142; color: #E67E22; box-shadow: 0 6px 16px rgba(255, 218, 185, .6); }
         }
-        .main-project-relation-pagination { display: flex; align-items: center; justify-content: flex-start; gap: 4px; min-height: 38px; margin: 12px 3px 0; }
-        .main-project-relation-pagination-arrow { display: grid; place-items: center; flex: 0 0 34px; width: 34px; height: 34px; padding: 0; border: 0; border-radius: 50%; background: transparent; cursor: pointer; opacity: .76; transition: opacity .16s ease, transform .16s ease; }
-        .main-project-relation-pagination-arrow img { display: block; width: 23px; height: 23px; object-fit: contain; pointer-events: none; }
+        .main-project-relation-pagination { display: flex; align-items: center; justify-content: flex-start; gap: 4.8px; min-height: 45.6px; margin: 14.4px 3.6px 0; }
+        .main-project-relation-pagination-arrow { display: grid; place-items: center; flex: 0 0 40.8px; width: 40.8px; height: 40.8px; padding: 0; border: 0; border-radius: 50%; background: transparent; cursor: pointer; opacity: .76; transition: opacity .16s ease, transform .16s ease; }
+        .main-project-relation-pagination-arrow img { display: block; width: 27.6px; height: 27.6px; object-fit: contain; pointer-events: none; }
         html:not(.dark-mode) .main-project-relation-pagination-arrow img { filter: brightness(0) saturate(100%); }
         .main-project-relation-pagination-arrow:hover:not(:disabled) { opacity: 1; transform: scale(1.08); }
         .main-project-relation-pagination-arrow:active:not(:disabled) { transform: translateY(1px) scale(.96); }
         .main-project-relation-pagination-arrow:disabled { cursor: not-allowed; opacity: .3; }
-        .main-project-relation-pagination-arrow:focus-visible, .main-project-relation-page-button:focus-visible { outline: 2px solid #64b5f6; outline-offset: 1px; }
-        .main-project-relation-page-list { display: flex; align-items: center; justify-content: center; gap: 2px; min-width: 0; }
-        .main-project-relation-page-button { position: relative; display: grid; place-items: center; box-sizing: border-box; min-width: 30px; height: 34px; padding: 0 4px; border: 0; background: transparent; color: #666; cursor: pointer; font: inherit; font-size: .9rem; font-variant-numeric: tabular-nums; line-height: 1; }
+        .main-project-relation-pagination-arrow:focus-visible, .main-project-relation-page-button:focus-visible { outline: 2.4px solid #64b5f6; outline-offset: 1.2px; }
+        .main-project-relation-page-list { display: flex; align-items: center; justify-content: center; gap: 2.4px; min-width: 0; }
+        .main-project-relation-page-button { position: relative; display: grid; place-items: center; box-sizing: border-box; min-width: 36px; height: 40.8px; padding: 0 4.8px; border: 0; background: transparent; color: #666; cursor: pointer; font: inherit; font-size: 1.08rem; font-weight: 440; font-variant-numeric: tabular-nums; line-height: 1; }
         .main-project-relation-page-button:hover { color: #E67E22; }
-        .main-project-relation-page-button[aria-current="page"] { color: #E67E22; font-weight: 700; }
-        .main-project-relation-page-button[aria-current="page"]::after { position: absolute; right: 7px; bottom: 3px; left: 7px; height: 2px; border-radius: 2px; background: currentColor; content: ""; }
-        .main-project-relation-page-ellipsis { min-width: 20px; color: #888; font-size: .9rem; text-align: center; user-select: none; }
+        .main-project-relation-page-button[aria-current="page"] { color: #E67E22; font-weight: 770; }
+        .main-project-relation-page-button[aria-current="page"]::after { position: absolute; right: 8.4px; bottom: 3.6px; left: 8.4px; height: 2.4px; border-radius: 2.4px; background: currentColor; content: ""; }
+        .main-project-relation-page-ellipsis { min-width: 24px; color: #888; font-size: 1.08rem; font-weight: 440; text-align: center; user-select: none; }
         html.dark-mode .main-project-relation-page-button { color: #c5ced6; }
         html.dark-mode .main-project-relation-page-button:hover, html.dark-mode .main-project-relation-page-button[aria-current="page"] { color: #ffb27b; }
         html.dark-mode .main-project-relation-page-ellipsis { color: #9eabb5; }
         @media (max-width: 600px) {
-            .main-project-relation-pagination { gap: 2px; margin-top: 10px; }
-            .main-project-relation-pagination-arrow { flex-basis: 30px; width: 30px; height: 32px; }
-            .main-project-relation-pagination-arrow img { width: 20px; height: 20px; }
-            .main-project-relation-page-button { min-width: 27px; height: 32px; padding: 0 2px; font-size: .86rem; }
-            .main-project-relation-page-ellipsis { min-width: 16px; }
+            .main-project-relation-pagination { gap: 2.4px; margin-top: 12px; }
+            .main-project-relation-pagination-arrow { flex-basis: 36px; width: 36px; height: 38.4px; }
+            .main-project-relation-pagination-arrow img { width: 24px; height: 24px; }
+            .main-project-relation-page-button { min-width: 32.4px; height: 38.4px; padding: 0 2.4px; font-size: 1.032rem; }
+            .main-project-relation-page-ellipsis { min-width: 19.2px; }
         }
         @media (hover: none), (pointer: coarse) {
             .main-project-relation-search:focus-within:active, .main-project-relation-search:focus-within.is-touch-pressed { transform: translateY(2px) scale(.98); background: #FFC38D; border-color: #FF9C5A; box-shadow: 0 2px 6px rgba(255, 218, 185, .5); }
