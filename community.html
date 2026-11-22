@@ -391,10 +391,11 @@
         html.dark-mode .main-project-relation-page-button { color: #c5ced6; }
         html.dark-mode .main-project-relation-page-button:hover, html.dark-mode .main-project-relation-page-button[aria-current="page"] { color: #ffb27b; }
         html.dark-mode .main-project-relation-page-ellipsis { color: #9eabb5; }
-        .main-project-relation-card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 16px; margin-top: 16px; }
+        .main-project-relation-card-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 16px; }
         .main-project-relation-card-grid[hidden] { display: none; }
         .main-project-relation-card { box-sizing: border-box; min-height: 132px; border: 1px solid #c2c2c2; border-radius: 12px; background: #fff; box-shadow: 0 4px 12px rgba(0, 0, 0, .06); }
         html.dark-mode .main-project-relation-card { border-color: #385066; background: #172633; box-shadow: 0 4px 12px rgba(0, 0, 0, .18); }
+        @media (max-width: 600px) { .main-project-relation-card-grid { grid-template-columns: minmax(0, 1fr); } }
         .main-project-relation-page-size-control { position: relative; z-index: 4; flex: 0 0 74px; width: 74px; height: 43px; margin-left: auto; -webkit-user-select: none; -moz-user-select: none; user-select: none; -webkit-touch-callout: none; }
         .main-project-relation-page-size-control * { -webkit-user-select: none; -moz-user-select: none; user-select: none; }
         /* Keep the radius within the collapsed height so the top outline stays fixed as the menu grows. */
