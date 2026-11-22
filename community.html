@@ -321,7 +321,8 @@
         .main-project-relation-button[aria-pressed="true"]:active,
         html.dark-mode .main-project-relation-button[aria-pressed="true"]:hover,
         html.dark-mode .main-project-relation-button[aria-pressed="true"]:active { border-color: transparent; background: transparent; box-shadow: none; transition: color .18s ease, transform .1s ease; }
-        .main-project-relation-search { position: relative; display: flex; align-items: center; justify-content: space-between; box-sizing: border-box; min-height: 46px; gap: .65rem; margin: 16px 3px 0; padding: .35rem .7rem; border: 2px solid #FFB380; border-radius: 24px; background: #FFDAB9; color: #E67E22; box-shadow: 0 4px 12px rgba(255, 218, 185, .38); cursor: text; font-size: 1rem; font-weight: 600; line-height: 1.2; text-align: left; transition: transform .3s cubic-bezier(.34, 1.56, .64, 1), box-shadow .3s ease, background-color .3s ease, border-color .3s ease, color .3s ease; }
+        .main-project-relation-search-row { display: flex; align-items: center; gap: .65rem; min-width: 0; margin: 16px 3px 0; }
+        .main-project-relation-search { position: relative; display: flex; flex: 1 1 auto; align-items: center; justify-content: space-between; box-sizing: border-box; min-width: 0; min-height: 46px; gap: .65rem; margin: 0; padding: .35rem .7rem; border: 2px solid #FFB380; border-radius: 24px; background: #FFDAB9; color: #E67E22; box-shadow: 0 4px 12px rgba(255, 218, 185, .38); cursor: text; font-size: 1rem; font-weight: 600; line-height: 1.2; text-align: left; transition: transform .3s cubic-bezier(.34, 1.56, .64, 1), box-shadow .3s ease, background-color .3s ease, border-color .3s ease, color .3s ease; }
         .main-project-relation-search-input { position: static; box-sizing: border-box; flex: 1 1 auto; width: 100%; min-width: 0; height: 1.5em; padding: 0; border: 0; outline: 0; background: transparent; color: inherit; font: inherit; line-height: 1.5; -webkit-appearance: none; appearance: none; -webkit-user-select: text; user-select: text; }
         .main-project-relation-search-input::placeholder { color: #888; opacity: 1; }
         .main-project-relation-search-input::-webkit-search-cancel-button, .main-project-relation-search-input::-webkit-search-decoration { -webkit-appearance: none; appearance: none; }
@@ -1130,12 +1131,14 @@
                         </div>
                     </div>
                     <div class="main-project-description-section-divider" aria-hidden="true"></div>
-                    <div class="main-project-relation-search">
-                        <input class="main-project-relation-search-input" type="search" aria-label="Search related projects" placeholder="Search projects" autocomplete="off">
+                    <div class="main-project-relation-search-row">
                         <button class="main-project-relation-filter-button" type="button" aria-label="Filter related projects" title="Filter related projects">
                             <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .4.8L10 8v4a.5.5 0 0 1-.2.4l-3 2A.5.5 0 0 1 6 14V8L1.6 1.8a.5.5 0 0 1-.1-.3z"/></svg>
                         </button>
-                        <svg class="main-project-relation-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="m16 16 4.5 4.5"></path></svg>
+                        <div class="main-project-relation-search">
+                            <input class="main-project-relation-search-input" type="search" aria-label="Search related projects" placeholder="Search projects" autocomplete="off">
+                            <svg class="main-project-relation-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="m16 16 4.5 4.5"></path></svg>
+                        </div>
                     </div>
                 </section>
                 <section class="main-project-tab-panel" id="panel-comment" role="tabpanel" aria-labelledby="tab-comment" hidden>
