@@ -356,6 +356,30 @@
         @media (hover: none), (pointer: coarse) {
             html.dark-mode .main-project-relation-filter-button:active { border-color: #FF9C5A; background: #FFC38D; color: #E67E22; box-shadow: 0 2px 6px rgba(255, 218, 185, .5); }
         }
+        .main-project-relation-filter-layer { position: fixed; z-index: 8990; inset: var(--community-navbar-height) 0 0; overflow: hidden; visibility: hidden; pointer-events: none; transition: visibility 0s linear .42s; }
+        .main-project-relation-filter-layer.is-open { visibility: visible; pointer-events: auto; transition-delay: 0s; }
+        .main-project-relation-filter-backdrop { position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; border: 0; background: rgba(0, 0, 0, .28); opacity: 0; cursor: default; transition: opacity .38s ease; }
+        .main-project-relation-filter-layer.is-open .main-project-relation-filter-backdrop { opacity: 1; }
+        .main-project-relation-filter-drawer { position: absolute; top: 0; bottom: 0; left: 35%; display: flex; flex-direction: column; box-sizing: border-box; width: 65%; overflow: hidden; border-left: 1px solid #d6d6d6; background: #fff; box-shadow: -12px 0 32px rgba(0, 0, 0, .16); transform: translateX(calc(-100% - 35vw)); transition: transform .42s cubic-bezier(.22, .75, .25, 1); will-change: transform; }
+        .main-project-relation-filter-layer.is-open .main-project-relation-filter-drawer { transform: translateX(0); }
+        .main-project-relation-filter-drawer-header { display: flex; flex: 0 0 auto; align-items: center; justify-content: space-between; min-height: 68px; box-sizing: border-box; padding: 12px 20px; border-bottom: 1px solid #e4e4e4; }
+        .main-project-relation-filter-drawer-title { margin: 0; color: #333; font-size: 1.12rem; font-weight: 650; }
+        .main-project-relation-filter-close { display: grid; flex: 0 0 40px; place-items: center; width: 40px; height: 40px; padding: 0; border: 0; border-radius: 50%; background: transparent; color: #555; cursor: pointer; transition: background-color .18s ease, transform .18s ease; }
+        .main-project-relation-filter-close:hover { background: #f0f0f0; }
+        .main-project-relation-filter-close:active { transform: scale(.92); }
+        .main-project-relation-filter-close svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-width: 2; pointer-events: none; }
+        .main-project-relation-filter-drawer-body { flex: 1 1 auto; min-height: 0; overflow: auto; overscroll-behavior: contain; padding: 20px; }
+        html.dark-mode .main-project-relation-filter-drawer { border-left-color: #385066; background: #172633; box-shadow: -12px 0 32px rgba(0, 0, 0, .34); }
+        html.dark-mode .main-project-relation-filter-drawer-header { border-bottom-color: #385066; }
+        html.dark-mode .main-project-relation-filter-drawer-title, html.dark-mode .main-project-relation-filter-close { color: #d8e0e7; }
+        html.dark-mode .main-project-relation-filter-close:hover { background: #294454; }
+        @media (max-width: 600px) {
+            .main-project-relation-filter-drawer-header { min-height: 60px; padding: 10px 14px; }
+            .main-project-relation-filter-drawer-body { padding: 14px; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .main-project-relation-filter-layer, .main-project-relation-filter-backdrop, .main-project-relation-filter-drawer { transition-duration: .01ms; }
+        }
         @media (hover: hover) and (pointer: fine) {
             html.dark-mode .main-project-relation-search:hover { border-color: #E67E22; background: #49301F; box-shadow: 0 8px 20px rgba(0, 0, 0, .28); }
             html.dark-mode .main-project-relation-search:active { border-color: #FF8142; background: #FFCF97; color: #E67E22; box-shadow: 0 6px 16px rgba(255, 218, 185, .6); transition-duration: .4s, .4s, 0s, 0s, 0s; }
@@ -1336,7 +1360,7 @@
                     <div class="main-project-description-section-divider" aria-hidden="true"></div>
                     <div class="main-project-relation-controls">
                         <div class="main-project-relation-search-row">
-                            <button class="main-project-relation-filter-button" type="button" aria-label="Filter related projects" title="Filter related projects">
+                            <button class="main-project-relation-filter-button" type="button" aria-label="Filter related projects" title="Filter related projects" aria-controls="main-project-relation-filter-layer" aria-expanded="false">
                                 <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .4.8L10 8v4a.5.5 0 0 1-.2.4l-3 2A.5.5 0 0 1 6 14V8L1.6 1.8a.5.5 0 0 1-.1-.3z"/></svg>
                             </button>
                             <div class="main-project-relation-search">
@@ -1398,6 +1422,18 @@
             </div>
         </div>
     </main>
+    <div class="main-project-relation-filter-layer" id="main-project-relation-filter-layer" aria-hidden="true" inert>
+        <button class="main-project-relation-filter-backdrop" type="button" data-relation-filter-dismiss aria-label="Close filters" tabindex="-1"></button>
+        <aside class="main-project-relation-filter-drawer" role="dialog" aria-modal="true" aria-labelledby="main-project-relation-filter-title" tabindex="-1" inert>
+            <div class="main-project-relation-filter-drawer-header">
+                <h2 class="main-project-relation-filter-drawer-title" id="main-project-relation-filter-title">Filters</h2>
+                <button class="main-project-relation-filter-close" type="button" data-relation-filter-dismiss aria-label="Close filters" title="Close filters">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m6 6 12 12M18 6 6 18"></path></svg>
+                </button>
+            </div>
+            <div class="main-project-relation-filter-drawer-body"></div>
+        </aside>
+    </div>
     <div class="community-scrollbar community-page-scrollbar" aria-hidden="true"><div class="community-scrollbar-thumb"></div></div>
     <dialog class="community-gallery-preview-dialog" id="community-gallery-preview-dialog" aria-label="Gallery image preview">
         <p class="community-gallery-preview-description"></p>
@@ -3244,6 +3280,57 @@
                     renderRelationPagination(relationState.currentPage);
                     renderRelationCards();
                 });
+            });
+            const relationFilterButton = document.querySelector('.main-project-relation-filter-button');
+            const relationFilterLayer = document.getElementById('main-project-relation-filter-layer');
+            const relationFilterDrawer = relationFilterLayer?.querySelector('.main-project-relation-filter-drawer');
+            const relationFilterCloseButton = relationFilterLayer?.querySelector('.main-project-relation-filter-close');
+            const relationFilterDismissButtons = relationFilterLayer?.querySelectorAll('[data-relation-filter-dismiss]') || [];
+            const relationFilterMainContent = document.getElementById('mainContent');
+            let relationFilterPreviousMainInert = false;
+            const setRelationFilterOpen = open => {
+                if (!relationFilterLayer || !relationFilterDrawer || !relationFilterButton) return;
+                relationFilterButton.setAttribute('aria-expanded', String(open));
+                relationFilterLayer.setAttribute('aria-hidden', String(!open));
+                relationFilterLayer.toggleAttribute('inert', !open);
+                relationFilterDrawer.toggleAttribute('inert', !open);
+                relationFilterLayer.classList.toggle('is-open', open);
+                if (relationFilterMainContent) {
+                    if (open) {
+                        relationFilterPreviousMainInert = relationFilterMainContent.inert;
+                        relationFilterMainContent.inert = true;
+                    } else relationFilterMainContent.inert = relationFilterPreviousMainInert;
+                }
+                window.requestAnimationFrame(() => {
+                    if (open && relationFilterLayer.classList.contains('is-open')) relationFilterCloseButton?.focus({ preventScroll: true });
+                    else if (!open && !relationFilterLayer.classList.contains('is-open')) relationFilterButton.focus({ preventScroll: true });
+                });
+            };
+            relationFilterButton?.addEventListener('click', () => setRelationFilterOpen(true));
+            relationFilterDismissButtons.forEach(button => button.addEventListener('click', () => setRelationFilterOpen(false)));
+            document.addEventListener('keydown', event => {
+                if (!relationFilterLayer?.classList.contains('is-open')) return;
+                if (event.key === 'Escape') {
+                    event.preventDefault();
+                    setRelationFilterOpen(false);
+                    return;
+                }
+                if (event.key !== 'Tab') return;
+                const focusable = Array.from(relationFilterDrawer.querySelectorAll('button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'));
+                if (!focusable.length) {
+                    event.preventDefault();
+                    relationFilterDrawer.focus({ preventScroll: true });
+                    return;
+                }
+                const first = focusable[0];
+                const last = focusable[focusable.length - 1];
+                if (event.shiftKey && (document.activeElement === first || !relationFilterDrawer.contains(document.activeElement))) {
+                    event.preventDefault();
+                    last.focus();
+                } else if (!event.shiftKey && (document.activeElement === last || !relationFilterDrawer.contains(document.activeElement))) {
+                    event.preventDefault();
+                    first.focus();
+                }
             });
             const relationExternalActionSelector = 'button, a[href], input, select, textarea, [role="button"], [role="slider"], .main-project-relation-search';
             document.addEventListener('click', event => {
