@@ -3124,14 +3124,24 @@
                     renderRelationPageSizeControl();
                 });
             });
-            relationPageSizeControl?.addEventListener('click', event => {
-                const button = event.target.closest?.('[data-page-size]');
-                if (!button || !relationPageSizeControl.contains(button)) return;
+            const selectRelationPageSizeOption = button => {
                 const pageSize = Number(button.dataset.pageSize);
                 if (![10, 20, 50, 100].includes(pageSize)) return;
                 relationPaginationStates[activeRelationKey].pageSize = pageSize;
                 relationPageSizeControl.dataset.expanded = 'false';
                 renderRelationPageSizeControl();
+            };
+            relationPageSizeControl?.addEventListener('pointerup', event => {
+                const button = event.target.closest?.('[data-page-size]');
+                if (!button || relationPageSizeOptionPresses.get(event.pointerId) !== button) return;
+                if ([...relationPageSizeOptionPresses.keys()].some(pointerId => pointerId !== event.pointerId)) return;
+                selectRelationPageSizeOption(button);
+            }, true);
+            relationPageSizeControl?.addEventListener('click', event => {
+                const button = event.target.closest?.('[data-page-size]');
+                if (!button || !relationPageSizeControl.contains(button)) return;
+                if (relationPageSizeOptionPresses.size) return;
+                selectRelationPageSizeOption(button);
             }, true);
             relationPageSizeOptions.forEach(button => {
                 button.addEventListener('pointerdown', event => {
