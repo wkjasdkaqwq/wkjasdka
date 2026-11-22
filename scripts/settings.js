@@ -51,6 +51,11 @@
     let languageViewportBaseline = null;
     let languageViewportKeyboardVisible = false;
     let languageOptionPointer = null;
+    const languageOptionPresses = new Map();
+    function clearLanguageOptionPresses() {
+      languageOptionPresses.forEach(choice => choice.classList.remove('is-gray-pressed'));
+      languageOptionPresses.clear();
+    }
     let backNavigationPending = false;
     let backFallbackOnly = false;
     let backFallbackTimer = null;
@@ -495,6 +500,7 @@
     }
 
     function closeLanguageOptions(restoreFocus = false) {
+      clearLanguageOptionPresses();
       if (languageDropdown.hidden) return;
       languageForm.insertBefore(languageError, languageActions);
       languageDropdown.hidden = true;
@@ -833,9 +839,22 @@
     languageOptions.addEventListener('pointerdown', event => {
       const choice = event.target instanceof Element ? event.target.closest('[role="option"]') : null;
       if (!choice || !languageOptions.contains(choice)) return;
+      if (event.button === 0) {
+        languageOptionPresses.set(event.pointerId, choice);
+        choice.classList.add('is-gray-pressed');
+      }
       const touch = event.pointerType === 'touch' || event.pointerType === 'pen';
       languageOptionPointer = { touch, keepInputFocus: touch && document.activeElement === languageSelect && languageKeyboardVisible() };
     });
+    ['pointerup', 'pointercancel'].forEach(type => {
+      document.addEventListener(type, event => {
+        const choice = languageOptionPresses.get(event.pointerId);
+        if (!choice) return;
+        languageOptionPresses.delete(event.pointerId);
+        if (![...languageOptionPresses.values()].includes(choice)) choice.classList.remove('is-gray-pressed');
+      }, { passive: true });
+    });
+    window.addEventListener('blur', clearLanguageOptionPresses);
     languageOptions.addEventListener('touchstart', event => {
       if (languageOptionPointer || !(event.target instanceof Element) || !event.target.closest('[role="option"]')) return;
       languageOptionPointer = { touch: true, keepInputFocus: document.activeElement === languageSelect && languageKeyboardVisible() };
@@ -1124,6 +1143,7 @@
         suspendLanguageLoading();
         releaseThemeTouchPress();
         clearThemeTouchHighlights();
+        clearLanguageOptionPresses();
         closeLanguage(false);
         if (shortcutsModal.classList.contains('open')) closeShortcuts();
       }

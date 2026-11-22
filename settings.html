@@ -334,6 +334,12 @@
     }
     .language-options .language-choice[aria-selected="true"] { background: #dedede; color: #4c4c4c; }
     html.dark-mode .language-options .language-choice[aria-selected="true"] { background: #3a3a3a; color: #dedede; }
+    @media (hover: hover) and (pointer: fine) {
+      .language-options .language-choice:active { background: #f1f1f1; color: #4c4c4c; }
+      html.dark-mode .language-options .language-choice:active { background: #2b3a46; color: #dedede; }
+    }
+    .language-options .language-choice.is-gray-pressed { background: #f1f1f1; color: #4c4c4c; }
+    html.dark-mode .language-options .language-choice.is-gray-pressed { background: #2b3a46; color: #dedede; }
     @media (prefers-reduced-motion: reduce) { .language-dialog, .language-wait-overlay { transition: none; } .language-dropdown { animation: none; } }
 
     @media (max-width: 600px) {
@@ -779,7 +785,7 @@
       });
     })();
   </script>
-  <script src="./scripts/settings.js?v=20261122-keyboard-blur"></script>
+  <script src="./scripts/settings.js?v=20261122-option-feedback"></script>
   <script>window.SettingsPage.init(document);</script>
 </body>
 </html>

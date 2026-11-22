@@ -416,7 +416,8 @@
             .main-project-relation-page-size-control[data-expanded] .main-project-relation-page-size-pill:has(.main-project-relation-page-size-header:active) { border-color: #FF9C5A; box-shadow: 0 3px 9px rgba(255, 218, 185, .45); }
             .main-project-relation-page-size-control[data-expanded="false"] .main-project-relation-page-size-pill:has(.main-project-relation-page-size-header:active) { transform: scale(.97); }
             .main-project-relation-page-size-control[data-expanded] .main-project-relation-page-size-header:active { background: #FFC38D; }
-            .main-project-relation-page-size-option:not([aria-pressed="true"]):hover { background: rgba(185, 93, 22, .1); }
+            .main-project-relation-page-size-option:not([aria-pressed="true"]):hover { background: #f1f1f1; color: #4c4c4c; }
+            .main-project-relation-page-size-options .main-project-relation-page-size-option:active { background: #f1f1f1; color: #4c4c4c; }
         }
         @media (hover: none), (pointer: coarse) {
             .main-project-relation-page-size-pill { transition: transform .4s cubic-bezier(.34, 1.56, .64, 1), box-shadow .4s cubic-bezier(.34, 1.56, .64, 1), background-color .4s cubic-bezier(.34, 1.56, .64, 1), border-color .4s cubic-bezier(.34, 1.56, .64, 1), color .4s cubic-bezier(.34, 1.56, .64, 1); }
@@ -440,7 +441,8 @@
             html.dark-mode .main-project-relation-page-size-control[data-expanded="false"] .main-project-relation-page-size-header:hover { background: #49301F; }
             html.dark-mode .main-project-relation-page-size-control[data-expanded] .main-project-relation-page-size-pill:has(.main-project-relation-page-size-header:active) { border-color: #FF8142; color: #E67E22; box-shadow: 0 6px 16px rgba(255, 218, 185, .6); transition-duration: .4s, .4s, 0s, 0s, 0s; }
             html.dark-mode .main-project-relation-page-size-control[data-expanded] .main-project-relation-page-size-header:active { background: #FFCF97; transition-duration: 0s; }
-            html.dark-mode .main-project-relation-page-size-option:not([aria-pressed="true"]):hover { background: rgba(255, 255, 255, .07); }
+            html.dark-mode .main-project-relation-page-size-option:not([aria-pressed="true"]):hover { background: #2b3a46; }
+            html.dark-mode .main-project-relation-page-size-options .main-project-relation-page-size-option:active { background: #2b3a46; color: #dedede; }
         }
         @media (hover: none), (pointer: coarse) {
             html.dark-mode .main-project-relation-page-size-control[data-expanded="false"].is-touch-highlighted .main-project-relation-page-size-pill { border-color: #E67E22; box-shadow: 0 8px 20px rgba(0, 0, 0, .28); }
@@ -448,6 +450,8 @@
             html.dark-mode .main-project-relation-page-size-control[data-expanded].is-touch-pressed .main-project-relation-page-size-pill { border-color: #FF8142; color: #E67E22; box-shadow: 0 2px 6px rgba(255, 218, 185, .5); transition-duration: .4s, .4s, 0s, 0s, 0s; }
             html.dark-mode .main-project-relation-page-size-control[data-expanded].is-touch-pressed .main-project-relation-page-size-header { background: #FFCF97; transition-duration: 0s; }
         }
+        .main-project-relation-page-size-options .main-project-relation-page-size-option.is-gray-pressed { background: #f1f1f1; color: #4c4c4c; }
+        html.dark-mode .main-project-relation-page-size-options .main-project-relation-page-size-option.is-gray-pressed { background: #2b3a46; color: #dedede; }
         @media (max-width: 600px) {
             .main-project-relation-pagination { gap: 2.4px; margin-top: 12px; }
             .main-project-relation-pagination-arrow { flex-basis: 36px; width: 36px; height: 38.4px; }
@@ -3010,6 +3014,7 @@
             const relationPageSizeOptions = relationPageSizeControl?.querySelectorAll('[data-page-size]') || [];
             const relationPageSizeTouchMedia = window.matchMedia('(hover: none), (pointer: coarse)');
             const relationPageSizePressedPointers = new Set();
+            const relationPageSizeOptionPresses = new Map();
             const relationPaginationCompactMedia = window.matchMedia('(max-width: 600px)');
             const relationSwitcher = document.querySelector('.main-project-relation-switcher');
             let activeRelationKey = relationSwitcher?.dataset.activeRelation === 'dependents' ? 'dependents' : 'dependencies';
@@ -3067,9 +3072,14 @@
             } else {
                 relationPaginationCompactMedia.addListener(rerenderRelationPaginationForViewport);
             }
+            const clearRelationPageSizeOptionPresses = () => {
+                relationPageSizeOptionPresses.forEach(option => option.classList.remove('is-gray-pressed'));
+                relationPageSizeOptionPresses.clear();
+            };
             const renderRelationPageSizeControl = () => {
                 if (!relationPageSizeControl || !relationPageSizeCurrent) return;
                 const expanded = relationPageSizeControl.dataset.expanded === 'true';
+                if (!expanded) clearRelationPageSizeOptionPresses();
                 const pageSize = relationPaginationStates[activeRelationKey].pageSize;
                 relationPageSizeCurrent.textContent = String(pageSize);
                 relationPageSizeCurrent.setAttribute('aria-expanded', String(expanded));
@@ -3096,13 +3106,17 @@
             });
             ['pointerup', 'pointercancel'].forEach(type => {
                 document.addEventListener(type, event => {
-                    if (!relationPageSizePressedPointers.delete(event.pointerId)) return;
-                    if (!relationPageSizePressedPointers.size) relationPageSizeControl?.classList.remove('is-touch-pressed');
+                    if (relationPageSizePressedPointers.delete(event.pointerId) && !relationPageSizePressedPointers.size) relationPageSizeControl?.classList.remove('is-touch-pressed');
+                    const option = relationPageSizeOptionPresses.get(event.pointerId);
+                    if (!option) return;
+                    relationPageSizeOptionPresses.delete(event.pointerId);
+                    if (![...relationPageSizeOptionPresses.values()].includes(option)) option.classList.remove('is-gray-pressed');
                 }, { passive: true });
             });
             window.addEventListener('blur', () => {
                 relationPageSizePressedPointers.clear();
                 relationPageSizeControl?.classList.remove('is-touch-pressed');
+                clearRelationPageSizeOptionPresses();
             });
             relationPageSizeToggleButtons.forEach(button => {
                 button.addEventListener('click', () => {
@@ -3111,6 +3125,11 @@
                 });
             });
             relationPageSizeOptions.forEach(button => {
+                button.addEventListener('pointerdown', event => {
+                    if (event.button !== 0) return;
+                    relationPageSizeOptionPresses.set(event.pointerId, button);
+                    button.classList.add('is-gray-pressed');
+                });
                 button.addEventListener('click', () => {
                     const pageSize = Number(button.dataset.pageSize);
                     if (![10, 20, 50, 100].includes(pageSize)) return;
