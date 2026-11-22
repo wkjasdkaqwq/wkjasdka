@@ -2468,6 +2468,118 @@
                     relationSearch?.classList.remove('is-touch-highlighted');
                 }
             });
+            const relationSearchInput = relationSearch?.querySelector('.main-project-relation-search-input');
+            const relationSearchScroller = document.getElementById('mainContent');
+            const relationSearchViewport = window.visualViewport;
+            const relationSearchOriginalPadding = lowerDivider?.style.paddingBottom || '';
+            const relationKeyboardMinimumChange = 24;
+            let relationViewportBaseline = null;
+            let relationKeyboardVisible = false;
+            let relationKeyboardClosing = false;
+            let relationSearchFocusPending = false;
+            let relationKeyboardFrame = 0;
+            let relationViewportResizeTime = 0;
+            function relationViewportMetrics() {
+                return {
+                    width: relationSearchViewport?.width ?? window.innerWidth,
+                    height: relationSearchViewport?.height ?? window.innerHeight,
+                    top: relationSearchViewport?.offsetTop ?? 0,
+                    scale: relationSearchViewport?.scale ?? 1
+                };
+            }
+            function rememberRelationViewport() {
+                relationViewportBaseline = relationViewportMetrics();
+            }
+            function clearRelationKeyboardAdjustment() {
+                relationKeyboardVisible = false;
+                if (relationKeyboardFrame) window.cancelAnimationFrame(relationKeyboardFrame);
+                relationKeyboardFrame = 0;
+                if (lowerDivider) lowerDivider.style.paddingBottom = relationSearchOriginalPadding;
+            }
+            function fitRelationSearchAboveKeyboard() {
+                relationKeyboardFrame = 0;
+                if (!relationKeyboardVisible || !relationSearchTouchMedia.matches || document.activeElement !== relationSearchInput || !relationSearchScroller || !relationSearch) return;
+                const viewport = relationViewportMetrics();
+                if (relationViewportBaseline && Math.abs(viewport.scale - relationViewportBaseline.scale) > .05) return;
+                const scroller = relationSearchScroller.getBoundingClientRect();
+                const viewportBottom = viewport.top + viewport.height;
+                const navbarBottom = document.getElementById('navbar')?.getBoundingClientRect().bottom ?? 0;
+                const visibleTop = Math.max(viewport.top, scroller.top, navbarBottom);
+                const visibleBottom = Math.min(viewportBottom, scroller.bottom);
+                const searchBounds = relationSearch.getBoundingClientRect();
+                const availableHeight = visibleBottom - visibleTop;
+                if (availableHeight <= 0) return;
+                const gap = Math.min(12, Math.max(0, (availableHeight - searchBounds.height) / 2));
+                const topLimit = visibleTop + gap;
+                const bottomLimit = visibleBottom - gap;
+                let delta = 0;
+                if (searchBounds.height > bottomLimit - topLimit) delta = searchBounds.top - topLimit;
+                else if (searchBounds.bottom > bottomLimit) delta = searchBounds.bottom - bottomLimit;
+                else if (searchBounds.top < topLimit) delta = searchBounds.top - topLimit;
+                if (Math.abs(delta) <= 1) return;
+                // Add scroll room only when the search box actually needs to move.
+                if (lowerDivider) {
+                    const currentPadding = parseFloat(lowerDivider.style.paddingBottom) || 0;
+                    lowerDivider.style.paddingBottom = `${Math.max(currentPadding, scroller.bottom - viewportBottom, 0)}px`;
+                }
+                relationSearchScroller.scrollTop += delta;
+            }
+            function scheduleRelationKeyboardFit() {
+                if (relationKeyboardFrame) window.cancelAnimationFrame(relationKeyboardFrame);
+                relationKeyboardFrame = window.requestAnimationFrame(fitRelationSearchAboveKeyboard);
+            }
+            function updateRelationKeyboardViewport() {
+                const viewport = relationViewportMetrics();
+                if (!relationSearchTouchMedia.matches || document.activeElement !== relationSearchInput) {
+                    clearRelationKeyboardAdjustment();
+                    if (!relationSearchFocusPending && (!relationKeyboardClosing || !relationViewportBaseline || Math.abs(viewport.width - relationViewportBaseline.width) > 24 || relationViewportBaseline.height - viewport.height <= relationKeyboardMinimumChange)) {
+                        relationViewportBaseline = viewport;
+                        relationKeyboardClosing = false;
+                    }
+                    return;
+                }
+                if (!relationViewportBaseline) relationViewportBaseline = viewport;
+                // Ignore pinch zoom; an orientation change establishes a new viewport baseline.
+                if (Math.abs(viewport.scale - relationViewportBaseline.scale) > .05) return;
+                if (Math.abs(viewport.width - relationViewportBaseline.width) > 24) {
+                    const minimumHeight = relationKeyboardVisible ? viewport.height + relationKeyboardMinimumChange + 1 : viewport.height;
+                    relationViewportBaseline = { ...viewport, height: Math.max(minimumHeight, window.innerHeight) };
+                }
+                relationKeyboardVisible = relationViewportBaseline.height - viewport.height > relationKeyboardMinimumChange;
+                if (!relationKeyboardVisible) {
+                    clearRelationKeyboardAdjustment();
+                    if (viewport.height > relationViewportBaseline.height) relationViewportBaseline = viewport;
+                    return;
+                }
+                relationViewportResizeTime = performance.now();
+                scheduleRelationKeyboardFit();
+            }
+            rememberRelationViewport();
+            relationSearch?.addEventListener('pointerdown', event => {
+                if (!relationSearchTouchMedia.matches || event.pointerType === 'mouse' || document.activeElement === relationSearchInput) return;
+                const viewport = relationViewportMetrics();
+                const keyboardStillClosing = relationKeyboardClosing && relationViewportBaseline && Math.abs(viewport.width - relationViewportBaseline.width) <= 24 && relationViewportBaseline.height - viewport.height > relationKeyboardMinimumChange;
+                if (!keyboardStillClosing) rememberRelationViewport();
+                relationSearchFocusPending = true;
+            });
+            relationSearch?.addEventListener('pointercancel', () => { relationSearchFocusPending = false; });
+            document.addEventListener('pointerdown', event => {
+                if (!relationSearch?.contains(event.target)) relationSearchFocusPending = false;
+            }, { passive: true });
+            relationSearchInput?.addEventListener('focus', () => {
+                relationSearchFocusPending = false;
+                updateRelationKeyboardViewport();
+            });
+            relationSearchInput?.addEventListener('blur', () => {
+                relationKeyboardClosing = relationKeyboardVisible;
+                relationSearchFocusPending = false;
+                clearRelationKeyboardAdjustment();
+            });
+            window.addEventListener('resize', updateRelationKeyboardViewport, { passive: true });
+            relationSearchViewport?.addEventListener('resize', updateRelationKeyboardViewport, { passive: true });
+            relationSearchViewport?.addEventListener('scroll', () => {
+                if (relationKeyboardVisible && performance.now() - relationViewportResizeTime < 300) scheduleRelationKeyboardFit();
+            }, { passive: true });
             document.addEventListener('keydown', event => {
                 if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches || event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
                 const target = event.target;
