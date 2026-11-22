@@ -392,7 +392,8 @@
         html.dark-mode .main-project-relation-page-button:hover, html.dark-mode .main-project-relation-page-button[aria-current="page"] { color: #ffb27b; }
         html.dark-mode .main-project-relation-page-ellipsis { color: #9eabb5; }
         .main-project-relation-page-size-control { position: relative; z-index: 4; flex: 0 0 74px; width: 74px; height: 43px; margin-left: auto; }
-        .main-project-relation-page-size-pill { position: absolute; top: 2.2px; right: 0; display: flex; flex-direction: column; align-items: stretch; box-sizing: border-box; min-width: 74px; border: 1.05px solid #c8c8c8; border-radius: 22px; background: #fff; color: #666; box-shadow: 0 2.2px 7.6px rgba(0, 0, 0, .08); white-space: nowrap; transition: box-shadow .18s ease, background-color .18s ease, border-color .18s ease; }
+        /* Keep the radius within the collapsed height so the top outline stays fixed as the menu grows. */
+        .main-project-relation-page-size-pill { position: absolute; top: 2.2px; right: 0; display: flex; flex-direction: column; align-items: stretch; box-sizing: border-box; min-width: 74px; border: 1.05px solid #c8c8c8; border-radius: 19.5px; background: #fff; color: #666; box-shadow: 0 2.2px 7.6px rgba(0, 0, 0, .08); white-space: nowrap; transition: box-shadow .18s ease, background-color .18s ease, border-color .18s ease; }
         .main-project-relation-page-size-header { display: flex; align-items: center; width: 100%; height: 37px; }
         .main-project-relation-page-size-current, .main-project-relation-page-size-toggle { display: grid; place-items: center; box-sizing: border-box; height: 37px; padding: 0; border: 0; background: transparent; color: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
         .main-project-relation-page-size-current { flex: 1 0 39px; min-width: 39px; border-radius: 22px 0 0 22px; font: inherit; font-size: .972rem; font-weight: 683; font-variant-numeric: tabular-nums; }
@@ -425,7 +426,7 @@
             .main-project-relation-page-button { min-width: 32.4px; height: 38.4px; padding: 0 2.4px; font-size: 1.032rem; }
             .main-project-relation-page-ellipsis { flex-basis: 32.4px; min-width: 32.4px; }
             .main-project-relation-page-size-control { flex-basis: 69px; width: 69px; height: 43px; }
-            .main-project-relation-page-size-pill { top: 3.4px; min-width: 69px; }
+            .main-project-relation-page-size-pill { top: 3.4px; min-width: 69px; border-radius: 18px; }
             .main-project-relation-page-size-header, .main-project-relation-page-size-current, .main-project-relation-page-size-toggle { height: 34px; }
             .main-project-relation-page-size-current { flex-basis: 37px; min-width: 37px; font-size: .972rem; }
             .main-project-relation-page-size-toggle { flex-basis: 31px; width: 31px; }
