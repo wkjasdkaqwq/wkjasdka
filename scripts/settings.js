@@ -402,16 +402,18 @@
 
     function languageViewportSize() {
       const viewport = window.visualViewport;
-      return { width: viewport ? viewport.width : window.innerWidth, height: viewport ? viewport.height : window.innerHeight };
+      return { width: viewport ? viewport.width : window.innerWidth, height: viewport ? viewport.height : window.innerHeight, scale: viewport ? viewport.scale : 1 };
     }
 
     function updateLanguageViewportBaseline() {
       if (!languageModal.classList.contains('open')) return;
       const viewport = languageViewportSize();
       const keyboardWasVisible = languageViewportKeyboardVisible;
+      if (document.activeElement === languageSelect && languageViewportBaseline && Math.abs(viewport.scale - languageViewportBaseline.scale) > .05) return;
       const widthChanged = languageViewportBaseline && Math.abs(viewport.width - languageViewportBaseline.width) > 24;
       if (widthChanged && document.activeElement === languageSelect && languageViewportKeyboardVisible) {
-        languageViewportBaseline = { width: viewport.width, height: Math.max(viewport.height, window.innerHeight) };
+        // Keep the keyboard-open state across rotation even if the layout viewport also shrinks.
+        languageViewportBaseline = { ...viewport, height: Math.max(viewport.height + 121, window.innerHeight) };
       } else if (!languageViewportBaseline || widthChanged || viewport.height > languageViewportBaseline.height) {
         languageViewportBaseline = viewport;
       }
@@ -420,7 +422,7 @@
       else languageViewportKeyboardVisible = languageViewportBaseline.height - viewport.height > 120;
       if (document.activeElement === languageSelect && !widthChanged && window.matchMedia && window.matchMedia('(hover: none), (pointer: coarse)').matches) {
         if (languageViewportKeyboardVisible) languageSelect.classList.remove('is-mobile-focus-hidden');
-        else if (keyboardWasVisible) languageSelect.classList.add('is-mobile-focus-hidden');
+        else if (keyboardWasVisible) languageSelect.blur();
       }
     }
 

@@ -2548,7 +2548,7 @@
                 const keyboardWasVisible = relationKeyboardVisible;
                 relationKeyboardVisible = relationViewportBaseline.height - viewport.height > relationKeyboardMinimumChange;
                 if (!relationKeyboardVisible) {
-                    if (keyboardWasVisible) relationSearchInput.classList.add('is-mobile-focus-hidden');
+                    if (keyboardWasVisible) relationSearchInput.blur();
                     clearRelationKeyboardAdjustment();
                     if (viewport.height > relationViewportBaseline.height) relationViewportBaseline = viewport;
                     return;
