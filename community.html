@@ -3245,9 +3245,17 @@
                     renderRelationCards();
                 });
             });
+            document.addEventListener('click', event => {
+                if (relationPageSizeControl?.dataset.expanded !== 'true' || !(event.target instanceof Element)) return;
+                const clickedButton = event.target.closest('button');
+                if (!clickedButton || relationPageSizeControl.contains(clickedButton)) return;
+                event.preventDefault();
+                event.stopImmediatePropagation();
+            }, true);
             document.addEventListener('pointerdown', event => {
                 if (relationPageSizeTouchMedia.matches && !relationPageSizeHeader?.contains(event.target)) relationPageSizeControl?.classList.remove('is-touch-highlighted');
                 if (relationPageSizeControl?.dataset.expanded === 'true' && !relationPageSizeControl.contains(event.target)) {
+                    if (event.target instanceof Element && event.target.closest('button')) return;
                     relationPageSizeControl.dataset.expanded = 'false';
                     renderRelationPageSizeControl();
                 }
