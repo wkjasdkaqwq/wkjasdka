@@ -3602,7 +3602,12 @@
                 }
                 closeTooltip();
             }, { capture: true, passive: true });
-            ['pointerup', 'pointercancel', 'touchend', 'touchcancel'].forEach(type => {
+            ['pointerup', 'touchend'].forEach(type => {
+                document.addEventListener(type, () => {
+                    window.setTimeout(() => button.classList.remove('is-tooltip-interacting'), 0);
+                }, true);
+            });
+            ['pointercancel', 'touchcancel'].forEach(type => {
                 document.addEventListener(type, () => button.classList.remove('is-tooltip-interacting'), true);
             });
             document.addEventListener('wheel', event => {
