@@ -2266,22 +2266,26 @@
             let mitLicenseRevealFrame = 0;
             let mitLicenseCloseTimer = 0;
             let mitLicenseMouseDownOnClose = false;
-            const hideMitLicenseNav = () => {
+            const hideMitLicenseNav = (focusDialog = true) => {
                 if (mitLicenseRevealFrame) window.cancelAnimationFrame(mitLicenseRevealFrame);
                 mitLicenseRevealFrame = 0;
                 mitLicenseMouseDownOnClose = false;
                 document.documentElement.classList.remove('is-mit-license-open');
                 mitLicenseDialog?.classList.remove('is-nav-visible');
-                if (document.activeElement === mitLicenseNavClose) mitLicenseDialog?.focus({ preventScroll: true });
+                if (!focusDialog && (document.activeElement === mitLicenseNavClose || document.activeElement === mitLicenseDialog)) {
+                    document.activeElement.blur();
+                } else if (document.activeElement === mitLicenseNavClose) {
+                    mitLicenseDialog?.focus({ preventScroll: true });
+                }
                 if (mitLicenseNavClose) {
                     mitLicenseNavClose.disabled = true;
                     mitLicenseNavClose.tabIndex = -1;
                     mitLicenseNavClose.setAttribute('aria-hidden', 'true');
                 }
             };
-            const closeMitLicenseDialog = () => {
+            const closeMitLicenseDialog = ({ focusDialog = true } = {}) => {
                 if (!mitLicenseDialog?.open || mitLicenseDialog.classList.contains('is-closing')) return;
-                hideMitLicenseNav();
+                hideMitLicenseNav(focusDialog);
                 if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
                     mitLicenseDialog.close();
                     return;
@@ -2350,7 +2354,8 @@
             });
             mitLicenseDialog?.addEventListener('cancel', event => {
                 event.preventDefault();
-                closeMitLicenseDialog();
+                // Escape should not move keyboard focus onto the fading dialog.
+                closeMitLicenseDialog({ focusDialog: false });
             });
             mitLicenseDialog?.addEventListener('close', () => {
                 if (mitLicenseDialog.open) return;
