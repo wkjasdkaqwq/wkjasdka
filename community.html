@@ -321,16 +321,41 @@
         .main-project-relation-button[aria-pressed="true"]:active,
         html.dark-mode .main-project-relation-button[aria-pressed="true"]:hover,
         html.dark-mode .main-project-relation-button[aria-pressed="true"]:active { border-color: transparent; background: transparent; box-shadow: none; transition: color .18s ease, transform .1s ease; }
-        .main-project-relation-search { display: flex; align-items: center; box-sizing: border-box; min-height: 42px; gap: 10px; margin: 16px 3px 0; padding: 0 12px; border: 1px solid #c2c2c2; border-radius: 10px; background: #fff; transition: border-color .18s ease, box-shadow .18s ease; }
-        .main-project-relation-search:focus-within { border-color: #FF9C5A; box-shadow: 0 0 0 2px rgba(230, 126, 34, .18); }
-        .main-project-relation-search-icon { display: block; flex: 0 0 16px; width: 16px; height: 16px; color: #E67E22; }
-        .main-project-relation-search-input { box-sizing: border-box; flex: 1 1 auto; min-width: 0; width: 100%; padding: 10px 0; border: 0; outline: 0; background: transparent; color: #242424; font: inherit; font-size: 1rem; -webkit-appearance: none; appearance: none; }
-        .main-project-relation-search-input::placeholder { color: #777; opacity: 1; }
-        html.dark-mode .main-project-relation-search { border-color: #385066; background: #1f303f; }
-        html.dark-mode .main-project-relation-search:focus-within { border-color: #d18a58; box-shadow: 0 0 0 2px rgba(209, 138, 88, .2); }
-        html.dark-mode .main-project-relation-search-icon { color: #ffc08a; }
-        html.dark-mode .main-project-relation-search-input { color: #e0e0e0; }
-        html.dark-mode .main-project-relation-search-input::placeholder { color: #a0aeb8; }
+        .main-project-relation-search { position: relative; display: flex; align-items: center; justify-content: space-between; box-sizing: border-box; min-height: 46px; gap: .8rem; margin: 16px 3px 0; padding: .65rem 1rem; border: 2px solid #FFB380; border-radius: 24px; background: #FFDAB9; color: #E67E22; box-shadow: 0 4px 12px rgba(255, 218, 185, .38); cursor: text; font-size: 1rem; font-weight: 600; line-height: 1.2; text-align: left; transition: transform .3s cubic-bezier(.34, 1.56, .64, 1), box-shadow .3s ease, background-color .3s ease, border-color .3s ease, color .3s ease; }
+        .main-project-relation-search-input { position: static; box-sizing: border-box; flex: 1 1 auto; width: 100%; min-width: 0; height: 1.5em; padding: 0; border: 0; outline: 0; background: transparent; color: inherit; font: inherit; line-height: 1.5; -webkit-appearance: none; appearance: none; -webkit-user-select: text; user-select: text; }
+        .main-project-relation-search-input::placeholder { color: #888; opacity: 1; }
+        .main-project-relation-search-input::-webkit-search-cancel-button, .main-project-relation-search-input::-webkit-search-decoration { -webkit-appearance: none; appearance: none; }
+        .main-project-relation-search-icon { display: block; flex: 0 0 auto; width: 19px; height: 19px; pointer-events: none; }
+        @media (hover: hover) and (pointer: fine) {
+            .main-project-relation-search:hover { transform: translateY(-2px) scale(1.035); border-color: #FF9966; background: #FFE4C4; box-shadow: 0 8px 20px rgba(255, 218, 185, .65); }
+            .main-project-relation-search:active { transform: scale(.97); box-shadow: 0 3px 9px rgba(255, 218, 185, .45); }
+        }
+        .main-project-relation-search:active, .main-project-relation-search.is-touch-pressed { background-color: #FFC38D; border-color: #FF9C5A; }
+        html.dark-mode .main-project-relation-search { border-color: #9A623D; background: #30251E; color: #F2B27F; box-shadow: 0 4px 12px rgba(0, 0, 0, .18); }
+        html.dark-mode .main-project-relation-search-input::placeholder { color: #a8a8a8; }
+        @media (hover: hover) and (pointer: fine) {
+            html.dark-mode .main-project-relation-search:hover { border-color: #E67E22; background: #49301F; box-shadow: 0 8px 20px rgba(0, 0, 0, .28); }
+            html.dark-mode .main-project-relation-search:active { border-color: #FF8142; background: #FFCF97; color: #E67E22; box-shadow: 0 6px 16px rgba(255, 218, 185, .6); transition-duration: .4s, .4s, 0s, 0s, 0s; }
+        }
+        @media (hover: none), (pointer: coarse) {
+            .main-project-relation-search { -webkit-tap-highlight-color: transparent; touch-action: manipulation; transition: transform .4s cubic-bezier(.34, 1.56, .64, 1), box-shadow .4s cubic-bezier(.34, 1.56, .64, 1), background-color .4s cubic-bezier(.34, 1.56, .64, 1), border-color .4s cubic-bezier(.34, 1.56, .64, 1), color .4s cubic-bezier(.34, 1.56, .64, 1); }
+            .main-project-relation-search.is-touch-highlighted { transform: none; background: #FFE4C4; border-color: #FF9966; box-shadow: 0 8px 20px rgba(255, 218, 185, .8); }
+            .main-project-relation-search:active, .main-project-relation-search.is-touch-pressed { z-index: 1; transform: translateY(2px) scale(.98); background: #FFC38D; border-color: #FF9C5A; box-shadow: 0 2px 6px rgba(255, 218, 185, .5); }
+            html.dark-mode .main-project-relation-search.is-touch-highlighted { background: #49301F; border-color: #E67E22; box-shadow: 0 8px 20px rgba(0, 0, 0, .28); }
+            html.dark-mode .main-project-relation-search:active, html.dark-mode .main-project-relation-search.is-touch-pressed { background: #FFCF97; border-color: #FF8142; color: #E67E22; box-shadow: 0 2px 6px rgba(255, 218, 185, .5); transition-duration: .4s, .4s, 0s, 0s, 0s; }
+        }
+        .main-project-relation-search:focus-within { border-color: #FFB380; background: #FFDAB9; color: #E67E22; box-shadow: none; transform: none; }
+        .main-project-relation-search-input:focus-visible { box-shadow: inset 0 -2px 0 #64b5f6; }
+        html.dark-mode .main-project-relation-search:focus-within { border-color: #9A623D; background: #30251E; color: #F2B27F; }
+        @media (hover: hover) and (pointer: fine) {
+            .main-project-relation-search:focus-within:active { transform: scale(.97); background: #FFC38D; border-color: #FF9C5A; box-shadow: 0 3px 9px rgba(255, 218, 185, .45); }
+            html.dark-mode .main-project-relation-search:focus-within:active { background: #FFCF97; border-color: #FF8142; color: #E67E22; box-shadow: 0 6px 16px rgba(255, 218, 185, .6); }
+        }
+        @media (hover: none), (pointer: coarse) {
+            .main-project-relation-search:focus-within:active, .main-project-relation-search:focus-within.is-touch-pressed { transform: translateY(2px) scale(.98); background: #FFC38D; border-color: #FF9C5A; box-shadow: 0 2px 6px rgba(255, 218, 185, .5); }
+            html.dark-mode .main-project-relation-search:focus-within:active, html.dark-mode .main-project-relation-search:focus-within.is-touch-pressed { background: #FFCF97; border-color: #FF8142; color: #E67E22; }
+        }
+        @media (max-width: 600px) { .main-project-relation-search { border-radius: 23px; } }
         html.dark-mode .main-project-switcher { border-color: #385066; background: #081824; }
         html.dark-mode .main-project-switcher-track::before { background: #243545; box-shadow: 0 1px 3px rgba(0, 0, 0, .35); }
         html.dark-mode .main-project-switcher-button { color: #a0aeb8; }
@@ -1098,8 +1123,8 @@
                     </div>
                     <div class="main-project-description-section-divider" aria-hidden="true"></div>
                     <label class="main-project-relation-search">
-                        <svg class="main-project-relation-search-icon" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path fill-rule="evenodd" d="M11 6a5 5 0 1 1-10 0 5 5 0 0 1 10 0m-.9 4.804a6 6 0 1 1 .707-.707l3.387 3.387a.5.5 0 0 1-.707.707z"/></svg>
                         <input class="main-project-relation-search-input" type="search" aria-label="Search related projects" placeholder="Search projects" autocomplete="off">
+                        <svg class="main-project-relation-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="m16 16 4.5 4.5"></path></svg>
                     </label>
                 </section>
                 <section class="main-project-tab-panel" id="panel-comment" role="tabpanel" aria-labelledby="tab-comment" hidden>
@@ -2419,6 +2444,29 @@
                     relationSwitchButtons[nextIndex].click();
                     relationSwitchButtons[nextIndex].focus();
                 });
+            });
+            const relationSearch = document.querySelector('.main-project-relation-search');
+            const relationSearchTouchMedia = window.matchMedia('(hover: none), (pointer: coarse)');
+            let relationSearchPressedPointer = null;
+            relationSearch?.addEventListener('pointerdown', event => {
+                if (!relationSearchTouchMedia.matches || event.pointerType === 'mouse') return;
+                relationSearchPressedPointer = event.pointerId;
+                relationSearch.classList.add('is-touch-pressed');
+            });
+            relationSearch?.addEventListener('click', () => {
+                if (relationSearchTouchMedia.matches) relationSearch.classList.add('is-touch-highlighted');
+            });
+            ['pointerup', 'pointercancel'].forEach(type => {
+                document.addEventListener(type, event => {
+                    if (event.pointerId !== relationSearchPressedPointer) return;
+                    relationSearch?.classList.remove('is-touch-pressed');
+                    relationSearchPressedPointer = null;
+                });
+            });
+            document.addEventListener('pointerdown', event => {
+                if (relationSearchTouchMedia.matches && !relationSearch?.contains(event.target)) {
+                    relationSearch?.classList.remove('is-touch-highlighted');
+                }
             });
             document.addEventListener('keydown', event => {
                 if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches || event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
