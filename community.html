@@ -597,6 +597,8 @@
         .mit-license-dialog { --mit-license-edge-gap: 11px; position: fixed; inset: calc(var(--community-navbar-height) + var(--mit-license-edge-gap)) 0 var(--mit-license-edge-gap); box-sizing: border-box; width: calc(100vw - 24px); height: fit-content; max-width: calc(100vw - 24px); max-height: max(0px, calc(100vh - var(--community-navbar-height) - var(--mit-license-edge-gap) - var(--mit-license-edge-gap))); max-height: max(0px, calc(100dvh - var(--community-navbar-height) - var(--mit-license-edge-gap) - var(--mit-license-edge-gap))); margin: auto; overflow: visible; padding: 0; border: 0; background: transparent; color: #333; }
         .mit-license-surface { position: relative; width: 100%; }
         .mit-license-card { box-sizing: border-box; width: 100%; height: var(--mit-license-target-height, auto); max-height: max(0px, calc(100vh - var(--community-navbar-height) - var(--mit-license-edge-gap) - var(--mit-license-edge-gap))); max-height: max(0px, calc(100dvh - var(--community-navbar-height) - var(--mit-license-edge-gap) - var(--mit-license-edge-gap))); overflow-y: auto; overscroll-behavior-y: contain; padding: 24px; border: 1px solid #c2c2c2; border-radius: 16px; background: #fff; box-shadow: 0 18px 48px rgba(0, 0, 0, .22); }
+        .mit-license-project-image { display: block; box-sizing: border-box; width: 64px; height: 64px; border-radius: 8px; object-fit: contain; box-shadow: 0 2px 8px rgba(0, 0, 0, .1); user-select: none; -webkit-user-select: none; -webkit-user-drag: none; }
+        .mit-license-project-divider { height: 1px; margin: 16px 0; background: #c2c2c2; }
         .mit-license-dialog::backdrop { inset: var(--community-navbar-height) 0 0; background: rgba(0, 0, 0, .48); }
         .mit-license-dialog p { margin: 0; font-size: 1rem; line-height: 1.65; }
         .mit-license-card p + p { margin-top: 1em; }
@@ -697,6 +699,8 @@
         html.dark-mode .detail-license-trigger { color: #ffb380; }
         html.dark-mode .mit-license-dialog { color: #e0e0e0; }
         html.dark-mode .mit-license-card { border-color: #385066; background: #1f2933; }
+        html.dark-mode .mit-license-project-image { border: 1px solid #385066; background: #243545; box-shadow: 0 2px 8px rgba(0, 0, 0, .35); }
+        html.dark-mode .mit-license-project-divider { background: #385066; }
         html.dark-mode .mit-license-nav-close { border-color: #a66a3d; background: #3b3028; color: #ffc08a; box-shadow: 0 4px 12px rgba(0, 0, 0, .25); }
         @media (hover: hover) and (pointer: fine) {
             html.dark-mode .mit-license-dialog.is-nav-visible .mit-license-nav-close:hover { border-color: #d18a58; background: #4a382b; box-shadow: 0 8px 20px rgba(0, 0, 0, .35); }
@@ -1064,6 +1068,10 @@
                         <dialog class="mit-license-dialog" id="mit-license-dialog" aria-labelledby="mit-license-title" tabindex="-1">
                             <div class="mit-license-surface">
                                 <div class="mit-license-card">
+                                    <div class="mit-license-project-header">
+                                        <img class="mit-license-project-image" src="index/untitled.png" alt="Semi-rounded Corner project image" width="64" height="64" draggable="false">
+                                        <div class="mit-license-project-divider" aria-hidden="true"></div>
+                                    </div>
                                     <div class="mit-license-text">
                                         <p id="mit-license-title">MIT License</p>
                                         <p>Copyright (c) [year] [copyright holders]</p>
@@ -2401,6 +2409,8 @@
             const mitLicenseDialog = document.getElementById('mit-license-dialog');
             const mitLicenseCard = mitLicenseDialog?.querySelector('.mit-license-card');
             const mitLicenseText = mitLicenseDialog?.querySelector('.mit-license-text');
+            const mitLicenseProjectHeader = mitLicenseDialog?.querySelector('.mit-license-project-header');
+            const mitLicenseProjectImage = mitLicenseProjectHeader?.querySelector('.mit-license-project-image');
             const mitLicenseScrollbar = mitLicenseDialog?.querySelector('.mit-license-scrollbar');
             const mitLicenseScrollbarThumb = mitLicenseDialog?.querySelector('.mit-license-scrollbar-thumb');
             const mitLicenseNavClose = document.getElementById('mit-license-nav-close');
@@ -2418,7 +2428,9 @@
                 const previousHeight = mitLicenseCard.style.height;
                 const previousMaxHeight = mitLicenseCard.style.maxHeight;
                 const previousScrollTop = mitLicenseCard.scrollTop;
-                // Preserve the existing mobile height when the wider text reflows.
+                const previousHeaderDisplay = mitLicenseProjectHeader?.style.display;
+                // Measure the original content without the new header to preserve the mobile window size.
+                if (mitLicenseProjectHeader) mitLicenseProjectHeader.style.display = 'none';
                 mitLicenseCard.style.width = 'min(320px, calc(100vw - 40px))';
                 mitLicenseCard.style.height = 'auto';
                 mitLicenseCard.style.maxHeight = `calc(${window.CSS?.supports('height', '100dvh') ? '100dvh' : '100vh'} - var(--community-navbar-height) - 32px)`;
@@ -2426,6 +2438,7 @@
                 mitLicenseCard.style.width = previousWidth;
                 mitLicenseCard.style.height = previousHeight;
                 mitLicenseCard.style.maxHeight = previousMaxHeight;
+                if (mitLicenseProjectHeader) mitLicenseProjectHeader.style.display = previousHeaderDisplay;
                 if (Number.isFinite(previousCardHeight)) mitLicenseCard.style.setProperty('--mit-license-target-height', `${previousCardHeight + 10}px`);
                 mitLicenseCard.scrollTop = previousScrollTop;
             };
@@ -2550,6 +2563,9 @@
                     if (mitLicenseCloseTimer) window.clearTimeout(mitLicenseCloseTimer);
                     mitLicenseCloseTimer = 0;
                     mitLicenseDialog.classList.remove('is-closing');
+                    const projectImage = document.querySelector('.main-image-module');
+                    const projectImageSource = projectImage?.getAttribute('src') || projectImage?.currentSrc || projectImage?.getAttribute('data-src');
+                    if (mitLicenseProjectImage && projectImageSource) mitLicenseProjectImage.src = projectImageSource;
                     // Keep the real navbar inside the modal so its controls remain interactive.
                     if (mitLicenseNavbar?.parentNode) {
                         mitLicenseNavbar.before(mitLicenseNavbarPlaceholder);
