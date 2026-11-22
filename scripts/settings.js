@@ -408,6 +408,7 @@
     function updateLanguageViewportBaseline() {
       if (!languageModal.classList.contains('open')) return;
       const viewport = languageViewportSize();
+      const keyboardWasVisible = languageViewportKeyboardVisible;
       const widthChanged = languageViewportBaseline && Math.abs(viewport.width - languageViewportBaseline.width) > 24;
       if (widthChanged && document.activeElement === languageSelect && languageViewportKeyboardVisible) {
         languageViewportBaseline = { width: viewport.width, height: Math.max(viewport.height, window.innerHeight) };
@@ -417,6 +418,10 @@
       if (document.activeElement !== languageSelect || !languageViewportBaseline) languageViewportKeyboardVisible = false;
       else if (widthChanged && languageViewportKeyboardVisible && window.innerHeight - viewport.height <= 120) languageViewportKeyboardVisible = true;
       else languageViewportKeyboardVisible = languageViewportBaseline.height - viewport.height > 120;
+      if (document.activeElement === languageSelect && !widthChanged && window.matchMedia && window.matchMedia('(hover: none), (pointer: coarse)').matches) {
+        if (languageViewportKeyboardVisible) languageSelect.classList.remove('is-mobile-focus-hidden');
+        else if (keyboardWasVisible) languageSelect.classList.add('is-mobile-focus-hidden');
+      }
     }
 
     function languageKeyboardVisible() {
@@ -750,6 +755,7 @@
     languageOpen.addEventListener('click', openLanguage);
     languageClose.addEventListener('click', () => closeLanguage());
     languageSelectCard.addEventListener('pointerdown', event => {
+      languageSelect.classList.remove('is-mobile-focus-hidden');
       if (event.target !== languageSelect || !languageDropdown.hidden || languageSelect.disabled) return;
       languagePointerFocusPending = true;
       // Mouse users should not enter edit mode until the click is confirmed;
@@ -761,6 +767,7 @@
       if (languageDropdown.hidden) languageSelect.readOnly = true;
     });
     languageSelect.addEventListener('focus', () => {
+      languageSelect.classList.remove('is-mobile-focus-hidden');
       if (!languagePointerFocusPending && !suppressLanguageFocusOpen && languageModal.classList.contains('open')) openLanguageOptions();
     });
     languageSelect.addEventListener('blur', () => { languageViewportKeyboardVisible = false; });
@@ -771,6 +778,7 @@
       languageSelect.focus({ preventScroll: true });
     });
     languageSelect.addEventListener('keydown', event => {
+      languageSelect.classList.remove('is-mobile-focus-hidden');
       if (event.isComposing || languageComposing || event.keyCode === 229) {
         // Do not cancel the IME's key event; only block a same-event implicit submit.
         suppressCompositionSubmit = true;
@@ -848,23 +856,31 @@
     });
     languageDropdown.addEventListener('click', event => {
       if (event.target instanceof Element && event.target.closest('[role="option"]')) return;
-      closeLanguageOptions();
       languageSelect.blur();
+      closeLanguageOptions();
+    });
+    ['pointerdown', 'touchstart'].forEach(type => {
+      document.addEventListener(type, event => {
+        const isTouch = type === 'touchstart' || event.pointerType === 'touch' || event.pointerType === 'pen';
+        if (isTouch && languageModal.classList.contains('open') && document.activeElement === languageSelect && !languageKeyboardVisible() && !languageSelectCard.contains(event.target)) {
+          languageSelect.classList.add('is-mobile-focus-hidden');
+        }
+      }, { capture: true, passive: true });
     });
     document.addEventListener('click', event => {
       const inputSubmit = event.detail === 0 && document.activeElement === languageSelect && languageConfirm.contains(event.target);
       const composingSubmit = event.detail === 0 && (languageComposing || suppressCompositionSubmit);
       if (!inputSubmit && !composingSubmit && !languageDropdown.hidden && !languagePicker.contains(event.target)) {
-        closeLanguageOptions();
         languageSelect.blur();
+        closeLanguageOptions();
       }
     });
     languageForm.addEventListener('submit', confirmLanguage);
     languageModal.addEventListener('click', event => {
       if (event.target !== languageModal) return;
       if (!languageDropdown.hidden) {
-        closeLanguageOptions();
         languageSelect.blur();
+        closeLanguageOptions();
       } else closeLanguage();
     });
     languageDialog.addEventListener('transitionend', event => {

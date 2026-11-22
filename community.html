@@ -345,7 +345,7 @@
             html.dark-mode .main-project-relation-search:active, html.dark-mode .main-project-relation-search.is-touch-pressed { background: #FFCF97; border-color: #FF8142; color: #E67E22; box-shadow: 0 2px 6px rgba(255, 218, 185, .5); transition-duration: .4s, .4s, 0s, 0s, 0s; }
         }
         .main-project-relation-search:focus-within { border-color: #FFB380; background: #FFDAB9; color: #E67E22; box-shadow: none; transform: none; }
-        .main-project-relation-search-input:focus-visible { box-shadow: inset 0 -2px 0 #64b5f6; }
+        .main-project-relation-search-input:focus-visible:not(.is-mobile-focus-hidden) { box-shadow: inset 0 -2px 0 #64b5f6; }
         html.dark-mode .main-project-relation-search:focus-within { border-color: #9A623D; background: #30251E; color: #F2B27F; }
         @media (hover: hover) and (pointer: fine) {
             .main-project-relation-search:focus-within:active { transform: scale(.97); background: #FFC38D; border-color: #FF9C5A; box-shadow: 0 3px 9px rgba(255, 218, 185, .45); }
@@ -2545,17 +2545,21 @@
                     const minimumHeight = relationKeyboardVisible ? viewport.height + relationKeyboardMinimumChange + 1 : viewport.height;
                     relationViewportBaseline = { ...viewport, height: Math.max(minimumHeight, window.innerHeight) };
                 }
+                const keyboardWasVisible = relationKeyboardVisible;
                 relationKeyboardVisible = relationViewportBaseline.height - viewport.height > relationKeyboardMinimumChange;
                 if (!relationKeyboardVisible) {
+                    if (keyboardWasVisible) relationSearchInput.classList.add('is-mobile-focus-hidden');
                     clearRelationKeyboardAdjustment();
                     if (viewport.height > relationViewportBaseline.height) relationViewportBaseline = viewport;
                     return;
                 }
+                relationSearchInput.classList.remove('is-mobile-focus-hidden');
                 relationViewportResizeTime = performance.now();
                 scheduleRelationKeyboardFit();
             }
             rememberRelationViewport();
             relationSearch?.addEventListener('pointerdown', event => {
+                relationSearchInput?.classList.remove('is-mobile-focus-hidden');
                 if (!relationSearchTouchMedia.matches || event.pointerType === 'mouse' || document.activeElement === relationSearchInput) return;
                 const viewport = relationViewportMetrics();
                 const keyboardStillClosing = relationKeyboardClosing && relationViewportBaseline && Math.abs(viewport.width - relationViewportBaseline.width) <= 24 && relationViewportBaseline.height - viewport.height > relationKeyboardMinimumChange;
@@ -2567,13 +2571,23 @@
                 if (!relationSearch?.contains(event.target)) relationSearchFocusPending = false;
             }, { passive: true });
             relationSearchInput?.addEventListener('focus', () => {
+                relationSearchInput.classList.remove('is-mobile-focus-hidden');
                 relationSearchFocusPending = false;
                 updateRelationKeyboardViewport();
             });
+            relationSearchInput?.addEventListener('keydown', () => relationSearchInput.classList.remove('is-mobile-focus-hidden'));
             relationSearchInput?.addEventListener('blur', () => {
                 relationKeyboardClosing = relationKeyboardVisible;
                 relationSearchFocusPending = false;
                 clearRelationKeyboardAdjustment();
+            });
+            ['pointerdown', 'touchstart'].forEach(type => {
+                document.addEventListener(type, event => {
+                    const isTouch = type === 'touchstart' || event.pointerType === 'touch' || event.pointerType === 'pen';
+                    if (isTouch && document.activeElement === relationSearchInput && !relationKeyboardVisible && !relationSearch?.contains(event.target)) {
+                        relationSearchInput.classList.add('is-mobile-focus-hidden');
+                    }
+                }, { capture: true, passive: true });
             });
             window.addEventListener('resize', updateRelationKeyboardViewport, { passive: true });
             relationSearchViewport?.addEventListener('resize', updateRelationKeyboardViewport, { passive: true });
