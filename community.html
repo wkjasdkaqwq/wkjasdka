@@ -3245,17 +3245,32 @@
                     renderRelationCards();
                 });
             });
+            const relationExternalActionSelector = 'button, a[href], input, select, textarea, [role="button"]';
+            let relationPageSizeBlockedPointerTarget = null;
             document.addEventListener('click', event => {
-                if (relationPageSizeControl?.dataset.expanded !== 'true' || !(event.target instanceof Element)) return;
-                const clickedButton = event.target.closest('button');
-                if (!clickedButton || relationPageSizeControl.contains(clickedButton)) return;
+                if (!(event.target instanceof Element)) return;
+                const clickedAction = event.target.closest(relationExternalActionSelector);
+                const blockedPointerActivation = relationPageSizeBlockedPointerTarget && clickedAction && (clickedAction === relationPageSizeBlockedPointerTarget || relationPageSizeBlockedPointerTarget.contains(event.target));
+                const menuExpanded = relationPageSizeControl?.dataset.expanded === 'true';
+                const blockedByOpenMenu = menuExpanded && clickedAction && !relationPageSizeControl.contains(clickedAction);
+                if (!blockedPointerActivation && !blockedByOpenMenu) return;
+                if (blockedByOpenMenu) {
+                    relationPageSizeControl.dataset.expanded = 'false';
+                    renderRelationPageSizeControl();
+                }
+                relationPageSizeBlockedPointerTarget = null;
                 event.preventDefault();
                 event.stopImmediatePropagation();
             }, true);
+            document.addEventListener('pointerup', () => {
+                window.setTimeout(() => { relationPageSizeBlockedPointerTarget = null; }, 0);
+            }, { passive: true });
+            document.addEventListener('pointercancel', () => { relationPageSizeBlockedPointerTarget = null; }, { passive: true });
             document.addEventListener('pointerdown', event => {
                 if (relationPageSizeTouchMedia.matches && !relationPageSizeHeader?.contains(event.target)) relationPageSizeControl?.classList.remove('is-touch-highlighted');
                 if (relationPageSizeControl?.dataset.expanded === 'true' && !relationPageSizeControl.contains(event.target)) {
-                    if (event.target instanceof Element && event.target.closest('button')) return;
+                    const clickedAction = event.target instanceof Element ? event.target.closest(relationExternalActionSelector) : null;
+                    if (clickedAction) relationPageSizeBlockedPointerTarget = clickedAction;
                     relationPageSizeControl.dataset.expanded = 'false';
                     renderRelationPageSizeControl();
                 }
