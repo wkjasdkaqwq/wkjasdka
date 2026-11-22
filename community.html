@@ -324,6 +324,7 @@
         .main-project-relation-button[aria-pressed="true"]:active,
         html.dark-mode .main-project-relation-button[aria-pressed="true"]:hover,
         html.dark-mode .main-project-relation-button[aria-pressed="true"]:active { border-color: transparent; background: transparent; box-shadow: none; transition: color .18s ease, transform .1s ease; }
+        .main-project-relation-controls { display: flex; flex-direction: column; min-width: 0; }
         .main-project-relation-search-row { display: flex; align-items: center; gap: .65rem; min-width: 0; margin: 16px 3px 0; }
         .main-project-relation-search { position: relative; display: flex; flex: 1 1 auto; align-items: center; justify-content: space-between; box-sizing: border-box; min-width: 0; min-height: 46px; gap: .65rem; margin: 0; padding: .35rem .7rem; border: 2px solid #FFB380; border-radius: 24px; background: #FFDAB9; color: #E67E22; box-shadow: 0 4px 12px rgba(255, 218, 185, .38); cursor: text; font-size: 1rem; font-weight: 600; line-height: 1.2; text-align: left; transition: transform .3s cubic-bezier(.34, 1.56, .64, 1), box-shadow .3s ease, background-color .3s ease, border-color .3s ease, color .3s ease; }
         .main-project-relation-search-input { position: static; box-sizing: border-box; flex: 1 1 auto; width: 100%; min-width: 0; height: 1.5em; padding: 0; border: 0; outline: 0; background: transparent; color: inherit; font: inherit; line-height: 1.5; -webkit-appearance: none; appearance: none; -webkit-user-select: text; user-select: text; }
@@ -372,6 +373,31 @@
         @media (hover: hover) and (pointer: fine) {
             .main-project-relation-search:focus-within:active { transform: scale(.97); background: #FFC38D; border-color: #FF9C5A; box-shadow: 0 3px 9px rgba(255, 218, 185, .45); }
             html.dark-mode .main-project-relation-search:focus-within:active { background: #FFCF97; border-color: #FF8142; color: #E67E22; box-shadow: 0 6px 16px rgba(255, 218, 185, .6); }
+        }
+        .main-project-relation-pagination { display: flex; align-items: center; justify-content: center; gap: 4px; min-height: 38px; margin: 12px 3px 0; }
+        .main-project-relation-pagination-arrow { display: grid; place-items: center; flex: 0 0 34px; width: 34px; height: 34px; padding: 0; border: 0; border-radius: 50%; background: transparent; cursor: pointer; opacity: .76; transition: opacity .16s ease, transform .16s ease; }
+        .main-project-relation-pagination-arrow img { display: block; width: 23px; height: 23px; object-fit: contain; pointer-events: none; }
+        html:not(.dark-mode) .main-project-relation-pagination-arrow img { filter: brightness(0) saturate(100%); }
+        .main-project-relation-pagination-arrow:hover:not(:disabled) { opacity: 1; transform: scale(1.08); }
+        .main-project-relation-pagination-arrow:active:not(:disabled) { transform: translateY(1px) scale(.96); }
+        .main-project-relation-pagination-arrow:disabled { cursor: not-allowed; opacity: .3; }
+        .main-project-relation-pagination-arrow:focus-visible, .main-project-relation-page-button:focus-visible { outline: 2px solid #64b5f6; outline-offset: 1px; }
+        .main-project-relation-page-list { display: flex; align-items: center; justify-content: center; gap: 2px; min-width: 0; }
+        .main-project-relation-page-button { position: relative; display: grid; place-items: center; box-sizing: border-box; min-width: 30px; height: 34px; padding: 0 4px; border: 0; background: transparent; color: #666; cursor: pointer; font: inherit; font-size: .9rem; font-variant-numeric: tabular-nums; line-height: 1; }
+        .main-project-relation-page-button:hover { color: #E67E22; }
+        .main-project-relation-page-button[aria-current="page"] { color: #E67E22; font-weight: 700; }
+        .main-project-relation-page-button[aria-current="page"]::after { position: absolute; right: 7px; bottom: 3px; left: 7px; height: 2px; border-radius: 2px; background: currentColor; content: ""; }
+        .main-project-relation-page-ellipsis { min-width: 20px; color: #888; font-size: .9rem; text-align: center; user-select: none; }
+        html.dark-mode .main-project-relation-page-button { color: #c5ced6; }
+        html.dark-mode .main-project-relation-page-button:hover, html.dark-mode .main-project-relation-page-button[aria-current="page"] { color: #ffb27b; }
+        html.dark-mode .main-project-relation-page-ellipsis { color: #9eabb5; }
+        .main-project-tab-panel:has(.main-project-relation-switcher[data-active-relation="dependents"]) .main-project-relation-pagination { display: none; }
+        @media (max-width: 600px) {
+            .main-project-relation-pagination { gap: 2px; margin-top: 10px; }
+            .main-project-relation-pagination-arrow { flex-basis: 30px; width: 30px; height: 32px; }
+            .main-project-relation-pagination-arrow img { width: 20px; height: 20px; }
+            .main-project-relation-page-button { min-width: 27px; height: 32px; padding: 0 2px; font-size: .86rem; }
+            .main-project-relation-page-ellipsis { min-width: 16px; }
         }
         @media (hover: none), (pointer: coarse) {
             .main-project-relation-search:focus-within:active, .main-project-relation-search:focus-within.is-touch-pressed { transform: translateY(2px) scale(.98); background: #FFC38D; border-color: #FF9C5A; box-shadow: 0 2px 6px rgba(255, 218, 185, .5); }
@@ -1225,14 +1251,33 @@
                         </div>
                     </div>
                     <div class="main-project-description-section-divider" aria-hidden="true"></div>
-                    <div class="main-project-relation-search-row">
-                        <button class="main-project-relation-filter-button" type="button" aria-label="Filter related projects" title="Filter related projects">
-                            <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .4.8L10 8v4a.5.5 0 0 1-.2.4l-3 2A.5.5 0 0 1 6 14V8L1.6 1.8a.5.5 0 0 1-.1-.3z"/></svg>
-                        </button>
-                        <div class="main-project-relation-search">
-                            <input class="main-project-relation-search-input" type="search" aria-label="Search related projects" placeholder="Search projects" autocomplete="off">
-                            <svg class="main-project-relation-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="m16 16 4.5 4.5"></path></svg>
+                    <div class="main-project-relation-controls">
+                        <div class="main-project-relation-search-row">
+                            <button class="main-project-relation-filter-button" type="button" aria-label="Filter related projects" title="Filter related projects">
+                                <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .4.8L10 8v4a.5.5 0 0 1-.2.4l-3 2A.5.5 0 0 1 6 14V8L1.6 1.8a.5.5 0 0 1-.1-.3z"/></svg>
+                            </button>
+                            <div class="main-project-relation-search">
+                                <input class="main-project-relation-search-input" type="search" aria-label="Search related projects" placeholder="Search projects" autocomplete="off">
+                                <svg class="main-project-relation-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="m16 16 4.5 4.5"></path></svg>
+                            </div>
                         </div>
+                        <nav class="main-project-relation-pagination" aria-label="Dependencies pages" data-total-pages="10" data-current-page="1">
+                            <button class="main-project-relation-pagination-arrow" type="button" data-page-step="-1" aria-label="Previous page" title="Previous page" disabled>
+                                <img src="resource/icon/bootstrap-icons/arrow-left.svg" alt="" aria-hidden="true">
+                            </button>
+                            <div class="main-project-relation-page-list" aria-live="polite">
+                                <button class="main-project-relation-page-button" type="button" data-page-number="1" aria-current="page">1</button>
+                                <button class="main-project-relation-page-button" type="button" data-page-number="2">2</button>
+                                <button class="main-project-relation-page-button" type="button" data-page-number="3">3</button>
+                                <button class="main-project-relation-page-button" type="button" data-page-number="4">4</button>
+                                <button class="main-project-relation-page-button" type="button" data-page-number="5">5</button>
+                                <span class="main-project-relation-page-ellipsis" aria-hidden="true">…</span>
+                                <button class="main-project-relation-page-button" type="button" data-page-number="10">10</button>
+                            </div>
+                            <button class="main-project-relation-pagination-arrow" type="button" data-page-step="1" aria-label="Next page" title="Next page">
+                                <img src="resource/icon/bootstrap-icons/arrow-right.svg" alt="" aria-hidden="true">
+                            </button>
+                        </nav>
                     </div>
                 </section>
                 <section class="main-project-tab-panel" id="panel-comment" role="tabpanel" aria-labelledby="tab-comment" hidden>
@@ -2866,6 +2911,54 @@
                     relationSwitchButtons[nextIndex].focus();
                 });
             });
+            const relationPagination = document.querySelector('.main-project-relation-pagination');
+            const relationPageList = relationPagination?.querySelector('.main-project-relation-page-list');
+            const relationPaginationButtons = relationPagination?.querySelectorAll('[data-page-step]') || [];
+            const getRelationPageWindow = (currentPage, totalPages) => {
+                if (totalPages <= 7) return Array.from({ length: totalPages }, (_, index) => index + 1);
+                if (currentPage <= 3) return [1, 2, 3, 4, 5, 'ellipsis', totalPages];
+                if (currentPage >= totalPages - 2) return [1, 'ellipsis', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+                return [1, 'ellipsis', currentPage - 1, currentPage, currentPage + 1, 'ellipsis', totalPages];
+            };
+            const renderRelationPagination = currentPage => {
+                if (!relationPagination || !relationPageList) return;
+                const totalPages = Math.max(1, Number.parseInt(relationPagination.dataset.totalPages, 10) || 1);
+                const page = Math.max(1, Math.min(totalPages, currentPage));
+                relationPagination.dataset.currentPage = String(page);
+                relationPageList.replaceChildren(...getRelationPageWindow(page, totalPages).map(pageNumber => {
+                    if (pageNumber === 'ellipsis') {
+                        const ellipsis = document.createElement('span');
+                        ellipsis.className = 'main-project-relation-page-ellipsis';
+                        ellipsis.setAttribute('aria-hidden', 'true');
+                        ellipsis.textContent = '…';
+                        return ellipsis;
+                    }
+                    const button = document.createElement('button');
+                    button.className = 'main-project-relation-page-button';
+                    button.type = 'button';
+                    button.dataset.pageNumber = String(pageNumber);
+                    button.textContent = String(pageNumber);
+                    button.setAttribute('aria-label', `Page ${pageNumber}`);
+                    if (pageNumber === page) button.setAttribute('aria-current', 'page');
+                    return button;
+                }));
+                relationPaginationButtons.forEach(button => {
+                    const step = Number(button.dataset.pageStep);
+                    button.disabled = page + step < 1 || page + step > totalPages;
+                });
+            };
+            relationPageList?.addEventListener('click', event => {
+                const button = event.target.closest('[data-page-number]');
+                if (!button) return;
+                renderRelationPagination(Number(button.dataset.pageNumber));
+            });
+            relationPaginationButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    if (button.disabled) return;
+                    renderRelationPagination(Number(relationPagination.dataset.currentPage) + Number(button.dataset.pageStep));
+                });
+            });
+            renderRelationPagination(Number(relationPagination?.dataset.currentPage) || 1);
             const relationSearch = document.querySelector('.main-project-relation-search');
             const relationSearchTouchMedia = window.matchMedia('(hover: none), (pointer: coarse)');
             let relationSearchPressedPointer = null;
