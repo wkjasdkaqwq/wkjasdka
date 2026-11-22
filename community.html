@@ -611,6 +611,10 @@
         html.dark-mode .compatibility-version-button.is-touch-pressed,
         html.dark-mode .compatibility-version-button.is-highlighted:active,
         html.dark-mode .compatibility-version-button.is-highlighted.is-touch-pressed { transition-duration: .4s, .4s, 0s, 0s; }
+        .main-project-changelog-button[data-long-press-active="true"]:active,
+        .main-project-changelog-button[data-long-press-active="true"].is-touch-pressed { transform: none; box-shadow: 0 4px 12px rgba(255, 218, 185, .5); background: #FFDAB9; border-color: #FFB380; }
+        html.dark-mode .main-project-changelog-button[data-long-press-active="true"]:active,
+        html.dark-mode .main-project-changelog-button[data-long-press-active="true"].is-touch-pressed { box-shadow: 0 4px 12px rgba(0, 0, 0, .25); background: #3b3028; border-color: #a66a3d; color: #ffc08a; }
         @media (max-width: 600px) {
             .main-project-lower-divider { right: -30px; left: -30px; }
             .main-project-tab-panel, .main-project-description-section { right: -14px; left: -14px; }
@@ -3585,13 +3589,21 @@
                 longPressTriggered = false;
                 longPressTimer = window.setTimeout(() => {
                     longPressTriggered = true;
+                    button.dataset.longPressActive = 'true';
                     button.dataset.longPressVisible = 'true';
                     longPressTimer = 0;
                 }, 1000);
             });
-            button.addEventListener('pointerup', clearLongPress);
+            button.addEventListener('pointerup', () => {
+                clearLongPress();
+                button.dataset.longPressActive = 'false';
+            });
             ['pointercancel', 'pointerleave', 'lostpointercapture'].forEach(type => {
-                button.addEventListener(type, () => { clearLongPress(); clearHover(); });
+                button.addEventListener(type, () => {
+                    clearLongPress();
+                    clearHover();
+                    button.dataset.longPressActive = 'false';
+                });
             });
             document.addEventListener('click', event => {
                 if (tooltip.contains(event.target)) {
