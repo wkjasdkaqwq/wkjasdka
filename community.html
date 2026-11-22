@@ -291,7 +291,7 @@
         .main-project-switcher-button[aria-selected="true"] { color: #333; }
         .main-project-switcher-button:active > span { transform: translateY(1px); }
         .main-project-switcher-button:focus-visible { outline: 2px solid #64b5f6; outline-offset: -2px; }
-        .main-project-relation-switcher { display: flex; align-items: center; width: max-content; max-width: 100%; gap: 6px; margin-top: 12px; padding: 5px; border: 1px solid #FFB380; border-radius: 999px; background: #fff4ea; box-shadow: 0 4px 12px rgba(255, 218, 185, .35); }
+        .main-project-relation-switcher { display: flex; align-items: center; width: max-content; max-width: 100%; gap: 6px; margin: 12px auto 0; padding: 5px; border: 1px solid #FFB380; border-radius: 999px; background: #fff4ea; box-shadow: 0 4px 12px rgba(255, 218, 185, .35); }
         .main-project-relation-button { min-width: 116px; padding: 9px 16px; border: 1px solid transparent; border-radius: 999px; background: transparent; color: #9a5b2d; cursor: pointer; font: inherit; font-size: .92rem; font-weight: 600; line-height: 1.1; text-align: center; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; touch-action: manipulation; transition: color .18s ease, background-color .18s ease, border-color .18s ease, box-shadow .18s ease, transform .18s ease; }
         .main-project-relation-button[aria-pressed="true"] { border-color: #FFB380; background: #FFDAB9; color: #E67E22; box-shadow: 0 3px 9px rgba(255, 218, 185, .55); }
         .main-project-relation-button:hover { border-color: #FF9966; background: #FFE4C4; color: #E67E22; box-shadow: 0 6px 14px rgba(255, 218, 185, .65); }
@@ -1059,6 +1059,7 @@
                     </div>
                 </section>
                 <section class="main-project-tab-panel" id="panel-relation" role="tabpanel" aria-labelledby="tab-relation" hidden>
+                    <div class="main-project-description-section-divider" aria-hidden="true"></div>
                     <div class="main-project-relation-switcher" role="group" aria-label="Project relationship direction">
                         <button class="main-project-relation-button" type="button" data-relation="dependencies" aria-pressed="true">Dependencies</button>
                         <button class="main-project-relation-button" type="button" data-relation="dependents" aria-pressed="false">Dependents</button>
