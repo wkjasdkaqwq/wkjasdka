@@ -392,23 +392,26 @@
         html.dark-mode .main-project-relation-page-button:hover, html.dark-mode .main-project-relation-page-button[aria-current="page"] { color: #ffb27b; }
         html.dark-mode .main-project-relation-page-ellipsis { color: #9eabb5; }
         .main-project-relation-page-size-control { position: relative; z-index: 4; flex: 0 0 68px; width: 68px; height: 40px; margin-left: auto; }
-        .main-project-relation-page-size-pill { position: absolute; top: 50%; right: 0; display: flex; align-items: center; box-sizing: border-box; min-width: 68px; height: 36px; transform: translateY(-50%); border: 1px solid #c8c8c8; border-radius: 999px; background: #fff; color: #666; box-shadow: 0 2px 7px rgba(0, 0, 0, .08); white-space: nowrap; transition: box-shadow .18s ease, background-color .18s ease, border-color .18s ease; }
+        .main-project-relation-page-size-pill { position: absolute; top: 2px; right: 0; display: flex; flex-direction: column; align-items: stretch; box-sizing: border-box; min-width: 68px; border: 1px solid #c8c8c8; border-radius: 999px; background: #fff; color: #666; box-shadow: 0 2px 7px rgba(0, 0, 0, .08); white-space: nowrap; transition: box-shadow .18s ease, background-color .18s ease, border-color .18s ease, border-radius .18s ease; }
+        .main-project-relation-page-size-header { display: flex; align-items: center; width: 100%; height: 34px; }
         .main-project-relation-page-size-current, .main-project-relation-page-size-toggle { display: grid; place-items: center; box-sizing: border-box; height: 34px; padding: 0; border: 0; background: transparent; color: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
         .main-project-relation-page-size-current { flex: 1 0 36px; min-width: 36px; border-radius: 999px 0 0 999px; font: inherit; font-size: .9rem; font-weight: 650; font-variant-numeric: tabular-nums; }
         .main-project-relation-page-size-toggle { flex: 0 0 30px; width: 30px; border-left: 1px solid rgba(100, 100, 100, .22); border-radius: 0 999px 999px 0; }
         .main-project-relation-page-size-icon { display: block; width: 14px; height: 14px; background-color: currentColor; pointer-events: none; -webkit-mask-position: center; mask-position: center; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-size: contain; mask-size: contain; }
         .main-project-relation-page-size-control[data-expanded="false"] .main-project-relation-page-size-icon { -webkit-mask-image: url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.2/icons/chevron-up.svg"); mask-image: url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.2/icons/chevron-up.svg"); }
         .main-project-relation-page-size-control[data-expanded="true"] .main-project-relation-page-size-icon { -webkit-mask-image: url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.2/icons/chevron-down.svg"); mask-image: url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.2/icons/chevron-down.svg"); }
-        .main-project-relation-page-size-options { display: none; align-items: center; gap: 2px; padding: 2px 3px 2px 5px; }
-        .main-project-relation-page-size-option { display: grid; place-items: center; box-sizing: border-box; min-width: 30px; height: 30px; padding: 0 4px; border: 0; border-radius: 999px; background: transparent; color: inherit; cursor: pointer; font: inherit; font-size: .82rem; font-variant-numeric: tabular-nums; }
+        .main-project-relation-page-size-options { display: none; flex-direction: column; align-items: stretch; gap: 1px; padding: 3px 4px 4px; }
+        .main-project-relation-page-size-option { display: grid; place-items: center; box-sizing: border-box; width: 100%; min-width: 0; height: 26px; padding: 0 4px; border: 0; border-radius: 999px; background: transparent; color: inherit; cursor: pointer; font: inherit; font-size: .82rem; font-variant-numeric: tabular-nums; }
         .main-project-relation-page-size-option:hover { background: #f1f1f1; }
         .main-project-relation-page-size-option[aria-pressed="true"] { background: #ffe4c4; color: #e67e22; font-weight: 700; }
-        .main-project-relation-page-size-control[data-expanded="true"] .main-project-relation-page-size-pill { box-shadow: 0 4px 14px rgba(0, 0, 0, .16); }
-        .main-project-relation-page-size-control[data-expanded="true"] .main-project-relation-page-size-current { display: none; }
-        .main-project-relation-page-size-control[data-expanded="true"] .main-project-relation-page-size-options { display: flex; }
+        .main-project-relation-page-size-control[data-expanded="true"] .main-project-relation-page-size-pill { border-radius: 18px; box-shadow: 0 4px 14px rgba(0, 0, 0, .16); }
+        .main-project-relation-page-size-control[data-expanded="true"] .main-project-relation-page-size-current { border-radius: 17px 0 0 0; }
+        .main-project-relation-page-size-control[data-expanded="true"] .main-project-relation-page-size-toggle { border-radius: 0 17px 0 0; }
+        .main-project-relation-page-size-control[data-expanded="true"] .main-project-relation-page-size-options { display: flex; border-top: 1px solid rgba(100, 100, 100, .22); }
         .main-project-relation-page-size-current:focus-visible, .main-project-relation-page-size-toggle:focus-visible, .main-project-relation-page-size-option:focus-visible { outline: 2px solid #64b5f6; outline-offset: 1px; }
         html.dark-mode .main-project-relation-page-size-pill { border-color: #465b6b; background: #172633; color: #c5ced6; box-shadow: 0 2px 9px rgba(0, 0, 0, .3); }
         html.dark-mode .main-project-relation-page-size-toggle { border-left-color: rgba(180, 200, 215, .25); }
+        html.dark-mode .main-project-relation-page-size-control[data-expanded="true"] .main-project-relation-page-size-options { border-top-color: rgba(180, 200, 215, .25); }
         html.dark-mode .main-project-relation-page-size-option:hover { background: #2b3a46; }
         html.dark-mode .main-project-relation-page-size-option[aria-pressed="true"] { background: #49301f; color: #ffb27b; }
         @media (max-width: 600px) {
@@ -418,13 +421,13 @@
             .main-project-relation-page-button { min-width: 32.4px; height: 38.4px; padding: 0 2.4px; font-size: 1.032rem; }
             .main-project-relation-page-ellipsis { flex-basis: 32.4px; min-width: 32.4px; }
             .main-project-relation-page-size-control { flex-basis: 64px; width: 64px; }
-            .main-project-relation-page-size-pill { min-width: 64px; height: 34px; }
-            .main-project-relation-page-size-current, .main-project-relation-page-size-toggle { height: 32px; }
+            .main-project-relation-page-size-pill { min-width: 64px; }
+            .main-project-relation-page-size-header, .main-project-relation-page-size-current, .main-project-relation-page-size-toggle { height: 32px; }
             .main-project-relation-page-size-current { flex-basis: 34px; min-width: 34px; }
             .main-project-relation-page-size-toggle { flex-basis: 28px; width: 28px; }
             .main-project-relation-page-size-icon { width: 13px; height: 13px; }
-            .main-project-relation-page-size-options { gap: 1px; padding-left: 4px; }
-            .main-project-relation-page-size-option { min-width: 27px; height: 28px; padding: 0 3px; font-size: .78rem; }
+            .main-project-relation-page-size-options { padding: 3px 3px 4px; }
+            .main-project-relation-page-size-option { height: 25px; padding: 0 3px; font-size: .78rem; }
         }
         @media (hover: none), (pointer: coarse) {
             .main-project-relation-search:focus-within:active, .main-project-relation-search:focus-within.is-touch-pressed { transform: translateY(2px) scale(.98); background: #FFC38D; border-color: #FF9C5A; box-shadow: 0 2px 6px rgba(255, 218, 185, .5); }
@@ -1306,16 +1309,18 @@
                             </button>
                             <div class="main-project-relation-page-size-control" data-page-size-control data-expanded="false">
                                 <div class="main-project-relation-page-size-pill">
-                                    <button class="main-project-relation-page-size-current" type="button" data-page-size-toggle aria-expanded="false" aria-label="Cards per page: 10. Show options" title="Show cards per page options">10</button>
+                                    <div class="main-project-relation-page-size-header">
+                                        <button class="main-project-relation-page-size-current" type="button" data-page-size-toggle aria-expanded="false" aria-label="Cards per page: 10. Show options" title="Show cards per page options">10</button>
+                                        <button class="main-project-relation-page-size-toggle" type="button" data-page-size-toggle aria-expanded="false" aria-label="Expand cards per page options" title="Expand cards per page options">
+                                            <span class="main-project-relation-page-size-icon" aria-hidden="true"></span>
+                                        </button>
+                                    </div>
                                     <div class="main-project-relation-page-size-options" role="group" aria-label="Cards per page">
                                         <button class="main-project-relation-page-size-option" type="button" data-page-size="10" aria-pressed="true">10</button>
                                         <button class="main-project-relation-page-size-option" type="button" data-page-size="20" aria-pressed="false">20</button>
                                         <button class="main-project-relation-page-size-option" type="button" data-page-size="50" aria-pressed="false">50</button>
                                         <button class="main-project-relation-page-size-option" type="button" data-page-size="100" aria-pressed="false">100</button>
                                     </div>
-                                    <button class="main-project-relation-page-size-toggle" type="button" data-page-size-toggle aria-expanded="false" aria-label="Expand cards per page options" title="Expand cards per page options">
-                                        <span class="main-project-relation-page-size-icon" aria-hidden="true"></span>
-                                    </button>
                                 </div>
                             </div>
                         </nav>
