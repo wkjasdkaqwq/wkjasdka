@@ -387,7 +387,7 @@
         .main-project-relation-page-button:hover { color: #E67E22; }
         .main-project-relation-page-button[aria-current="page"] { color: #E67E22; font-weight: 770; }
         .main-project-relation-page-button[aria-current="page"]::after { position: absolute; right: 8.4px; bottom: 3.6px; left: 8.4px; height: 2.4px; border-radius: 2.4px; background: currentColor; content: ""; }
-        .main-project-relation-page-ellipsis { display: flex; flex: 0 0 24px; align-items: center; justify-content: center; min-width: 24px; color: #888; cursor: default; font-size: 1.08rem; font-weight: 440; pointer-events: none; text-align: center; user-select: none; }
+        .main-project-relation-page-ellipsis { display: flex; flex: 0 0 24px; align-items: center; justify-content: center; min-width: 24px; color: #888; cursor: default; font-size: 1.08rem; font-weight: 440; line-height: 1; pointer-events: none; text-align: center; user-select: none; }
         html.dark-mode .main-project-relation-page-button { color: #c5ced6; }
         html.dark-mode .main-project-relation-page-button:hover, html.dark-mode .main-project-relation-page-button[aria-current="page"] { color: #ffb27b; }
         html.dark-mode .main-project-relation-page-ellipsis { color: #9eabb5; }
@@ -1270,7 +1270,7 @@
                                 <button class="main-project-relation-page-button" type="button" data-page-number="3">3</button>
                                 <button class="main-project-relation-page-button" type="button" data-page-number="4">4</button>
                                 <button class="main-project-relation-page-button" type="button" data-page-number="5">5</button>
-                                <span class="main-project-relation-page-ellipsis" aria-hidden="true">…</span>
+                                <span class="main-project-relation-page-ellipsis" aria-hidden="true">⋯</span>
                                 <button class="main-project-relation-page-button" type="button" data-page-number="10">10</button>
                             </div>
                             <button class="main-project-relation-pagination-arrow" type="button" data-page-step="1" aria-label="Next page" title="Next page">
@@ -2940,7 +2940,7 @@
                         const ellipsis = document.createElement('span');
                         ellipsis.className = 'main-project-relation-page-ellipsis';
                         ellipsis.setAttribute('aria-hidden', 'true');
-                        ellipsis.textContent = '…';
+                        ellipsis.textContent = '⋯';
                         return ellipsis;
                     }
                     const button = document.createElement('button');
