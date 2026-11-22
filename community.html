@@ -594,11 +594,27 @@
         @media (hover: none), (pointer: coarse) {
             .detail-license-trigger:active { text-decoration: underline; }
         }
-        .mit-license-dialog { box-sizing: border-box; width: min(320px, calc(100vw - 40px)); max-width: calc(100vw - 40px); overflow: visible; padding: 0; border: 0; background: transparent; color: #333; }
-        .mit-license-card { box-sizing: border-box; width: 100%; max-height: max(80px, calc(100vh - var(--community-navbar-height) - var(--community-navbar-height) - 32px)); overflow-y: auto; padding: 24px; border: 1px solid #c2c2c2; border-radius: 16px; background: #fff; box-shadow: 0 18px 48px rgba(0, 0, 0, .22); }
+        .mit-license-dialog { position: fixed; inset: calc(var(--community-navbar-height) + 16px) 0 16px; box-sizing: border-box; width: min(320px, calc(100vw - 40px)); height: fit-content; max-width: calc(100vw - 40px); max-height: calc(100vh - var(--community-navbar-height) - 32px); max-height: calc(100dvh - var(--community-navbar-height) - 32px); margin: auto; overflow: visible; padding: 0; border: 0; background: transparent; color: #333; }
+        .mit-license-surface { position: relative; width: 100%; }
+        .mit-license-card { box-sizing: border-box; width: 100%; max-height: calc(100vh - var(--community-navbar-height) - 32px); max-height: calc(100dvh - var(--community-navbar-height) - 32px); overflow-y: auto; overscroll-behavior-y: contain; padding: 24px; border: 1px solid #c2c2c2; border-radius: 16px; background: #fff; box-shadow: 0 18px 48px rgba(0, 0, 0, .22); }
         .mit-license-dialog::backdrop { inset: var(--community-navbar-height) 0 0; background: rgba(0, 0, 0, .48); }
         .mit-license-dialog p { margin: 0; font-size: 1rem; line-height: 1.65; }
         .mit-license-card p + p { margin-top: 1em; }
+        .mit-license-scrollbar { display: none; }
+        @media (min-width: 601px) and (hover: hover) and (pointer: fine) {
+            .mit-license-dialog { width: min(720px, calc(100vw - 48px)); max-width: calc(100vw - 48px); }
+        }
+        @media (hover: hover) and (pointer: fine) {
+            .mit-license-card { padding-right: 36px; scrollbar-width: none; -ms-overflow-style: none; }
+            .mit-license-card::-webkit-scrollbar { display: none; width: 0; height: 0; }
+            .mit-license-scrollbar { position: absolute; z-index: 1; top: 16px; right: 8px; bottom: 16px; display: block; width: 14px; visibility: hidden; border-radius: 999px; background: rgba(0, 0, 0, .07); cursor: pointer; pointer-events: none; touch-action: none; user-select: none; -webkit-user-select: none; }
+            .mit-license-scrollbar.is-scrollable { visibility: visible; pointer-events: auto; }
+            .mit-license-scrollbar-thumb { position: absolute; top: 0; right: 4px; left: 4px; border-radius: 999px; background: #a5a5a5; }
+            .mit-license-scrollbar:hover .mit-license-scrollbar-thumb, .mit-license-scrollbar.is-dragging .mit-license-scrollbar-thumb { background: #858585; }
+            html.dark-mode .mit-license-scrollbar { background: rgba(255, 255, 255, .1); }
+            html.dark-mode .mit-license-scrollbar-thumb { background: #7b8b98; }
+            html.dark-mode .mit-license-scrollbar:hover .mit-license-scrollbar-thumb, html.dark-mode .mit-license-scrollbar.is-dragging .mit-license-scrollbar-thumb { background: #a8b5bf; }
+        }
         .mit-license-nav-close { position: fixed; top: calc((var(--community-navbar-height) - 44px) / 2); left: 7px; z-index: 9003; display: grid; place-items: center; box-sizing: border-box; width: 44px; height: 44px; padding: 0; border: 1px solid #FFB380; border-radius: 50%; background: #FFDAB9; color: #E67E22; box-shadow: 0 4px 12px rgba(255, 218, 185, .5); cursor: pointer; visibility: hidden; pointer-events: none; transform: translateX(-51px); transition: transform 180ms ease, visibility 0s linear 180ms, background-color .2s ease, border-color .2s ease, box-shadow .2s ease; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
         .mit-license-nav-close svg { display: block; width: 22px; height: 22px; pointer-events: none; }
         .mit-license-nav-close:focus { outline: 2px solid #64b5f6; outline-offset: 2px; }
@@ -614,12 +630,12 @@
         @keyframes mitLicenseDialogOut { from { opacity: 1; transform: translateY(0) scale(1); } to { opacity: 0; transform: translateY(8px) scale(.94); } }
         @keyframes mitLicenseBackdropIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes mitLicenseBackdropOut { from { opacity: 1; } to { opacity: 0; } }
-        .mit-license-dialog[open] .mit-license-card { animation: mitLicenseDialogIn 180ms cubic-bezier(.2, .75, .25, 1) both; }
+        .mit-license-dialog[open] .mit-license-surface { animation: mitLicenseDialogIn 180ms cubic-bezier(.2, .75, .25, 1) both; }
         .mit-license-dialog[open]::backdrop { animation: mitLicenseBackdropIn 180ms ease-out both; }
-        .mit-license-dialog.is-closing .mit-license-card { animation: mitLicenseDialogOut 180ms ease-in both; }
+        .mit-license-dialog.is-closing .mit-license-surface { animation: mitLicenseDialogOut 180ms ease-in both; }
         .mit-license-dialog.is-closing::backdrop { animation: mitLicenseBackdropOut 180ms ease-in both; }
         @media (prefers-reduced-motion: reduce) {
-            .mit-license-dialog[open] .mit-license-card, .mit-license-dialog[open]::backdrop, .mit-license-dialog.is-closing .mit-license-card, .mit-license-dialog.is-closing::backdrop { animation-duration: .01ms; }
+            .mit-license-dialog[open] .mit-license-surface, .mit-license-dialog[open]::backdrop, .mit-license-dialog.is-closing .mit-license-surface, .mit-license-dialog.is-closing::backdrop { animation-duration: .01ms; }
             #communityLogoLink, .mit-license-nav-close, .mit-license-dialog.is-nav-visible .mit-license-nav-close { transition-duration: 0s; }
         }
         .main-project-developer-content .compatibility-version-list { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; margin-top: 8px; }
@@ -1041,12 +1057,17 @@
                         </div>
                         <div class="main-project-description-section-divider" aria-hidden="true"></div>
                         <dialog class="mit-license-dialog" id="mit-license-dialog" aria-labelledby="mit-license-title" tabindex="-1">
-                            <div class="mit-license-card">
-                                <p id="mit-license-title">MIT License</p>
-                                <p>Copyright (c) [year] [copyright holders]</p>
-                                <p>Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:</p>
-                                <p>The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.</p>
-                                <p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
+                            <div class="mit-license-surface">
+                                <div class="mit-license-card">
+                                    <div class="mit-license-text">
+                                        <p id="mit-license-title">MIT License</p>
+                                        <p>Copyright (c) [year] [copyright holders]</p>
+                                        <p>Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:</p>
+                                        <p>The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.</p>
+                                        <p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
+                                    </div>
+                                </div>
+                                <div class="mit-license-scrollbar" aria-hidden="true"><div class="mit-license-scrollbar-thumb"></div></div>
                             </div>
                             <button class="mit-license-nav-close" id="mit-license-nav-close" type="button" aria-label="Close MIT license" aria-hidden="true" tabindex="-1" disabled>
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M5 5l14 14M19 5 5 19"></path></svg>
@@ -2270,6 +2291,9 @@
             const mitLicenseTrigger = document.getElementById('mit-license-trigger');
             const mitLicenseDialog = document.getElementById('mit-license-dialog');
             const mitLicenseCard = mitLicenseDialog?.querySelector('.mit-license-card');
+            const mitLicenseText = mitLicenseDialog?.querySelector('.mit-license-text');
+            const mitLicenseScrollbar = mitLicenseDialog?.querySelector('.mit-license-scrollbar');
+            const mitLicenseScrollbarThumb = mitLicenseDialog?.querySelector('.mit-license-scrollbar-thumb');
             const mitLicenseNavClose = document.getElementById('mit-license-nav-close');
             const mitLicenseNavbar = document.getElementById('navbar');
             const mitLicenseNavbarPlaceholder = document.createComment('mit-license-navbar-placeholder');
@@ -2278,6 +2302,55 @@
             let mitLicenseMouseDownOnClose = false;
             let mitLicenseMenuOpenOnPointerDown = false;
             let mitLicenseLogoLabel;
+            let mitLicenseScrollbarDrag = null;
+            const updateMitLicenseScrollbar = () => {
+                if (!mitLicenseCard || !mitLicenseScrollbar || !mitLicenseScrollbarThumb) return;
+                const trackHeight = mitLicenseScrollbar.clientHeight;
+                const scrollRange = Math.max(0, mitLicenseCard.scrollHeight - mitLicenseCard.clientHeight);
+                const scrollable = !!mitLicenseDialog?.open && trackHeight > 0 && scrollRange > 1;
+                mitLicenseScrollbar.classList.toggle('is-scrollable', scrollable);
+                if (!scrollable) return;
+                const thumbHeight = Math.min(trackHeight, Math.max(32, trackHeight * mitLicenseCard.clientHeight / mitLicenseCard.scrollHeight));
+                const progress = Math.max(0, Math.min(1, mitLicenseCard.scrollTop / scrollRange));
+                mitLicenseScrollbarThumb.style.height = `${thumbHeight}px`;
+                mitLicenseScrollbarThumb.style.transform = `translateY(${(trackHeight - thumbHeight) * progress}px)`;
+            };
+            const moveMitLicenseScrollbar = event => {
+                if (!mitLicenseScrollbarDrag || !mitLicenseCard || !mitLicenseScrollbar || !mitLicenseScrollbarThumb) return;
+                const trackBounds = mitLicenseScrollbar.getBoundingClientRect();
+                const thumbHeight = mitLicenseScrollbarThumb.getBoundingClientRect().height;
+                const travel = trackBounds.height - thumbHeight;
+                const scrollRange = Math.max(0, mitLicenseCard.scrollHeight - mitLicenseCard.clientHeight);
+                const progress = travel > 0 ? (event.clientY - trackBounds.top - mitLicenseScrollbarDrag.offset) / travel : 0;
+                mitLicenseCard.scrollTop = Math.max(0, Math.min(1, progress)) * scrollRange;
+            };
+            mitLicenseCard?.addEventListener('scroll', updateMitLicenseScrollbar, { passive: true });
+            window.addEventListener('resize', updateMitLicenseScrollbar, { passive: true });
+            if (window.ResizeObserver && mitLicenseCard && mitLicenseText) {
+                const mitLicenseResizeObserver = new ResizeObserver(updateMitLicenseScrollbar);
+                mitLicenseResizeObserver.observe(mitLicenseCard);
+                mitLicenseResizeObserver.observe(mitLicenseText);
+            }
+            mitLicenseScrollbar?.addEventListener('pointerdown', event => {
+                if (event.button !== 0 || !mitLicenseScrollbar.classList.contains('is-scrollable') || !mitLicenseScrollbarThumb) return;
+                event.preventDefault();
+                const thumbBounds = mitLicenseScrollbarThumb.getBoundingClientRect();
+                mitLicenseScrollbarDrag = { pointerId: event.pointerId, offset: mitLicenseScrollbarThumb.contains(event.target) ? event.clientY - thumbBounds.top : thumbBounds.height / 2 };
+                mitLicenseScrollbar.classList.add('is-dragging');
+                mitLicenseScrollbar.setPointerCapture(event.pointerId);
+                moveMitLicenseScrollbar(event);
+            });
+            mitLicenseScrollbar?.addEventListener('pointermove', event => {
+                if (event.pointerId === mitLicenseScrollbarDrag?.pointerId) moveMitLicenseScrollbar(event);
+            });
+            ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(type => {
+                mitLicenseScrollbar?.addEventListener(type, event => {
+                    if (event.pointerId !== mitLicenseScrollbarDrag?.pointerId) return;
+                    mitLicenseScrollbarDrag = null;
+                    mitLicenseScrollbar.classList.remove('is-dragging');
+                });
+            });
+            mitLicenseScrollbar?.addEventListener('click', event => event.stopPropagation());
             const restoreMitLicenseNavbar = () => {
                 if (mitLicenseNavbarPlaceholder.parentNode && mitLicenseNavbar) mitLicenseNavbarPlaceholder.replaceWith(mitLicenseNavbar);
                 if (mitLicenseLogoLabel !== undefined) {
@@ -2351,6 +2424,7 @@
                     try {
                         mitLicenseDialog.showModal();
                         if (mitLicenseCard) mitLicenseCard.scrollTop = 0;
+                        updateMitLicenseScrollbar();
                         mitLicenseLogoLabel = logoLink.getAttribute('aria-label');
                         logoLink.setAttribute('aria-label', 'Scroll MIT license to top or close');
                     } catch (error) {
