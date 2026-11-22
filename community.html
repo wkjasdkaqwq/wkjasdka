@@ -3034,19 +3034,39 @@
                 dependencies: document.querySelector('[data-relation-card-list="dependencies"]'),
                 dependents: document.querySelector('[data-relation-card-list="dependents"]')
             };
-            const getRelationCardLabel = index => {
-                let value = index + 1;
-                let label = '';
-                while (value > 0) {
-                    value -= 1;
-                    label = String.fromCharCode(97 + value % 26) + label;
-                    value = Math.floor(value / 26);
+            const shuffleRelationWords = words => {
+                const shuffled = words.slice();
+                for (let index = shuffled.length - 1; index > 0; index -= 1) {
+                    const swapIndex = Math.floor(Math.random() * (index + 1));
+                    [shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]];
                 }
-                return label;
+                return shuffled;
             };
+            const relationWordPools = {
+                single: shuffleRelationWords(`
+                    apple banana cherry date fig grape kiwi lemon mango orange peach pear plum apricot blueberry coconut guava papaya raspberry strawberry watermelon
+                    river ocean mountain forest meadow canyon valley glacier island desert lagoon waterfall thunder sunrise sunset cloud comet coral crystal ember breeze blossom branch pebble prairie
+                    anchor basket blanket bottle bridge button candle carpet compass curtain cushion drawer engine feather lantern mirror needle notebook pillow ribbon shelf shovel suitcase teapot wallet
+                    amber azure beige bronze crimson cyan emerald gold indigo ivory jade lavender lilac magenta maroon navy ochre ruby scarlet silver teal
+                    agile bright calm clever crisp curious daring eager gentle honest humble jolly kind lively mellow nimble patient polite quiet rapid serene sincere steady subtle tender tidy vivid warm
+                `.trim().split(/\s+/)),
+                hyphenated: shuffleRelationWords(`
+                    ice-cream blue-green high-speed long-term well-known part-time full-time self-care user-friendly wide-angle time-saving paper-thin snow-covered hand-made eye-catching fast-moving open-minded hard-working soft-spoken world-class child-friendly energy-efficient smoke-free sugar-free stress-free well-being mother-in-law sister-in-law check-in check-out runner-up editor-in-chief up-to-date one-of-a-kind over-the-counter self-esteem cross-platform real-time user-made home-grown last-minute record-breaking award-winning thought-provoking mind-blowing
+                `.trim().split(/\s+/)),
+                phrases: shuffleRelationWords('bright star|quiet river|silver cloud|golden meadow|hidden valley|gentle breeze|blue horizon|warm sunset|crystal cave|open field|curious traveler|shining beacon|peaceful garden|little harbor|distant mountain'.split('|').map(phrase => phrase.trim()))
+            };
+            const makeRelationCardRecords = (prefix, labels) => shuffleRelationWords(labels).map((label, index) => ({ id: `${prefix}-${index + 1}`, label }));
             const relationCardRecords = {
-                dependencies: Array.from({ length: 150 }, (_, index) => ({ id: `dependency-${index + 1}`, label: getRelationCardLabel(index) })),
-                dependents: Array.from({ length: 150 }, (_, index) => ({ id: `dependent-${index + 1}`, label: getRelationCardLabel(index) }))
+                dependencies: makeRelationCardRecords('dependency', [
+                    ...relationWordPools.single,
+                    ...relationWordPools.hyphenated.slice(0, 22),
+                    ...relationWordPools.phrases.slice(0, 8)
+                ]),
+                dependents: makeRelationCardRecords('dependent', [
+                    ...relationWordPools.single,
+                    ...relationWordPools.hyphenated.slice(22),
+                    ...relationWordPools.phrases.slice(8)
+                ])
             };
             const relationSearch = document.querySelector('.main-project-relation-search');
             const relationSearchInput = relationSearch?.querySelector('.main-project-relation-search-input');
