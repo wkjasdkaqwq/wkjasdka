@@ -2269,6 +2269,7 @@
             let mitLicenseRevealFrame = 0;
             let mitLicenseCloseTimer = 0;
             let mitLicenseMouseDownOnClose = false;
+            let mitLicenseMenuOpenOnPointerDown = false;
             let mitLicenseLogoLabel;
             const restoreMitLicenseNavbar = () => {
                 if (mitLicenseNavbarPlaceholder.parentNode && mitLicenseNavbar) mitLicenseNavbarPlaceholder.replaceWith(mitLicenseNavbar);
@@ -2282,6 +2283,7 @@
                 if (mitLicenseRevealFrame) window.cancelAnimationFrame(mitLicenseRevealFrame);
                 mitLicenseRevealFrame = 0;
                 mitLicenseMouseDownOnClose = false;
+                mitLicenseMenuOpenOnPointerDown = false;
                 document.documentElement.classList.remove('is-mit-license-open');
                 mitLicenseDialog?.classList.remove('is-nav-visible');
                 if (!focusDialog && (document.activeElement === mitLicenseNavClose || document.activeElement === mitLicenseDialog)) {
@@ -2387,8 +2389,14 @@
             });
             mitLicenseDialog?.addEventListener('pointerdown', event => {
                 mitLicenseMouseDownOnClose = event.pointerType === 'mouse' && !!mitLicenseNavClose?.contains(event.target);
+                if (event.isPrimary) mitLicenseMenuOpenOnPointerDown = menuPanel.classList.contains('open');
+            });
+            mitLicenseDialog?.addEventListener('pointercancel', event => {
+                if (event.isPrimary) mitLicenseMenuOpenOnPointerDown = false;
             });
             mitLicenseDialog?.addEventListener('click', event => {
+                const menuWasOpen = mitLicenseMenuOpenOnPointerDown;
+                mitLicenseMenuOpenOnPointerDown = false;
                 if (mitLicenseNavbar?.contains(event.target)) return;
                 // A drag from the close button can generate a backdrop click on release.
                 if (event.detail > 0 && mitLicenseMouseDownOnClose) {
@@ -2398,6 +2406,8 @@
                 const bounds = mitLicenseDialog.getBoundingClientRect();
                 const navbarBottom = document.getElementById('navbar')?.getBoundingClientRect().bottom ?? 0;
                 if (event.clientY >= navbarBottom && (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom)) {
+                    // The same pointer already dismissed the open menu on pointerdown.
+                    if (event.detail > 0 && menuWasOpen) return;
                     closeMitLicenseDialog();
                 }
             });
