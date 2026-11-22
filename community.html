@@ -391,6 +391,10 @@
         html.dark-mode .main-project-relation-page-button { color: #c5ced6; }
         html.dark-mode .main-project-relation-page-button:hover, html.dark-mode .main-project-relation-page-button[aria-current="page"] { color: #ffb27b; }
         html.dark-mode .main-project-relation-page-ellipsis { color: #9eabb5; }
+        .main-project-relation-card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 16px; margin-top: 16px; }
+        .main-project-relation-card-grid[hidden] { display: none; }
+        .main-project-relation-card { box-sizing: border-box; min-height: 132px; border: 1px solid #c2c2c2; border-radius: 12px; background: #fff; box-shadow: 0 4px 12px rgba(0, 0, 0, .06); }
+        html.dark-mode .main-project-relation-card { border-color: #385066; background: #172633; box-shadow: 0 4px 12px rgba(0, 0, 0, .18); }
         .main-project-relation-page-size-control { position: relative; z-index: 4; flex: 0 0 74px; width: 74px; height: 43px; margin-left: auto; -webkit-user-select: none; -moz-user-select: none; user-select: none; -webkit-touch-callout: none; }
         .main-project-relation-page-size-control * { -webkit-user-select: none; -moz-user-select: none; user-select: none; }
         /* Keep the radius within the collapsed height so the top outline stays fixed as the menu grows. */
@@ -1333,7 +1337,7 @@
                                 <svg class="main-project-relation-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="m16 16 4.5 4.5"></path></svg>
                             </div>
                         </div>
-                        <nav class="main-project-relation-pagination" aria-label="Relation pages" data-total-pages="10" data-current-page="1">
+                        <nav class="main-project-relation-pagination" aria-label="Relation pages" data-total-pages="8" data-current-page="1">
                             <button class="main-project-relation-pagination-arrow" type="button" data-page-step="-1" aria-label="Previous page" title="Previous page" disabled>
                                 <img src="resource/icon/bootstrap-icons/arrow-left.svg" alt="" aria-hidden="true">
                             </button>
@@ -1344,7 +1348,7 @@
                                 <button class="main-project-relation-page-button" type="button" data-page-number="4">4</button>
                                 <button class="main-project-relation-page-button" type="button" data-page-number="5">5</button>
                                 <span class="main-project-relation-page-ellipsis" aria-hidden="true">⋯</span>
-                                <button class="main-project-relation-page-button" type="button" data-page-number="10">10</button>
+                                <button class="main-project-relation-page-button" type="button" data-page-number="8">8</button>
                             </div>
                             <button class="main-project-relation-pagination-arrow" type="button" data-page-step="1" aria-label="Next page" title="Next page">
                                 <img src="resource/icon/bootstrap-icons/arrow-right.svg" alt="" aria-hidden="true">
@@ -1352,7 +1356,7 @@
                             <div class="main-project-relation-page-size-control" data-page-size-control data-expanded="false">
                                 <div class="main-project-relation-page-size-pill">
                                     <div class="main-project-relation-page-size-header">
-                                        <button class="main-project-relation-page-size-current" type="button" data-page-size-toggle aria-expanded="false" aria-label="Cards per page: 10. Show options" title="Show cards per page options">10</button>
+                                        <button class="main-project-relation-page-size-current" type="button" data-page-size-toggle aria-expanded="false" aria-label="Cards per page: 20. Show options" title="Show cards per page options">20</button>
                                         <button class="main-project-relation-page-size-toggle" type="button" data-page-size-toggle aria-expanded="false" aria-label="Expand cards per page options" title="Expand cards per page options">
                                             <span class="main-project-relation-page-size-icon" aria-hidden="true"></span>
                                         </button>
@@ -1360,8 +1364,8 @@
                                     <div class="main-project-relation-page-size-reveal" aria-hidden="true" inert>
                                         <div class="main-project-relation-page-size-viewport">
                                             <div class="main-project-relation-page-size-options" role="group" aria-label="Cards per page">
-                                                <button class="main-project-relation-page-size-option" type="button" data-page-size="10" aria-pressed="true">10</button>
-                                                <button class="main-project-relation-page-size-option" type="button" data-page-size="20" aria-pressed="false">20</button>
+                                                <button class="main-project-relation-page-size-option" type="button" data-page-size="10" aria-pressed="false">10</button>
+                                                <button class="main-project-relation-page-size-option" type="button" data-page-size="20" aria-pressed="true">20</button>
                                                 <button class="main-project-relation-page-size-option" type="button" data-page-size="50" aria-pressed="false">50</button>
                                                 <button class="main-project-relation-page-size-option" type="button" data-page-size="100" aria-pressed="false">100</button>
                                             </div>
@@ -1371,6 +1375,8 @@
                             </div>
                         </nav>
                     </div>
+                    <div class="main-project-relation-card-grid" data-relation-card-list="dependencies" aria-label="Dependencies cards"></div>
+                    <div class="main-project-relation-card-grid" data-relation-card-list="dependents" aria-label="Dependents cards" hidden></div>
                 </section>
                 <section class="main-project-tab-panel" id="panel-comment" role="tabpanel" aria-labelledby="tab-comment" hidden>
                     <h2 class="main-project-description-section-title">Semi-rounded Corner</h2>
@@ -3017,12 +3023,20 @@
             const relationPageSizeOptionPresses = new Map();
             const relationPaginationCompactMedia = window.matchMedia('(max-width: 600px)');
             const relationSwitcher = document.querySelector('.main-project-relation-switcher');
+            const relationCardLists = {
+                dependencies: document.querySelector('[data-relation-card-list="dependencies"]'),
+                dependents: document.querySelector('[data-relation-card-list="dependents"]')
+            };
+            const relationCardRecords = {
+                dependencies: Array.from({ length: 150 }, (_, index) => `dependency-${index + 1}`),
+                dependents: Array.from({ length: 150 }, (_, index) => `dependent-${index + 1}`)
+            };
             let activeRelationKey = relationSwitcher?.dataset.activeRelation === 'dependents' ? 'dependents' : 'dependencies';
-            const initialRelationTotalPages = Math.max(1, Number.parseInt(relationPagination?.dataset.totalPages, 10) || 1);
             const initialRelationPage = Math.max(1, Number.parseInt(relationPagination?.dataset.currentPage, 10) || 1);
+            const getRelationTotalPages = (relationKey, pageSize) => Math.max(1, Math.ceil(relationCardRecords[relationKey].length / pageSize));
             const relationPaginationStates = {
-                dependencies: { currentPage: initialRelationPage, totalPages: initialRelationTotalPages, pageSize: 10 },
-                dependents: { currentPage: 1, totalPages: initialRelationTotalPages, pageSize: 10 }
+                dependencies: { currentPage: initialRelationPage, totalPages: getRelationTotalPages('dependencies', 20), pageSize: 20 },
+                dependents: { currentPage: 1, totalPages: getRelationTotalPages('dependents', 20), pageSize: 20 }
             };
             const getRelationPageWindow = (currentPage, totalPages) => {
                 if (relationPaginationCompactMedia.matches) {
@@ -3064,6 +3078,24 @@
                 relationPaginationButtons.forEach(button => {
                     const step = Number(button.dataset.pageStep);
                     button.disabled = page + step < 1 || page + step > totalPages;
+                });
+            };
+            const renderRelationCards = () => {
+                Object.entries(relationCardLists).forEach(([relationKey, cardList]) => {
+                    if (!cardList) return;
+                    const isActive = relationKey === activeRelationKey;
+                    cardList.hidden = !isActive;
+                    if (!isActive) return;
+                    const relationState = relationPaginationStates[relationKey];
+                    const firstCardIndex = (relationState.currentPage - 1) * relationState.pageSize;
+                    const visibleCards = relationCardRecords[relationKey].slice(firstCardIndex, firstCardIndex + relationState.pageSize);
+                    cardList.replaceChildren(...visibleCards.map(cardId => {
+                        const card = document.createElement('div');
+                        card.className = 'main-project-relation-card';
+                        card.dataset.cardId = cardId;
+                        card.setAttribute('aria-hidden', 'true');
+                        return card;
+                    }));
                 });
             };
             const rerenderRelationPaginationForViewport = () => renderRelationPagination(relationPaginationStates[activeRelationKey].currentPage);
@@ -3142,10 +3174,15 @@
                 button.addEventListener('click', () => {
                     const pageSize = Number(button.dataset.pageSize);
                     if (![10, 20, 50, 100].includes(pageSize)) return;
-                    if (pageSize === relationPaginationStates[activeRelationKey].pageSize) return;
-                    relationPaginationStates[activeRelationKey].pageSize = pageSize;
+                    const relationState = relationPaginationStates[activeRelationKey];
+                    if (pageSize === relationState.pageSize) return;
+                    relationState.pageSize = pageSize;
+                    relationState.totalPages = getRelationTotalPages(activeRelationKey, pageSize);
+                    relationState.currentPage = Math.min(relationState.currentPage, relationState.totalPages);
                     relationPageSizeControl.dataset.expanded = 'false';
                     renderRelationPageSizeControl();
+                    renderRelationPagination(relationState.currentPage);
+                    renderRelationCards();
                 });
             });
             document.addEventListener('pointerdown', event => {
@@ -3166,14 +3203,17 @@
                 const button = event.target.closest('[data-page-number]');
                 if (!button) return;
                 renderRelationPagination(Number(button.dataset.pageNumber));
+                renderRelationCards();
             });
             relationPaginationButtons.forEach(button => {
                 button.addEventListener('click', () => {
                     if (button.disabled) return;
                     renderRelationPagination(Number(relationPagination.dataset.currentPage) + Number(button.dataset.pageStep));
+                    renderRelationCards();
                 });
             });
             renderRelationPagination(relationPaginationStates[activeRelationKey].currentPage);
+            renderRelationCards();
             const relationSearch = document.querySelector('.main-project-relation-search');
             const relationSearchTouchMedia = window.matchMedia('(hover: none), (pointer: coarse)');
             let relationSearchPressedPointer = null;
@@ -3219,6 +3259,7 @@
                     if (relationPageSizeControl) relationPageSizeControl.dataset.expanded = 'false';
                     renderRelationPageSizeControl();
                     renderRelationPagination(nextRelationState.currentPage);
+                    renderRelationCards();
                 });
             });
             const relationSearchScroller = document.getElementById('mainContent');
