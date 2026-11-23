@@ -55,7 +55,12 @@
     "documentTitle": "Semi-rounded Corner on Liuyanlin Community",
     "logoAlt": "Liuyanlin Community Logo",
     "pageHeading": "Test",
-    "pageDescription": "This is a Community front-end test page."
+    "pageDescription": "This is a Community front-end test page.",
+    "relationSortOrderTitle": "Sort order",
+    "relationNumberOrderTitle": "Number order",
+    "relationZeroPlacementTitle": "Always place 0 at",
+    "relationSortFront": "Front",
+    "relationSortEnd": "End"
   },
   "home": {
     "documentTitle": "W.K.Jasdka Official Website",

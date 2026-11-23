@@ -55,7 +55,12 @@
     "documentTitle": "Liuyanlin Community 上的 Semi-rounded Corner",
     "logoAlt": "Liuyanlin Community 标志",
     "pageHeading": "测试",
-    "pageDescription": "这是一个 Community 前端页面测试。"
+    "pageDescription": "这是一个 Community 前端页面测试。",
+    "relationSortOrderTitle": "排列顺序",
+    "relationNumberOrderTitle": "数字排列顺序",
+    "relationZeroPlacementTitle": "数字 0 始终排列在",
+    "relationSortFront": "前面",
+    "relationSortEnd": "末尾"
   },
   "home": {
     "documentTitle": "W.K.Jasdka 官方网站",
