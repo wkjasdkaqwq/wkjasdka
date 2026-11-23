@@ -358,7 +358,8 @@
         }
         .main-project-relation-filter-layer { position: fixed; z-index: 9003; inset: var(--community-navbar-height) 0 0; overflow: visible; visibility: hidden; pointer-events: none; transition: visibility 0s linear .42s; }
         .main-project-relation-filter-layer.is-open { visibility: visible; pointer-events: auto; transition-delay: 0s; }
-        #main-project-relation-filter-layer.is-open > #navbar { z-index: 2; }
+        /* Preserve the stacking order until the close button finishes sliding out. */
+        #main-project-relation-filter-layer > #navbar { z-index: 2; }
         .main-project-relation-filter-backdrop { position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; border: 0; background: rgba(0, 0, 0, .28); opacity: 0; cursor: default; -webkit-tap-highlight-color: transparent; touch-action: none; transition: opacity .38s ease; }
         .main-project-relation-filter-layer.is-open .main-project-relation-filter-backdrop { opacity: 1; }
         .main-project-relation-filter-drawer { position: absolute; top: 0; bottom: 0; left: 0; display: flex; flex-direction: column; box-sizing: border-box; width: 65%; overflow: hidden; border-right: 1px solid #d6d6d6; background: #fff; box-shadow: 12px 0 32px rgba(0, 0, 0, .16); transform: translateX(-100%); transition: transform 180ms ease; will-change: transform; }
@@ -367,8 +368,8 @@
         .main-project-relation-filter-drawer.is-offscreen { box-shadow: none; }
         .main-project-relation-filter-drawer-header { display: flex; flex: 0 0 auto; align-items: center; justify-content: space-between; min-height: 68px; box-sizing: border-box; padding: 12px 20px; border-bottom: 1px solid #e4e4e4; }
         .main-project-relation-filter-drawer-title { margin: 0; color: #333; font-size: 1.12rem; font-weight: 650; }
-        .main-project-relation-filter-close { position: fixed; top: calc((var(--community-navbar-height) - 44px) / 2); left: 7px; z-index: 1; display: grid; place-items: center; box-sizing: border-box; width: 44px; height: 44px; padding: 0; border: 1px solid #FFB380; border-radius: 50%; background: #FFDAB9; color: #E67E22; box-shadow: 0 4px 12px rgba(255, 218, 185, .5); cursor: pointer; visibility: hidden; pointer-events: none; transform: translateX(-51px); transition: transform 180ms ease, visibility 0s linear 180ms, background-color .2s ease, border-color .2s ease, box-shadow .2s ease; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
-        .main-project-relation-filter-layer.is-open .main-project-relation-filter-close { z-index: 3; visibility: visible; pointer-events: auto; transform: translateX(0); transition: transform 180ms ease, visibility 0s, background-color .2s ease, border-color .2s ease, box-shadow .2s ease; }
+        .main-project-relation-filter-close { position: fixed; top: calc((var(--community-navbar-height) - 44px) / 2); left: 7px; z-index: 3; display: grid; place-items: center; box-sizing: border-box; width: 44px; height: 44px; padding: 0; border: 1px solid #FFB380; border-radius: 50%; background: #FFDAB9; color: #E67E22; box-shadow: 0 4px 12px rgba(255, 218, 185, .5); cursor: pointer; visibility: hidden; pointer-events: none; transform: translateX(-51px); transition: transform 180ms ease, visibility 0s linear 180ms, background-color .2s ease, border-color .2s ease, box-shadow .2s ease; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+        .main-project-relation-filter-layer.is-open .main-project-relation-filter-close { visibility: visible; pointer-events: auto; transform: translateX(0); transition: transform 180ms ease, visibility 0s, background-color .2s ease, border-color .2s ease, box-shadow .2s ease; }
         .main-project-relation-filter-close svg { display: block; width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-width: 2; pointer-events: none; }
         .main-project-relation-filter-close:focus { outline: 2px solid #64b5f6; outline-offset: 2px; }
         @media (hover: hover) and (pointer: fine) {
@@ -3411,7 +3412,6 @@
             const relationFilterNavbar = document.getElementById('navbar');
             const relationFilterNavbarPlaceholder = document.createComment('relation-filter-navbar-placeholder');
             let relationFilterNavbarRestoreTimer = 0;
-            let relationFilterLayerInertTimer = 0;
             let relationFilterPreviousMainInert = false;
             let relationFilterBackdropClickGuard = null;
             let relationFilterPendingMainRestoreFocus = false;
@@ -3437,10 +3437,6 @@
                     window.clearTimeout(relationFilterNavbarRestoreTimer);
                     relationFilterNavbarRestoreTimer = 0;
                 }
-                if (relationFilterLayerInertTimer) {
-                    window.clearTimeout(relationFilterLayerInertTimer);
-                    relationFilterLayerInertTimer = 0;
-                }
                 if (open) relationFilterDrawer.classList.remove('is-offscreen');
                 if (open && relationFilterBackdropClickGuard) releaseRelationFilterBackgroundShield();
                 if (open && relationFilterNavbar?.parentNode && relationFilterNavbar.parentNode !== relationFilterLayer) {
@@ -3450,15 +3446,7 @@
                 }
                 relationFilterButton.setAttribute('aria-expanded', String(open));
                 relationFilterLayer.setAttribute('aria-hidden', String(!open));
-                relationFilterLayer.inert = false;
-                if (relationFilterCloseButton) relationFilterCloseButton.disabled = !open;
-                if (!open) {
-                    // Keep the layer paintable while the close control slides offscreen, as the MIT dialog does.
-                    relationFilterLayerInertTimer = window.setTimeout(() => {
-                        relationFilterLayerInertTimer = 0;
-                        if (!relationFilterLayer.classList.contains('is-open')) relationFilterLayer.inert = true;
-                    }, 200);
-                }
+                relationFilterLayer.toggleAttribute('inert', !open);
                 relationFilterDrawer.toggleAttribute('inert', !open);
                 relationFilterLayer.classList.toggle('is-open', open);
                 document.documentElement.classList.toggle('is-relation-filter-open', open);
