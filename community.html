@@ -3153,14 +3153,6 @@
                     relationSwitchButtons.forEach((item, itemIndex) => item.setAttribute('aria-pressed', String(itemIndex === index)));
                     button.closest('.main-project-relation-switcher')?.setAttribute('data-active-relation', button.dataset.relation);
                 });
-                button.addEventListener('keydown', event => {
-                    if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
-                    event.preventDefault();
-                    const direction = event.key === 'ArrowRight' ? 1 : -1;
-                    const nextIndex = (index + direction + relationSwitchButtons.length) % relationSwitchButtons.length;
-                    relationSwitchButtons[nextIndex].click();
-                    relationSwitchButtons[nextIndex].focus();
-                });
             });
             const relationPagination = document.querySelector('.main-project-relation-pagination');
             const relationPageList = relationPagination?.querySelector('.main-project-relation-page-list');
