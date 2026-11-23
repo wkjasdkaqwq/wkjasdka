@@ -3955,6 +3955,16 @@
                     }
                     return;
                 }
+                const relationFilterLayerForLogo = document.getElementById('main-project-relation-filter-layer');
+                if (relationFilterLayerForLogo?.classList.contains('is-open')) {
+                    const relationFilterBodyForLogo = relationFilterLayerForLogo.querySelector('.main-project-relation-filter-drawer-body');
+                    if (relationFilterBodyForLogo?.scrollTop > 0) {
+                        relationFilterBodyForLogo.scrollTo({ top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+                    } else {
+                        relationFilterLayerForLogo.querySelector('.main-project-relation-filter-close')?.click();
+                    }
+                    return;
+                }
                 const contentScroller = document.getElementById('mainContent');
                 const pageScrollTop = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop;
                 const contentScrollTop = contentScroller ? contentScroller.scrollTop : 0;
