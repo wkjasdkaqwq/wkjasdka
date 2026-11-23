@@ -3281,6 +3281,8 @@
                     tooltip.style.setProperty('--relation-tooltip-arrow-offset-y', `${arrowOffsetY}px`);
                 }
                 tooltip.style.transform = originalTransform;
+                // Commit the hidden starting position before re-enabling transitions.
+                if (popover.dataset.visible !== 'true') void tooltip.offsetWidth;
                 tooltip.style.transition = originalTransition;
             };
             const setRelationDownloadPopoverVisible = (popover, visible) => {
