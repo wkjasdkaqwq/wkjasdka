@@ -363,6 +363,7 @@
         .main-project-relation-filter-layer.is-open .main-project-relation-filter-backdrop { opacity: 1; }
         .main-project-relation-filter-drawer { position: absolute; top: 0; bottom: 0; left: 0; display: flex; flex-direction: column; box-sizing: border-box; width: 65%; overflow: hidden; border-right: 1px solid #d6d6d6; background: #fff; box-shadow: 12px 0 32px rgba(0, 0, 0, .16); transform: translateX(-100%); transition: transform 180ms ease; will-change: transform; }
         .main-project-relation-filter-layer.is-open .main-project-relation-filter-drawer { transform: translateX(0); }
+        .main-project-relation-filter-drawer.is-offscreen { box-shadow: none; }
         .main-project-relation-filter-drawer-header { display: flex; flex: 0 0 auto; align-items: center; justify-content: space-between; min-height: 68px; box-sizing: border-box; padding: 12px 20px; border-bottom: 1px solid #e4e4e4; }
         .main-project-relation-filter-drawer-title { margin: 0; color: #333; font-size: 1.12rem; font-weight: 650; }
         .main-project-relation-filter-close { position: fixed; top: calc((var(--community-navbar-height) - 44px) / 2); left: 7px; z-index: 1; display: grid; place-items: center; box-sizing: border-box; width: 44px; height: 44px; padding: 0; border: 1px solid #FFB380; border-radius: 50%; background: #FFDAB9; color: #E67E22; box-shadow: 0 4px 12px rgba(255, 218, 185, .5); cursor: pointer; visibility: hidden; pointer-events: none; transform: translateX(-51px); transition: transform 180ms ease, visibility 0s linear 180ms, background-color .2s ease, border-color .2s ease, box-shadow .2s ease; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
@@ -378,6 +379,7 @@
         }
         .main-project-relation-filter-drawer-body { flex: 1 1 auto; min-height: 0; overflow: auto; overscroll-behavior: contain; padding: 20px; }
         html.dark-mode .main-project-relation-filter-drawer { border-right-color: #385066; background: #172633; box-shadow: 12px 0 32px rgba(0, 0, 0, .34); }
+        html.dark-mode .main-project-relation-filter-drawer.is-offscreen { box-shadow: none; }
         html.dark-mode .main-project-relation-filter-drawer-header { border-bottom-color: #385066; }
         html.dark-mode .main-project-relation-filter-drawer-title { color: #d8e0e7; }
         html.dark-mode .main-project-relation-filter-close { border-color: #a66a3d; background: #3b3028; color: #ffc08a; box-shadow: 0 4px 12px rgba(0, 0, 0, .25); }
@@ -3335,10 +3337,17 @@
                 if (relationFilterPendingMainRestoreFocus && !relationFilterPreviousMainInert && !relationFilterLayer?.classList.contains('is-open')) relationFilterButton?.focus({ preventScroll: true });
                 relationFilterPendingMainRestoreFocus = false;
             };
+            const finishRelationFilterDrawerTransition = event => {
+                if (event.target !== relationFilterDrawer || event.propertyName !== 'transform' || relationFilterLayer?.classList.contains('is-open')) return;
+                relationFilterDrawer.classList.add('is-offscreen');
+                if (relationFilterBackdropClickGuard) releaseRelationFilterBackgroundShield();
+            };
+            relationFilterDrawer?.addEventListener('transitionend', finishRelationFilterDrawerTransition);
             const setRelationFilterOpen = (open, holdBackgroundShield = false) => {
                 if (!relationFilterLayer || !relationFilterDrawer || !relationFilterButton) return;
                 const wasOpen = relationFilterLayer.classList.contains('is-open');
                 if (wasOpen === open) return;
+                if (open) relationFilterDrawer.classList.remove('is-offscreen');
                 if (open && relationFilterBackdropClickGuard) releaseRelationFilterBackgroundShield();
                 relationFilterButton.setAttribute('aria-expanded', String(open));
                 relationFilterLayer.setAttribute('aria-hidden', String(!open));
