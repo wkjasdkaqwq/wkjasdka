@@ -3140,9 +3140,10 @@
                     button.closest('.main-project-relation-switcher')?.setAttribute('data-active-relation', button.dataset.relation);
                 });
                 button.addEventListener('keydown', event => {
-                    if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+                    const key = event.key.toLowerCase();
+                    if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight' && key !== 'a' && key !== 'd') return;
                     event.preventDefault();
-                    const direction = event.key === 'ArrowRight' ? 1 : -1;
+                    const direction = event.key === 'ArrowRight' || key === 'd' ? 1 : -1;
                     const nextIndex = (index + direction + relationSwitchButtons.length) % relationSwitchButtons.length;
                     relationSwitchButtons[nextIndex].click();
                     relationSwitchButtons[nextIndex].focus();
