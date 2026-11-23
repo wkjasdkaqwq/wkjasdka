@@ -211,7 +211,7 @@
         .navbar { position: fixed; top: 0; left: 0; width: 100%; height: var(--community-navbar-height); box-sizing: border-box; padding: 0; background-color: #ebebeb; z-index: 9000; box-shadow: 0 2px 5px rgba(0,0,0,.08); }
         .navbar-container { width: 100%; height: 100%; display: flex; align-items: center; justify-content: space-between; }
         #communityLogoLink { transform: translateX(0); transition: transform 180ms ease; }
-        html.is-mit-license-open #communityLogoLink { transform: translateX(51px); }
+        html.is-mit-license-open #communityLogoLink, html.is-relation-filter-open #communityLogoLink { transform: translateX(51px); }
         .navbar-logo { display: block; width: min(83px, 22vw); height: auto; max-height: 1.9rem; margin-left: 1rem; object-fit: contain; object-position: left center; cursor: pointer; user-select: none; -webkit-user-select: none; -webkit-user-drag: none; transform: translateX(-5px); transition: filter .1s ease, transform .3s ease; transform-origin: left center; }
         .navbar-menu { display: flex; list-style: none; margin: 0; padding: 0 1rem; }
         .menu-anchor { position: absolute; top: 0; right: calc(.625rem + 8px - .2rem); bottom: 0; z-index: 9001; width: 2.3rem; }
@@ -356,24 +356,24 @@
         @media (hover: none), (pointer: coarse) {
             html.dark-mode .main-project-relation-filter-button:active { border-color: #FF9C5A; background: #FFC38D; color: #E67E22; box-shadow: 0 2px 6px rgba(255, 218, 185, .5); }
         }
-        .main-project-relation-filter-layer { position: fixed; z-index: 8990; inset: var(--community-navbar-height) 0 0; overflow: hidden; visibility: hidden; pointer-events: none; transition: visibility 0s linear .42s; }
+        .main-project-relation-filter-layer { position: fixed; z-index: 9003; inset: var(--community-navbar-height) 0 0; overflow: visible; visibility: hidden; pointer-events: none; transition: visibility 0s linear .42s; }
         .main-project-relation-filter-layer.is-open { visibility: visible; pointer-events: auto; transition-delay: 0s; }
         .main-project-relation-filter-backdrop { position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; border: 0; background: rgba(0, 0, 0, .28); opacity: 0; cursor: default; transition: opacity .38s ease; }
         .main-project-relation-filter-layer.is-open .main-project-relation-filter-backdrop { opacity: 1; }
         .main-project-relation-filter-drawer { position: absolute; top: 0; bottom: 0; left: 0; display: flex; flex-direction: column; box-sizing: border-box; width: 65%; overflow: hidden; border-right: 1px solid #d6d6d6; background: #fff; box-shadow: 12px 0 32px rgba(0, 0, 0, .16); transform: translateX(-100%); transition: transform .42s cubic-bezier(.22, .75, .25, 1); will-change: transform; }
         .main-project-relation-filter-layer.is-open .main-project-relation-filter-drawer { transform: translateX(0); }
-        .main-project-relation-filter-drawer-header { position: relative; display: flex; flex: 0 0 auto; align-items: center; justify-content: flex-start; min-height: 68px; box-sizing: border-box; padding: 12px 20px 12px 63px; border-bottom: 1px solid #e4e4e4; }
+        .main-project-relation-filter-drawer-header { display: flex; flex: 0 0 auto; align-items: center; justify-content: space-between; min-height: 68px; box-sizing: border-box; padding: 12px 20px; border-bottom: 1px solid #e4e4e4; }
         .main-project-relation-filter-drawer-title { margin: 0; color: #333; font-size: 1.12rem; font-weight: 650; }
-        .main-project-relation-filter-close { position: absolute; top: 50%; left: 7px; z-index: 1; display: grid; place-items: center; box-sizing: border-box; width: 44px; height: 44px; padding: 0; border: 1px solid #FFB380; border-radius: 50%; background: #FFDAB9; color: #E67E22; box-shadow: 0 4px 12px rgba(255, 218, 185, .5); cursor: pointer; transform: translateX(-51px) translateY(-50%); transition: transform 180ms ease, background-color .2s ease, border-color .2s ease, box-shadow .2s ease; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
-        .main-project-relation-filter-layer.is-open .main-project-relation-filter-close { transform: translateX(0) translateY(-50%); }
+        .main-project-relation-filter-close { position: fixed; top: calc((var(--community-navbar-height) - 44px) / 2); left: 7px; z-index: 1; display: grid; place-items: center; box-sizing: border-box; width: 44px; height: 44px; padding: 0; border: 1px solid #FFB380; border-radius: 50%; background: #FFDAB9; color: #E67E22; box-shadow: 0 4px 12px rgba(255, 218, 185, .5); cursor: pointer; visibility: hidden; pointer-events: none; transform: translateX(-51px); transition: transform 180ms ease, visibility 0s linear 180ms, background-color .2s ease, border-color .2s ease, box-shadow .2s ease; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+        .main-project-relation-filter-layer.is-open .main-project-relation-filter-close { visibility: visible; pointer-events: auto; transform: translateX(0); transition: transform 180ms ease, visibility 0s, background-color .2s ease, border-color .2s ease, box-shadow .2s ease; }
         .main-project-relation-filter-close svg { display: block; width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-width: 2; pointer-events: none; }
         .main-project-relation-filter-close:focus { outline: 2px solid #64b5f6; outline-offset: 2px; }
         @media (hover: hover) and (pointer: fine) {
-            .main-project-relation-filter-layer.is-open .main-project-relation-filter-close:hover { transform: translateX(0) translateY(-50%) scale(1.08); border-color: #FF9966; background: #FFE4C4; box-shadow: 0 8px 20px rgba(255, 218, 185, .8); }
-            .main-project-relation-filter-layer.is-open .main-project-relation-filter-close:active { transform: translateX(0) translateY(-50%) scale(.96); border-color: #FF9C5A; background: #FFC38D; box-shadow: 0 6px 16px rgba(255, 218, 185, .6); }
+            .main-project-relation-filter-layer.is-open .main-project-relation-filter-close:hover { transform: translateX(0) scale(1.08); border-color: #FF9966; background: #FFE4C4; box-shadow: 0 8px 20px rgba(255, 218, 185, .8); }
+            .main-project-relation-filter-layer.is-open .main-project-relation-filter-close:active { transform: translateX(0) scale(.96); border-color: #FF9C5A; background: #FFC38D; box-shadow: 0 6px 16px rgba(255, 218, 185, .6); }
         }
         @media (hover: none), (pointer: coarse) {
-            .main-project-relation-filter-layer.is-open .main-project-relation-filter-close:active { transform: translateX(0) translateY(calc(-50% + 1px)) scale(.96); border-color: #FF9C5A; background: #FFC38D; box-shadow: 0 2px 6px rgba(255, 218, 185, .5); }
+            .main-project-relation-filter-layer.is-open .main-project-relation-filter-close:active { transform: translateX(0) translateY(1px) scale(.96); border-color: #FF9C5A; background: #FFC38D; box-shadow: 0 2px 6px rgba(255, 218, 185, .5); }
         }
         .main-project-relation-filter-drawer-body { flex: 1 1 auto; min-height: 0; overflow: auto; overscroll-behavior: contain; padding: 20px; }
         html.dark-mode .main-project-relation-filter-drawer { border-right-color: #385066; background: #172633; box-shadow: 12px 0 32px rgba(0, 0, 0, .34); }
@@ -388,7 +388,7 @@
             html.dark-mode .main-project-relation-filter-layer.is-open .main-project-relation-filter-close:active { border-color: #FF9C5A; background: #FFC38D; color: #E67E22; box-shadow: 0 2px 6px rgba(255, 218, 185, .5); }
         }
         @media (max-width: 600px) {
-            .main-project-relation-filter-drawer-header { min-height: 60px; padding: 10px 14px 10px 63px; }
+            .main-project-relation-filter-drawer-header { min-height: 60px; padding: 10px 14px; }
             .main-project-relation-filter-drawer-body { padding: 14px; }
         }
         @media (prefers-reduced-motion: reduce) {
@@ -799,7 +799,7 @@
         .mit-license-dialog.is-closing::backdrop { animation: mitLicenseBackdropOut 180ms ease-in both; }
         @media (prefers-reduced-motion: reduce) {
             .mit-license-dialog[open] .mit-license-surface, .mit-license-dialog[open]::backdrop, .mit-license-dialog.is-closing .mit-license-surface, .mit-license-dialog.is-closing::backdrop { animation-duration: .01ms; }
-            #communityLogoLink, .mit-license-nav-close, .mit-license-dialog.is-nav-visible .mit-license-nav-close { transition-duration: 0s; }
+            #communityLogoLink, html.is-relation-filter-open #communityLogoLink, .mit-license-nav-close, .mit-license-dialog.is-nav-visible .mit-license-nav-close { transition-duration: 0s; }
         }
         .main-project-developer-content .compatibility-version-list { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; margin-top: 8px; }
         .main-project-developer-button-slot { display: grid; place-items: center; flex: 0 0 58px; width: 58px; height: 58px; }
@@ -1436,17 +1436,17 @@
             </div>
         </div>
     </main>
-    <div class="main-project-relation-filter-layer" id="main-project-relation-filter-layer" aria-hidden="true" inert>
+    <div class="main-project-relation-filter-layer" id="main-project-relation-filter-layer" role="dialog" aria-modal="true" aria-labelledby="main-project-relation-filter-title" tabindex="-1" aria-hidden="true" inert>
         <button class="main-project-relation-filter-backdrop" type="button" data-relation-filter-dismiss aria-label="Close filters" tabindex="-1"></button>
-        <aside class="main-project-relation-filter-drawer" role="dialog" aria-modal="true" aria-labelledby="main-project-relation-filter-title" tabindex="-1" inert>
+        <button class="main-project-relation-filter-close" type="button" data-relation-filter-dismiss aria-label="Close filters" title="Close filters" aria-controls="main-project-relation-filter-drawer">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m6 6 12 12M18 6 6 18"></path></svg>
+        </button>
+        <div class="main-project-relation-filter-drawer" id="main-project-relation-filter-drawer" inert>
             <div class="main-project-relation-filter-drawer-header">
                 <h2 class="main-project-relation-filter-drawer-title" id="main-project-relation-filter-title">Filters</h2>
-                <button class="main-project-relation-filter-close" type="button" data-relation-filter-dismiss aria-label="Close filters" title="Close filters">
-                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m6 6 12 12M18 6 6 18"></path></svg>
-                </button>
             </div>
             <div class="main-project-relation-filter-drawer-body"></div>
-        </aside>
+        </div>
     </div>
     <div class="community-scrollbar community-page-scrollbar" aria-hidden="true"><div class="community-scrollbar-thumb"></div></div>
     <dialog class="community-gallery-preview-dialog" id="community-gallery-preview-dialog" aria-label="Gallery image preview">
@@ -3309,6 +3309,7 @@
                 relationFilterLayer.toggleAttribute('inert', !open);
                 relationFilterDrawer.toggleAttribute('inert', !open);
                 relationFilterLayer.classList.toggle('is-open', open);
+                document.documentElement.classList.toggle('is-relation-filter-open', open);
                 if (relationFilterMainContent) {
                     if (open) {
                         relationFilterPreviousMainInert = relationFilterMainContent.inert;
@@ -3330,18 +3331,18 @@
                     return;
                 }
                 if (event.key !== 'Tab') return;
-                const focusable = Array.from(relationFilterDrawer.querySelectorAll('button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'));
+                const focusable = [relationFilterCloseButton, ...Array.from(relationFilterDrawer.querySelectorAll('button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'))].filter(element => element && !element.disabled);
                 if (!focusable.length) {
                     event.preventDefault();
-                    relationFilterDrawer.focus({ preventScroll: true });
+                    relationFilterLayer.focus({ preventScroll: true });
                     return;
                 }
                 const first = focusable[0];
                 const last = focusable[focusable.length - 1];
-                if (event.shiftKey && (document.activeElement === first || !relationFilterDrawer.contains(document.activeElement))) {
+                if (event.shiftKey && (document.activeElement === first || !relationFilterLayer.contains(document.activeElement))) {
                     event.preventDefault();
                     last.focus();
-                } else if (!event.shiftKey && (document.activeElement === last || !relationFilterDrawer.contains(document.activeElement))) {
+                } else if (!event.shiftKey && (document.activeElement === last || !relationFilterLayer.contains(document.activeElement))) {
                     event.preventDefault();
                     first.focus();
                 }
