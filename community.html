@@ -3235,17 +3235,39 @@
                 `.trim().split(/\s+/)),
                 phrases: shuffleRelationItems('bright star|quiet river|silver cloud|golden meadow|hidden valley|gentle breeze|blue horizon|warm sunset|crystal cave|open field|curious traveler|shining beacon|peaceful garden|little harbor|distant mountain'.split('|').map(phrase => phrase.trim()))
             };
-            const relationToday = new Date();
             const relationFirstDay = Date.UTC(2021, 0, 1);
-            const relationLastDay = Date.UTC(relationToday.getFullYear(), relationToday.getMonth(), relationToday.getDate());
-            const relationDatePool = shuffleRelationItems(Array.from(
+            const relationLastDay = Date.UTC(2026, 10, 23);
+            const relationTimestampKeys = [
+                ...relationWordPools.single.flatMap(label => [`dependencies:${label}`, `dependents:${label}`]),
+                ...relationWordPools.hyphenated.map(label => `shared:${label}`),
+                ...relationWordPools.phrases.map(label => `shared:${label}`)
+            ].sort();
+            let relationTimestampSeed = 0x23a11e;
+            const nextRelationTimestampRandom = () => {
+                relationTimestampSeed = (relationTimestampSeed + 0x6D2B79F5) | 0;
+                let value = relationTimestampSeed;
+                value = Math.imul(value ^ value >>> 15, value | 1);
+                value ^= value + Math.imul(value ^ value >>> 7, value | 61);
+                return ((value ^ value >>> 14) >>> 0) / 4294967296;
+            };
+            const relationDatePool = Array.from(
                 { length: Math.floor((relationLastDay - relationFirstDay) / 86400000) + 1 },
                 (_, index) => new Date(relationFirstDay + index * 86400000).toISOString().slice(0, 10)
-            ));
-            const makeRelationCardRecords = (prefix, labels) => shuffleRelationItems(labels).map((label, index) => {
+            );
+            for (let index = relationDatePool.length - 1; index > 0; index -= 1) {
+                const swapIndex = Math.floor(nextRelationTimestampRandom() * (index + 1));
+                [relationDatePool[index], relationDatePool[swapIndex]] = [relationDatePool[swapIndex], relationDatePool[index]];
+            }
+            const relationTimestampByKey = new Map(relationTimestampKeys.map(key => {
                 const day = relationDatePool.pop();
-                const randomSeconds = Math.floor(Math.random() * 86400);
-                const dateTime = new Date(Date.parse(`${day}T00:00:00Z`) + randomSeconds * 1000).toISOString();
+                const secondsAvailable = day === '2026-11-23' ? 17172 : 86400;
+                const randomSeconds = Math.floor(nextRelationTimestampRandom() * secondsAvailable);
+                return [key, new Date(Date.parse(`${day}T00:00:00Z`) + randomSeconds * 1000).toISOString()];
+            }));
+            const makeRelationCardRecords = (prefix, labels) => shuffleRelationItems(labels).map((label, index) => {
+                const relationCategory = prefix === 'dependency' ? 'dependencies' : 'dependents';
+                const timestampKey = relationWordPools.single.includes(label) ? `${relationCategory}:${label}` : `shared:${label}`;
+                const dateTime = relationTimestampByKey.get(timestampKey);
                 return {
                     id: `${prefix}-${index + 1}`,
                     label,
@@ -3258,6 +3280,35 @@
                 if (downloads >= 1000000) return `${(downloads / 1000000).toFixed(1)}M`;
                 if (downloads >= 10000) return `${(downloads / 1000).toFixed(1)}K`;
                 return String(downloads);
+            };
+            const formatRelationTimeAgo = dateTime => {
+                const elapsedSeconds = Math.max(0, (Date.now() - Date.parse(dateTime)) / 1000);
+                if (elapsedSeconds <= 30) return 'just now';
+                let value;
+                let unit;
+                if (elapsedSeconds <= 100) {
+                    value = Math.floor(elapsedSeconds);
+                    unit = 'second';
+                } else if (elapsedSeconds <= 100 * 60) {
+                    value = Math.floor(elapsedSeconds / 60);
+                    unit = 'minute';
+                } else if (elapsedSeconds <= 50 * 60 * 60) {
+                    value = Math.floor(elapsedSeconds / 3600);
+                    unit = 'hour';
+                } else if (elapsedSeconds <= 10 * 86400) {
+                    value = Math.floor(elapsedSeconds / 86400);
+                    unit = 'day';
+                } else if (elapsedSeconds <= 5 * 7 * 86400) {
+                    value = Math.floor(elapsedSeconds / (7 * 86400));
+                    unit = 'week';
+                } else if (elapsedSeconds <= 20 * 30 * 86400) {
+                    value = Math.floor(elapsedSeconds / (30 * 86400));
+                    unit = 'month';
+                } else {
+                    value = Math.floor(elapsedSeconds / (365 * 86400));
+                    unit = 'year';
+                }
+                return `${value} ${unit}${value === 1 ? '' : 's'} ago`;
             };
             const relationCardRecords = {
                 dependencies: makeRelationCardRecords('dependency', [
@@ -3415,7 +3466,9 @@
                         const time = document.createElement('time');
                         time.className = 'main-project-relation-card-time';
                         time.dateTime = cardRecord.dateTime;
-                        time.textContent = cardRecord.date;
+                        time.textContent = formatRelationTimeAgo(cardRecord.dateTime);
+                        time.title = cardRecord.date;
+                        time.setAttribute('aria-label', cardRecord.date);
                         meta.append(downloadPopover, time);
                         description.append(label, meta);
                         card.append(imageArea, divider, description);
@@ -3423,6 +3476,11 @@
                     }));
                 });
             };
+            window.setInterval(() => {
+                document.querySelectorAll('.main-project-relation-card-time').forEach(time => {
+                    time.textContent = formatRelationTimeAgo(time.dateTime);
+                });
+            }, 1000);
             const rerenderRelationPaginationForViewport = () => renderRelationPagination(relationPaginationStates[activeRelationKey].currentPage);
             if (relationPaginationCompactMedia.addEventListener) {
                 relationPaginationCompactMedia.addEventListener('change', rerenderRelationPaginationForViewport);
