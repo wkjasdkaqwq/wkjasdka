@@ -3328,6 +3328,7 @@
             const relationFilterMainContent = document.getElementById('mainContent');
             const relationFilterNavbar = document.getElementById('navbar');
             const relationFilterNavbarPlaceholder = document.createComment('relation-filter-navbar-placeholder');
+            let relationFilterNavbarRestoreTimer = 0;
             let relationFilterPreviousMainInert = false;
             let relationFilterBackdropClickGuard = null;
             let relationFilterPendingMainRestoreFocus = false;
@@ -3349,8 +3350,17 @@
                 if (!relationFilterLayer || !relationFilterDrawer || !relationFilterButton) return;
                 const wasOpen = relationFilterLayer.classList.contains('is-open');
                 if (wasOpen === open) return;
+                if (relationFilterNavbarRestoreTimer) {
+                    window.clearTimeout(relationFilterNavbarRestoreTimer);
+                    relationFilterNavbarRestoreTimer = 0;
+                }
                 if (open) relationFilterDrawer.classList.remove('is-offscreen');
                 if (open && relationFilterBackdropClickGuard) releaseRelationFilterBackgroundShield();
+                if (open && relationFilterNavbar?.parentNode && relationFilterNavbar.parentNode !== relationFilterLayer) {
+                    relationFilterNavbar.before(relationFilterNavbarPlaceholder);
+                    relationFilterLayer.append(relationFilterNavbar);
+                    if (relationFilterLogoLink) void getComputedStyle(relationFilterLogoLink).transform;
+                }
                 relationFilterButton.setAttribute('aria-expanded', String(open));
                 relationFilterLayer.setAttribute('aria-hidden', String(!open));
                 relationFilterLayer.toggleAttribute('inert', !open);
@@ -3369,11 +3379,15 @@
                         relationFilterPendingMainRestoreFocus = false;
                     }
                 }
-                if (open && relationFilterNavbar?.parentNode && relationFilterNavbar.parentNode !== relationFilterLayer) {
-                    relationFilterNavbar.before(relationFilterNavbarPlaceholder);
-                    relationFilterLayer.append(relationFilterNavbar);
-                } else if (!open && relationFilterNavbarPlaceholder.parentNode && relationFilterNavbar) {
-                    relationFilterNavbarPlaceholder.replaceWith(relationFilterNavbar);
+                if (!open && relationFilterNavbarPlaceholder.parentNode && relationFilterNavbar) {
+                    const duration = getComputedStyle(relationFilterLogoLink).transitionDuration.split(',')[0].trim();
+                    const durationMs = duration.endsWith('ms') ? parseFloat(duration) : parseFloat(duration) * 1000;
+                    relationFilterNavbarRestoreTimer = window.setTimeout(() => {
+                        relationFilterNavbarRestoreTimer = 0;
+                        if (!relationFilterLayer.classList.contains('is-open') && relationFilterNavbarPlaceholder.parentNode) {
+                            relationFilterNavbarPlaceholder.replaceWith(relationFilterNavbar);
+                        }
+                    }, (Number.isFinite(durationMs) ? durationMs : 180) + 34);
                 }
                 window.requestAnimationFrame(() => {
                     if (open && relationFilterLayer.classList.contains('is-open')) relationFilterCloseButton?.focus({ preventScroll: true });
