@@ -382,7 +382,9 @@
         .main-project-relation-filter-drawer-body { display: flex; flex: 1 1 auto; flex-direction: column; min-height: 0; gap: 22px; overflow: auto; overscroll-behavior: contain; padding: 20px; }
         .main-project-relation-filter-footer { display: flex; flex: 0 0 auto; justify-content: center; padding: 12px 24px 50px; }
         .main-project-relation-filter-footer[hidden] { display: none; }
-        .main-project-relation-filter-confirm { display: flex; align-items: center; justify-content: center; box-sizing: border-box; width: 100%; max-width: 380px; height: 84px; border: 2px solid #FFB380; border-radius: 42px; background-color: #FFDAB9; color: #E67E22; box-shadow: 0 4px 12px rgba(255, 218, 185, .5); cursor: pointer; font-size: 20px; font-weight: 600; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; touch-action: manipulation; transition: transform .4s cubic-bezier(.34, 1.56, .64, 1), box-shadow .4s cubic-bezier(.34, 1.56, .64, 1), background-color .4s cubic-bezier(.34, 1.56, .64, 1), border-color .4s cubic-bezier(.34, 1.56, .64, 1); }
+        .main-project-relation-filter-confirm-motion { width: calc(100% - 8px); max-width: 372px; opacity: 0; transform: scale(0); transform-origin: center; transition: transform .18s ease, opacity .18s ease; }
+        .main-project-relation-filter-footer.is-visible .main-project-relation-filter-confirm-motion { opacity: 1; transform: scale(1); }
+        .main-project-relation-filter-confirm { display: flex; align-items: center; justify-content: center; box-sizing: border-box; width: 100%; height: 84px; border: 2px solid #FFB380; border-radius: 42px; background-color: #FFDAB9; color: #E67E22; box-shadow: 0 4px 12px rgba(255, 218, 185, .5); cursor: pointer; font-size: 20px; font-weight: 600; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; touch-action: manipulation; transition: transform .4s cubic-bezier(.34, 1.56, .64, 1), box-shadow .4s cubic-bezier(.34, 1.56, .64, 1), background-color .4s cubic-bezier(.34, 1.56, .64, 1), border-color .4s cubic-bezier(.34, 1.56, .64, 1); }
         .main-project-relation-filter-confirm:focus-visible { outline: 3px solid #7B3D00; outline-offset: 3px; }
         html.dark-mode .main-project-relation-filter-confirm { color: #ffc08a; background-color: #3b3028; border-color: #a66a3d; box-shadow: 0 4px 12px rgba(0, 0, 0, .25); }
         html.dark-mode .main-project-relation-filter-confirm:focus-visible { outline-color: #64b5f6; }
@@ -460,7 +462,7 @@
         }
         @media (prefers-reduced-motion: reduce) {
             .main-project-relation-filter-layer, .main-project-relation-filter-backdrop, .main-project-relation-filter-drawer, .main-project-relation-filter-close { transition-duration: .01ms; }
-            .main-project-relation-filter-confirm { transition: none; }
+            .main-project-relation-filter-confirm, .main-project-relation-filter-confirm-motion { transition: none; }
         }
         @media (hover: hover) and (pointer: fine) {
             html.dark-mode .main-project-relation-search:hover { border-color: #E67E22; background: #49301F; box-shadow: 0 8px 20px rgba(0, 0, 0, .28); }
@@ -1564,8 +1566,10 @@
                     </div>
                 </section>
             </div>
-            <div class="main-project-relation-filter-footer" hidden>
-                <button class="main-project-relation-filter-confirm" type="button" data-i18n="settings.languageConfirm">Confirm</button>
+            <div class="main-project-relation-filter-footer" hidden inert>
+                <div class="main-project-relation-filter-confirm-motion">
+                    <button class="main-project-relation-filter-confirm" type="button" data-i18n="settings.languageConfirm">Confirm</button>
+                </div>
             </div>
         </div>
     </div>
@@ -3747,8 +3751,10 @@
             const relationFilterCategoryPanels = relationFilterDrawer?.querySelectorAll('[data-relation-filter-panel]') || [];
             const relationFilterSortInputs = relationFilterDrawer?.querySelectorAll('[data-relation-sort]') || [];
             const relationFilterFooter = relationFilterDrawer?.querySelector('.main-project-relation-filter-footer');
+            const relationFilterConfirmMotion = relationFilterDrawer?.querySelector('.main-project-relation-filter-confirm-motion');
             const relationFilterConfirm = relationFilterDrawer?.querySelector('.main-project-relation-filter-confirm');
             const relationFilterDraft = { ...relationSortState };
+            let relationFilterConfirmHideTimer = 0;
             const setRelationFilterCategory = category => {
                 relationFilterCategoryTabs.forEach(tab => {
                     const selected = tab.dataset.relationFilterCategory === category;
@@ -3759,8 +3765,36 @@
                     panel.hidden = panel.dataset.relationFilterPanel !== category;
                 });
             };
+            const setRelationFilterConfirmVisible = (visible, immediate = false) => {
+                if (!relationFilterFooter) return;
+                if (visible) {
+                    window.clearTimeout(relationFilterConfirmHideTimer);
+                    relationFilterConfirmHideTimer = 0;
+                    const wasHidden = relationFilterFooter.hidden;
+                    relationFilterFooter.hidden = false;
+                    relationFilterFooter.inert = false;
+                    if (wasHidden && relationFilterConfirmMotion) void relationFilterConfirmMotion.offsetWidth;
+                    relationFilterFooter.classList.add('is-visible');
+                    return;
+                }
+                relationFilterFooter.inert = true;
+                if (immediate || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                    window.clearTimeout(relationFilterConfirmHideTimer);
+                    relationFilterConfirmHideTimer = 0;
+                    relationFilterFooter.classList.remove('is-visible');
+                    relationFilterFooter.hidden = true;
+                    return;
+                }
+                if (relationFilterFooter.hidden || !relationFilterFooter.classList.contains('is-visible')) return;
+                relationFilterFooter.classList.remove('is-visible');
+                window.clearTimeout(relationFilterConfirmHideTimer);
+                relationFilterConfirmHideTimer = window.setTimeout(() => {
+                    if (!relationFilterFooter.classList.contains('is-visible')) relationFilterFooter.hidden = true;
+                    relationFilterConfirmHideTimer = 0;
+                }, 200);
+            };
             const updateRelationFilterConfirm = () => {
-                if (relationFilterFooter) relationFilterFooter.hidden = !Object.keys(relationSortState).some(key => relationFilterDraft[key] !== relationSortState[key]);
+                setRelationFilterConfirmVisible(Object.keys(relationSortState).some(key => relationFilterDraft[key] !== relationSortState[key]));
             };
             const resetRelationFilterDraft = () => {
                 Object.assign(relationFilterDraft, relationSortState);
@@ -3769,7 +3803,7 @@
                 });
                 setRelationFilterCategory(relationFilterDraft.primary === 'label' ? 'sort' : relationFilterDraft.primary);
                 relationFilterConfirm?.classList.remove('is-touch-pressed');
-                updateRelationFilterConfirm();
+                setRelationFilterConfirmVisible(false, true);
             };
             const relationFilterNavbar = document.getElementById('navbar');
             const relationFilterNavbarPlaceholder = document.createComment('relation-filter-navbar-placeholder');
@@ -3796,6 +3830,7 @@
                 const wasOpen = relationFilterLayer.classList.contains('is-open');
                 if (wasOpen === open) return;
                 if (open) resetRelationFilterDraft();
+                else setRelationFilterConfirmVisible(false);
                 if (relationFilterNavbarRestoreTimer) {
                     window.clearTimeout(relationFilterNavbarRestoreTimer);
                     relationFilterNavbarRestoreTimer = 0;
@@ -4131,6 +4166,7 @@
                 renderRelationCards();
                 if (document.activeElement === relationFilterConfirm) relationFilterDrawer?.querySelector('[data-relation-filter-category][aria-selected="true"]')?.focus({ preventScroll: true });
                 updateRelationFilterConfirm();
+                setRelationFilterOpen(false);
             });
             const relationSearchTouchMedia = window.matchMedia('(hover: none), (pointer: coarse)');
             let relationSearchPressedPointer = null;
