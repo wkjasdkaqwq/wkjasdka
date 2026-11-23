@@ -380,6 +380,30 @@
             .main-project-relation-filter-layer.is-open .main-project-relation-filter-close:active { transform: translateX(0) translateY(1px) scale(.96); border-color: #FF9C5A; background: #FFC38D; box-shadow: 0 2px 6px rgba(255, 218, 185, .5); }
         }
         .main-project-relation-filter-drawer-body { display: flex; flex: 1 1 auto; flex-direction: column; min-height: 0; gap: 22px; overflow: auto; overscroll-behavior: contain; padding: 20px; }
+        .main-project-relation-filter-footer { display: flex; flex: 0 0 auto; justify-content: center; padding: 12px 24px 50px; }
+        .main-project-relation-filter-footer[hidden] { display: none; }
+        .main-project-relation-filter-confirm { display: flex; align-items: center; justify-content: center; box-sizing: border-box; width: 100%; max-width: 380px; height: 84px; border: 2px solid #FFB380; border-radius: 42px; background-color: #FFDAB9; color: #E67E22; box-shadow: 0 4px 12px rgba(255, 218, 185, .5); cursor: pointer; font-size: 20px; font-weight: 600; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; touch-action: manipulation; transition: transform .4s cubic-bezier(.34, 1.56, .64, 1), box-shadow .4s cubic-bezier(.34, 1.56, .64, 1), background-color .4s cubic-bezier(.34, 1.56, .64, 1), border-color .4s cubic-bezier(.34, 1.56, .64, 1); }
+        .main-project-relation-filter-confirm:focus-visible { outline: 3px solid #7B3D00; outline-offset: 3px; }
+        html.dark-mode .main-project-relation-filter-confirm { color: #ffc08a; background-color: #3b3028; border-color: #a66a3d; box-shadow: 0 4px 12px rgba(0, 0, 0, .25); }
+        html.dark-mode .main-project-relation-filter-confirm:focus-visible { outline-color: #64b5f6; }
+        @media (hover: hover) and (pointer: fine) {
+            .main-project-relation-filter-confirm:hover { transform: scale(1.12); box-shadow: 0 8px 20px rgba(255, 218, 185, .8); background-color: #FFE4C4; border-color: #FF9966; }
+            .main-project-relation-filter-confirm:active { transform: scale(1.08); box-shadow: 0 6px 16px rgba(255, 218, 185, .6); background-color: #FFC38D; border-color: #FF9C5A; }
+            html.dark-mode .main-project-relation-filter-confirm:active { background-color: #FFCF97; border-color: #FF8142; color: #E67E22; box-shadow: 0 6px 16px rgba(255, 218, 185, .6); transition-duration: .4s, .4s, 0s, 0s; }
+        }
+        @media (hover: none), (pointer: coarse) {
+            .main-project-relation-filter-confirm:active, .main-project-relation-filter-confirm.is-touch-pressed { transform: translateY(2px) scale(.98); box-shadow: 0 2px 6px rgba(255, 218, 185, .5); background-color: #FFC38D; border-color: #FF9C5A; }
+            html.dark-mode .main-project-relation-filter-confirm:active, html.dark-mode .main-project-relation-filter-confirm.is-touch-pressed { background-color: #FFCF97; border-color: #FF8142; color: #E67E22; box-shadow: 0 2px 6px rgba(255, 218, 185, .5); transition-duration: .4s, .4s, 0s, 0s; }
+            html.dark-mode .main-project-relation-filter-confirm:not(.is-touch-pressed):not(:active) { transition-duration: .4s, .4s, 0s, 0s; }
+        }
+        @media (max-width: 768px) {
+            .main-project-relation-filter-footer { padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px)); }
+            .main-project-relation-filter-confirm { height: 60px; border-radius: 30px; font-size: 18px; }
+        }
+        @media (max-height: 360px) {
+            .main-project-relation-filter-drawer { overflow-x: hidden; overflow-y: auto; }
+            .main-project-relation-filter-drawer-body { flex: 0 0 auto; overflow: visible; }
+        }
         .main-project-relation-filter-category-tabs { display: flex; flex: 0 0 auto; flex-direction: column; align-items: flex-start; gap: 10px; }
         .main-project-relation-filter-category-tab { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 10px; width: fit-content; min-height: 28px; margin: 0; padding: 0; border: 0; border-radius: 0; background: transparent; color: #555; cursor: pointer; font: inherit; font-size: .92rem; font-weight: 400; line-height: 1.3; text-align: left; transition: color .16s ease; }
         .main-project-relation-filter-category-tab::before { display: grid; flex: 0 0 18px; place-content: center; box-sizing: border-box; width: 18px; height: 18px; border: 1.5px solid #FFB380; border-radius: 50%; background: transparent; color: #E67E22; content: ""; transition: border-color .18s ease, background-color .18s ease; }
@@ -436,6 +460,7 @@
         }
         @media (prefers-reduced-motion: reduce) {
             .main-project-relation-filter-layer, .main-project-relation-filter-backdrop, .main-project-relation-filter-drawer, .main-project-relation-filter-close { transition-duration: .01ms; }
+            .main-project-relation-filter-confirm { transition: none; }
         }
         @media (hover: hover) and (pointer: fine) {
             html.dark-mode .main-project-relation-search:hover { border-color: #E67E22; background: #49301F; box-shadow: 0 8px 20px rgba(0, 0, 0, .28); }
@@ -1504,7 +1529,7 @@
                 <h2 class="main-project-relation-filter-drawer-title" id="main-project-relation-filter-title">Filters</h2>
             </div>
             <div class="main-project-relation-filter-drawer-body">
-                <div class="main-project-relation-filter-category-tabs" role="tablist" aria-label="Filter category">
+                <div class="main-project-relation-filter-category-tabs" role="tablist" aria-label="Filter category" aria-orientation="vertical">
                     <button class="main-project-relation-filter-category-tab" id="relation-filter-tab-sort" type="button" role="tab" aria-controls="relation-filter-panel-sort" aria-selected="true" tabindex="0" data-relation-filter-category="sort" data-i18n="relationSortOrderTitle">Sort order</button>
                     <button class="main-project-relation-filter-category-tab" id="relation-filter-tab-downloads" type="button" role="tab" aria-controls="relation-filter-panel-downloads" aria-selected="false" tabindex="-1" data-relation-filter-category="downloads">Downloads</button>
                     <button class="main-project-relation-filter-category-tab" id="relation-filter-tab-last-update" type="button" role="tab" aria-controls="relation-filter-panel-last-update" aria-selected="false" tabindex="-1" data-relation-filter-category="lastUpdate">Last update</button>
@@ -1538,6 +1563,9 @@
                         <label class="main-project-relation-filter-option"><input type="radio" name="relation-last-update-order" value="asc" data-relation-sort="lastUpdate"><span>Oldest first</span></label>
                     </div>
                 </section>
+            </div>
+            <div class="main-project-relation-filter-footer" hidden>
+                <button class="main-project-relation-filter-confirm" type="button" data-i18n="settings.languageConfirm">Confirm</button>
             </div>
         </div>
     </div>
@@ -3715,6 +3743,34 @@
             const relationFilterBackdrop = relationFilterLayer?.querySelector('.main-project-relation-filter-backdrop');
             const relationFilterDismissButtons = relationFilterLayer?.querySelectorAll('[data-relation-filter-dismiss]') || [];
             const relationFilterMainContent = document.getElementById('mainContent');
+            const relationFilterCategoryTabs = relationFilterDrawer?.querySelectorAll('[data-relation-filter-category]') || [];
+            const relationFilterCategoryPanels = relationFilterDrawer?.querySelectorAll('[data-relation-filter-panel]') || [];
+            const relationFilterSortInputs = relationFilterDrawer?.querySelectorAll('[data-relation-sort]') || [];
+            const relationFilterFooter = relationFilterDrawer?.querySelector('.main-project-relation-filter-footer');
+            const relationFilterConfirm = relationFilterDrawer?.querySelector('.main-project-relation-filter-confirm');
+            const relationFilterDraft = { ...relationSortState };
+            const setRelationFilterCategory = category => {
+                relationFilterCategoryTabs.forEach(tab => {
+                    const selected = tab.dataset.relationFilterCategory === category;
+                    tab.setAttribute('aria-selected', String(selected));
+                    tab.tabIndex = selected ? 0 : -1;
+                });
+                relationFilterCategoryPanels.forEach(panel => {
+                    panel.hidden = panel.dataset.relationFilterPanel !== category;
+                });
+            };
+            const updateRelationFilterConfirm = () => {
+                if (relationFilterFooter) relationFilterFooter.hidden = !Object.keys(relationSortState).some(key => relationFilterDraft[key] !== relationSortState[key]);
+            };
+            const resetRelationFilterDraft = () => {
+                Object.assign(relationFilterDraft, relationSortState);
+                relationFilterSortInputs.forEach(input => {
+                    input.checked = input.value === relationFilterDraft[input.dataset.relationSort];
+                });
+                setRelationFilterCategory(relationFilterDraft.primary === 'label' ? 'sort' : relationFilterDraft.primary);
+                relationFilterConfirm?.classList.remove('is-touch-pressed');
+                updateRelationFilterConfirm();
+            };
             const relationFilterNavbar = document.getElementById('navbar');
             const relationFilterNavbarPlaceholder = document.createComment('relation-filter-navbar-placeholder');
             let relationFilterNavbarRestoreTimer = 0;
@@ -3739,6 +3795,7 @@
                 if (!relationFilterLayer || !relationFilterDrawer || !relationFilterButton) return;
                 const wasOpen = relationFilterLayer.classList.contains('is-open');
                 if (wasOpen === open) return;
+                if (open) resetRelationFilterDraft();
                 if (relationFilterNavbarRestoreTimer) {
                     window.clearTimeout(relationFilterNavbarRestoreTimer);
                     relationFilterNavbarRestoreTimer = 0;
@@ -4025,46 +4082,55 @@
                 if (button.disabled) clearRelationPaginationArrowFocus();
                 else button.focus({ preventScroll: true });
             });
-            document.querySelectorAll('#main-project-relation-filter-drawer [data-relation-sort]').forEach(input => {
-                input.addEventListener('click', () => {
-                    relationSortState.primary = input.dataset.relationSort === 'downloads' || input.dataset.relationSort === 'lastUpdate'
-                        ? input.dataset.relationSort
-                        : 'label';
-                    const relationState = relationPaginationStates[activeRelationKey];
-                    relationState.totalPages = getRelationTotalPages(activeRelationKey, relationState.pageSize);
-                    relationState.currentPage = 1;
-                    renderRelationPagination(1);
-                    renderRelationCards();
-                });
+            relationFilterSortInputs.forEach(input => {
                 input.addEventListener('change', () => {
-                    relationSortState[input.dataset.relationSort] = input.value;
-                    const relationState = relationPaginationStates[activeRelationKey];
-                    relationState.totalPages = getRelationTotalPages(activeRelationKey, relationState.pageSize);
-                    relationState.currentPage = 1;
-                    renderRelationPagination(1);
-                    renderRelationCards();
+                    relationFilterDraft[input.dataset.relationSort] = input.value;
+                    updateRelationFilterConfirm();
                 });
             });
-            const relationFilterCategoryTabs = relationFilterDrawer?.querySelectorAll('[data-relation-filter-category]') || [];
-            const relationFilterCategoryPanels = relationFilterDrawer?.querySelectorAll('[data-relation-filter-panel]') || [];
             relationFilterCategoryTabs.forEach((button, index) => {
                 button.addEventListener('click', () => {
-                    relationFilterCategoryTabs.forEach((tab, tabIndex) => {
-                        const selected = tabIndex === index;
-                        tab.setAttribute('aria-selected', String(selected));
-                        tab.tabIndex = selected ? 0 : -1;
-                    });
-                    relationFilterCategoryPanels.forEach(panel => {
-                        panel.hidden = panel.dataset.relationFilterPanel !== button.dataset.relationFilterCategory;
-                    });
+                    const category = button.dataset.relationFilterCategory;
+                    setRelationFilterCategory(category);
+                    relationFilterDraft.primary = category === 'sort' ? 'label' : category;
+                    updateRelationFilterConfirm();
                 });
                 button.addEventListener('keydown', event => {
-                    if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight' && event.key !== 'Home' && event.key !== 'End') return;
+                    if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.key)) return;
                     event.preventDefault();
-                    const nextIndex = event.key === 'Home' ? 0 : event.key === 'End' ? relationFilterCategoryTabs.length - 1 : (index + (event.key === 'ArrowRight' ? 1 : -1) + relationFilterCategoryTabs.length) % relationFilterCategoryTabs.length;
+                    const nextIndex = event.key === 'Home' ? 0 : event.key === 'End' ? relationFilterCategoryTabs.length - 1 : (index + (event.key === 'ArrowRight' || event.key === 'ArrowDown' ? 1 : -1) + relationFilterCategoryTabs.length) % relationFilterCategoryTabs.length;
                     relationFilterCategoryTabs[nextIndex].click();
                     relationFilterCategoryTabs[nextIndex].focus({ preventScroll: true });
                 });
+            });
+            let relationFilterConfirmPressedPointer = null;
+            relationFilterConfirm?.addEventListener('pointerdown', event => {
+                if (event.pointerType === 'mouse') return;
+                relationFilterConfirmPressedPointer = event.pointerId;
+                relationFilterConfirm.classList.add('is-touch-pressed');
+            }, { capture: true });
+            relationFilterConfirm?.addEventListener('touchstart', () => {
+                relationFilterConfirm.classList.add('is-touch-pressed');
+            }, { capture: true, passive: true });
+            ['pointerup', 'pointercancel'].forEach(type => {
+                document.addEventListener(type, event => {
+                    if (event.pointerId !== relationFilterConfirmPressedPointer) return;
+                    relationFilterConfirm?.classList.remove('is-touch-pressed');
+                    relationFilterConfirmPressedPointer = null;
+                });
+            });
+            ['touchend', 'touchcancel'].forEach(type => {
+                document.addEventListener(type, () => relationFilterConfirm?.classList.remove('is-touch-pressed'), { capture: true, passive: true });
+            });
+            relationFilterConfirm?.addEventListener('click', () => {
+                Object.assign(relationSortState, relationFilterDraft);
+                const relationState = relationPaginationStates[activeRelationKey];
+                relationState.totalPages = getRelationTotalPages(activeRelationKey, relationState.pageSize);
+                relationState.currentPage = 1;
+                renderRelationPagination(1);
+                renderRelationCards();
+                if (document.activeElement === relationFilterConfirm) relationFilterDrawer?.querySelector('[data-relation-filter-category][aria-selected="true"]')?.focus({ preventScroll: true });
+                updateRelationFilterConfirm();
             });
             const relationSearchTouchMedia = window.matchMedia('(hover: none), (pointer: coarse)');
             let relationSearchPressedPointer = null;
@@ -4645,8 +4711,10 @@
                 const relationFilterLayerForLogo = document.getElementById('main-project-relation-filter-layer');
                 if (relationFilterLayerForLogo?.classList.contains('is-open')) {
                     const relationFilterBodyForLogo = relationFilterLayerForLogo.querySelector('.main-project-relation-filter-drawer-body');
-                    if (relationFilterBodyForLogo?.scrollTop > 0) {
-                        relationFilterBodyForLogo.scrollTo({ top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+                    const relationFilterDrawerForLogo = relationFilterLayerForLogo.querySelector('.main-project-relation-filter-drawer');
+                    const scrolledFilterElements = [relationFilterBodyForLogo, relationFilterDrawerForLogo].filter(element => element?.scrollTop > 0);
+                    if (scrolledFilterElements.length) {
+                        scrolledFilterElements.forEach(element => element.scrollTo({ top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }));
                     } else {
                         relationFilterLayerForLogo.querySelector('.main-project-relation-filter-close')?.click();
                     }
