@@ -3994,6 +3994,28 @@
             });
             renderRelationPagination(relationPaginationStates[activeRelationKey].currentPage);
             renderRelationCards();
+            const relationPanel = document.getElementById('panel-relation');
+            document.addEventListener('keydown', event => {
+                if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+                if (!relationPanel || relationPanel.hidden || relationFilterLayer?.classList.contains('is-open') || relationPageSizeControl?.dataset.expanded === 'true') return;
+                const target = event.target;
+                if (target instanceof Element && (target.isContentEditable || target.closest('input, textarea, select, [contenteditable]:not([contenteditable="false"]), [role="textbox"]'))) return;
+                const key = event.key.toLowerCase();
+                if (key !== 'a' && key !== 'd') return;
+                const step = key === 'a' ? -1 : 1;
+                const button = Array.from(relationPaginationButtons).find(item => Number(item.dataset.pageStep) === step);
+                if (!button) return;
+                event.preventDefault();
+                if (button.disabled) {
+                    relationPaginationButtons.forEach(item => {
+                        if (item === document.activeElement) item.blur();
+                    });
+                    return;
+                }
+                button.click();
+                if (button.disabled) button.blur();
+                else button.focus({ preventScroll: true });
+            });
             document.querySelectorAll('#main-project-relation-filter-drawer [data-relation-sort]').forEach(input => {
                 input.addEventListener('click', () => {
                     relationSortState.primary = input.dataset.relationSort === 'downloads' || input.dataset.relationSort === 'lastUpdate'
