@@ -3189,6 +3189,11 @@
                 date: relationDatePool.pop(),
                 downloads: Math.floor(Math.random() * (40000000 - 200 + 1)) + 200
             }));
+            const formatRelationDownloads = downloads => {
+                if (downloads >= 1000000) return `${(downloads / 1000000).toFixed(1).replace(/\.0$/, '')}m`;
+                if (downloads >= 10000) return `${(downloads / 1000).toFixed(1).replace(/\.0$/, '')}k`;
+                return String(downloads);
+            };
             const relationCardRecords = {
                 dependencies: makeRelationCardRecords('dependency', [
                     ...relationWordPools.single,
@@ -3327,7 +3332,7 @@
                         meta.className = 'main-project-relation-card-meta';
                         const downloads = document.createElement('span');
                         downloads.className = 'main-project-relation-card-downloads';
-                        downloads.textContent = String(cardRecord.downloads);
+                        downloads.textContent = formatRelationDownloads(cardRecord.downloads);
                         downloads.setAttribute('aria-label', `${cardRecord.downloads} downloads`);
                         const time = document.createElement('time');
                         time.className = 'main-project-relation-card-time';
