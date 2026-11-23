@@ -3338,6 +3338,20 @@
                 if (relationFilterLayer?.classList.contains('is-open')) setRelationFilterOpen(false);
             }));
             let relationFilterBackdropTouchStart = null;
+            let relationFilterBackdropClickGuard = null;
+            document.addEventListener('click', event => {
+                const guard = relationFilterBackdropClickGuard;
+                if (!guard) return;
+                if (performance.now() > guard.expiresAt) {
+                    relationFilterBackdropClickGuard = null;
+                    return;
+                }
+                relationFilterBackdropClickGuard = null;
+                window.clearTimeout(guard.timeoutId);
+                if (event.detail === 0 || !relationFilterMainContent?.contains(event.target) || Math.hypot(event.clientX - guard.x, event.clientY - guard.y) > 36) return;
+                event.preventDefault();
+                event.stopImmediatePropagation();
+            }, true);
             relationFilterBackdrop?.addEventListener('touchstart', event => {
                 if (event.touches.length !== 1) {
                     relationFilterBackdropTouchStart = null;
@@ -3352,7 +3366,14 @@
                 if (!start) return;
                 const touch = Array.from(event.changedTouches).find(item => item.identifier === start.id);
                 if (!touch || Math.hypot(touch.clientX - start.x, touch.clientY - start.y) > 10) return;
-                if (relationFilterLayer?.classList.contains('is-open')) setRelationFilterOpen(false);
+                if (relationFilterLayer?.classList.contains('is-open')) {
+                    const clickGuard = { x: touch.clientX, y: touch.clientY, expiresAt: performance.now() + 600, timeoutId: 0 };
+                    relationFilterBackdropClickGuard = clickGuard;
+                    clickGuard.timeoutId = window.setTimeout(() => {
+                        if (relationFilterBackdropClickGuard === clickGuard) relationFilterBackdropClickGuard = null;
+                    }, 600);
+                    setRelationFilterOpen(false);
+                }
             }, { passive: true });
             relationFilterBackdrop?.addEventListener('touchcancel', () => {
                 relationFilterBackdropTouchStart = null;
