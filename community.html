@@ -3190,8 +3190,8 @@
                 downloads: Math.floor(Math.random() * (40000000 - 200 + 1)) + 200
             }));
             const formatRelationDownloads = downloads => {
-                if (downloads >= 1000000) return `${(downloads / 1000000).toFixed(1).replace(/\.0$/, '')}m`;
-                if (downloads >= 10000) return `${(downloads / 1000).toFixed(1).replace(/\.0$/, '')}k`;
+                if (downloads >= 1000000) return `${(downloads / 1000000).toFixed(1)}M`;
+                if (downloads >= 10000) return `${(downloads / 1000).toFixed(1)}K`;
                 return String(downloads);
             };
             const relationCardRecords = {
