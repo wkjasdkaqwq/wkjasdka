@@ -642,7 +642,7 @@
         .community-gallery-preview-description.is-hidden { opacity: 0; }
         @media (prefers-reduced-motion: reduce) { .community-gallery-preview-description { transition: none; } }
         .community-gallery-preview-side-image { position: absolute; top: 50%; left: 50%; display: block; width: auto; height: auto; max-width: calc(100vw - 32px); max-height: calc(100vh - 120px); max-height: calc(100dvh - 120px); opacity: 0; visibility: hidden; object-fit: contain; pointer-events: none; transform: translate3d(calc(-50% + var(--community-gallery-preview-side-offset, 0px)), -50%, 0); will-change: transform; }
-        .community-gallery-preview-navigation-image { position: absolute; top: 50%; left: 50%; display: block; width: auto; height: auto; max-width: calc(100vw - 32px); max-height: calc(100vh - 120px); max-height: calc(100dvh - 120px); object-fit: contain; pointer-events: none; user-select: none; -webkit-user-select: none; -webkit-user-drag: none; will-change: transform; }
+        .community-gallery-preview-navigation-image { position: absolute; top: 50%; left: 50%; display: block; width: auto; height: auto; max-width: calc(100vw - 32px); max-height: calc(100vh - 120px); max-height: calc(100dvh - 120px); object-fit: contain; pointer-events: none; user-select: none; -webkit-user-select: none; -webkit-user-drag: none; transform: translate(-50%, -50%); }
         .community-gallery-preview-stage.is-navigating .community-gallery-preview-zoom-surface { opacity: 0; }
         .community-gallery-preview-side-image[hidden] { display: none; }
         .community-gallery-preview-side-image.is-visible { opacity: 1; visibility: visible; }
@@ -2257,7 +2257,13 @@
                 });
             };
             const galleryPreviewNavigationLayers = new Map();
+            const galleryPreviewNavigationDuration = 220;
+            let galleryPreviewNavigationTimer = 0;
+            let galleryPreviewNavigationGeneration = 0;
             const clearGalleryPreviewNavigation = () => {
+                galleryPreviewNavigationGeneration += 1;
+                window.clearTimeout(galleryPreviewNavigationTimer);
+                galleryPreviewNavigationTimer = 0;
                 galleryPreviewNavigationLayers.forEach(layer => {
                     layer.animation?.cancel();
                     layer.image.remove();
@@ -2266,8 +2272,7 @@
                 galleryPreviewStage?.classList.remove('is-navigating');
                 updateGalleryPreviewDescriptionVisibility();
             };
-            const galleryPreviewNavigationTransform = offset =>
-                `translate3d(calc(-50% + ${offset}px), -50%, 0)`;
+            const galleryPreviewNavigationPosition = offset => `calc(50% + ${offset}px)`;
             const getGalleryPreviewNavigationOffset = image => {
                 const stageRect = galleryPreviewStage.getBoundingClientRect();
                 const imageRect = image.getBoundingClientRect();
@@ -2280,7 +2285,7 @@
                 image.alt = '';
                 image.setAttribute('aria-hidden', 'true');
                 image.draggable = false;
-                image.style.transform = galleryPreviewNavigationTransform(offset);
+                image.style.left = galleryPreviewNavigationPosition(offset);
                 galleryPreviewStage.appendChild(image);
                 const layer = { image, animation: null };
                 galleryPreviewNavigationLayers.set(index, layer);
@@ -2302,6 +2307,9 @@
                     clearGalleryPreviewNavigation();
                     showGalleryPreviewImage(currentIndex);
                 }
+                const navigationGeneration = ++galleryPreviewNavigationGeneration;
+                window.clearTimeout(galleryPreviewNavigationTimer);
+                galleryPreviewNavigationTimer = 0;
                 if (!galleryPreviewNavigationLayers.has(currentIndex)) {
                     createGalleryPreviewNavigationLayer(currentIndex, 0);
                 }
@@ -2319,22 +2327,28 @@
                 galleryPreviewStage.classList.add('is-navigating');
                 updateGalleryPreviewDescriptionVisibility();
                 galleryPreviewNavigationLayers.forEach((layer, index) => {
-                    const from = galleryPreviewNavigationTransform(offsets.get(index));
-                    const to = galleryPreviewNavigationTransform((index - nextIndex) * window.innerWidth);
+                    const from = galleryPreviewNavigationPosition(offsets.get(index));
+                    const to = galleryPreviewNavigationPosition((index - nextIndex) * window.innerWidth);
                     layer.animation?.cancel();
-                    layer.image.style.transform = to;
-                    const animation = layer.image.animate([{ transform: from }, { transform: to }], {
-                        duration: 220,
+                    layer.image.style.left = to;
+                    const animation = layer.image.animate([{ left: from }, { left: to }], {
+                        duration: galleryPreviewNavigationDuration,
                         easing: 'cubic-bezier(.2, .8, .2, 1)',
                         fill: 'both'
                     });
                     layer.animation = animation;
                     if (index === nextIndex) {
-                        animation.onfinish = () => {
-                            if (layer.animation === animation) clearGalleryPreviewNavigation();
+                        const finishNavigation = () => {
+                            if (galleryPreviewNavigationGeneration === navigationGeneration && layer.animation === animation) clearGalleryPreviewNavigation();
                         };
+                        animation.onfinish = finishNavigation;
+                        animation.oncancel = finishNavigation;
                     }
                 });
+                // Do not leave temporary images behind if the browser drops an animation event.
+                galleryPreviewNavigationTimer = window.setTimeout(() => {
+                    if (galleryPreviewNavigationGeneration === navigationGeneration) clearGalleryPreviewNavigation();
+                }, galleryPreviewNavigationDuration + 100);
             };
             let galleryPreviewCloseTimer = 0;
             const closeGalleryPreview = () => {
