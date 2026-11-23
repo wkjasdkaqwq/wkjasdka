@@ -3242,12 +3242,18 @@
                 { length: Math.floor((relationLastDay - relationFirstDay) / 86400000) + 1 },
                 (_, index) => new Date(relationFirstDay + index * 86400000).toISOString().slice(0, 10)
             ));
-            const makeRelationCardRecords = (prefix, labels) => shuffleRelationItems(labels).map((label, index) => ({
-                id: `${prefix}-${index + 1}`,
-                label,
-                date: relationDatePool.pop(),
-                downloads: Math.floor(Math.random() * (40000000 - 200 + 1)) + 200
-            }));
+            const makeRelationCardRecords = (prefix, labels) => shuffleRelationItems(labels).map((label, index) => {
+                const day = relationDatePool.pop();
+                const randomSeconds = Math.floor(Math.random() * 86400);
+                const dateTime = new Date(Date.parse(`${day}T00:00:00Z`) + randomSeconds * 1000).toISOString();
+                return {
+                    id: `${prefix}-${index + 1}`,
+                    label,
+                    date: `${dateTime.slice(0, 10)} ${dateTime.slice(11, 19)}`,
+                    dateTime,
+                    downloads: Math.floor(Math.random() * (40000000 - 200 + 1)) + 200
+                };
+            });
             const formatRelationDownloads = downloads => {
                 if (downloads >= 1000000) return `${(downloads / 1000000).toFixed(1)}M`;
                 if (downloads >= 10000) return `${(downloads / 1000).toFixed(1)}K`;
@@ -3408,7 +3414,7 @@
                         downloadPopover.append(downloads, downloadTooltip);
                         const time = document.createElement('time');
                         time.className = 'main-project-relation-card-time';
-                        time.dateTime = cardRecord.date;
+                        time.dateTime = cardRecord.dateTime;
                         time.textContent = cardRecord.date;
                         meta.append(downloadPopover, time);
                         description.append(label, meta);
