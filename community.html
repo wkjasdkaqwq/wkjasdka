@@ -3986,6 +3986,10 @@
             renderRelationPagination(relationPaginationStates[activeRelationKey].currentPage);
             renderRelationCards();
             const relationPanel = document.getElementById('panel-relation');
+            const clearRelationPaginationArrowFocus = () => {
+                const focusedArrow = Array.from(relationPaginationButtons).find(item => item === document.activeElement);
+                focusedArrow?.blur();
+            };
             document.addEventListener('keydown', event => {
                 if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
                 if (!relationPanel || relationPanel.hidden || relationFilterLayer?.classList.contains('is-open') || relationPageSizeControl?.dataset.expanded === 'true') return;
@@ -3998,13 +4002,11 @@
                 if (!button) return;
                 event.preventDefault();
                 if (button.disabled) {
-                    relationPaginationButtons.forEach(item => {
-                        if (item === document.activeElement) item.blur();
-                    });
+                    clearRelationPaginationArrowFocus();
                     return;
                 }
                 button.click();
-                if (button.disabled) button.blur();
+                if (button.disabled) clearRelationPaginationArrowFocus();
                 else button.focus({ preventScroll: true });
             });
             document.querySelectorAll('#main-project-relation-filter-drawer [data-relation-sort]').forEach(input => {
