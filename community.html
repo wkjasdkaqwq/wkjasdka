@@ -362,23 +362,37 @@
         .main-project-relation-filter-layer.is-open .main-project-relation-filter-backdrop { opacity: 1; }
         .main-project-relation-filter-drawer { position: absolute; top: 0; bottom: 0; left: 0; display: flex; flex-direction: column; box-sizing: border-box; width: 65%; overflow: hidden; border-right: 1px solid #d6d6d6; background: #fff; box-shadow: 12px 0 32px rgba(0, 0, 0, .16); transform: translateX(-100%); transition: transform .42s cubic-bezier(.22, .75, .25, 1); will-change: transform; }
         .main-project-relation-filter-layer.is-open .main-project-relation-filter-drawer { transform: translateX(0); }
-        .main-project-relation-filter-drawer-header { display: flex; flex: 0 0 auto; align-items: center; justify-content: space-between; min-height: 68px; box-sizing: border-box; padding: 12px 20px; border-bottom: 1px solid #e4e4e4; }
+        .main-project-relation-filter-drawer-header { position: relative; display: flex; flex: 0 0 auto; align-items: center; justify-content: flex-start; min-height: 68px; box-sizing: border-box; padding: 12px 20px 12px 63px; border-bottom: 1px solid #e4e4e4; }
         .main-project-relation-filter-drawer-title { margin: 0; color: #333; font-size: 1.12rem; font-weight: 650; }
-        .main-project-relation-filter-close { display: grid; flex: 0 0 40px; place-items: center; width: 40px; height: 40px; padding: 0; border: 0; border-radius: 50%; background: transparent; color: #555; cursor: pointer; transition: background-color .18s ease, transform .18s ease; }
-        .main-project-relation-filter-close:hover { background: #f0f0f0; }
-        .main-project-relation-filter-close:active { transform: scale(.92); }
-        .main-project-relation-filter-close svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-width: 2; pointer-events: none; }
+        .main-project-relation-filter-close { position: absolute; top: 50%; left: 7px; z-index: 1; display: grid; place-items: center; box-sizing: border-box; width: 44px; height: 44px; padding: 0; border: 1px solid #FFB380; border-radius: 50%; background: #FFDAB9; color: #E67E22; box-shadow: 0 4px 12px rgba(255, 218, 185, .5); cursor: pointer; transform: translateX(-51px) translateY(-50%); transition: transform 180ms ease, background-color .2s ease, border-color .2s ease, box-shadow .2s ease; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+        .main-project-relation-filter-layer.is-open .main-project-relation-filter-close { transform: translateX(0) translateY(-50%); }
+        .main-project-relation-filter-close svg { display: block; width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-width: 2; pointer-events: none; }
+        .main-project-relation-filter-close:focus { outline: 2px solid #64b5f6; outline-offset: 2px; }
+        @media (hover: hover) and (pointer: fine) {
+            .main-project-relation-filter-layer.is-open .main-project-relation-filter-close:hover { transform: translateX(0) translateY(-50%) scale(1.08); border-color: #FF9966; background: #FFE4C4; box-shadow: 0 8px 20px rgba(255, 218, 185, .8); }
+            .main-project-relation-filter-layer.is-open .main-project-relation-filter-close:active { transform: translateX(0) translateY(-50%) scale(.96); border-color: #FF9C5A; background: #FFC38D; box-shadow: 0 6px 16px rgba(255, 218, 185, .6); }
+        }
+        @media (hover: none), (pointer: coarse) {
+            .main-project-relation-filter-layer.is-open .main-project-relation-filter-close:active { transform: translateX(0) translateY(calc(-50% + 1px)) scale(.96); border-color: #FF9C5A; background: #FFC38D; box-shadow: 0 2px 6px rgba(255, 218, 185, .5); }
+        }
         .main-project-relation-filter-drawer-body { flex: 1 1 auto; min-height: 0; overflow: auto; overscroll-behavior: contain; padding: 20px; }
         html.dark-mode .main-project-relation-filter-drawer { border-right-color: #385066; background: #172633; box-shadow: 12px 0 32px rgba(0, 0, 0, .34); }
         html.dark-mode .main-project-relation-filter-drawer-header { border-bottom-color: #385066; }
-        html.dark-mode .main-project-relation-filter-drawer-title, html.dark-mode .main-project-relation-filter-close { color: #d8e0e7; }
-        html.dark-mode .main-project-relation-filter-close:hover { background: #294454; }
+        html.dark-mode .main-project-relation-filter-drawer-title { color: #d8e0e7; }
+        html.dark-mode .main-project-relation-filter-close { border-color: #a66a3d; background: #3b3028; color: #ffc08a; box-shadow: 0 4px 12px rgba(0, 0, 0, .25); }
+        @media (hover: hover) and (pointer: fine) {
+            html.dark-mode .main-project-relation-filter-layer.is-open .main-project-relation-filter-close:hover { border-color: #d18a58; background: #4a382b; box-shadow: 0 8px 20px rgba(0, 0, 0, .35); }
+            html.dark-mode .main-project-relation-filter-layer.is-open .main-project-relation-filter-close:active { border-color: #FF9C5A; background: #FFC38D; color: #E67E22; box-shadow: 0 6px 16px rgba(255, 218, 185, .6); }
+        }
+        @media (hover: none), (pointer: coarse) {
+            html.dark-mode .main-project-relation-filter-layer.is-open .main-project-relation-filter-close:active { border-color: #FF9C5A; background: #FFC38D; color: #E67E22; box-shadow: 0 2px 6px rgba(255, 218, 185, .5); }
+        }
         @media (max-width: 600px) {
-            .main-project-relation-filter-drawer-header { min-height: 60px; padding: 10px 14px; }
+            .main-project-relation-filter-drawer-header { min-height: 60px; padding: 10px 14px 10px 63px; }
             .main-project-relation-filter-drawer-body { padding: 14px; }
         }
         @media (prefers-reduced-motion: reduce) {
-            .main-project-relation-filter-layer, .main-project-relation-filter-backdrop, .main-project-relation-filter-drawer { transition-duration: .01ms; }
+            .main-project-relation-filter-layer, .main-project-relation-filter-backdrop, .main-project-relation-filter-drawer, .main-project-relation-filter-close { transition-duration: .01ms; }
         }
         @media (hover: hover) and (pointer: fine) {
             html.dark-mode .main-project-relation-search:hover { border-color: #E67E22; background: #49301F; box-shadow: 0 8px 20px rgba(0, 0, 0, .28); }
