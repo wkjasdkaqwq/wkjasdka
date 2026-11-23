@@ -1587,11 +1587,30 @@
             let mobileMenuDrag = null;
             let suppressNextMenuClick = false;
             let suppressMenuClickTimer = null;
+            let relationFilterMenuDismissClickPending = false;
+            let relationFilterMenuDismissClickTimer = null;
             let softRefreshInProgress = false;
             let softRefreshAnimationInProgress = false;
             const closeMenu = () => {
                 menuPanel.classList.remove('open');
                 menuButton.setAttribute('aria-expanded', 'false');
+            };
+            const clearRelationFilterMenuDismissClick = () => {
+                relationFilterMenuDismissClickPending = false;
+                if (relationFilterMenuDismissClickTimer !== null) window.clearTimeout(relationFilterMenuDismissClickTimer);
+                relationFilterMenuDismissClickTimer = null;
+            };
+            const armRelationFilterMenuDismissClick = () => {
+                relationFilterMenuDismissClickPending = true;
+                if (relationFilterMenuDismissClickTimer !== null) window.clearTimeout(relationFilterMenuDismissClickTimer);
+                relationFilterMenuDismissClickTimer = window.setTimeout(clearRelationFilterMenuDismissClick, 600);
+            };
+            const closeMenuBeforeRelationFilterAction = target => {
+                if (!menuPanel.classList.contains('open') || menuAnchor.contains(target)) return false;
+                const relationLayer = document.getElementById('main-project-relation-filter-layer');
+                closeMenu();
+                if (relationLayer?.classList.contains('is-open')) armRelationFilterMenuDismissClick();
+                return true;
             };
             const projectSwitcher = document.querySelector('.main-project-switcher');
             const projectSwitcherTrack = projectSwitcher
@@ -3382,6 +3401,7 @@
                 if (!start) return;
                 const touch = Array.from(event.changedTouches).find(item => item.identifier === start.id);
                 if (!touch || Math.hypot(touch.clientX - start.x, touch.clientY - start.y) > 10) return;
+                if (relationFilterMenuDismissClickPending) return;
                 if (relationFilterLayer?.classList.contains('is-open')) {
                     const clickGuard = { expiresAt: performance.now() + 600, timeoutId: 0 };
                     relationFilterBackdropClickGuard = clickGuard;
@@ -4004,11 +4024,27 @@
                 menuButton.setAttribute('aria-expanded', String(open));
             });
             document.addEventListener('click', event => {
+                if (relationFilterMenuDismissClickPending) {
+                    clearRelationFilterMenuDismissClick();
+                    event.preventDefault();
+                    event.stopImmediatePropagation();
+                    return;
+                }
+                const relationLayer = document.getElementById('main-project-relation-filter-layer');
+                if (menuPanel.classList.contains('open') && relationLayer?.classList.contains('is-open') && !menuAnchor.contains(event.target)) {
+                    closeMenu();
+                    event.preventDefault();
+                    event.stopImmediatePropagation();
+                    return;
+                }
                 if (!menuAnchor.contains(event.target)) closeMenu();
-            });
+            }, true);
             document.addEventListener('pointerdown', event => {
-                if (menuPanel.classList.contains('open') && !menuAnchor.contains(event.target)) closeMenu();
+                closeMenuBeforeRelationFilterAction(event.target);
             }, { passive: true });
+            document.addEventListener('touchstart', event => {
+                if (event.touches.length === 1) closeMenuBeforeRelationFilterAction(event.target);
+            }, { capture: true, passive: true });
             document.addEventListener('keydown', event => {
                 if (event.key === 'Escape' && menuPanel.classList.contains('open')) {
                     closeMenu();
