@@ -3323,6 +3323,7 @@
             const relationFilterDrawer = relationFilterLayer?.querySelector('.main-project-relation-filter-drawer');
             const relationFilterCloseButton = relationFilterLayer?.querySelector('.main-project-relation-filter-close');
             const relationFilterLogoLink = document.getElementById('communityLogoLink');
+            const relationFilterNavTravel = 51;
             const relationFilterBackdrop = relationFilterLayer?.querySelector('.main-project-relation-filter-backdrop');
             const relationFilterDismissButtons = relationFilterLayer?.querySelectorAll('[data-relation-filter-dismiss]') || [];
             const relationFilterMainContent = document.getElementById('mainContent');
@@ -3454,10 +3455,15 @@
                 const progress = 1 + start.offset / start.width;
                 relationFilterDrawer.style.transform = `translate3d(${start.offset}px, 0, 0)`;
                 if (relationFilterCloseButton) relationFilterCloseButton.style.transform = `translate3d(${start.offset}px, 0, 0)`;
-                if (relationFilterLogoLink) relationFilterLogoLink.style.transform = `translate3d(${51 + start.offset}px, 0, 0)`;
+                if (relationFilterLogoLink) relationFilterLogoLink.style.transform = `translate3d(${Math.max(0, relationFilterNavTravel + start.offset)}px, 0, 0)`;
                 if (relationFilterBackdrop) relationFilterBackdrop.style.opacity = String(progress);
             };
-            const settleRelationFilterDrawerDrag = shouldClose => {
+            const settleRelationFilterDrawerDrag = (shouldClose, offset) => {
+                if (!shouldClose && offset < -relationFilterNavTravel && relationFilterCloseButton) {
+                    // The button is already offscreen; start its rebound at the edge so it stays in step with the logo.
+                    relationFilterCloseButton.style.transform = `translate3d(${-relationFilterNavTravel}px, 0, 0)`;
+                    void getComputedStyle(relationFilterCloseButton).transform;
+                }
                 relationFilterLayer?.classList.remove('is-dragging');
                 if (relationFilterDrawer) void relationFilterDrawer.offsetWidth;
                 if (shouldClose && relationFilterLayer?.classList.contains('is-open')) {
@@ -3482,7 +3488,7 @@
                 }
                 const projectedOffset = Math.max(-start.width, Math.min(0, start.offset + start.velocity * 180));
                 const canceled = event.type === 'touchcancel' || (event.type === 'touchend' && event.touches.length > 0);
-                settleRelationFilterDrawerDrag(!canceled && projectedOffset <= -start.width * .5);
+                settleRelationFilterDrawerDrag(!canceled && projectedOffset <= -start.width * .5, start.offset);
             };
             document.addEventListener('touchstart', event => {
                 if (window.innerWidth > 600 || event.touches.length !== 1 || !relationFilterLayer?.classList.contains('is-open')) {
