@@ -1508,6 +1508,20 @@
                         <label class="main-project-relation-filter-option"><input type="radio" name="relation-zero-placement" value="end" data-relation-sort="zero"><span data-i18n="relationSortEnd">End</span></label>
                     </div>
                 </section>
+                <section class="main-project-relation-filter-group" aria-labelledby="relation-filter-downloads-title">
+                    <h3 class="main-project-relation-filter-group-title" id="relation-filter-downloads-title">Downloads</h3>
+                    <div class="main-project-relation-filter-options" role="radiogroup" aria-labelledby="relation-filter-downloads-title">
+                        <label class="main-project-relation-filter-option"><input type="radio" name="relation-download-order" value="desc" data-relation-sort="downloads" checked><span>High to low</span></label>
+                        <label class="main-project-relation-filter-option"><input type="radio" name="relation-download-order" value="asc" data-relation-sort="downloads"><span>Low to high</span></label>
+                    </div>
+                </section>
+                <section class="main-project-relation-filter-group" aria-labelledby="relation-filter-last-update-title">
+                    <h3 class="main-project-relation-filter-group-title" id="relation-filter-last-update-title">Last update</h3>
+                    <div class="main-project-relation-filter-options" role="radiogroup" aria-labelledby="relation-filter-last-update-title">
+                        <label class="main-project-relation-filter-option"><input type="radio" name="relation-last-update-order" value="desc" data-relation-sort="lastUpdate" checked><span>Newest first</span></label>
+                        <label class="main-project-relation-filter-option"><input type="radio" name="relation-last-update-order" value="asc" data-relation-sort="lastUpdate"><span>Oldest first</span></label>
+                    </div>
+                </section>
             </div>
         </div>
     </div>
@@ -3417,7 +3431,10 @@
             const relationSortState = {
                 alphabetic: document.querySelector('[data-relation-sort="alphabetic"]:checked')?.value || 'asc',
                 numeric: document.querySelector('[data-relation-sort="numeric"]:checked')?.value || 'asc',
-                zero: document.querySelector('[data-relation-sort="zero"]:checked')?.value || 'front'
+                zero: document.querySelector('[data-relation-sort="zero"]:checked')?.value || 'front',
+                downloads: document.querySelector('[data-relation-sort="downloads"]:checked')?.value || 'desc',
+                lastUpdate: document.querySelector('[data-relation-sort="lastUpdate"]:checked')?.value || 'desc',
+                primary: 'label'
             };
             const relationSortCollator = new Intl.Collator(undefined, { numeric: false, sensitivity: 'base' });
             const compareRelationLabels = (left, right) => {
@@ -3455,7 +3472,16 @@
                 const records = query
                     ? relationCardRecords[relationKey].filter(record => record.label.toLocaleLowerCase().includes(query))
                     : relationCardRecords[relationKey].slice();
-                return records.sort(compareRelationLabels);
+                return records.sort((left, right) => {
+                    if (relationSortState.primary === 'downloads') {
+                        const comparison = left.downloads - right.downloads;
+                        if (comparison) return relationSortState.downloads === 'desc' ? -comparison : comparison;
+                    } else if (relationSortState.primary === 'lastUpdate') {
+                        const comparison = Date.parse(left.dateTime) - Date.parse(right.dateTime);
+                        if (comparison) return relationSortState.lastUpdate === 'desc' ? -comparison : comparison;
+                    }
+                    return compareRelationLabels(left, right);
+                });
             };
             let activeRelationKey = relationSwitcher?.dataset.activeRelation === 'dependents' ? 'dependents' : 'dependencies';
             const initialRelationPage = Math.max(1, Number.parseInt(relationPagination?.dataset.currentPage, 10) || 1);
@@ -3969,6 +3995,16 @@
             renderRelationPagination(relationPaginationStates[activeRelationKey].currentPage);
             renderRelationCards();
             document.querySelectorAll('#main-project-relation-filter-drawer [data-relation-sort]').forEach(input => {
+                input.addEventListener('click', () => {
+                    relationSortState.primary = input.dataset.relationSort === 'downloads' || input.dataset.relationSort === 'lastUpdate'
+                        ? input.dataset.relationSort
+                        : 'label';
+                    const relationState = relationPaginationStates[activeRelationKey];
+                    relationState.totalPages = getRelationTotalPages(activeRelationKey, relationState.pageSize);
+                    relationState.currentPage = 1;
+                    renderRelationPagination(1);
+                    renderRelationCards();
+                });
                 input.addEventListener('change', () => {
                     relationSortState[input.dataset.relationSort] = input.value;
                     const relationState = relationPaginationStates[activeRelationKey];
