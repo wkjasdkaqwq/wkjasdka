@@ -507,7 +507,7 @@
         .main-project-relation-card-description { position: relative; display: flex; flex: 1 1 80%; align-items: center; min-width: 0; box-sizing: border-box; padding: 14px 16px 32px; color: #555; font-size: 1rem; font-weight: 500; overflow-wrap: anywhere; }
         .main-project-relation-card-description p { margin: 0; }
         .main-project-relation-card-meta { position: absolute; right: 12px; bottom: 10px; display: flex; align-items: center; gap: 8px; color: #717171; font-size: .75rem; font-weight: 400; font-variant-numeric: tabular-nums; line-height: 1.2; white-space: nowrap; }
-        .main-project-relation-card-meta-icon { flex: 0 0 auto; width: 1.1em; height: 1.1em; margin-right: -6px; fill: currentColor; stroke: currentColor; stroke-width: .05; stroke-linecap: round; stroke-linejoin: round; }
+        .main-project-relation-card-meta-icon { display: inline-block; width: 1.1em; height: 1.1em; margin-right: .18em; fill: currentColor; stroke: currentColor; stroke-width: .05; stroke-linecap: round; stroke-linejoin: round; vertical-align: -.18em; }
         .main-project-relation-download-popover, .main-project-relation-time-popover { position: relative; display: inline-flex; align-items: center; flex: 0 0 auto; }
         .main-project-relation-popover-trigger { display: inline; padding: 0; border: 0; appearance: none; -webkit-appearance: none; background: transparent; color: inherit; cursor: pointer; font: inherit; font-variant-numeric: inherit; line-height: inherit; -webkit-tap-highlight-color: transparent; }
         .main-project-relation-popover-trigger:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; border-radius: 2px; }
@@ -3636,6 +3636,7 @@
                         downloads.className = 'main-project-relation-popover-trigger main-project-relation-card-downloads';
                         downloads.type = 'button';
                         downloads.textContent = formatRelationDownloads(cardRecord.downloads);
+                        downloads.prepend(downloadIcon);
                         downloads.setAttribute('aria-label', `${cardRecord.downloads} downloads`);
                         downloads.setAttribute('aria-expanded', 'false');
                         const downloadTooltip = document.createElement('span');
@@ -3671,8 +3672,9 @@
                         timeTooltip.textContent = cardRecord.date;
                         timeTrigger.setAttribute('aria-describedby', timeTooltip.id);
                         timeTrigger.append(time);
+                        timeTrigger.prepend(timeIcon);
                         timePopover.append(timeTrigger, timeTooltip);
-                        meta.append(downloadIcon, downloadPopover, timeIcon, timePopover);
+                        meta.append(downloadPopover, timePopover);
                         description.append(label, meta);
                         card.append(imageArea, divider, description);
                         return card;
