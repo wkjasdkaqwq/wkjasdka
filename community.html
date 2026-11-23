@@ -382,7 +382,7 @@
         .main-project-relation-filter-drawer-body { display: flex; flex: 1 1 auto; flex-direction: column; min-height: 0; gap: 22px; overflow: auto; overscroll-behavior: contain; padding: 20px; }
         .main-project-relation-filter-footer { display: flex; flex: 0 0 auto; justify-content: center; padding: 12px 24px 50px; }
         .main-project-relation-filter-footer[hidden] { display: none; }
-        .main-project-relation-filter-confirm-motion { width: calc(100% - 8px); max-width: 372px; opacity: 0; transform: scale(0); transform-origin: center; transition: transform .18s ease, opacity .18s ease; }
+        .main-project-relation-filter-confirm-motion { width: calc(100% - 16px); max-width: 364px; opacity: 0; transform: scale(0); transform-origin: center; transition: transform .18s ease, opacity .18s ease; }
         .main-project-relation-filter-footer.is-visible .main-project-relation-filter-confirm-motion { opacity: 1; transform: scale(1); }
         .main-project-relation-filter-confirm { display: flex; align-items: center; justify-content: center; box-sizing: border-box; width: 100%; height: 84px; border: 2px solid #FFB380; border-radius: 42px; background-color: #FFDAB9; color: #E67E22; box-shadow: 0 4px 12px rgba(255, 218, 185, .5); cursor: pointer; font-size: 20px; font-weight: 600; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; touch-action: manipulation; transition: transform .4s cubic-bezier(.34, 1.56, .64, 1), box-shadow .4s cubic-bezier(.34, 1.56, .64, 1), background-color .4s cubic-bezier(.34, 1.56, .64, 1), border-color .4s cubic-bezier(.34, 1.56, .64, 1); }
         .main-project-relation-filter-confirm:focus-visible { outline: 3px solid #7B3D00; outline-offset: 3px; }
@@ -3822,15 +3822,16 @@
             const finishRelationFilterDrawerTransition = event => {
                 if (event.target !== relationFilterDrawer || event.propertyName !== 'transform' || relationFilterLayer?.classList.contains('is-open')) return;
                 relationFilterDrawer.classList.add('is-offscreen');
+                setRelationFilterConfirmVisible(false, true);
                 if (relationFilterBackdropClickGuard) releaseRelationFilterBackgroundShield();
             };
             relationFilterDrawer?.addEventListener('transitionend', finishRelationFilterDrawerTransition);
-            const setRelationFilterOpen = (open, holdBackgroundShield = false) => {
+            const setRelationFilterOpen = (open, holdBackgroundShield = false, keepConfirmDuringClose = false) => {
                 if (!relationFilterLayer || !relationFilterDrawer || !relationFilterButton) return;
                 const wasOpen = relationFilterLayer.classList.contains('is-open');
                 if (wasOpen === open) return;
                 if (open) resetRelationFilterDraft();
-                else setRelationFilterConfirmVisible(false);
+                else if (!keepConfirmDuringClose) setRelationFilterConfirmVisible(false);
                 if (relationFilterNavbarRestoreTimer) {
                     window.clearTimeout(relationFilterNavbarRestoreTimer);
                     relationFilterNavbarRestoreTimer = 0;
@@ -3877,7 +3878,7 @@
             };
             relationFilterButton?.addEventListener('click', () => setRelationFilterOpen(true));
             relationFilterDismissButtons.forEach(button => button.addEventListener('click', () => {
-                if (relationFilterLayer?.classList.contains('is-open')) setRelationFilterOpen(false);
+                if (relationFilterLayer?.classList.contains('is-open')) setRelationFilterOpen(false, false, button === relationFilterBackdrop);
             }));
             let relationFilterBackdropTouchStart = null;
             document.addEventListener('click', event => {
@@ -3917,7 +3918,7 @@
                 if (relationFilterMenuDismissClickPending) return;
                 if (relationFilterLayer?.classList.contains('is-open')) {
                     holdRelationFilterBackgroundShieldForClick();
-                    setRelationFilterOpen(false, true);
+                    setRelationFilterOpen(false, true, true);
                 }
             }, { passive: true });
             relationFilterBackdrop?.addEventListener('touchcancel', () => {
