@@ -3288,6 +3288,18 @@
             const setRelationDownloadPopoverVisible = (popover, visible) => {
                 if (!popover) return;
                 if (visible) positionRelationPopover(popover);
+                else {
+                    const tooltip = popover.querySelector('.main-project-relation-download-tooltip');
+                    const selection = window.getSelection();
+                    if (tooltip && selection && !selection.isCollapsed) {
+                        for (let index = 0; index < selection.rangeCount; index += 1) {
+                            if (selection.getRangeAt(index).intersectsNode(tooltip)) {
+                                selection.removeAllRanges();
+                                break;
+                            }
+                        }
+                    }
+                }
                 popover.dataset.visible = String(visible);
                 popover.querySelector('.main-project-relation-popover-trigger')?.setAttribute('aria-expanded', String(visible));
                 popover.querySelector('.main-project-relation-download-tooltip')?.setAttribute('aria-hidden', String(!visible));
