@@ -3306,10 +3306,21 @@
             const relationFilterNavbar = document.getElementById('navbar');
             const relationFilterNavbarPlaceholder = document.createComment('relation-filter-navbar-placeholder');
             let relationFilterPreviousMainInert = false;
-            const setRelationFilterOpen = open => {
+            let relationFilterBackdropClickGuard = null;
+            let relationFilterPendingMainRestoreFocus = false;
+            const releaseRelationFilterBackgroundShield = () => {
+                const guard = relationFilterBackdropClickGuard;
+                relationFilterBackdropClickGuard = null;
+                if (guard) window.clearTimeout(guard.timeoutId);
+                if (relationFilterMainContent) relationFilterMainContent.inert = relationFilterPreviousMainInert;
+                if (relationFilterPendingMainRestoreFocus && !relationFilterPreviousMainInert && !relationFilterLayer?.classList.contains('is-open')) relationFilterButton?.focus({ preventScroll: true });
+                relationFilterPendingMainRestoreFocus = false;
+            };
+            const setRelationFilterOpen = (open, holdBackgroundShield = false) => {
                 if (!relationFilterLayer || !relationFilterDrawer || !relationFilterButton) return;
                 const wasOpen = relationFilterLayer.classList.contains('is-open');
                 if (wasOpen === open) return;
+                if (open && relationFilterBackdropClickGuard) releaseRelationFilterBackgroundShield();
                 relationFilterButton.setAttribute('aria-expanded', String(open));
                 relationFilterLayer.setAttribute('aria-hidden', String(!open));
                 relationFilterLayer.toggleAttribute('inert', !open);
@@ -3320,7 +3331,13 @@
                     if (open) {
                         relationFilterPreviousMainInert = relationFilterMainContent.inert;
                         relationFilterMainContent.inert = true;
-                    } else relationFilterMainContent.inert = relationFilterPreviousMainInert;
+                    } else if (holdBackgroundShield) {
+                        relationFilterMainContent.inert = true;
+                        relationFilterPendingMainRestoreFocus = true;
+                    } else {
+                        relationFilterMainContent.inert = relationFilterPreviousMainInert;
+                        relationFilterPendingMainRestoreFocus = false;
+                    }
                 }
                 if (open && relationFilterNavbar?.parentNode && relationFilterNavbar.parentNode !== relationFilterLayer) {
                     relationFilterNavbar.before(relationFilterNavbarPlaceholder);
@@ -3330,7 +3347,7 @@
                 }
                 window.requestAnimationFrame(() => {
                     if (open && relationFilterLayer.classList.contains('is-open')) relationFilterCloseButton?.focus({ preventScroll: true });
-                    else if (!open && !relationFilterLayer.classList.contains('is-open')) relationFilterButton.focus({ preventScroll: true });
+                    else if (!open && !relationFilterLayer.classList.contains('is-open') && !relationFilterPendingMainRestoreFocus) relationFilterButton.focus({ preventScroll: true });
                 });
             };
             relationFilterButton?.addEventListener('click', () => setRelationFilterOpen(true));
@@ -3338,19 +3355,18 @@
                 if (relationFilterLayer?.classList.contains('is-open')) setRelationFilterOpen(false);
             }));
             let relationFilterBackdropTouchStart = null;
-            let relationFilterBackdropClickGuard = null;
             document.addEventListener('click', event => {
                 const guard = relationFilterBackdropClickGuard;
                 if (!guard) return;
                 if (performance.now() > guard.expiresAt) {
-                    relationFilterBackdropClickGuard = null;
+                    releaseRelationFilterBackgroundShield();
                     return;
                 }
-                relationFilterBackdropClickGuard = null;
-                window.clearTimeout(guard.timeoutId);
-                if (event.detail === 0 || !relationFilterMainContent?.contains(event.target) || Math.hypot(event.clientX - guard.x, event.clientY - guard.y) > 36) return;
-                event.preventDefault();
-                event.stopImmediatePropagation();
+                if (!relationFilterNavbar?.contains(event.target)) {
+                    event.preventDefault();
+                    event.stopImmediatePropagation();
+                }
+                releaseRelationFilterBackgroundShield();
             }, true);
             relationFilterBackdrop?.addEventListener('touchstart', event => {
                 if (event.touches.length !== 1) {
@@ -3367,12 +3383,12 @@
                 const touch = Array.from(event.changedTouches).find(item => item.identifier === start.id);
                 if (!touch || Math.hypot(touch.clientX - start.x, touch.clientY - start.y) > 10) return;
                 if (relationFilterLayer?.classList.contains('is-open')) {
-                    const clickGuard = { x: touch.clientX, y: touch.clientY, expiresAt: performance.now() + 600, timeoutId: 0 };
+                    const clickGuard = { expiresAt: performance.now() + 600, timeoutId: 0 };
                     relationFilterBackdropClickGuard = clickGuard;
                     clickGuard.timeoutId = window.setTimeout(() => {
-                        if (relationFilterBackdropClickGuard === clickGuard) relationFilterBackdropClickGuard = null;
+                        if (relationFilterBackdropClickGuard === clickGuard) releaseRelationFilterBackgroundShield();
                     }, 600);
-                    setRelationFilterOpen(false);
+                    setRelationFilterOpen(false, true);
                 }
             }, { passive: true });
             relationFilterBackdrop?.addEventListener('touchcancel', () => {
