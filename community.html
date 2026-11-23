@@ -363,6 +363,7 @@
         .main-project-relation-filter-layer.is-open .main-project-relation-filter-backdrop { opacity: 1; }
         .main-project-relation-filter-drawer { position: absolute; top: 0; bottom: 0; left: 0; display: flex; flex-direction: column; box-sizing: border-box; width: 65%; overflow: hidden; border-right: 1px solid #d6d6d6; background: #fff; box-shadow: 12px 0 32px rgba(0, 0, 0, .16); transform: translateX(-100%); transition: transform 180ms ease; will-change: transform; }
         .main-project-relation-filter-layer.is-open .main-project-relation-filter-drawer { transform: translateX(0); }
+        .main-project-relation-filter-layer.is-dragging .main-project-relation-filter-drawer, .main-project-relation-filter-layer.is-dragging .main-project-relation-filter-backdrop { transition: none !important; }
         .main-project-relation-filter-drawer.is-offscreen { box-shadow: none; }
         .main-project-relation-filter-drawer-header { display: flex; flex: 0 0 auto; align-items: center; justify-content: space-between; min-height: 68px; box-sizing: border-box; padding: 12px 20px; border-bottom: 1px solid #e4e4e4; }
         .main-project-relation-filter-drawer-title { margin: 0; color: #333; font-size: 1.12rem; font-weight: 650; }
@@ -3396,6 +3397,13 @@
                 }
                 releaseRelationFilterBackgroundShield();
             }, true);
+            const holdRelationFilterBackgroundShieldForClick = () => {
+                const clickGuard = { expiresAt: performance.now() + 600, timeoutId: 0 };
+                relationFilterBackdropClickGuard = clickGuard;
+                clickGuard.timeoutId = window.setTimeout(() => {
+                    if (relationFilterBackdropClickGuard === clickGuard) releaseRelationFilterBackgroundShield();
+                }, 600);
+            };
             relationFilterBackdrop?.addEventListener('touchstart', event => {
                 if (event.touches.length !== 1) {
                     relationFilterBackdropTouchStart = null;
@@ -3412,17 +3420,98 @@
                 if (!touch || Math.hypot(touch.clientX - start.x, touch.clientY - start.y) > 10) return;
                 if (relationFilterMenuDismissClickPending) return;
                 if (relationFilterLayer?.classList.contains('is-open')) {
-                    const clickGuard = { expiresAt: performance.now() + 600, timeoutId: 0 };
-                    relationFilterBackdropClickGuard = clickGuard;
-                    clickGuard.timeoutId = window.setTimeout(() => {
-                        if (relationFilterBackdropClickGuard === clickGuard) releaseRelationFilterBackgroundShield();
-                    }, 600);
+                    holdRelationFilterBackgroundShieldForClick();
                     setRelationFilterOpen(false, true);
                 }
             }, { passive: true });
             relationFilterBackdrop?.addEventListener('touchcancel', () => {
                 relationFilterBackdropTouchStart = null;
             }, { passive: true });
+            let relationFilterDrawerTouchStart = null;
+            const updateRelationFilterDrawerDrag = (start, touch, trackVelocity = true) => {
+                const now = performance.now();
+                const elapsed = Math.max(1, now - start.lastTime);
+                const deltaX = touch.clientX - start.lastX;
+                if (trackVelocity) start.velocity = deltaX / elapsed;
+                start.offset = Math.max(-start.width, Math.min(0, start.offset + deltaX));
+                start.lastX = touch.clientX;
+                start.lastTime = now;
+                const progress = 1 + start.offset / start.width;
+                relationFilterDrawer.style.transform = `translate3d(${start.offset}px, 0, 0)`;
+                if (relationFilterBackdrop) relationFilterBackdrop.style.opacity = String(progress);
+            };
+            const settleRelationFilterDrawerDrag = shouldClose => {
+                relationFilterLayer?.classList.remove('is-dragging');
+                if (relationFilterDrawer) void relationFilterDrawer.offsetWidth;
+                if (shouldClose && relationFilterLayer?.classList.contains('is-open')) {
+                    holdRelationFilterBackgroundShieldForClick();
+                    setRelationFilterOpen(false, true);
+                }
+                if (relationFilterDrawer) void getComputedStyle(relationFilterDrawer).transform;
+                relationFilterDrawer?.style.removeProperty('transform');
+                relationFilterBackdrop?.style.removeProperty('opacity');
+            };
+            const finishRelationFilterDrawerTouch = event => {
+                const start = relationFilterDrawerTouchStart;
+                relationFilterDrawerTouchStart = null;
+                if (!start?.dragging) return;
+                if (event.type === 'touchend' && !event.touches.length) {
+                    const touch = Array.from(event.changedTouches).find(item => item.identifier === start.id);
+                    if (touch) updateRelationFilterDrawerDrag(start, touch, false);
+                }
+                const projectedOffset = Math.max(-start.width, Math.min(0, start.offset + start.velocity * 180));
+                const canceled = event.type === 'touchcancel' || (event.type === 'touchend' && event.touches.length > 0);
+                settleRelationFilterDrawerDrag(!canceled && projectedOffset <= -start.width * .5);
+            };
+            document.addEventListener('touchstart', event => {
+                if (window.innerWidth > 600 || event.touches.length !== 1 || !relationFilterLayer?.classList.contains('is-open')) {
+                    finishRelationFilterDrawerTouch({ type: 'touchcancel' });
+                    relationFilterDrawerTouchStart = null;
+                    return;
+                }
+                if (!relationFilterDrawer?.contains(event.target) && !relationFilterBackdrop?.contains(event.target) && !relationFilterCloseButton?.contains(event.target)) {
+                    relationFilterDrawerTouchStart = null;
+                    return;
+                }
+                const touch = event.touches[0];
+                const drawerRect = relationFilterDrawer.getBoundingClientRect();
+                relationFilterDrawerTouchStart = {
+                    id: touch.identifier,
+                    x: touch.clientX,
+                    y: touch.clientY,
+                    lastX: touch.clientX,
+                    lastTime: performance.now(),
+                    width: drawerRect.width,
+                    offset: Math.max(-drawerRect.width, Math.min(0, drawerRect.left)),
+                    velocity: 0,
+                    dragging: false
+                };
+            }, { passive: true });
+            document.addEventListener('touchmove', event => {
+                const start = relationFilterDrawerTouchStart;
+                if (!start || window.innerWidth > 600) return;
+                if (event.touches.length !== 1) {
+                    finishRelationFilterDrawerTouch({ type: 'touchcancel' });
+                    return;
+                }
+                const touch = Array.from(event.touches).find(item => item.identifier === start.id);
+                if (!touch) return;
+                const deltaX = touch.clientX - start.x;
+                const deltaY = touch.clientY - start.y;
+                if (!start.dragging) {
+                    if (Math.abs(deltaX) < 6) return;
+                    if (Math.abs(deltaY) > Math.abs(deltaX) * 1.15 || deltaX >= 0) {
+                        relationFilterDrawerTouchStart = null;
+                        return;
+                    }
+                    start.dragging = true;
+                    relationFilterLayer?.classList.add('is-dragging');
+                }
+                event.preventDefault();
+                updateRelationFilterDrawerDrag(start, touch);
+            }, { passive: false });
+            document.addEventListener('touchend', finishRelationFilterDrawerTouch, { passive: true });
+            document.addEventListener('touchcancel', finishRelationFilterDrawerTouch, { passive: true });
             document.addEventListener('keydown', event => {
                 if (!relationFilterLayer?.classList.contains('is-open')) return;
                 if (event.key === 'Escape') {
