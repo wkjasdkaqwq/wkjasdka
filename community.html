@@ -380,6 +380,12 @@
             .main-project-relation-filter-layer.is-open .main-project-relation-filter-close:active { transform: translateX(0) translateY(1px) scale(.96); border-color: #FF9C5A; background: #FFC38D; box-shadow: 0 2px 6px rgba(255, 218, 185, .5); }
         }
         .main-project-relation-filter-drawer-body { display: flex; flex: 1 1 auto; flex-direction: column; min-height: 0; gap: 22px; overflow: auto; overscroll-behavior: contain; padding: 20px; }
+        .main-project-relation-filter-category-tabs { display: grid; flex: 0 0 auto; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+        .main-project-relation-filter-category-tab { min-width: 0; min-height: 42px; padding: 6px 5px; border: 1px solid #dedede; border-radius: 10px; background: #f5f5f5; color: #555; cursor: pointer; font: inherit; font-size: .82rem; font-weight: 620; line-height: 1.15; text-align: center; transition: border-color .16s ease, background-color .16s ease, color .16s ease, box-shadow .16s ease; }
+        .main-project-relation-filter-category-tab[aria-selected="true"] { border-color: #ff9966; background: #ffe4c4; color: #9b4f1c; box-shadow: 0 3px 9px rgba(255, 153, 102, .2); }
+        .main-project-relation-filter-category-tab:focus-visible { outline: 2px solid #64b5f6; outline-offset: 2px; }
+        .main-project-relation-filter-category-panel { display: flex; flex-direction: column; gap: 22px; }
+        .main-project-relation-filter-category-panel[hidden] { display: none; }
         .main-project-relation-filter-group { min-width: 0; margin: 0; }
         .main-project-relation-filter-group-title { margin: 0; color: #333; font-size: .98rem; font-weight: 650; line-height: 1.35; }
         .main-project-relation-filter-options { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
@@ -395,6 +401,8 @@
         html.dark-mode .main-project-relation-filter-group-title { color: #d8e0e7; }
         html.dark-mode .main-project-relation-filter-option { color: #c4cdd5; }
         html.dark-mode .main-project-relation-filter-option input { border-color: #a66a3d; color: #ffc08a; }
+        html.dark-mode .main-project-relation-filter-category-tab { border-color: #496070; background: #243746; color: #c4cdd5; }
+        html.dark-mode .main-project-relation-filter-category-tab[aria-selected="true"] { border-color: #a66a3d; background: #3b3028; color: #ffc08a; box-shadow: 0 3px 9px rgba(0, 0, 0, .24); }
         html.dark-mode .main-project-relation-filter-drawer { border-right-color: #385066; background: #172633; box-shadow: 12px 0 32px rgba(0, 0, 0, .34); }
         html.dark-mode .main-project-relation-filter-drawer.is-offscreen { box-shadow: none; }
         html.dark-mode .main-project-relation-filter-drawer-header { border-bottom-color: #385066; }
@@ -410,6 +418,8 @@
         @media (max-width: 600px) {
             .main-project-relation-filter-drawer-header { min-height: 60px; padding: 10px 14px; }
             .main-project-relation-filter-drawer-body { gap: 20px; padding: 14px; }
+            .main-project-relation-filter-category-tabs { gap: 4px; }
+            .main-project-relation-filter-category-tab { min-height: 40px; padding: 5px 3px; font-size: .72rem; }
             .main-project-relation-filter-group.is-inline { flex-wrap: nowrap; gap: 6px; }
             .main-project-relation-filter-group.is-inline .main-project-relation-filter-group-title { font-size: .75rem; white-space: nowrap; }
             .main-project-relation-filter-options.is-horizontal { gap: 7px; }
@@ -1487,37 +1497,36 @@
                 <h2 class="main-project-relation-filter-drawer-title" id="main-project-relation-filter-title">Filters</h2>
             </div>
             <div class="main-project-relation-filter-drawer-body">
-                <section class="main-project-relation-filter-group" aria-labelledby="relation-filter-alpha-title">
-                    <h3 class="main-project-relation-filter-group-title" id="relation-filter-alpha-title" data-i18n="relationSortOrderTitle">Sort order</h3>
-                    <div class="main-project-relation-filter-options" role="radiogroup" aria-labelledby="relation-filter-alpha-title">
+                <div class="main-project-relation-filter-category-tabs" role="tablist" aria-label="Filter category">
+                    <button class="main-project-relation-filter-category-tab" id="relation-filter-tab-sort" type="button" role="tab" aria-controls="relation-filter-panel-sort" aria-selected="true" tabindex="0" data-relation-filter-category="sort" data-i18n="relationSortOrderTitle">Sort order</button>
+                    <button class="main-project-relation-filter-category-tab" id="relation-filter-tab-downloads" type="button" role="tab" aria-controls="relation-filter-panel-downloads" aria-selected="false" tabindex="-1" data-relation-filter-category="downloads">Downloads</button>
+                    <button class="main-project-relation-filter-category-tab" id="relation-filter-tab-last-update" type="button" role="tab" aria-controls="relation-filter-panel-last-update" aria-selected="false" tabindex="-1" data-relation-filter-category="lastUpdate">Last update</button>
+                </div>
+                <section class="main-project-relation-filter-category-panel" id="relation-filter-panel-sort" role="tabpanel" aria-labelledby="relation-filter-tab-sort" tabindex="0" data-relation-filter-panel="sort">
+                    <div class="main-project-relation-filter-options" role="radiogroup" aria-label="Alphabetic order">
                         <label class="main-project-relation-filter-option"><input type="radio" name="relation-alpha-order" value="asc" data-relation-sort="alphabetic" checked><span>A-Z</span></label>
                         <label class="main-project-relation-filter-option"><input type="radio" name="relation-alpha-order" value="desc" data-relation-sort="alphabetic"><span>Z-A</span></label>
                     </div>
-                </section>
-                <section class="main-project-relation-filter-group" aria-labelledby="relation-filter-number-title">
-                    <h3 class="main-project-relation-filter-group-title" id="relation-filter-number-title" data-i18n="relationNumberOrderTitle">Number order</h3>
-                    <div class="main-project-relation-filter-options" role="radiogroup" aria-labelledby="relation-filter-number-title">
+                    <div class="main-project-relation-filter-options" role="radiogroup" aria-label="Number order">
                         <label class="main-project-relation-filter-option"><input type="radio" name="relation-number-order" value="asc" data-relation-sort="numeric" checked><span>1-9</span></label>
                         <label class="main-project-relation-filter-option"><input type="radio" name="relation-number-order" value="desc" data-relation-sort="numeric"><span>9-1</span></label>
                     </div>
+                    <section class="main-project-relation-filter-group is-inline" aria-labelledby="relation-filter-zero-title">
+                        <h3 class="main-project-relation-filter-group-title" id="relation-filter-zero-title" data-i18n="relationZeroPlacementTitle">Always place 0 at</h3>
+                        <div class="main-project-relation-filter-options is-horizontal" role="radiogroup" aria-labelledby="relation-filter-zero-title">
+                            <label class="main-project-relation-filter-option"><input type="radio" name="relation-zero-placement" value="front" data-relation-sort="zero" checked><span data-i18n="relationSortFront">Front</span></label>
+                            <label class="main-project-relation-filter-option"><input type="radio" name="relation-zero-placement" value="end" data-relation-sort="zero"><span data-i18n="relationSortEnd">End</span></label>
+                        </div>
+                    </section>
                 </section>
-                <section class="main-project-relation-filter-group is-inline" aria-labelledby="relation-filter-zero-title">
-                    <h3 class="main-project-relation-filter-group-title" id="relation-filter-zero-title" data-i18n="relationZeroPlacementTitle">Always place 0 at</h3>
-                    <div class="main-project-relation-filter-options is-horizontal" role="radiogroup" aria-labelledby="relation-filter-zero-title">
-                        <label class="main-project-relation-filter-option"><input type="radio" name="relation-zero-placement" value="front" data-relation-sort="zero" checked><span data-i18n="relationSortFront">Front</span></label>
-                        <label class="main-project-relation-filter-option"><input type="radio" name="relation-zero-placement" value="end" data-relation-sort="zero"><span data-i18n="relationSortEnd">End</span></label>
-                    </div>
-                </section>
-                <section class="main-project-relation-filter-group" aria-labelledby="relation-filter-downloads-title">
-                    <h3 class="main-project-relation-filter-group-title" id="relation-filter-downloads-title">Downloads</h3>
-                    <div class="main-project-relation-filter-options" role="radiogroup" aria-labelledby="relation-filter-downloads-title">
+                <section class="main-project-relation-filter-category-panel" id="relation-filter-panel-downloads" role="tabpanel" aria-labelledby="relation-filter-tab-downloads" tabindex="0" data-relation-filter-panel="downloads" hidden>
+                    <div class="main-project-relation-filter-options" role="radiogroup" aria-label="Downloads">
                         <label class="main-project-relation-filter-option"><input type="radio" name="relation-download-order" value="desc" data-relation-sort="downloads" checked><span>High to low</span></label>
                         <label class="main-project-relation-filter-option"><input type="radio" name="relation-download-order" value="asc" data-relation-sort="downloads"><span>Low to high</span></label>
                     </div>
                 </section>
-                <section class="main-project-relation-filter-group" aria-labelledby="relation-filter-last-update-title">
-                    <h3 class="main-project-relation-filter-group-title" id="relation-filter-last-update-title">Last update</h3>
-                    <div class="main-project-relation-filter-options" role="radiogroup" aria-labelledby="relation-filter-last-update-title">
+                <section class="main-project-relation-filter-category-panel" id="relation-filter-panel-last-update" role="tabpanel" aria-labelledby="relation-filter-tab-last-update" tabindex="0" data-relation-filter-panel="lastUpdate" hidden>
+                    <div class="main-project-relation-filter-options" role="radiogroup" aria-label="Last update">
                         <label class="main-project-relation-filter-option"><input type="radio" name="relation-last-update-order" value="desc" data-relation-sort="lastUpdate" checked><span>Newest first</span></label>
                         <label class="main-project-relation-filter-option"><input type="radio" name="relation-last-update-order" value="asc" data-relation-sort="lastUpdate"><span>Oldest first</span></label>
                     </div>
@@ -4027,6 +4036,27 @@
                     relationState.currentPage = 1;
                     renderRelationPagination(1);
                     renderRelationCards();
+                });
+            });
+            const relationFilterCategoryTabs = relationFilterDrawer?.querySelectorAll('[data-relation-filter-category]') || [];
+            const relationFilterCategoryPanels = relationFilterDrawer?.querySelectorAll('[data-relation-filter-panel]') || [];
+            relationFilterCategoryTabs.forEach((button, index) => {
+                button.addEventListener('click', () => {
+                    relationFilterCategoryTabs.forEach((tab, tabIndex) => {
+                        const selected = tabIndex === index;
+                        tab.setAttribute('aria-selected', String(selected));
+                        tab.tabIndex = selected ? 0 : -1;
+                    });
+                    relationFilterCategoryPanels.forEach(panel => {
+                        panel.hidden = panel.dataset.relationFilterPanel !== button.dataset.relationFilterCategory;
+                    });
+                });
+                button.addEventListener('keydown', event => {
+                    if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight' && event.key !== 'Home' && event.key !== 'End') return;
+                    event.preventDefault();
+                    const nextIndex = event.key === 'Home' ? 0 : event.key === 'End' ? relationFilterCategoryTabs.length - 1 : (index + (event.key === 'ArrowRight' ? 1 : -1) + relationFilterCategoryTabs.length) % relationFilterCategoryTabs.length;
+                    relationFilterCategoryTabs[nextIndex].click();
+                    relationFilterCategoryTabs[nextIndex].focus({ preventScroll: true });
                 });
             });
             const relationSearchTouchMedia = window.matchMedia('(hover: none), (pointer: coarse)');
