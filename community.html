@@ -681,10 +681,13 @@
         .community-comment-reply-input { display: block; box-sizing: border-box; width: 100%; min-height: 64px; resize: vertical; padding: 9px 11px; border: 1px solid var(--comment-border); border-radius: 9px; outline: none; background: var(--comment-surface); color: inherit; font: inherit; font-size: .9rem; line-height: 1.5; }
         .community-comment-reply-input:focus { border-color: #e67e22; box-shadow: 0 0 0 3px rgba(230, 126, 34, .14); }
         .community-comment-reply-form-footer { display: flex; justify-content: flex-end; gap: 8px; }
-        .community-comment-reply-form button { flex: 0 0 auto; min-height: 32px; padding: 0 12px; border: 1px solid transparent; border-radius: 999px; cursor: pointer; font: inherit; font-size: .8rem; font-weight: 620; white-space: nowrap; }
+        .community-comment-reply-form button { flex: 0 0 auto; min-height: 32px; padding: 0 12px; border: 1px solid transparent; border-radius: 999px; cursor: pointer; font: inherit; font-size: .8rem; font-weight: 620; white-space: nowrap; -webkit-tap-highlight-color: transparent; touch-action: manipulation; transition: transform .4s cubic-bezier(.34, 1.56, .64, 1), box-shadow .4s cubic-bezier(.34, 1.56, .64, 1), background-color .4s cubic-bezier(.34, 1.56, .64, 1), border-color .4s cubic-bezier(.34, 1.56, .64, 1), color .4s cubic-bezier(.34, 1.56, .64, 1); }
         .community-comment-reply-cancel { background: transparent; color: var(--comment-muted); }
         .community-comment-reply-submit { border-color: #e67e22 !important; background: #e67e22; color: #fff; }
         .community-comment-reply-submit:hover { background: #d96d16; }
+        .community-comment-reply-cancel:active, .community-comment-reply-cancel.is-touch-pressed { transform: translateY(2px) scale(.98); }
+        .community-comment-reply-submit:active, .community-comment-reply-submit.is-touch-pressed { transform: translateY(2px) scale(.98); border-color: #FF9C5A !important; background: #FFC38D; color: #E67E22; box-shadow: 0 2px 6px rgba(255, 218, 185, .5); }
+        html.dark-mode .community-comment-reply-submit:active, html.dark-mode .community-comment-reply-submit.is-touch-pressed { border-color: #FF8142 !important; background: #FFCF97; color: #E67E22; box-shadow: 0 2px 6px rgba(255, 218, 185, .5); }
         .community-comment-reply-form button:focus-visible { outline: 2px solid #64b5f6; outline-offset: 2px; }
         html.dark-mode .community-comment-panel { --comment-border: #385066; --comment-muted: #a0aeb8; --comment-surface: #162636; --comment-soft: #10202d; }
         html.dark-mode .community-comment-title, html.dark-mode .community-comment-author { color: #f3f5f7; }
@@ -3247,6 +3250,32 @@
                     commentListResizeObserver.observe(communityCommentList);
                 }
                 scheduleCommentThreadOverflowSync();
+                const commentReplyButtonSelector = '.community-comment-reply-form button';
+                const commentReplyPressedPointers = new Map();
+                communityCommentList.addEventListener('pointerdown', event => {
+                    if (event.pointerType === 'mouse' || !(event.target instanceof Element)) return;
+                    const button = event.target.closest(commentReplyButtonSelector);
+                    if (!button) return;
+                    commentReplyPressedPointers.set(event.pointerId, button);
+                    button.classList.add('is-touch-pressed');
+                }, { capture: true });
+                ['pointerup', 'pointercancel'].forEach(type => {
+                    document.addEventListener(type, event => {
+                        const button = commentReplyPressedPointers.get(event.pointerId);
+                        if (!button) return;
+                        commentReplyPressedPointers.delete(event.pointerId);
+                        if (![...commentReplyPressedPointers.values()].includes(button)) button.classList.remove('is-touch-pressed');
+                    }, { passive: true });
+                });
+                communityCommentList.addEventListener('touchstart', event => {
+                    if (!(event.target instanceof Element)) return;
+                    event.target.closest(commentReplyButtonSelector)?.classList.add('is-touch-pressed');
+                }, { capture: true, passive: true });
+                ['touchend', 'touchcancel'].forEach(type => {
+                    document.addEventListener(type, () => {
+                        communityCommentList.querySelectorAll(`${commentReplyButtonSelector}.is-touch-pressed`).forEach(button => button.classList.remove('is-touch-pressed'));
+                    }, { capture: true, passive: true });
+                });
                 const getCommentReplies = commentCard => {
                     const content = commentCard.querySelector(':scope > .community-comment-content');
                     if (!content) return null;
