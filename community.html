@@ -3358,6 +3358,20 @@
                 let seededCommentTextIndex = 0;
                 const nextSeededCommentText = () => seededCommentTexts[seededCommentTextIndex++ % seededCommentTexts.length];
                 const getCommentAuthorName = commentCard => commentCard.querySelector(':scope > .community-comment-content .community-comment-author')?.textContent.trim() || 'Unknown author';
+                const makeCommentHelpfulButton = authorName => {
+                    const button = document.createElement('button');
+                    button.className = 'community-comment-action community-comment-helpful';
+                    button.type = 'button';
+                    button.setAttribute('aria-label', `Mark ${authorName}'s comment as helpful`);
+                    button.setAttribute('aria-pressed', 'false');
+                    const icon = document.createElement('span');
+                    icon.className = 'community-comment-helpful-icon';
+                    icon.setAttribute('aria-hidden', 'true');
+                    const count = document.createElement('span');
+                    count.textContent = '0';
+                    button.append(icon, count);
+                    return button;
+                };
                 const makeCommentVisibilityButton = authorName => {
                     const button = document.createElement('button');
                     button.className = 'community-comment-action community-comment-visibility';
@@ -3395,6 +3409,9 @@
                         actions = document.createElement('div');
                         actions.className = 'community-comment-actions';
                         content.append(actions);
+                    }
+                    if (!actions.querySelector(':scope > .community-comment-helpful')) {
+                        actions.insertBefore(makeCommentHelpfulButton(authorName), actions.firstChild);
                     }
                     if (!actions.querySelector(':scope > [data-comment-visibility]')) actions.append(makeCommentVisibilityButton(authorName));
                     if (!actions.querySelector(':scope > [data-comment-report]')) actions.append(makeCommentReportButton());
