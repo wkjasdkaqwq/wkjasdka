@@ -666,11 +666,13 @@
         .community-comment-helpful.is-pressed { transform: translateY(1px); }
         .community-comment-action svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
         .community-comment-helpful-icon { display: inline-block; flex: 0 0 15px; width: 15px; height: 15px; background-color: currentColor; -webkit-mask: url("resource/icon/bootstrap-icons/hand-thumbs-up.svg") center / contain no-repeat; mask: url("resource/icon/bootstrap-icons/hand-thumbs-up.svg") center / contain no-repeat; transition: opacity .15s ease, -webkit-mask-image .15s ease, mask-image .15s ease; }
+        .community-comment-helpful-count[hidden], .community-comment-replies[hidden] { display: none; }
         .community-comment-reply-icon { display: inline-block; flex: 0 0 15px; width: 15px; height: 15px; background-color: currentColor; -webkit-mask: url("resource/icon/bootstrap-icons/chat-dots.svg") center / contain no-repeat; mask: url("resource/icon/bootstrap-icons/chat-dots.svg") center / contain no-repeat; transition: opacity .15s ease, -webkit-mask-image .15s ease, mask-image .15s ease; }
         .community-comment-visibility-icon { display: inline-block; flex: 0 0 15px; width: 15px; height: 15px; background-color: currentColor; -webkit-mask: url("resource/icon/bootstrap-icons/eye.svg") center / contain no-repeat; mask: url("resource/icon/bootstrap-icons/eye.svg") center / contain no-repeat; transition: opacity .15s ease, -webkit-mask-image .15s ease, mask-image .15s ease; }
         .community-comment-visibility[aria-pressed="true"] .community-comment-visibility-icon { -webkit-mask-image: url("resource/icon/bootstrap-icons/eye-slash.svg"); mask-image: url("resource/icon/bootstrap-icons/eye-slash.svg"); }
         .community-comment-action.community-comment-report:hover { color: var(--comment-muted); }
         .community-comment-report-icon { display: inline-block; flex: 0 0 15px; width: 15px; height: 15px; background-color: currentColor; -webkit-mask: url("resource/icon/bootstrap-icons/cone-striped.svg") center / contain no-repeat; mask: url("resource/icon/bootstrap-icons/cone-striped.svg") center / contain no-repeat; }
+        .community-comment-thread-toggle { color: var(--comment-muted); font-size: .76rem; white-space: nowrap; }
         @media (hover: hover) and (pointer: fine) {
             .community-comment-action:hover { color: #d96d16; }
             .community-comment-helpful:hover .community-comment-helpful-icon { opacity: .5; -webkit-mask-image: url("resource/icon/bootstrap-icons/hand-thumbs-up-fill.svg"); mask-image: url("resource/icon/bootstrap-icons/hand-thumbs-up-fill.svg"); }
@@ -3334,6 +3336,51 @@
                     }
                     return replies;
                 };
+                const getCommentDepth = commentCard => {
+                    let depth = 0;
+                    let ancestor = commentCard.parentElement?.closest('.community-comment-card');
+                    while (ancestor) {
+                        depth += 1;
+                        ancestor = ancestor.parentElement?.closest('.community-comment-card');
+                    }
+                    return depth;
+                };
+                const syncCommentReplyDisclosure = () => {
+                    communityCommentList.querySelectorAll('.community-comment-card').forEach(commentCard => {
+                        const content = commentCard.querySelector(':scope > .community-comment-content');
+                        const replies = getCommentReplies(commentCard);
+                        const actions = content?.querySelector(':scope > .community-comment-actions');
+                        if (!content || !replies || !actions) return;
+                        const childCount = Array.from(replies.children).filter(child => child.classList.contains('community-comment-card')).length;
+                        let toggle = actions.querySelector(':scope > [data-comment-thread-toggle]');
+                        if (getCommentDepth(commentCard) === 0 || childCount === 0) {
+                            toggle?.remove();
+                            replies.hidden = false;
+                            return;
+                        }
+                        if (!toggle) {
+                            toggle = document.createElement('button');
+                            toggle.className = 'community-comment-action community-comment-thread-toggle';
+                            toggle.type = 'button';
+                            toggle.dataset.commentThreadToggle = '';
+                            toggle.setAttribute('aria-expanded', 'false');
+                            toggle.setAttribute('aria-label', 'Show nested replies');
+                            actions.append(toggle);
+                        }
+                        const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
+                        replies.hidden = !isExpanded;
+                        toggle.textContent = `${isExpanded ? 'Hide' : 'Show'} ${childCount} ${childCount === 1 ? 'reply' : 'replies'}`;
+                        toggle.setAttribute('aria-label', `${isExpanded ? 'Hide' : 'Show'} ${childCount} ${childCount === 1 ? 'reply' : 'replies'}`);
+                    });
+                };
+                const expandCommentReplies = commentCard => {
+                    const content = commentCard.querySelector(':scope > .community-comment-content');
+                    const replies = getCommentReplies(commentCard);
+                    const toggle = content?.querySelector(':scope > .community-comment-actions > [data-comment-thread-toggle]');
+                    if (toggle) toggle.setAttribute('aria-expanded', 'true');
+                    if (replies) replies.hidden = false;
+                    syncCommentReplyDisclosure();
+                };
                 const hiddenCommentAuthors = new Set();
                 const seededCommentAuthors = [
                     'Mira Chen', 'W.K.Jasdka', 'northdesign', 'Olivia Park', 'Noah Williams',
@@ -3368,7 +3415,9 @@
                     icon.className = 'community-comment-helpful-icon';
                     icon.setAttribute('aria-hidden', 'true');
                     const count = document.createElement('span');
+                    count.className = 'community-comment-helpful-count';
                     count.textContent = '0';
+                    count.hidden = true;
                     button.append(icon, count);
                     return button;
                 };
@@ -3412,6 +3461,11 @@
                     }
                     if (!actions.querySelector(':scope > .community-comment-helpful')) {
                         actions.insertBefore(makeCommentHelpfulButton(authorName), actions.firstChild);
+                    }
+                    const helpfulCount = actions.querySelector(':scope > .community-comment-helpful .community-comment-helpful-count, :scope > .community-comment-helpful span:not(.community-comment-helpful-icon)');
+                    if (helpfulCount) {
+                        helpfulCount.classList.add('community-comment-helpful-count');
+                        helpfulCount.hidden = (Number.parseInt(helpfulCount.textContent, 10) || 0) === 0;
                     }
                     if (!actions.querySelector(':scope > [data-comment-visibility]')) actions.append(makeCommentVisibilityButton(authorName));
                     if (!actions.querySelector(':scope > [data-comment-report]')) actions.append(makeCommentReportButton());
@@ -3559,6 +3613,7 @@
                     }
                 });
                 syncCommentVisibility();
+                syncCommentReplyDisclosure();
                 syncAllCommentThreadOverflow();
                 const closeCommentReplyForm = form => {
                     if (!form) return;
@@ -3571,6 +3626,19 @@
                 };
                 communityCommentList.addEventListener('click', event => {
                     if (!(event.target instanceof Element)) return;
+                    const threadToggle = event.target.closest('[data-comment-thread-toggle]');
+                    if (threadToggle && communityCommentList.contains(threadToggle)) {
+                        const commentCard = threadToggle.closest('.community-comment-card');
+                        const replies = commentCard && getCommentReplies(commentCard);
+                        if (replies) {
+                            threadToggle.setAttribute('aria-expanded', String(threadToggle.getAttribute('aria-expanded') !== 'true'));
+                            syncCommentReplyDisclosure();
+                            const thread = commentCard.closest('.community-comment-list > .community-comment-card');
+                            if (thread) syncCommentThreadOverflow(thread);
+                            syncLowerDividerHeight();
+                        }
+                        return;
+                    }
                     const reportButton = event.target.closest('[data-comment-report]');
                     if (reportButton && communityCommentList.contains(reportButton)) {
                         event.preventDefault();
@@ -3594,7 +3662,9 @@
                         const count = helpfulButton.querySelector('span:not(.community-comment-helpful-icon)');
                         if (count) {
                             const currentCount = Number.parseInt(count.textContent, 10) || 0;
-                            count.textContent = String(Math.max(0, currentCount + (isPressed ? 1 : -1)));
+                            const nextCount = Math.max(0, currentCount + (isPressed ? 1 : -1));
+                            count.textContent = String(nextCount);
+                            count.hidden = nextCount === 0;
                         }
                         return;
                     }
@@ -3619,6 +3689,7 @@
                     }
                     const replies = getCommentReplies(commentCard);
                     if (!replies) return;
+                    expandCommentReplies(commentCard);
                     const authorName = commentCard.querySelector('.community-comment-author')?.textContent.trim() || 'this comment';
                     const replyForm = makeReplyForm(authorName);
                     replies.prepend(replyForm);
@@ -3644,6 +3715,8 @@
                     parentCard.querySelectorAll('[data-comment-reply]').forEach(button => button.setAttribute('aria-expanded', 'false'));
                     form.remove();
                     replies.append(makeCommentReply(text));
+                    syncCommentReplyDisclosure();
+                    expandCommentReplies(parentCard);
                     const thread = parentCard.closest('.community-comment-list > .community-comment-card');
                     if (thread) syncCommentThreadOverflow(thread);
                     syncLowerDividerHeight();
