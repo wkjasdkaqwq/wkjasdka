@@ -2946,6 +2946,7 @@
                 icon.addEventListener('click', event => {
                     event.preventDefault();
                     event.stopImmediatePropagation();
+                    window.open('about:blank', '_blank', 'noopener,noreferrer');
                 }, true);
             });
             mitLicenseTrigger?.addEventListener('click', () => {
