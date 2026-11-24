@@ -3420,16 +3420,7 @@
                         button.title = label;
                     });
                 };
-                const getCommentDepth = commentCard => {
-                    let depth = 0;
-                    let parentCard = commentCard.parentElement?.closest('.community-comment-card');
-                    while (parentCard) {
-                        depth += 1;
-                        parentCard = parentCard.parentElement?.closest('.community-comment-card');
-                    }
-                    return depth;
-                };
-                const makeCommentReply = (text, authorName = 'You', depth = 1) => {
+                const makeCommentReply = (text, authorName = 'You') => {
                     const comment = document.createElement('article');
                     comment.className = 'community-comment-card';
                     const avatar = document.createElement('div');
@@ -3453,26 +3444,22 @@
                     body.textContent = text;
                     const actions = document.createElement('div');
                     actions.className = 'community-comment-actions';
-                    if (depth < 4) {
-                        const replyButton = document.createElement('button');
-                        replyButton.className = 'community-comment-action community-comment-reply';
-                        replyButton.type = 'button';
-                        replyButton.setAttribute('aria-label', 'Reply');
-                        replyButton.setAttribute('aria-expanded', 'false');
-                        replyButton.dataset.commentReply = '';
-                        const replyIcon = document.createElement('span');
-                        replyIcon.className = 'community-comment-reply-icon';
-                        replyIcon.setAttribute('aria-hidden', 'true');
-                        replyButton.append(replyIcon);
-                        actions.append(replyButton);
-                    }
+                    const replyButton = document.createElement('button');
+                    replyButton.className = 'community-comment-action community-comment-reply';
+                    replyButton.type = 'button';
+                    replyButton.setAttribute('aria-label', 'Reply');
+                    replyButton.setAttribute('aria-expanded', 'false');
+                    replyButton.dataset.commentReply = '';
+                    const replyIcon = document.createElement('span');
+                    replyIcon.className = 'community-comment-reply-icon';
+                    replyIcon.setAttribute('aria-hidden', 'true');
+                    replyButton.append(replyIcon);
+                    actions.append(replyButton);
                     content.append(meta, body, actions);
-                    if (depth < 4) {
-                        const nestedReplies = document.createElement('div');
-                        nestedReplies.className = 'community-comment-replies';
-                        nestedReplies.dataset.commentReplies = '';
-                        content.append(nestedReplies);
-                    }
+                    const nestedReplies = document.createElement('div');
+                    nestedReplies.className = 'community-comment-replies';
+                    nestedReplies.dataset.commentReplies = '';
+                    content.append(nestedReplies);
                     comment.append(avatar, content);
                     ensureCommentVisibilityControls(comment);
                     return comment;
@@ -3532,7 +3519,7 @@
                         if (!replies) break;
                         let childComment = replies.querySelector(':scope > .community-comment-card');
                         if (!childComment) {
-                            childComment = makeCommentReply(nextSeededCommentText(), takeSeededAuthor(), depth);
+                            childComment = makeCommentReply(nextSeededCommentText(), takeSeededAuthor());
                             replies.append(childComment);
                         }
                         parentComment = childComment;
@@ -3581,7 +3568,6 @@
                     if (!replyButton || !communityCommentList.contains(replyButton)) return;
                     const commentCard = replyButton.closest('.community-comment-card');
                     if (!commentCard) return;
-                    if (getCommentDepth(commentCard) >= 4) return;
                     const existingForm = communityCommentList.querySelector('[data-comment-reply-form]');
                     if (existingForm) {
                         const wasSameCard = existingForm.closest('.community-comment-card') === commentCard;
@@ -3613,15 +3599,12 @@
                         return;
                     }
                     const parentCard = form.closest('.community-comment-card');
-                    if (!parentCard || getCommentDepth(parentCard) >= 4) {
-                        closeCommentReplyForm(form);
-                        return;
-                    }
+                    if (!parentCard) return;
                     const replies = parentCard && getCommentReplies(parentCard);
                     if (!replies) return;
                     parentCard.querySelectorAll('[data-comment-reply]').forEach(button => button.setAttribute('aria-expanded', 'false'));
                     form.remove();
-                    replies.append(makeCommentReply(text, 'You', getCommentDepth(parentCard) + 1));
+                    replies.append(makeCommentReply(text));
                     const thread = parentCard.closest('.community-comment-list > .community-comment-card');
                     if (thread) syncCommentThreadOverflow(thread);
                     syncLowerDividerHeight();
