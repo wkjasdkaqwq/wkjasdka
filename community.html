@@ -650,7 +650,7 @@
         .community-comment-post:focus-visible, .community-comment-action:focus-visible { outline: 2px solid #64b5f6; outline-offset: 2px; }
         .community-comment-list { display: flex; flex-direction: column; gap: 0; }
         .community-comment-card { display: flex; align-items: flex-start; gap: 13px; padding: 18px 2px; border-top: 1px solid var(--comment-border); }
-        .community-comment-list > .community-comment-card { box-sizing: border-box; max-width: 100%; overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain; scrollbar-width: none; -ms-overflow-style: none; -webkit-overflow-scrolling: touch; container-type: inline-size; }
+        .community-comment-list > .community-comment-card { box-sizing: border-box; max-width: calc(100% + 16px); margin-right: -16px; overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain; scrollbar-width: none; -ms-overflow-style: none; -webkit-overflow-scrolling: touch; container-type: inline-size; }
         .community-comment-list > .community-comment-card::-webkit-scrollbar { display: none; width: 0; height: 0; }
         .community-comment-card > .community-comment-avatar { flex-basis: 38px; width: 38px; height: 38px; }
         .community-comment-content { flex: 1 1 auto; min-width: 0; }
