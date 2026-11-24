@@ -662,7 +662,8 @@
         .community-comment-action:hover { color: #d96d16; }
         .community-comment-action:active { transform: translateY(1px); }
         .community-comment-action svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-        .community-comment-replies { margin: 14px 0 0 2px; padding-left: 16px; border-left: 2px solid #e8b88d; }
+        .community-comment-replies { box-sizing: border-box; max-width: 100%; margin: 14px 0 0 2px; padding-left: 16px; border-left: 2px solid #e8b88d; overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain; scrollbar-width: none; -ms-overflow-style: none; -webkit-overflow-scrolling: touch; }
+        .community-comment-replies::-webkit-scrollbar { display: none; width: 0; height: 0; }
         .community-comment-replies .community-comment-card { padding: 12px 0 0; border-top: 0; }
         .community-comment-replies .community-comment-avatar { flex-basis: 32px !important; width: 32px !important; height: 32px !important; font-size: .74rem; }
         .community-comment-replies .community-comment-replies { padding-left: 8px; }
