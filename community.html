@@ -811,12 +811,15 @@
         .detail-license-row { display: flex; align-items: center; gap: 4px; margin-top: 16px; }
         .detail-license-scale { display: grid; place-items: center; flex: 0 0 50px; width: 50px; height: 50px; color: #e67e22; font-size: 1.425rem; line-height: 1; }
         .detail-license-text { margin: 0 0 0 -7px; color: #666; font-size: 1rem; line-height: 1.65; }
-        .detail-release-row, .detail-last-updated-row { display: flex; align-items: center; gap: 4px; margin-top: -7px; }
+        .detail-release-row, .detail-last-updated-row, .detail-downloads-row, .detail-source-row { display: flex; align-items: center; gap: 4px; margin-top: -7px; }
         .detail-metadata-icon-slot { display: grid; place-items: center; flex: 0 0 50px; width: 50px; height: 50px; color: #e67e22; }
         .detail-metadata-icon { display: block; width: 1.63875rem; height: 1.63875rem; overflow: visible; }
         .detail-metadata-icon path { fill: currentColor; }
         .detail-last-updated-icon { transform: scale(.9409); }
-        .detail-release-text, .detail-last-updated-text { margin: 0 0 0 -7px; color: #666; font-size: 1rem; line-height: 1.65; }
+        .detail-download-icon, .detail-source-icon { background-color: currentColor; -webkit-mask-position: center; mask-position: center; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-size: contain; mask-size: contain; }
+        .detail-download-icon { -webkit-mask-image: url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.2/icons/download.svg"); mask-image: url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.2/icons/download.svg"); }
+        .detail-source-icon { -webkit-mask-image: url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.2/icons/braces.svg"); mask-image: url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.2/icons/braces.svg"); }
+        .detail-release-text, .detail-last-updated-text, .detail-downloads-text, .detail-source-text { margin: 0 0 0 -7px; color: #666; font-size: 1rem; line-height: 1.65; }
         .detail-metadata-label { color: #999; }
         .detail-license-trigger { padding: 0; border: 0; background: transparent; color: #e67e22; cursor: pointer; font: inherit; font-weight: 700; text-decoration: none; text-underline-offset: 2px; }
         .detail-license-trigger:focus-visible { outline: 2px solid #64b5f6; outline-offset: 2px; }
@@ -934,7 +937,7 @@
         html.dark-mode .main-project-description-body { color: #a0a0a0; }
         html.dark-mode .detail-license-scale { color: #e67e22; }
         html.dark-mode .detail-license-text { color: #a0a0a0; }
-        html.dark-mode .detail-release-text, html.dark-mode .detail-last-updated-text { color: #a0a0a0; }
+        html.dark-mode .detail-release-text, html.dark-mode .detail-last-updated-text, html.dark-mode .detail-downloads-text, html.dark-mode .detail-source-text { color: #a0a0a0; }
         html.dark-mode .detail-metadata-label { color: #c5ced6; }
         html.dark-mode .detail-license-trigger { color: #ffb380; }
         html.dark-mode .mit-license-dialog { color: #e0e0e0; }
@@ -1287,6 +1290,14 @@
                             <span class="detail-license-scale" aria-hidden="true"><i class="fa-solid fa-scale-balanced"></i></span>
                             <p class="detail-license-text"><span class="detail-metadata-label">Licensed</span> <button class="detail-license-trigger" id="mit-license-trigger" type="button" aria-haspopup="dialog" aria-controls="mit-license-dialog">MIT</button></p>
                         </div>
+                        <div class="detail-downloads-row">
+                            <span class="detail-metadata-icon-slot" aria-hidden="true"><span class="detail-metadata-icon detail-download-icon"></span></span>
+                            <p class="detail-downloads-text"><span class="detail-metadata-label">Downloads</span></p>
+                        </div>
+                        <div class="detail-source-row">
+                            <span class="detail-metadata-icon-slot" aria-hidden="true"><span class="detail-metadata-icon detail-source-icon"></span></span>
+                            <p class="detail-source-text"><span class="detail-metadata-label">Source</span></p>
+                        </div>
                         <div class="detail-release-row">
                             <span class="detail-metadata-icon-slot" aria-hidden="true">
                                 <svg class="detail-metadata-icon detail-release-icon" viewBox="0 0 16 16" focusable="false">
@@ -1303,7 +1314,7 @@
                                     <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z" />
                                 </svg>
                             </span>
-                            <p class="detail-last-updated-text"><span class="detail-metadata-label">Last Updated</span></p>
+                            <p class="detail-last-updated-text"><span class="detail-metadata-label">Last Updated</span> <time datetime="2025-05-08T07:30:04">2025.05.08 07:30:04</time></p>
                         </div>
                         <div class="main-project-description-section-divider" aria-hidden="true"></div>
                         <dialog class="mit-license-dialog" id="mit-license-dialog" aria-labelledby="mit-license-title" tabindex="-1">
