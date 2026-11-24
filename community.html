@@ -684,7 +684,7 @@
         .community-comment-helpful:active .community-comment-helpful-icon { opacity: 1; -webkit-mask-image: url("resource/icon/bootstrap-icons/hand-thumbs-up-fill.svg"); mask-image: url("resource/icon/bootstrap-icons/hand-thumbs-up-fill.svg"); }
         .community-comment-helpful.is-pressed .community-comment-helpful-icon { opacity: 1; -webkit-mask-image: url("resource/icon/bootstrap-icons/hand-thumbs-up-fill.svg"); mask-image: url("resource/icon/bootstrap-icons/hand-thumbs-up-fill.svg"); }
         .community-comment-reply:active .community-comment-reply-icon { opacity: 1; -webkit-mask-image: url("resource/icon/bootstrap-icons/chat-dots-fill.svg"); mask-image: url("resource/icon/bootstrap-icons/chat-dots-fill.svg"); }
-        .community-comment-visibility[aria-pressed="false"]:active .community-comment-visibility-icon { opacity: 1; -webkit-mask-image: url("resource/icon/bootstrap-icons/eye-fill.svg"); mask-image: url("resource/icon/bootstrap-icons/eye-fill.svg"); }
+        .community-comment-visibility[aria-pressed="false"]:active .community-comment-visibility-icon { opacity: 1; -webkit-mask-image: url("resource/icon/bootstrap-icons/eye.svg"); mask-image: url("resource/icon/bootstrap-icons/eye.svg"); }
         .community-comment-visibility[aria-pressed="true"]:active .community-comment-visibility-icon { opacity: 1; -webkit-mask-image: url("resource/icon/bootstrap-icons/eye-slash-fill.svg"); mask-image: url("resource/icon/bootstrap-icons/eye-slash-fill.svg"); }
         @media (hover: none) {
             .community-comment-helpful:active .community-comment-helpful-icon { opacity: .5; -webkit-mask-image: url("resource/icon/bootstrap-icons/hand-thumbs-up-fill.svg"); mask-image: url("resource/icon/bootstrap-icons/hand-thumbs-up-fill.svg"); }
@@ -692,9 +692,9 @@
             .community-comment-visibility[aria-pressed="false"]:active .community-comment-visibility-icon { opacity: .5; -webkit-mask-image: url("resource/icon/bootstrap-icons/eye.svg"); mask-image: url("resource/icon/bootstrap-icons/eye.svg"); }
             .community-comment-visibility[aria-pressed="true"]:active .community-comment-visibility-icon { opacity: .5; -webkit-mask-image: url("resource/icon/bootstrap-icons/eye-slash-fill.svg"); mask-image: url("resource/icon/bootstrap-icons/eye-slash-fill.svg"); }
         }
-        .community-comment-replies { display: grid; grid-template-rows: 1fr; min-height: 0; overflow: hidden; margin: 14px 0 0 2px; padding-left: 16px; border-left: 2px solid #e8b88d; transition: grid-template-rows .15s ease, margin-top .15s ease; }
+        .community-comment-replies { display: grid; grid-template-rows: 1fr; min-height: 0; margin: 14px 0 0 2px; padding-left: 16px; border-left: 2px solid #e8b88d; transition: grid-template-rows .15s ease, margin-top .15s ease; }
         .community-comment-replies.is-collapsed { grid-template-rows: 0fr; margin-top: 0; }
-        .community-comment-replies-inner { min-height: 0; overflow: hidden; opacity: 1; transition: opacity .15s ease; }
+        .community-comment-replies-inner { min-height: 0; overflow-x: visible; overflow-y: clip; opacity: 1; transition: opacity .15s ease; }
         .community-comment-replies.is-collapsed > .community-comment-replies-inner { opacity: 0; }
         .community-comment-replies .community-comment-card { padding: 12px 0 0; border-top: 0; }
         .community-comment-replies .community-comment-avatar { flex-basis: 32px !important; width: 32px !important; height: 32px !important; font-size: .74rem; }
