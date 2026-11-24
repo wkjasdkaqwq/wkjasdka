@@ -3224,7 +3224,11 @@
             if (communityCommentList) {
                 const commentThreads = Array.from(communityCommentList.children).filter(card => card.matches('.community-comment-card'));
                 const syncCommentThreadOverflow = thread => {
-                    const exceedsScreen = Array.from(thread.querySelectorAll('.community-comment-replies .community-comment-card'))
+                    const overflowCandidates = [
+                        ...thread.querySelectorAll('.community-comment-replies .community-comment-card'),
+                        ...thread.querySelectorAll('[data-comment-reply-form]')
+                    ];
+                    const exceedsScreen = overflowCandidates
                         .some(reply => reply.getBoundingClientRect().right + thread.scrollLeft > window.innerWidth + 0.5);
                     thread.classList.toggle('is-comment-thread-scrollable', exceedsScreen);
                     if (!exceedsScreen && thread.scrollLeft) thread.scrollLeft = 0;
@@ -3317,8 +3321,10 @@
                     if (cancelButton) {
                         const form = cancelButton.closest('[data-comment-reply-form]');
                         const parentCard = form?.closest('.community-comment-card');
+                        const thread = parentCard?.closest('.community-comment-list > .community-comment-card');
                         parentCard?.querySelectorAll('[data-comment-reply]').forEach(button => button.setAttribute('aria-expanded', 'false'));
                         form?.remove();
+                        if (thread) syncCommentThreadOverflow(thread);
                         return;
                     }
                     const replyButton = event.target.closest('[data-comment-reply]');
@@ -3328,8 +3334,11 @@
                     const existingForm = communityCommentList.querySelector('[data-comment-reply-form]');
                     if (existingForm) {
                         const wasSameCard = existingForm.closest('.community-comment-card') === commentCard;
-                        existingForm.closest('.community-comment-card')?.querySelectorAll('[data-comment-reply]').forEach(button => button.setAttribute('aria-expanded', 'false'));
+                        const previousParent = existingForm.closest('.community-comment-card');
+                        const previousThread = previousParent?.closest('.community-comment-list > .community-comment-card');
+                        previousParent?.querySelectorAll('[data-comment-reply]').forEach(button => button.setAttribute('aria-expanded', 'false'));
                         existingForm.remove();
+                        if (previousThread) syncCommentThreadOverflow(previousThread);
                         if (wasSameCard) return;
                     }
                     const replies = getCommentReplies(commentCard);
@@ -3338,6 +3347,8 @@
                     const replyForm = makeReplyForm(authorName);
                     replies.prepend(replyForm);
                     replyButton.setAttribute('aria-expanded', 'true');
+                    const thread = commentCard.closest('.community-comment-list > .community-comment-card');
+                    if (thread) syncCommentThreadOverflow(thread);
                     replyForm.querySelector('textarea')?.focus();
                     syncLowerDividerHeight();
                 });
