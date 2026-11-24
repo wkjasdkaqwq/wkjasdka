@@ -668,6 +668,8 @@
         .community-comment-replies .community-comment-card { padding: 12px 0 0; border-top: 0; }
         .community-comment-replies .community-comment-avatar { flex-basis: 32px !important; width: 32px !important; height: 32px !important; font-size: .74rem; }
         .community-comment-replies .community-comment-replies { padding-left: 8px; }
+        .community-comment-replies .community-comment-content { min-width: max(min(280px, calc(100vw - 64px)), calc(100vw - 150px)); }
+        @supports (width: 1cqi) { .community-comment-replies .community-comment-content { min-width: max(min(280px, calc(100vw - 64px)), calc(100cqi - 72px)); } }
         .community-comment-reply-form { display: flex; flex-direction: column; box-sizing: border-box; width: max(100%, min(280px, calc(100vw - 48px)), calc(100vw - 110px)); gap: 8px; margin: 10px 0 12px; padding: 10px; border: 1px solid var(--comment-border); border-radius: 12px; background: var(--comment-soft); }
         @supports (width: 1cqi) { .community-comment-reply-form { width: max(100%, min(280px, calc(100vw - 48px)), calc(100cqi - 77px)); } }
         .community-comment-reply-input { display: block; box-sizing: border-box; width: 100%; min-height: 64px; resize: vertical; padding: 9px 11px; border: 1px solid var(--comment-border); border-radius: 9px; outline: none; background: var(--comment-surface); color: inherit; font: inherit; font-size: .9rem; line-height: 1.5; }
