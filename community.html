@@ -2942,6 +2942,12 @@
                 }, { capture: true, passive: true });
                 button.addEventListener('click', () => button.classList.add('is-highlighted'));
             });
+            document.querySelectorAll('.detail-inline-github-icon').forEach(icon => {
+                icon.addEventListener('click', event => {
+                    event.preventDefault();
+                    event.stopImmediatePropagation();
+                }, true);
+            });
             mitLicenseTrigger?.addEventListener('click', () => {
                 if (mitLicenseDialog && !mitLicenseDialog.open) {
                     if (mitLicenseCloseTimer) window.clearTimeout(mitLicenseCloseTimer);
