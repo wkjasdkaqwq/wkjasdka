@@ -669,6 +669,8 @@
         .community-comment-reply-icon { display: inline-block; flex: 0 0 15px; width: 15px; height: 15px; background-color: currentColor; -webkit-mask: url("resource/icon/bootstrap-icons/chat-dots.svg") center / contain no-repeat; mask: url("resource/icon/bootstrap-icons/chat-dots.svg") center / contain no-repeat; transition: opacity .15s ease, -webkit-mask-image .15s ease, mask-image .15s ease; }
         .community-comment-visibility-icon { display: inline-block; flex: 0 0 15px; width: 15px; height: 15px; background-color: currentColor; -webkit-mask: url("resource/icon/bootstrap-icons/eye.svg") center / contain no-repeat; mask: url("resource/icon/bootstrap-icons/eye.svg") center / contain no-repeat; transition: opacity .15s ease, -webkit-mask-image .15s ease, mask-image .15s ease; }
         .community-comment-visibility[aria-pressed="true"] .community-comment-visibility-icon { -webkit-mask-image: url("resource/icon/bootstrap-icons/eye-slash.svg"); mask-image: url("resource/icon/bootstrap-icons/eye-slash.svg"); }
+        .community-comment-action.community-comment-report:hover { color: var(--comment-muted); }
+        .community-comment-report-icon { display: inline-block; flex: 0 0 15px; width: 15px; height: 15px; background-color: currentColor; -webkit-mask: url("resource/icon/bootstrap-icons/cone-striped.svg") center / contain no-repeat; mask: url("resource/icon/bootstrap-icons/cone-striped.svg") center / contain no-repeat; }
         @media (hover: hover) and (pointer: fine) {
             .community-comment-action:hover { color: #d96d16; }
             .community-comment-helpful:hover .community-comment-helpful-icon { opacity: .5; -webkit-mask-image: url("resource/icon/bootstrap-icons/hand-thumbs-up-fill.svg"); mask-image: url("resource/icon/bootstrap-icons/hand-thumbs-up-fill.svg"); }
@@ -3371,6 +3373,19 @@
                     button.append(icon);
                     return button;
                 };
+                const makeCommentReportButton = () => {
+                    const button = document.createElement('button');
+                    button.className = 'community-comment-action community-comment-report';
+                    button.type = 'button';
+                    button.dataset.commentReport = '';
+                    button.setAttribute('aria-label', 'Report comment');
+                    button.title = 'Report comment';
+                    const icon = document.createElement('span');
+                    icon.className = 'community-comment-report-icon';
+                    icon.setAttribute('aria-hidden', 'true');
+                    button.append(icon);
+                    return button;
+                };
                 const ensureCommentVisibilityControls = commentCard => {
                     const content = commentCard.querySelector(':scope > .community-comment-content');
                     if (!content) return;
@@ -3382,6 +3397,7 @@
                         content.append(actions);
                     }
                     if (!actions.querySelector(':scope > [data-comment-visibility]')) actions.append(makeCommentVisibilityButton(authorName));
+                    if (!actions.querySelector(':scope > [data-comment-report]')) actions.append(makeCommentReportButton());
                     let placeholder = commentCard.querySelector(':scope > .community-comment-hidden-placeholder');
                     if (!placeholder) {
                         placeholder = document.createElement('div');
@@ -3538,6 +3554,12 @@
                 };
                 communityCommentList.addEventListener('click', event => {
                     if (!(event.target instanceof Element)) return;
+                    const reportButton = event.target.closest('[data-comment-report]');
+                    if (reportButton && communityCommentList.contains(reportButton)) {
+                        event.preventDefault();
+                        window.open('about:blank', '_blank', 'noopener,noreferrer');
+                        return;
+                    }
                     const visibilityButton = event.target.closest('[data-comment-visibility]');
                     if (visibilityButton && communityCommentList.contains(visibilityButton)) {
                         const authorName = visibilityButton.dataset.commentAuthor || 'Unknown author';
