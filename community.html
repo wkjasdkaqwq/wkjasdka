@@ -665,6 +665,16 @@
         .community-comment-replies { margin: 14px 0 0 2px; padding-left: 16px; border-left: 2px solid #e8b88d; }
         .community-comment-replies .community-comment-card { padding: 12px 0 0; border-top: 0; }
         .community-comment-replies .community-comment-avatar { flex-basis: 32px !important; width: 32px !important; height: 32px !important; font-size: .74rem; }
+        .community-comment-replies .community-comment-replies { padding-left: 8px; }
+        .community-comment-reply-form { display: flex; flex-direction: column; gap: 8px; margin: 10px 0 12px; padding: 10px; border: 1px solid var(--comment-border); border-radius: 12px; background: var(--comment-soft); }
+        .community-comment-reply-input { display: block; box-sizing: border-box; width: 100%; min-height: 64px; resize: vertical; padding: 9px 11px; border: 1px solid var(--comment-border); border-radius: 9px; outline: none; background: var(--comment-surface); color: inherit; font: inherit; font-size: .9rem; line-height: 1.5; }
+        .community-comment-reply-input:focus { border-color: #e67e22; box-shadow: 0 0 0 3px rgba(230, 126, 34, .14); }
+        .community-comment-reply-form-footer { display: flex; justify-content: flex-end; gap: 8px; }
+        .community-comment-reply-form button { min-height: 32px; padding: 0 12px; border: 1px solid transparent; border-radius: 999px; cursor: pointer; font: inherit; font-size: .8rem; font-weight: 620; }
+        .community-comment-reply-cancel { background: transparent; color: var(--comment-muted); }
+        .community-comment-reply-submit { border-color: #e67e22 !important; background: #e67e22; color: #fff; }
+        .community-comment-reply-submit:hover { background: #d96d16; }
+        .community-comment-reply-form button:focus-visible { outline: 2px solid #64b5f6; outline-offset: 2px; }
         html.dark-mode .community-comment-panel { --comment-border: #385066; --comment-muted: #a0aeb8; --comment-surface: #162636; --comment-soft: #10202d; }
         html.dark-mode .community-comment-title, html.dark-mode .community-comment-author { color: #f3f5f7; }
         html.dark-mode .community-comment-count, html.dark-mode .community-comment-owner { border-color: #805634; background: #33261d; color: #ffc08a; }
@@ -1614,14 +1624,15 @@
                             <div class="community-comment-content">
                                 <div class="community-comment-meta"><span class="community-comment-author">Mira Chen</span><time class="community-comment-time" datetime="2026-11-22">2 days ago</time></div>
                                 <p class="community-comment-body">The softer corners make the layout feel much more balanced. I especially like how the spacing holds up on a narrow screen.</p>
-                                <div class="community-comment-actions"><button class="community-comment-action" type="button" aria-label="Mark Mira Chen's comment as helpful"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10v10H4a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1h3Zm0 10h9.2a2 2 0 0 0 1.96-1.61l1.25-6.25A1.75 1.75 0 0 0 17.7 10H13l.7-3.3A2.2 2.2 0 0 0 11.55 4L7 10v10Z"></path></svg><span>Helpful · 4</span></button><button class="community-comment-action" type="button">Reply</button></div>
-                                <div class="community-comment-replies">
+                                <div class="community-comment-actions"><button class="community-comment-action" type="button" aria-label="Mark Mira Chen's comment as helpful"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10v10H4a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1h3Zm0 10h9.2a2 2 0 0 0 1.96-1.61l1.25-6.25A1.75 1.75 0 0 0 17.7 10H13l.7-3.3A2.2 2.2 0 0 0 11.55 4L7 10v10Z"></path></svg><span>Helpful · 4</span></button><button class="community-comment-action" type="button" data-comment-reply>Reply</button></div>
+                                <div class="community-comment-replies" data-comment-replies>
                                     <article class="community-comment-card">
                                         <div class="community-comment-avatar" aria-hidden="true">WK</div>
                                         <div class="community-comment-content">
                                             <div class="community-comment-meta"><span class="community-comment-author">W.K.Jasdka</span><span class="community-comment-owner">Author</span><time class="community-comment-time" datetime="2026-11-23">1 day ago</time></div>
                                             <p class="community-comment-body">Thanks for checking it on mobile. I’m continuing to refine the spacing and will share the next pass here.</p>
-                                            <div class="community-comment-actions"><button class="community-comment-action" type="button">Reply</button></div>
+                                            <div class="community-comment-actions"><button class="community-comment-action" type="button" data-comment-reply>Reply</button></div>
+                                            <div class="community-comment-replies" data-comment-replies></div>
                                         </div>
                                     </article>
                                 </div>
@@ -1632,7 +1643,8 @@
                             <div class="community-comment-content">
                                 <div class="community-comment-meta"><span class="community-comment-author">northdesign</span><time class="community-comment-time" datetime="2026-11-20">4 days ago</time></div>
                                 <p class="community-comment-body">The orange accent feels clear without being too loud. Looking forward to seeing the rest of the community page come together.</p>
-                                <div class="community-comment-actions"><button class="community-comment-action" type="button" aria-label="Mark northdesign's comment as helpful"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10v10H4a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1h3Zm0 10h9.2a2 2 0 0 0 1.96-1.61l1.25-6.25A1.75 1.75 0 0 0 17.7 10H13l.7-3.3A2.2 2.2 0 0 0 11.55 4L7 10v10Z"></path></svg><span>Helpful · 2</span></button><button class="community-comment-action" type="button">Reply</button></div>
+                                <div class="community-comment-actions"><button class="community-comment-action" type="button" aria-label="Mark northdesign's comment as helpful"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10v10H4a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1h3Zm0 10h9.2a2 2 0 0 0 1.96-1.61l1.25-6.25A1.75 1.75 0 0 0 17.7 10H13l.7-3.3A2.2 2.2 0 0 0 11.55 4L7 10v10Z"></path></svg><span>Helpful · 2</span></button><button class="community-comment-action" type="button" data-comment-reply>Reply</button></div>
+                                <div class="community-comment-replies" data-comment-replies></div>
                             </div>
                         </article>
                     </div>
@@ -3202,6 +3214,131 @@
                 }
                 const requiredHeight = Math.ceil(contentBottom - dividerTop + 32);
                 lowerDivider.style.height = `${Math.max(260, window.innerHeight, requiredHeight)}px`;
+            }
+            const communityCommentList = document.querySelector('.community-comment-list');
+            if (communityCommentList) {
+                const getCommentReplies = commentCard => {
+                    const content = commentCard.querySelector(':scope > .community-comment-content');
+                    if (!content) return null;
+                    let replies = content.querySelector(':scope > [data-comment-replies]');
+                    if (!replies) {
+                        replies = document.createElement('div');
+                        replies.className = 'community-comment-replies';
+                        replies.dataset.commentReplies = '';
+                        content.append(replies);
+                    }
+                    return replies;
+                };
+                const makeCommentReply = text => {
+                    const comment = document.createElement('article');
+                    comment.className = 'community-comment-card';
+                    const avatar = document.createElement('div');
+                    avatar.className = 'community-comment-avatar';
+                    avatar.setAttribute('aria-hidden', 'true');
+                    avatar.textContent = 'Y';
+                    const content = document.createElement('div');
+                    content.className = 'community-comment-content';
+                    const meta = document.createElement('div');
+                    meta.className = 'community-comment-meta';
+                    const author = document.createElement('span');
+                    author.className = 'community-comment-author';
+                    author.textContent = 'You';
+                    const time = document.createElement('time');
+                    time.className = 'community-comment-time';
+                    time.dateTime = new Date().toISOString();
+                    time.textContent = 'just now';
+                    meta.append(author, time);
+                    const body = document.createElement('p');
+                    body.className = 'community-comment-body';
+                    body.textContent = text;
+                    const actions = document.createElement('div');
+                    actions.className = 'community-comment-actions';
+                    const replyButton = document.createElement('button');
+                    replyButton.className = 'community-comment-action';
+                    replyButton.type = 'button';
+                    replyButton.dataset.commentReply = '';
+                    replyButton.textContent = 'Reply';
+                    actions.append(replyButton);
+                    const nestedReplies = document.createElement('div');
+                    nestedReplies.className = 'community-comment-replies';
+                    nestedReplies.dataset.commentReplies = '';
+                    content.append(meta, body, actions, nestedReplies);
+                    comment.append(avatar, content);
+                    return comment;
+                };
+                const makeReplyForm = authorName => {
+                    const form = document.createElement('form');
+                    form.className = 'community-comment-reply-form';
+                    form.dataset.commentReplyForm = '';
+                    form.setAttribute('aria-label', `Reply to ${authorName}`);
+                    const input = document.createElement('textarea');
+                    input.className = 'community-comment-reply-input';
+                    input.rows = 2;
+                    input.required = true;
+                    input.placeholder = `Reply to ${authorName}…`;
+                    input.setAttribute('aria-label', `Reply to ${authorName}`);
+                    const footer = document.createElement('div');
+                    footer.className = 'community-comment-reply-form-footer';
+                    const cancel = document.createElement('button');
+                    cancel.className = 'community-comment-reply-cancel';
+                    cancel.type = 'button';
+                    cancel.dataset.commentReplyCancel = '';
+                    cancel.textContent = 'Cancel';
+                    const submit = document.createElement('button');
+                    submit.className = 'community-comment-reply-submit';
+                    submit.type = 'submit';
+                    submit.textContent = 'Add reply';
+                    footer.append(cancel, submit);
+                    form.append(input, footer);
+                    return form;
+                };
+                communityCommentList.addEventListener('click', event => {
+                    const cancelButton = event.target.closest('[data-comment-reply-cancel]');
+                    if (cancelButton) {
+                        const form = cancelButton.closest('[data-comment-reply-form]');
+                        const parentCard = form?.closest('.community-comment-card');
+                        parentCard?.querySelectorAll('[data-comment-reply]').forEach(button => button.setAttribute('aria-expanded', 'false'));
+                        form?.remove();
+                        return;
+                    }
+                    const replyButton = event.target.closest('[data-comment-reply]');
+                    if (!replyButton || !communityCommentList.contains(replyButton)) return;
+                    const commentCard = replyButton.closest('.community-comment-card');
+                    if (!commentCard) return;
+                    const existingForm = communityCommentList.querySelector('[data-comment-reply-form]');
+                    if (existingForm) {
+                        const wasSameCard = existingForm.closest('.community-comment-card') === commentCard;
+                        existingForm.closest('.community-comment-card')?.querySelectorAll('[data-comment-reply]').forEach(button => button.setAttribute('aria-expanded', 'false'));
+                        existingForm.remove();
+                        if (wasSameCard) return;
+                    }
+                    const replies = getCommentReplies(commentCard);
+                    if (!replies) return;
+                    const authorName = commentCard.querySelector('.community-comment-author')?.textContent.trim() || 'this comment';
+                    const replyForm = makeReplyForm(authorName);
+                    replies.prepend(replyForm);
+                    replyButton.setAttribute('aria-expanded', 'true');
+                    replyForm.querySelector('textarea')?.focus();
+                    syncLowerDividerHeight();
+                });
+                communityCommentList.addEventListener('submit', event => {
+                    const form = event.target.closest('[data-comment-reply-form]');
+                    if (!form || !communityCommentList.contains(form)) return;
+                    event.preventDefault();
+                    const input = form.querySelector('textarea');
+                    const text = input?.value.trim();
+                    if (!text) {
+                        input?.focus();
+                        return;
+                    }
+                    const parentCard = form.closest('.community-comment-card');
+                    const replies = parentCard && getCommentReplies(parentCard);
+                    if (!parentCard || !replies) return;
+                    parentCard.querySelectorAll('[data-comment-reply]').forEach(button => button.setAttribute('aria-expanded', 'false'));
+                    form.remove();
+                    replies.append(makeCommentReply(text));
+                    syncLowerDividerHeight();
+                });
             }
             function syncDescriptionEndDivider() {
                 if (!descriptionPanel || descriptionPanel.hidden || !descriptionEndAnchor || !descriptionEndDivider) return;
