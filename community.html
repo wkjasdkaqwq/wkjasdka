@@ -634,8 +634,7 @@
         .community-comment-sort { display: flex; align-items: center; gap: 8px; color: var(--comment-muted); font-size: .86rem; white-space: nowrap; }
         .community-comment-sort select { min-height: 38px; padding: 0 32px 0 13px; border: 1px solid var(--comment-border); border-radius: 999px; outline: none; background: var(--comment-surface); color: inherit; font: inherit; cursor: pointer; }
         .community-comment-sort select:focus-visible { border-color: #e67e22; box-shadow: 0 0 0 3px rgba(230, 126, 34, .16); }
-        .community-comment-divider { height: 1px; margin: 8px -2px 14px; background: #c2c2c2; }
-        html.dark-mode .community-comment-divider { background: #385066; }
+        .community-comment-divider { margin-bottom: 14px; }
         .community-comment-composer { display: flex; align-items: flex-start; gap: 13px; box-sizing: border-box; margin-bottom: 20px; padding: 15px; border: 1px solid var(--comment-border); border-radius: 16px; background: var(--comment-surface); box-shadow: 0 4px 14px rgba(0, 0, 0, .045); }
         .community-comment-avatar { display: grid; flex: 0 0 40px; width: 40px; height: 40px; place-items: center; border: 1px solid #e5b58b; border-radius: 50%; background: linear-gradient(145deg, #ffe3c8, #ffc38d); color: #94511f; font-size: .88rem; font-weight: 750; user-select: none; }
         .community-comment-composer-body { flex: 1 1 auto; min-width: 0; }
@@ -1597,7 +1596,7 @@
                             </select>
                         </label>
                     </header>
-                    <div class="community-comment-divider" aria-hidden="true"></div>
+                    <div class="main-project-description-section-divider community-comment-divider" aria-hidden="true"></div>
                     <form class="community-comment-composer" aria-label="Write a comment">
                         <div class="community-comment-avatar" aria-hidden="true">Y</div>
                         <div class="community-comment-composer-body">
