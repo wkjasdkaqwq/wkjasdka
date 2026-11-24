@@ -664,10 +664,12 @@
         .community-comment-action { display: inline-flex; align-items: center; gap: 5px; padding: 2px 0; border: 0; background: transparent; color: var(--comment-muted); cursor: pointer; font: inherit; font-size: .8rem; transition: color .16s ease, transform .16s ease; }
         .community-comment-action:hover { color: #d96d16; }
         .community-comment-action:active { transform: translateY(1px); }
+        .community-comment-helpful.is-pressed { transform: translateY(1px); }
         .community-comment-action svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
         .community-comment-helpful-icon { display: inline-block; flex: 0 0 15px; width: 15px; height: 15px; background-color: currentColor; -webkit-mask: url("resource/icon/bootstrap-icons/hand-thumbs-up.svg") center / contain no-repeat; mask: url("resource/icon/bootstrap-icons/hand-thumbs-up.svg") center / contain no-repeat; transition: opacity .15s ease, -webkit-mask-image .15s ease, mask-image .15s ease; }
         .community-comment-helpful:hover .community-comment-helpful-icon { opacity: .5; -webkit-mask-image: url("resource/icon/bootstrap-icons/hand-thumbs-up-fill.svg"); mask-image: url("resource/icon/bootstrap-icons/hand-thumbs-up-fill.svg"); }
         .community-comment-helpful:active .community-comment-helpful-icon { opacity: 1; -webkit-mask-image: url("resource/icon/bootstrap-icons/hand-thumbs-up-fill.svg"); mask-image: url("resource/icon/bootstrap-icons/hand-thumbs-up-fill.svg"); }
+        .community-comment-helpful.is-pressed .community-comment-helpful-icon { opacity: 1; -webkit-mask-image: url("resource/icon/bootstrap-icons/hand-thumbs-up-fill.svg"); mask-image: url("resource/icon/bootstrap-icons/hand-thumbs-up-fill.svg"); }
         .community-comment-replies { margin: 14px 0 0 2px; padding-left: 16px; border-left: 2px solid #e8b88d; }
         .community-comment-replies .community-comment-card { padding: 12px 0 0; border-top: 0; }
         .community-comment-replies .community-comment-avatar { flex-basis: 32px !important; width: 32px !important; height: 32px !important; font-size: .74rem; }
@@ -1632,7 +1634,7 @@
                             <div class="community-comment-content">
                                 <div class="community-comment-meta"><span class="community-comment-author">Mira Chen</span><time class="community-comment-time" datetime="2026-11-22">2 days ago</time></div>
                                 <p class="community-comment-body">The softer corners make the layout feel much more balanced. I especially like how the spacing holds up on a narrow screen.</p>
-                                <div class="community-comment-actions"><button class="community-comment-action community-comment-helpful" type="button" aria-label="Mark Mira Chen's comment as helpful"><span class="community-comment-helpful-icon" aria-hidden="true"></span><span>4</span></button><button class="community-comment-action" type="button" data-comment-reply>Reply</button></div>
+                                <div class="community-comment-actions"><button class="community-comment-action community-comment-helpful" type="button" aria-label="Mark Mira Chen's comment as helpful" aria-pressed="false"><span class="community-comment-helpful-icon" aria-hidden="true"></span><span>4</span></button><button class="community-comment-action" type="button" data-comment-reply>Reply</button></div>
                                 <div class="community-comment-replies" data-comment-replies>
                                     <article class="community-comment-card">
                                         <div class="community-comment-avatar" aria-hidden="true">WK</div>
@@ -1651,7 +1653,7 @@
                             <div class="community-comment-content">
                                 <div class="community-comment-meta"><span class="community-comment-author">northdesign</span><time class="community-comment-time" datetime="2026-11-20">4 days ago</time></div>
                                 <p class="community-comment-body">The orange accent feels clear without being too loud. Looking forward to seeing the rest of the community page come together.</p>
-                                <div class="community-comment-actions"><button class="community-comment-action community-comment-helpful" type="button" aria-label="Mark northdesign's comment as helpful"><span class="community-comment-helpful-icon" aria-hidden="true"></span><span>2</span></button><button class="community-comment-action" type="button" data-comment-reply>Reply</button></div>
+                                <div class="community-comment-actions"><button class="community-comment-action community-comment-helpful" type="button" aria-label="Mark northdesign's comment as helpful" aria-pressed="false"><span class="community-comment-helpful-icon" aria-hidden="true"></span><span>2</span></button><button class="community-comment-action" type="button" data-comment-reply>Reply</button></div>
                                 <div class="community-comment-replies" data-comment-replies></div>
                             </div>
                         </article>
@@ -3320,6 +3322,16 @@
                     return form;
                 };
                 communityCommentList.addEventListener('click', event => {
+                    const helpfulButton = event.target.closest('.community-comment-helpful');
+                    if (helpfulButton && communityCommentList.contains(helpfulButton)) {
+                        if (!helpfulButton.classList.contains('is-pressed')) {
+                            helpfulButton.classList.add('is-pressed');
+                            helpfulButton.setAttribute('aria-pressed', 'true');
+                            const count = helpfulButton.querySelector('span:not(.community-comment-helpful-icon)');
+                            if (count) count.textContent = String((Number.parseInt(count.textContent, 10) || 0) + 1);
+                        }
+                        return;
+                    }
                     const cancelButton = event.target.closest('[data-comment-reply-cancel]');
                     if (cancelButton) {
                         const form = cancelButton.closest('[data-comment-reply-form]');
