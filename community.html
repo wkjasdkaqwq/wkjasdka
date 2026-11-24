@@ -650,6 +650,8 @@
         .community-comment-post:focus-visible, .community-comment-action:focus-visible { outline: 2px solid #64b5f6; outline-offset: 2px; }
         .community-comment-list { display: flex; flex-direction: column; gap: 0; }
         .community-comment-card { display: flex; align-items: flex-start; gap: 13px; padding: 18px 2px; border-top: 1px solid var(--comment-border); }
+        .community-comment-list > .community-comment-card { box-sizing: border-box; max-width: 100%; overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain; scrollbar-width: none; -ms-overflow-style: none; -webkit-overflow-scrolling: touch; }
+        .community-comment-list > .community-comment-card::-webkit-scrollbar { display: none; width: 0; height: 0; }
         .community-comment-card > .community-comment-avatar { flex-basis: 38px; width: 38px; height: 38px; }
         .community-comment-content { flex: 1 1 auto; min-width: 0; }
         .community-comment-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 9px; min-height: 22px; }
@@ -662,8 +664,7 @@
         .community-comment-action:hover { color: #d96d16; }
         .community-comment-action:active { transform: translateY(1px); }
         .community-comment-action svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-        .community-comment-replies { box-sizing: border-box; max-width: 100%; margin: 14px 0 0 2px; padding-left: 16px; border-left: 2px solid #e8b88d; overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain; scrollbar-width: none; -ms-overflow-style: none; -webkit-overflow-scrolling: touch; }
-        .community-comment-replies::-webkit-scrollbar { display: none; width: 0; height: 0; }
+        .community-comment-replies { margin: 14px 0 0 2px; padding-left: 16px; border-left: 2px solid #e8b88d; }
         .community-comment-replies .community-comment-card { padding: 12px 0 0; border-top: 0; }
         .community-comment-replies .community-comment-avatar { flex-basis: 32px !important; width: 32px !important; height: 32px !important; font-size: .74rem; }
         .community-comment-replies .community-comment-replies { padding-left: 8px; }
