@@ -3324,11 +3324,12 @@
                 communityCommentList.addEventListener('click', event => {
                     const helpfulButton = event.target.closest('.community-comment-helpful');
                     if (helpfulButton && communityCommentList.contains(helpfulButton)) {
-                        if (!helpfulButton.classList.contains('is-pressed')) {
-                            helpfulButton.classList.add('is-pressed');
-                            helpfulButton.setAttribute('aria-pressed', 'true');
-                            const count = helpfulButton.querySelector('span:not(.community-comment-helpful-icon)');
-                            if (count) count.textContent = String((Number.parseInt(count.textContent, 10) || 0) + 1);
+                        const isPressed = helpfulButton.classList.toggle('is-pressed');
+                        helpfulButton.setAttribute('aria-pressed', String(isPressed));
+                        const count = helpfulButton.querySelector('span:not(.community-comment-helpful-icon)');
+                        if (count) {
+                            const currentCount = Number.parseInt(count.textContent, 10) || 0;
+                            count.textContent = String(Math.max(0, currentCount + (isPressed ? 1 : -1)));
                         }
                         return;
                     }
