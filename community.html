@@ -3366,7 +3366,6 @@
                     replyButton.setAttribute('aria-expanded', 'true');
                     const thread = commentCard.closest('.community-comment-list > .community-comment-card');
                     if (thread) syncCommentThreadOverflow(thread);
-                    replyForm.querySelector('textarea')?.focus();
                     syncLowerDividerHeight();
                 });
                 communityCommentList.addEventListener('submit', event => {
