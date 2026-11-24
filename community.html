@@ -624,6 +624,66 @@
         .main-project-tab-panel[hidden] { display: none; }
         .main-project-tab-empty { margin: 14px 0 0; color: #666; font-size: 1rem; line-height: 1.5; }
         html.dark-mode .main-project-tab-empty { color: #a0aeb8; }
+        .community-comment-panel { --comment-border: #d5d5d5; --comment-muted: #727272; --comment-surface: #fff; --comment-soft: #f6f6f6; padding-bottom: 24px; }
+        .community-sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; clip-path: inset(50%); }
+        .community-comment-header { display: flex; align-items: flex-end; justify-content: space-between; gap: 18px; margin-bottom: 18px; }
+        .community-comment-title-row { display: flex; align-items: center; gap: 10px; }
+        .community-comment-title { margin: 0; color: #333; font-size: 1.65rem; font-weight: 735; line-height: 1.2; }
+        .community-comment-count { display: inline-grid; min-width: 28px; height: 28px; place-items: center; box-sizing: border-box; padding: 0 8px; border: 1px solid #e1b58e; border-radius: 999px; background: #fff2e7; color: #9a5b2d; font-size: .82rem; font-weight: 650; font-variant-numeric: tabular-nums; }
+        .community-comment-subtitle { margin: 7px 0 0; color: var(--comment-muted); font-size: .94rem; line-height: 1.45; }
+        .community-comment-sort { display: flex; align-items: center; gap: 8px; color: var(--comment-muted); font-size: .86rem; white-space: nowrap; }
+        .community-comment-sort select { min-height: 38px; padding: 0 32px 0 13px; border: 1px solid var(--comment-border); border-radius: 999px; outline: none; background: var(--comment-surface); color: inherit; font: inherit; cursor: pointer; }
+        .community-comment-sort select:focus-visible { border-color: #e67e22; box-shadow: 0 0 0 3px rgba(230, 126, 34, .16); }
+        .community-comment-composer { display: flex; align-items: flex-start; gap: 13px; box-sizing: border-box; margin-bottom: 20px; padding: 15px; border: 1px solid var(--comment-border); border-radius: 16px; background: var(--comment-surface); box-shadow: 0 4px 14px rgba(0, 0, 0, .045); }
+        .community-comment-avatar { display: grid; flex: 0 0 40px; width: 40px; height: 40px; place-items: center; border: 1px solid #e5b58b; border-radius: 50%; background: linear-gradient(145deg, #ffe3c8, #ffc38d); color: #94511f; font-size: .88rem; font-weight: 750; user-select: none; }
+        .community-comment-composer-body { flex: 1 1 auto; min-width: 0; }
+        .community-comment-input { display: block; box-sizing: border-box; width: 100%; min-height: 88px; resize: vertical; padding: 11px 13px; border: 1px solid var(--comment-border); border-radius: 11px; outline: none; background: var(--comment-soft); color: inherit; font: inherit; font-size: .94rem; line-height: 1.5; transition: border-color .18s ease, box-shadow .18s ease, background-color .18s ease; }
+        .community-comment-input::placeholder { color: #888; }
+        .community-comment-input:focus { border-color: #e67e22; background: var(--comment-surface); box-shadow: 0 0 0 3px rgba(230, 126, 34, .14); }
+        .community-comment-composer-footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 11px; }
+        .community-comment-guidance { color: var(--comment-muted); font-size: .8rem; line-height: 1.4; }
+        .community-comment-post { min-height: 38px; padding: 0 17px; border: 1px solid #e67e22; border-radius: 999px; background: #e67e22; color: #fff; cursor: pointer; font: inherit; font-size: .88rem; font-weight: 650; transition: transform .16s ease, background-color .16s ease, box-shadow .16s ease; }
+        .community-comment-post:hover { background: #d96d16; box-shadow: 0 5px 14px rgba(230, 126, 34, .25); }
+        .community-comment-post:active { transform: translateY(2px) scale(.98); }
+        .community-comment-post:disabled { border-color: #d7d7d7; background: #e8e8e8; color: #828282; box-shadow: none; cursor: not-allowed; }
+        .community-comment-post:focus-visible, .community-comment-action:focus-visible { outline: 2px solid #64b5f6; outline-offset: 2px; }
+        .community-comment-list { display: flex; flex-direction: column; gap: 0; }
+        .community-comment-card { display: flex; align-items: flex-start; gap: 13px; padding: 18px 2px; border-top: 1px solid var(--comment-border); }
+        .community-comment-card > .community-comment-avatar { flex-basis: 38px; width: 38px; height: 38px; }
+        .community-comment-content { flex: 1 1 auto; min-width: 0; }
+        .community-comment-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 9px; min-height: 22px; }
+        .community-comment-author { color: #333; font-size: .94rem; font-weight: 680; }
+        .community-comment-owner { padding: 2px 7px; border: 1px solid #e7bb98; border-radius: 999px; background: #fff3e9; color: #a35d2b; font-size: .68rem; font-weight: 650; line-height: 1.25; }
+        .community-comment-time { color: var(--comment-muted); font-size: .78rem; }
+        .community-comment-body { margin: 7px 0 9px; color: #505050; font-size: .93rem; line-height: 1.6; overflow-wrap: anywhere; }
+        .community-comment-actions { display: flex; align-items: center; gap: 14px; }
+        .community-comment-action { display: inline-flex; align-items: center; gap: 5px; padding: 2px 0; border: 0; background: transparent; color: var(--comment-muted); cursor: pointer; font: inherit; font-size: .8rem; transition: color .16s ease, transform .16s ease; }
+        .community-comment-action:hover { color: #d96d16; }
+        .community-comment-action:active { transform: translateY(1px); }
+        .community-comment-action svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+        .community-comment-replies { margin: 14px 0 0 2px; padding-left: 16px; border-left: 2px solid #e8b88d; }
+        .community-comment-replies .community-comment-card { padding: 12px 0 0; border-top: 0; }
+        .community-comment-replies .community-comment-avatar { flex-basis: 32px !important; width: 32px !important; height: 32px !important; font-size: .74rem; }
+        html.dark-mode .community-comment-panel { --comment-border: #385066; --comment-muted: #a0aeb8; --comment-surface: #162636; --comment-soft: #10202d; }
+        html.dark-mode .community-comment-title, html.dark-mode .community-comment-author { color: #f3f5f7; }
+        html.dark-mode .community-comment-count, html.dark-mode .community-comment-owner { border-color: #805634; background: #33261d; color: #ffc08a; }
+        html.dark-mode .community-comment-avatar { border-color: #805634; background: linear-gradient(145deg, #59402e, #3b2d23); color: #ffd0a7; }
+        html.dark-mode .community-comment-input { border-color: var(--comment-border); }
+        html.dark-mode .community-comment-input::placeholder { color: #91a0ac; }
+        html.dark-mode .community-comment-body { color: #c5cdd4; }
+        html.dark-mode .community-comment-replies { border-left-color: #9b6841; }
+        @media (max-width: 600px) {
+            .community-comment-header { align-items: flex-start; flex-direction: column; gap: 12px; }
+            .community-comment-sort { align-self: flex-end; }
+            .community-comment-composer { gap: 10px; padding: 12px; }
+            .community-comment-avatar { flex-basis: 34px; width: 34px; height: 34px; }
+            .community-comment-composer-footer { align-items: flex-end; }
+            .community-comment-guidance { max-width: 58%; }
+            .community-comment-card { gap: 10px; padding: 15px 0; }
+            .community-comment-card > .community-comment-avatar { flex-basis: 34px; width: 34px; height: 34px; }
+            .community-comment-replies { margin-left: 0; padding-left: 11px; }
+        }
+        @media (prefers-reduced-motion: reduce) { .community-comment-input, .community-comment-post, .community-comment-action { transition: none; } }
         .community-gallery-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 16px; margin-top: 14px; }
         .community-gallery-item { display: flex; min-width: 0; flex-direction: column; overflow: hidden; margin: 0; border: 1px solid #c2c2c2; border-radius: 12px; background: #fff; box-shadow: 0 4px 12px rgba(0, 0, 0, .06); }
         .community-gallery-frame { display: grid; place-items: center; overflow: hidden; box-sizing: border-box; width: 100%; aspect-ratio: 16 / 9; border-radius: 11px 11px 0 0; background: #f1f1f1; transition: background-color .16s ease; }
@@ -1523,10 +1583,59 @@
                     <div class="main-project-relation-card-grid" data-relation-card-list="dependencies" role="list" aria-label="Dependencies cards"></div>
                     <div class="main-project-relation-card-grid" data-relation-card-list="dependents" role="list" aria-label="Dependents cards" hidden></div>
                 </section>
-                <section class="main-project-tab-panel" id="panel-comment" role="tabpanel" aria-labelledby="tab-comment" hidden>
-                    <h2 class="main-project-description-section-title">Semi-rounded Corner</h2>
-                    <div class="main-project-description-section-divider" aria-hidden="true"></div>
-                    <p class="main-project-tab-empty">Comments will appear here once available.</p>
+                <section class="main-project-tab-panel community-comment-panel" id="panel-comment" role="tabpanel" aria-labelledby="tab-comment" hidden>
+                    <header class="community-comment-header">
+                        <div>
+                            <div class="community-comment-title-row"><h2 class="community-comment-title">Comments</h2><span class="community-comment-count" aria-label="3 comments">3</span></div>
+                            <p class="community-comment-subtitle">Questions, feedback, and notes about this project.</p>
+                        </div>
+                        <label class="community-comment-sort">Sort by
+                            <select aria-label="Sort comments">
+                                <option>Newest first</option>
+                                <option>Oldest first</option>
+                                <option>Most helpful</option>
+                            </select>
+                        </label>
+                    </header>
+                    <form class="community-comment-composer" aria-label="Write a comment">
+                        <div class="community-comment-avatar" aria-hidden="true">Y</div>
+                        <div class="community-comment-composer-body">
+                            <label class="community-sr-only" for="community-comment-input">Write a comment</label>
+                            <textarea class="community-comment-input" id="community-comment-input" rows="3" placeholder="Share a thought or ask a question…"></textarea>
+                            <div class="community-comment-composer-footer">
+                                <span class="community-comment-guidance">Commenting will be enabled when the discussion service is connected.</span>
+                                <button class="community-comment-post" type="button" disabled title="Comment posting is not connected yet">Post comment</button>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="community-comment-list" role="feed" aria-label="Project discussion">
+                        <article class="community-comment-card">
+                            <div class="community-comment-avatar" aria-hidden="true">MC</div>
+                            <div class="community-comment-content">
+                                <div class="community-comment-meta"><span class="community-comment-author">Mira Chen</span><time class="community-comment-time" datetime="2026-11-22">2 days ago</time></div>
+                                <p class="community-comment-body">The softer corners make the layout feel much more balanced. I especially like how the spacing holds up on a narrow screen.</p>
+                                <div class="community-comment-actions"><button class="community-comment-action" type="button" aria-label="Mark Mira Chen's comment as helpful"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10v10H4a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1h3Zm0 10h9.2a2 2 0 0 0 1.96-1.61l1.25-6.25A1.75 1.75 0 0 0 17.7 10H13l.7-3.3A2.2 2.2 0 0 0 11.55 4L7 10v10Z"></path></svg><span>Helpful · 4</span></button><button class="community-comment-action" type="button">Reply</button></div>
+                                <div class="community-comment-replies">
+                                    <article class="community-comment-card">
+                                        <div class="community-comment-avatar" aria-hidden="true">WK</div>
+                                        <div class="community-comment-content">
+                                            <div class="community-comment-meta"><span class="community-comment-author">W.K.Jasdka</span><span class="community-comment-owner">Author</span><time class="community-comment-time" datetime="2026-11-23">1 day ago</time></div>
+                                            <p class="community-comment-body">Thanks for checking it on mobile. I’m continuing to refine the spacing and will share the next pass here.</p>
+                                            <div class="community-comment-actions"><button class="community-comment-action" type="button">Reply</button></div>
+                                        </div>
+                                    </article>
+                                </div>
+                            </div>
+                        </article>
+                        <article class="community-comment-card">
+                            <div class="community-comment-avatar" aria-hidden="true">ND</div>
+                            <div class="community-comment-content">
+                                <div class="community-comment-meta"><span class="community-comment-author">northdesign</span><time class="community-comment-time" datetime="2026-11-20">4 days ago</time></div>
+                                <p class="community-comment-body">The orange accent feels clear without being too loud. Looking forward to seeing the rest of the community page come together.</p>
+                                <div class="community-comment-actions"><button class="community-comment-action" type="button" aria-label="Mark northdesign's comment as helpful"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10v10H4a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1h3Zm0 10h9.2a2 2 0 0 0 1.96-1.61l1.25-6.25A1.75 1.75 0 0 0 17.7 10H13l.7-3.3A2.2 2.2 0 0 0 11.55 4L7 10v10Z"></path></svg><span>Helpful · 2</span></button><button class="community-comment-action" type="button">Reply</button></div>
+                            </div>
+                        </article>
+                    </div>
                 </section>
             </div>
         </div>
