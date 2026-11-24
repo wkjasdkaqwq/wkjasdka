@@ -681,13 +681,27 @@
         .community-comment-reply-input { display: block; box-sizing: border-box; width: 100%; min-height: 64px; resize: vertical; padding: 9px 11px; border: 1px solid var(--comment-border); border-radius: 9px; outline: none; background: var(--comment-surface); color: inherit; font: inherit; font-size: .9rem; line-height: 1.5; }
         .community-comment-reply-input:focus { border-color: #e67e22; box-shadow: 0 0 0 3px rgba(230, 126, 34, .14); }
         .community-comment-reply-form-footer { display: flex; justify-content: flex-end; gap: 8px; }
-        .community-comment-reply-form button { flex: 0 0 auto; min-height: 32px; padding: 0 12px; border: 1px solid transparent; border-radius: 999px; cursor: pointer; font: inherit; font-size: .8rem; font-weight: 620; white-space: nowrap; -webkit-tap-highlight-color: transparent; touch-action: manipulation; transition: transform .4s cubic-bezier(.34, 1.56, .64, 1), box-shadow .4s cubic-bezier(.34, 1.56, .64, 1), background-color .4s cubic-bezier(.34, 1.56, .64, 1), border-color .4s cubic-bezier(.34, 1.56, .64, 1), color .4s cubic-bezier(.34, 1.56, .64, 1); }
+        .community-comment-reply-form button { flex: 0 0 auto; min-height: 32px; padding: 0 12px; border: 1px solid transparent; border-radius: 999px; cursor: pointer; font: inherit; font-size: .8rem; font-weight: 620; white-space: nowrap; -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none; touch-action: manipulation; transition: transform .4s cubic-bezier(.34, 1.56, .64, 1), box-shadow .4s cubic-bezier(.34, 1.56, .64, 1), background-color .4s cubic-bezier(.34, 1.56, .64, 1), border-color .4s cubic-bezier(.34, 1.56, .64, 1); }
         .community-comment-reply-cancel { background: transparent; color: var(--comment-muted); }
-        .community-comment-reply-submit { border-color: #e67e22 !important; background: #e67e22; color: #fff; }
-        .community-comment-reply-submit:hover { background: #d96d16; }
+        .community-comment-reply-form .community-comment-reply-submit { border: 2px solid #FFB380; background: #FFDAB9; color: #E67E22; font-weight: 600; box-shadow: 0 4px 12px rgba(255, 218, 185, .5); }
+        .community-comment-reply-submit:hover { transform: scale(1.12); box-shadow: 0 8px 20px rgba(255, 218, 185, .8); background: #FFE4C4; border-color: #FF9966; }
+        .community-comment-reply-submit:active { transform: scale(1.08); box-shadow: 0 6px 16px rgba(255, 218, 185, .6); background: #FFC38D; border-color: #FF9C5A; }
+        .community-comment-reply-submit.is-highlighted:active { background: #FFCF97; border-color: #FF8142; }
         .community-comment-reply-cancel:active, .community-comment-reply-cancel.is-touch-pressed { transform: translateY(2px) scale(.98); }
-        .community-comment-reply-submit:active, .community-comment-reply-submit.is-touch-pressed { transform: translateY(2px) scale(.98); border-color: #FF9C5A !important; background: #FFC38D; color: #E67E22; box-shadow: 0 2px 6px rgba(255, 218, 185, .5); }
-        html.dark-mode .community-comment-reply-submit:active, html.dark-mode .community-comment-reply-submit.is-touch-pressed { border-color: #FF8142 !important; background: #FFCF97; color: #E67E22; box-shadow: 0 2px 6px rgba(255, 218, 185, .5); }
+        html.dark-mode .community-comment-reply-submit { border-color: #a66a3d; background: #3b3028; color: #ffc08a; box-shadow: 0 4px 12px rgba(0, 0, 0, .25); }
+        @media (hover: hover) and (pointer: fine) {
+            html.dark-mode .community-comment-reply-submit:active { background: #FFCF97; border-color: #FF8142; color: #E67E22; box-shadow: 0 6px 16px rgba(255, 218, 185, .6); transition-duration: .4s, .4s, 0s, 0s; }
+        }
+        @media (hover: none), (pointer: coarse) {
+            .community-comment-reply-submit:hover:not(.is-highlighted) { transform: none; box-shadow: 0 4px 12px rgba(255, 218, 185, .5); background: #FFDAB9; border-color: #FFB380; }
+            .community-comment-reply-submit.is-highlighted { transform: none; box-shadow: 0 8px 20px rgba(255, 218, 185, .8); background: #FFE4C4; border-color: #FF9966; }
+            .community-comment-reply-submit:active, .community-comment-reply-submit:active:hover, .community-comment-reply-submit.is-touch-pressed, .community-comment-reply-submit.is-touch-pressed:hover { transform: translateY(2px) scale(.98); box-shadow: 0 2px 6px rgba(255, 218, 185, .5); background: #FFC38D; border-color: #FF9C5A; }
+            .community-comment-reply-submit.is-highlighted:active, .community-comment-reply-submit.is-highlighted:active:hover, .community-comment-reply-submit.is-highlighted.is-touch-pressed, .community-comment-reply-submit.is-highlighted.is-touch-pressed:hover { background: #FFCF97; border-color: #FF8142; }
+            html.dark-mode .community-comment-reply-submit:hover:not(.is-highlighted) { box-shadow: 0 4px 12px rgba(0, 0, 0, .25); background: #3b3028; border-color: #a66a3d; }
+            html.dark-mode .community-comment-reply-submit.is-highlighted { box-shadow: 0 8px 20px rgba(0, 0, 0, .35); background: #4a382b; border-color: #d18a58; }
+            html.dark-mode .community-comment-reply-submit.is-touch-pressed, html.dark-mode .community-comment-reply-submit:active, html.dark-mode .community-comment-reply-submit:hover.is-touch-pressed, html.dark-mode .community-comment-reply-submit:hover:active, html.dark-mode .community-comment-reply-submit.is-highlighted.is-touch-pressed, html.dark-mode .community-comment-reply-submit.is-highlighted:active, html.dark-mode .community-comment-reply-submit.is-highlighted:hover.is-touch-pressed, html.dark-mode .community-comment-reply-submit.is-highlighted:hover:active { background: #FFCF97; border-color: #FF8142; color: #E67E22; box-shadow: 0 2px 6px rgba(255, 218, 185, .5); transition-duration: .4s, .4s, 0s, 0s; }
+            html.dark-mode .community-comment-reply-submit:not(.is-touch-pressed):not(:active) { transition-duration: .4s, .4s, 0s, 0s; }
+        }
         .community-comment-reply-form button:focus-visible { outline: 2px solid #64b5f6; outline-offset: 2px; }
         html.dark-mode .community-comment-panel { --comment-border: #385066; --comment-muted: #a0aeb8; --comment-surface: #162636; --comment-soft: #10202d; }
         html.dark-mode .community-comment-title, html.dark-mode .community-comment-author { color: #f3f5f7; }
@@ -3275,6 +3289,15 @@
                     document.addEventListener(type, () => {
                         communityCommentList.querySelectorAll(`${commentReplyButtonSelector}.is-touch-pressed`).forEach(button => button.classList.remove('is-touch-pressed'));
                     }, { capture: true, passive: true });
+                });
+                communityCommentList.addEventListener('click', event => {
+                    if (!(event.target instanceof Element)) return;
+                    const button = event.target.closest('.community-comment-reply-submit');
+                    if (button && communityCommentList.contains(button)) button.classList.add('is-highlighted');
+                });
+                document.addEventListener('pointerdown', event => {
+                    if (event.target instanceof Element && event.target.closest('.community-comment-reply-submit')) return;
+                    communityCommentList.querySelectorAll('.community-comment-reply-submit.is-highlighted').forEach(button => button.classList.remove('is-highlighted'));
                 });
                 const getCommentReplies = commentCard => {
                     const content = commentCard.querySelector(':scope > .community-comment-content');
