@@ -3304,7 +3304,6 @@
                     const input = document.createElement('textarea');
                     input.className = 'community-comment-reply-input';
                     input.rows = 2;
-                    input.required = true;
                     input.placeholder = `Reply to ${authorName}…`;
                     input.setAttribute('aria-label', `Reply to ${authorName}`);
                     const footer = document.createElement('div');
@@ -3322,6 +3321,15 @@
                     form.append(input, footer);
                     return form;
                 };
+                const closeCommentReplyForm = form => {
+                    if (!form) return;
+                    const parentCard = form.closest('.community-comment-card');
+                    const thread = parentCard?.closest('.community-comment-list > .community-comment-card');
+                    parentCard?.querySelectorAll('[data-comment-reply]').forEach(button => button.setAttribute('aria-expanded', 'false'));
+                    form.remove();
+                    if (thread) syncCommentThreadOverflow(thread);
+                    syncLowerDividerHeight();
+                };
                 communityCommentList.addEventListener('click', event => {
                     const helpfulButton = event.target.closest('.community-comment-helpful');
                     if (helpfulButton && communityCommentList.contains(helpfulButton)) {
@@ -3336,12 +3344,7 @@
                     }
                     const cancelButton = event.target.closest('[data-comment-reply-cancel]');
                     if (cancelButton) {
-                        const form = cancelButton.closest('[data-comment-reply-form]');
-                        const parentCard = form?.closest('.community-comment-card');
-                        const thread = parentCard?.closest('.community-comment-list > .community-comment-card');
-                        parentCard?.querySelectorAll('[data-comment-reply]').forEach(button => button.setAttribute('aria-expanded', 'false'));
-                        form?.remove();
-                        if (thread) syncCommentThreadOverflow(thread);
+                        closeCommentReplyForm(cancelButton.closest('[data-comment-reply-form]'));
                         return;
                     }
                     const replyButton = event.target.closest('[data-comment-reply]');
@@ -3375,7 +3378,7 @@
                     const input = form.querySelector('textarea');
                     const text = input?.value.trim();
                     if (!text) {
-                        input?.focus();
+                        closeCommentReplyForm(form);
                         return;
                     }
                     const parentCard = form.closest('.community-comment-card');
