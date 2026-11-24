@@ -666,9 +666,9 @@
         .community-comment-helpful.is-pressed { transform: translateY(1px); }
         .community-comment-action svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
         .community-comment-helpful-icon { display: inline-block; flex: 0 0 15px; width: 15px; height: 15px; background-color: currentColor; -webkit-mask: url("resource/icon/bootstrap-icons/hand-thumbs-up.svg") center / contain no-repeat; mask: url("resource/icon/bootstrap-icons/hand-thumbs-up.svg") center / contain no-repeat; transition: opacity .15s ease, -webkit-mask-image .15s ease, mask-image .15s ease; }
-        .community-comment-helpful-count[hidden], .community-comment-replies[hidden] { display: none; }
+        .community-comment-helpful-count[hidden] { display: none; }
         .community-comment-reply-icon { display: inline-block; flex: 0 0 15px; width: 15px; height: 15px; background-color: currentColor; -webkit-mask: url("resource/icon/bootstrap-icons/chat-dots.svg") center / contain no-repeat; mask: url("resource/icon/bootstrap-icons/chat-dots.svg") center / contain no-repeat; transition: opacity .15s ease, -webkit-mask-image .15s ease, mask-image .15s ease; }
-        .community-comment-visibility-icon { display: inline-block; flex: 0 0 15px; width: 15px; height: 15px; background-color: currentColor; -webkit-mask: url("resource/icon/bootstrap-icons/eye.svg") center / contain no-repeat; mask: url("resource/icon/bootstrap-icons/eye.svg") center / contain no-repeat; transition: opacity .15s ease, -webkit-mask-image .15s ease, mask-image .15s ease; }
+        .community-comment-visibility-icon { display: inline-block; flex: 0 0 15px; width: 15px; height: 15px; background-color: currentColor; -webkit-mask: url("resource/icon/bootstrap-icons/eye-fill.svg") center / contain no-repeat; mask: url("resource/icon/bootstrap-icons/eye-fill.svg") center / contain no-repeat; transition: opacity .15s ease, -webkit-mask-image .15s ease, mask-image .15s ease; }
         .community-comment-visibility[aria-pressed="true"] .community-comment-visibility-icon { -webkit-mask-image: url("resource/icon/bootstrap-icons/eye-slash.svg"); mask-image: url("resource/icon/bootstrap-icons/eye-slash.svg"); }
         .community-comment-action.community-comment-report:hover { color: var(--comment-muted); }
         .community-comment-report-icon { display: inline-block; flex: 0 0 15px; width: 15px; height: 15px; background-color: currentColor; -webkit-mask: url("resource/icon/bootstrap-icons/cone-striped.svg") center / contain no-repeat; mask: url("resource/icon/bootstrap-icons/cone-striped.svg") center / contain no-repeat; }
@@ -677,7 +677,7 @@
             .community-comment-action:hover { color: #d96d16; }
             .community-comment-helpful:hover .community-comment-helpful-icon { opacity: .5; -webkit-mask-image: url("resource/icon/bootstrap-icons/hand-thumbs-up-fill.svg"); mask-image: url("resource/icon/bootstrap-icons/hand-thumbs-up-fill.svg"); }
             .community-comment-reply:hover .community-comment-reply-icon { opacity: .5; -webkit-mask-image: url("resource/icon/bootstrap-icons/chat-dots-fill.svg"); mask-image: url("resource/icon/bootstrap-icons/chat-dots-fill.svg"); }
-            .community-comment-visibility[aria-pressed="false"]:hover .community-comment-visibility-icon { opacity: .5; -webkit-mask-image: url("resource/icon/bootstrap-icons/eye-fill.svg"); mask-image: url("resource/icon/bootstrap-icons/eye-fill.svg"); }
+            .community-comment-visibility[aria-pressed="false"]:hover .community-comment-visibility-icon { opacity: .5; -webkit-mask-image: url("resource/icon/bootstrap-icons/eye.svg"); mask-image: url("resource/icon/bootstrap-icons/eye.svg"); }
             .community-comment-visibility[aria-pressed="true"]:hover .community-comment-visibility-icon { opacity: .5; -webkit-mask-image: url("resource/icon/bootstrap-icons/eye-slash-fill.svg"); mask-image: url("resource/icon/bootstrap-icons/eye-slash-fill.svg"); }
         }
         .community-comment-reply[aria-expanded="true"] .community-comment-reply-icon { opacity: 1; -webkit-mask-image: url("resource/icon/bootstrap-icons/chat-dots-fill.svg"); mask-image: url("resource/icon/bootstrap-icons/chat-dots-fill.svg"); }
@@ -689,10 +689,13 @@
         @media (hover: none) {
             .community-comment-helpful:active .community-comment-helpful-icon { opacity: .5; -webkit-mask-image: url("resource/icon/bootstrap-icons/hand-thumbs-up-fill.svg"); mask-image: url("resource/icon/bootstrap-icons/hand-thumbs-up-fill.svg"); }
             .community-comment-reply:active .community-comment-reply-icon { opacity: .5; -webkit-mask-image: url("resource/icon/bootstrap-icons/chat-dots-fill.svg"); mask-image: url("resource/icon/bootstrap-icons/chat-dots-fill.svg"); }
-            .community-comment-visibility[aria-pressed="false"]:active .community-comment-visibility-icon { opacity: .5; -webkit-mask-image: url("resource/icon/bootstrap-icons/eye-fill.svg"); mask-image: url("resource/icon/bootstrap-icons/eye-fill.svg"); }
+            .community-comment-visibility[aria-pressed="false"]:active .community-comment-visibility-icon { opacity: .5; -webkit-mask-image: url("resource/icon/bootstrap-icons/eye.svg"); mask-image: url("resource/icon/bootstrap-icons/eye.svg"); }
             .community-comment-visibility[aria-pressed="true"]:active .community-comment-visibility-icon { opacity: .5; -webkit-mask-image: url("resource/icon/bootstrap-icons/eye-slash-fill.svg"); mask-image: url("resource/icon/bootstrap-icons/eye-slash-fill.svg"); }
         }
-        .community-comment-replies { margin: 14px 0 0 2px; padding-left: 16px; border-left: 2px solid #e8b88d; }
+        .community-comment-replies { display: grid; grid-template-rows: 1fr; min-height: 0; overflow: hidden; margin: 14px 0 0 2px; padding-left: 16px; border-left: 2px solid #e8b88d; transition: grid-template-rows .15s ease, margin-top .15s ease; }
+        .community-comment-replies.is-collapsed { grid-template-rows: 0fr; margin-top: 0; }
+        .community-comment-replies-inner { min-height: 0; overflow: hidden; opacity: 1; transition: opacity .15s ease; }
+        .community-comment-replies.is-collapsed > .community-comment-replies-inner { opacity: 0; }
         .community-comment-replies .community-comment-card { padding: 12px 0 0; border-top: 0; }
         .community-comment-replies .community-comment-avatar { flex-basis: 32px !important; width: 32px !important; height: 32px !important; font-size: .74rem; }
         .community-comment-replies .community-comment-replies { padding-left: 8px; }
@@ -748,7 +751,7 @@
             .community-comment-card > .community-comment-avatar { flex-basis: 34px; width: 34px; height: 34px; }
             .community-comment-replies { margin-left: 0; padding-left: 11px; }
         }
-        @media (prefers-reduced-motion: reduce) { .community-comment-input, .community-comment-post, .community-comment-action { transition: none; } }
+        @media (prefers-reduced-motion: reduce) { .community-comment-input, .community-comment-post, .community-comment-action, .community-comment-replies, .community-comment-replies-inner { transition: none; } }
         .community-gallery-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 16px; margin-top: 14px; }
         .community-gallery-item { display: flex; min-width: 0; flex-direction: column; overflow: hidden; margin: 0; border: 1px solid #c2c2c2; border-radius: 12px; background: #fff; box-shadow: 0 4px 12px rgba(0, 0, 0, .06); }
         .community-gallery-frame { display: grid; place-items: center; overflow: hidden; box-sizing: border-box; width: 100%; aspect-ratio: 16 / 9; border-radius: 11px 11px 0 0; background: #f1f1f1; transition: background-color .16s ease; }
@@ -3334,8 +3337,16 @@
                         replies.dataset.commentReplies = '';
                         content.append(replies);
                     }
+                    let replyItems = replies.querySelector(':scope > .community-comment-replies-inner');
+                    if (!replyItems) {
+                        replyItems = document.createElement('div');
+                        replyItems.className = 'community-comment-replies-inner';
+                        while (replies.firstChild) replyItems.append(replies.firstChild);
+                        replies.append(replyItems);
+                    }
                     return replies;
                 };
+                const getCommentReplyItems = commentCard => getCommentReplies(commentCard)?.querySelector(':scope > .community-comment-replies-inner') || null;
                 const getCommentDepth = commentCard => {
                     let depth = 0;
                     let ancestor = commentCard.parentElement?.closest('.community-comment-card');
@@ -3349,13 +3360,19 @@
                     communityCommentList.querySelectorAll('.community-comment-card').forEach(commentCard => {
                         const content = commentCard.querySelector(':scope > .community-comment-content');
                         const replies = getCommentReplies(commentCard);
+                        const replyItems = replies?.querySelector(':scope > .community-comment-replies-inner');
                         const actions = content?.querySelector(':scope > .community-comment-actions');
-                        if (!content || !replies || !actions) return;
-                        const childCount = Array.from(replies.children).filter(child => child.classList.contains('community-comment-card')).length;
+                        if (!content || !replies || !replyItems || !actions) return;
+                        const childCount = Array.from(replyItems.children).filter(child => child.classList.contains('community-comment-card')).length;
+                        const hasReplyForm = Boolean(replyItems.querySelector(':scope > [data-comment-reply-form]'));
                         let toggle = actions.querySelector(':scope > [data-comment-thread-toggle]');
                         if (getCommentDepth(commentCard) === 0 || childCount === 0) {
                             toggle?.remove();
-                            replies.hidden = false;
+                            const collapseEmptyReplies = childCount === 0 && !hasReplyForm;
+                            replies.classList.toggle('is-collapsed', collapseEmptyReplies);
+                            replies.inert = collapseEmptyReplies;
+                            if (collapseEmptyReplies) replies.setAttribute('aria-hidden', 'true');
+                            else replies.removeAttribute('aria-hidden');
                             return;
                         }
                         if (!toggle) {
@@ -3368,17 +3385,19 @@
                             actions.append(toggle);
                         }
                         const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
-                        replies.hidden = !isExpanded;
+                        replies.classList.toggle('is-collapsed', !isExpanded);
+                        replies.inert = !isExpanded;
+                        if (isExpanded) replies.removeAttribute('aria-hidden');
+                        else replies.setAttribute('aria-hidden', 'true');
                         toggle.textContent = `${isExpanded ? 'Hide' : 'Show'} ${childCount} ${childCount === 1 ? 'reply' : 'replies'}`;
                         toggle.setAttribute('aria-label', `${isExpanded ? 'Hide' : 'Show'} ${childCount} ${childCount === 1 ? 'reply' : 'replies'}`);
                     });
                 };
                 const expandCommentReplies = commentCard => {
                     const content = commentCard.querySelector(':scope > .community-comment-content');
-                    const replies = getCommentReplies(commentCard);
+                    getCommentReplies(commentCard);
                     const toggle = content?.querySelector(':scope > .community-comment-actions > [data-comment-thread-toggle]');
                     if (toggle) toggle.setAttribute('aria-expanded', 'true');
-                    if (replies) replies.hidden = false;
                     syncCommentReplyDisclosure();
                 };
                 const hiddenCommentAuthors = new Set();
@@ -3602,7 +3621,7 @@
                 getCommentThreads().slice(existingThreadCount).forEach(rootComment => {
                     let parentComment = rootComment;
                     for (let depth = 1; depth <= 4; depth += 1) {
-                        const replies = getCommentReplies(parentComment);
+                        const replies = getCommentReplyItems(parentComment);
                         if (!replies) break;
                         let childComment = replies.querySelector(':scope > .community-comment-card');
                         if (!childComment) {
@@ -3621,6 +3640,7 @@
                     const thread = parentCard?.closest('.community-comment-list > .community-comment-card');
                     parentCard?.querySelectorAll('[data-comment-reply]').forEach(button => button.setAttribute('aria-expanded', 'false'));
                     form.remove();
+                    syncCommentReplyDisclosure();
                     if (thread) syncCommentThreadOverflow(thread);
                     syncLowerDividerHeight();
                 };
@@ -3687,12 +3707,13 @@
                         if (previousThread) syncCommentThreadOverflow(previousThread);
                         if (wasSameCard) return;
                     }
-                    const replies = getCommentReplies(commentCard);
+                    const replies = getCommentReplyItems(commentCard);
                     if (!replies) return;
                     expandCommentReplies(commentCard);
                     const authorName = commentCard.querySelector('.community-comment-author')?.textContent.trim() || 'this comment';
                     const replyForm = makeReplyForm(authorName);
                     replies.prepend(replyForm);
+                    syncCommentReplyDisclosure();
                     replyButton.setAttribute('aria-expanded', 'true');
                     const thread = commentCard.closest('.community-comment-list > .community-comment-card');
                     if (thread) syncCommentThreadOverflow(thread);
@@ -3710,7 +3731,7 @@
                     }
                     const parentCard = form.closest('.community-comment-card');
                     if (!parentCard) return;
-                    const replies = parentCard && getCommentReplies(parentCard);
+                    const replies = parentCard && getCommentReplyItems(parentCard);
                     if (!replies) return;
                     parentCard.querySelectorAll('[data-comment-reply]').forEach(button => button.setAttribute('aria-expanded', 'false'));
                     form.remove();
