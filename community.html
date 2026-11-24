@@ -650,7 +650,8 @@
         .community-comment-post:focus-visible, .community-comment-action:focus-visible { outline: 2px solid #64b5f6; outline-offset: 2px; }
         .community-comment-list { display: flex; flex-direction: column; gap: 0; }
         .community-comment-card { display: flex; align-items: flex-start; gap: 13px; padding: 18px 2px; border-top: 1px solid var(--comment-border); }
-        .community-comment-list > .community-comment-card { box-sizing: border-box; max-width: calc(100% + 16px); margin-right: -16px; overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain; scrollbar-width: none; -ms-overflow-style: none; -webkit-overflow-scrolling: touch; container-type: inline-size; }
+        .community-comment-list > .community-comment-card { box-sizing: border-box; max-width: calc(100% + 16px); margin-right: -16px; overflow-x: hidden; overflow-y: hidden; overscroll-behavior-x: contain; scrollbar-width: none; -ms-overflow-style: none; -webkit-overflow-scrolling: touch; container-type: inline-size; }
+        .community-comment-list > .community-comment-card.is-comment-thread-scrollable { overflow-x: auto; }
         .community-comment-list > .community-comment-card::-webkit-scrollbar { display: none; width: 0; height: 0; }
         .community-comment-card > .community-comment-avatar { flex-basis: 38px; width: 38px; height: 38px; }
         .community-comment-content { flex: 1 1 auto; min-width: 0; }
@@ -3221,6 +3222,21 @@
             }
             const communityCommentList = document.querySelector('.community-comment-list');
             if (communityCommentList) {
+                const commentThreads = Array.from(communityCommentList.children).filter(card => card.matches('.community-comment-card'));
+                const syncCommentThreadOverflow = thread => {
+                    const exceedsScreen = Array.from(thread.querySelectorAll('.community-comment-replies .community-comment-card'))
+                        .some(reply => reply.getBoundingClientRect().right + thread.scrollLeft > window.innerWidth + 0.5);
+                    thread.classList.toggle('is-comment-thread-scrollable', exceedsScreen);
+                    if (!exceedsScreen && thread.scrollLeft) thread.scrollLeft = 0;
+                };
+                const syncAllCommentThreadOverflow = () => commentThreads.forEach(syncCommentThreadOverflow);
+                const scheduleCommentThreadOverflowSync = () => requestAnimationFrame(syncAllCommentThreadOverflow);
+                window.addEventListener('resize', scheduleCommentThreadOverflowSync);
+                if (typeof ResizeObserver !== 'undefined') {
+                    const commentListResizeObserver = new ResizeObserver(scheduleCommentThreadOverflowSync);
+                    commentListResizeObserver.observe(communityCommentList);
+                }
+                scheduleCommentThreadOverflowSync();
                 const getCommentReplies = commentCard => {
                     const content = commentCard.querySelector(':scope > .community-comment-content');
                     if (!content) return null;
@@ -3341,6 +3357,8 @@
                     parentCard.querySelectorAll('[data-comment-reply]').forEach(button => button.setAttribute('aria-expanded', 'false'));
                     form.remove();
                     replies.append(makeCommentReply(text));
+                    const thread = parentCard.closest('.community-comment-list > .community-comment-card');
+                    if (thread) syncCommentThreadOverflow(thread);
                     syncLowerDividerHeight();
                 });
             }
