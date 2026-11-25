@@ -1608,6 +1608,10 @@
                             <button class="main-project-relation-filter-button" type="button" aria-label="Filter related projects" title="Filter related projects" aria-controls="main-project-relation-filter-layer" aria-expanded="false">
                                 <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .4.8L10 8v4a.5.5 0 0 1-.2.4l-3 2A.5.5 0 0 1 6 14V8L1.6 1.8a.5.5 0 0 1-.1-.3z"/></svg>
                             </button>
+                            <div class="main-project-relation-search">
+                                <input class="main-project-relation-search-input" type="search" aria-label="Search related projects" placeholder="Search projects" autocomplete="off" enterkeyhint="done">
+                                <svg class="main-project-relation-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="m16 16 4.5 4.5"></path></svg>
+                            </div>
                         </div>
                         <nav class="main-project-relation-pagination" aria-label="Relation pages" data-total-pages="8" data-current-page="1">
                             <button class="main-project-relation-pagination-arrow" type="button" data-page-step="-1" aria-label="Previous page" title="Previous page" disabled>
@@ -4238,8 +4242,16 @@
                     ...relationWordPools.phrases.slice(8)
                 ])
             };
-            const relationSearch = document.querySelector('.main-project-relation-search');
+            const relationSearch = document.querySelector('#panel-relation .main-project-relation-search');
             const relationSearchInput = relationSearch?.querySelector('.main-project-relation-search-input');
+            const commentSearch = document.querySelector('#panel-comment .main-project-relation-search');
+            const commentSearchInput = commentSearch?.querySelector('.main-project-relation-search-input');
+            const relationSearchInputs = [relationSearchInput, commentSearchInput].filter(Boolean);
+            const relationSearchControls = relationSearchInputs.map(input => ({ input, wrapper: input.closest('.main-project-relation-search') }));
+            const relationSearchStates = {
+                dependencies: relationSearchInput?.value || '',
+                dependents: ''
+            };
             const relationSortState = {
                 alphabetic: document.querySelector('[data-relation-sort="alphabetic"]:checked')?.value || 'asc',
                 numeric: document.querySelector('[data-relation-sort="numeric"]:checked')?.value || 'asc',
@@ -4280,7 +4292,11 @@
                 return left.id.localeCompare(right.id);
             };
             const getRelationFilteredRecords = relationKey => {
-                return relationCardRecords[relationKey].slice().sort((left, right) => {
+                const query = (relationSearchStates[relationKey] || '').trim().toLocaleLowerCase();
+                const records = query
+                    ? relationCardRecords[relationKey].filter(record => record.label.toLocaleLowerCase().includes(query))
+                    : relationCardRecords[relationKey].slice();
+                return records.sort((left, right) => {
                     if (relationSortState.primary === 'downloads') {
                         const comparison = left.downloads - right.downloads;
                         if (comparison) return relationSortState.downloads === 'desc' ? -comparison : comparison;
@@ -4983,17 +4999,47 @@
                 if (relationSearchTouchMedia.matches && !relationSearch?.contains(event.target)) {
                     relationSearch?.classList.remove('is-touch-highlighted');
                 }
+                if (relationSearchTouchMedia.matches && !commentSearch?.contains(event.target)) {
+                    commentSearch?.classList.remove('is-touch-highlighted');
+                }
+            });
+            let commentSearchPressedPointer = null;
+            commentSearch?.addEventListener('pointerdown', event => {
+                if (!relationSearchTouchMedia.matches || event.pointerType === 'mouse') return;
+                commentSearchPressedPointer = event.pointerId;
+                commentSearch.classList.add('is-touch-pressed');
+            });
+            commentSearch?.addEventListener('click', event => {
+                if (relationSearchTouchMedia.matches) commentSearch.classList.add('is-touch-highlighted');
+                if (!(event.target instanceof Element) || !event.target.closest('button, input')) commentSearchInput?.focus({ preventScroll: true });
+            });
+            ['pointerup', 'pointercancel'].forEach(type => {
+                document.addEventListener(type, event => {
+                    if (event.pointerId !== commentSearchPressedPointer) return;
+                    commentSearch?.classList.remove('is-touch-pressed');
+                    commentSearchPressedPointer = null;
+                });
+            });
+            relationSearchInput?.addEventListener('input', () => {
+                relationSearchStates[activeRelationKey] = relationSearchInput.value;
+                const relationState = relationPaginationStates[activeRelationKey];
+                relationState.totalPages = getRelationTotalPages(activeRelationKey, relationState.pageSize);
+                relationState.currentPage = 1;
+                renderRelationPagination(1);
+                renderRelationCards();
             });
             relationSwitchButtons.forEach(button => {
                 button.addEventListener('click', () => {
                     const nextRelationKey = button.dataset.relation === 'dependents' ? 'dependents' : 'dependencies';
                     if (nextRelationKey === activeRelationKey) return;
                     relationPaginationStates[activeRelationKey].currentPage = Number(relationPagination?.dataset.currentPage) || 1;
+                    relationSearchStates[activeRelationKey] = relationSearchInput?.value || '';
                     activeRelationKey = nextRelationKey;
                     const nextRelationState = relationPaginationStates[activeRelationKey];
                     nextRelationState.totalPages = getRelationTotalPages(activeRelationKey, nextRelationState.pageSize);
                     nextRelationState.currentPage = Math.min(nextRelationState.currentPage, nextRelationState.totalPages);
                     if (relationPagination) relationPagination.dataset.totalPages = String(nextRelationState.totalPages);
+                    if (relationSearchInput) relationSearchInput.value = relationSearchStates[activeRelationKey];
                     if (relationPageSizeControl) relationPageSizeControl.dataset.expanded = 'false';
                     renderRelationPageSizeControl();
                     renderRelationPagination(nextRelationState.currentPage);
@@ -5029,7 +5075,9 @@
             }
             function fitRelationSearchAboveKeyboard() {
                 relationKeyboardFrame = 0;
-                if (!relationKeyboardVisible || !relationSearchTouchMedia.matches || document.activeElement !== relationSearchInput || !relationSearchScroller || !relationSearch) return;
+                const focusedSearchInput = relationSearchInputs.find(input => input === document.activeElement);
+                const focusedSearch = focusedSearchInput?.closest('.main-project-relation-search');
+                if (!relationKeyboardVisible || !relationSearchTouchMedia.matches || !focusedSearch || !relationSearchScroller) return;
                 const viewport = relationViewportMetrics();
                 if (relationViewportBaseline && Math.abs(viewport.scale - relationViewportBaseline.scale) > .05) return;
                 const scroller = relationSearchScroller.getBoundingClientRect();
@@ -5037,7 +5085,7 @@
                 const navbarBottom = document.getElementById('navbar')?.getBoundingClientRect().bottom ?? 0;
                 const visibleTop = Math.max(viewport.top, scroller.top, navbarBottom);
                 const visibleBottom = Math.min(viewportBottom, scroller.bottom);
-                const searchBounds = relationSearch.getBoundingClientRect();
+                const searchBounds = focusedSearch.getBoundingClientRect();
                 const availableHeight = visibleBottom - visibleTop;
                 if (availableHeight <= 0) return;
                 const gap = Math.min(12, Math.max(0, (availableHeight - searchBounds.height) / 2));
@@ -5061,7 +5109,8 @@
             }
             function updateRelationKeyboardViewport() {
                 const viewport = relationViewportMetrics();
-                if (!relationSearchTouchMedia.matches || document.activeElement !== relationSearchInput) {
+                const focusedSearchInput = relationSearchInputs.find(input => input === document.activeElement);
+                if (!relationSearchTouchMedia.matches || !focusedSearchInput) {
                     clearRelationKeyboardAdjustment();
                     if (!relationSearchFocusPending && (!relationKeyboardClosing || !relationViewportBaseline || Math.abs(viewport.width - relationViewportBaseline.width) > 24 || relationViewportBaseline.height - viewport.height <= relationKeyboardMinimumChange)) {
                         relationViewportBaseline = viewport;
@@ -5079,49 +5128,55 @@
                 const keyboardWasVisible = relationKeyboardVisible;
                 relationKeyboardVisible = relationViewportBaseline.height - viewport.height > relationKeyboardMinimumChange;
                 if (!relationKeyboardVisible) {
-                    if (keyboardWasVisible) relationSearchInput.blur();
+                    if (keyboardWasVisible) focusedSearchInput.blur();
                     clearRelationKeyboardAdjustment();
                     if (viewport.height > relationViewportBaseline.height) relationViewportBaseline = viewport;
                     return;
                 }
-                relationSearchInput.classList.remove('is-mobile-focus-hidden');
+                focusedSearchInput.classList.remove('is-mobile-focus-hidden');
                 relationViewportResizeTime = performance.now();
                 scheduleRelationKeyboardFit();
             }
             rememberRelationViewport();
-            relationSearch?.addEventListener('pointerdown', event => {
-                relationSearchInput?.classList.remove('is-mobile-focus-hidden');
-                if (!relationSearchTouchMedia.matches || event.pointerType === 'mouse' || document.activeElement === relationSearchInput) return;
-                const viewport = relationViewportMetrics();
-                const keyboardStillClosing = relationKeyboardClosing && relationViewportBaseline && Math.abs(viewport.width - relationViewportBaseline.width) <= 24 && relationViewportBaseline.height - viewport.height > relationKeyboardMinimumChange;
-                if (!keyboardStillClosing) rememberRelationViewport();
-                relationSearchFocusPending = true;
+            relationSearchControls.forEach(({ input, wrapper }) => {
+                wrapper.addEventListener('pointerdown', event => {
+                    input.classList.remove('is-mobile-focus-hidden');
+                    if (!relationSearchTouchMedia.matches || event.pointerType === 'mouse' || document.activeElement === input) return;
+                    const viewport = relationViewportMetrics();
+                    const keyboardStillClosing = relationKeyboardClosing && relationViewportBaseline && Math.abs(viewport.width - relationViewportBaseline.width) <= 24 && relationViewportBaseline.height - viewport.height > relationKeyboardMinimumChange;
+                    if (!keyboardStillClosing) rememberRelationViewport();
+                    relationSearchFocusPending = true;
+                });
+                wrapper.addEventListener('pointercancel', () => { relationSearchFocusPending = false; });
             });
-            relationSearch?.addEventListener('pointercancel', () => { relationSearchFocusPending = false; });
             document.addEventListener('pointerdown', event => {
-                if (!relationSearch?.contains(event.target)) relationSearchFocusPending = false;
+                if (!relationSearchControls.some(({ wrapper }) => wrapper.contains(event.target))) relationSearchFocusPending = false;
             }, { passive: true });
-            relationSearchInput?.addEventListener('focus', () => {
-                relationSearchInput.classList.remove('is-mobile-focus-hidden');
-                relationSearchFocusPending = false;
-                updateRelationKeyboardViewport();
-            });
-            relationSearchInput?.addEventListener('keydown', event => {
-                relationSearchInput.classList.remove('is-mobile-focus-hidden');
-                if (event.key !== 'Enter' || event.isComposing || !relationSearchTouchMedia.matches) return;
-                event.preventDefault();
-                relationSearchInput.blur();
-            });
-            relationSearchInput?.addEventListener('blur', () => {
-                relationKeyboardClosing = relationKeyboardVisible;
-                relationSearchFocusPending = false;
-                clearRelationKeyboardAdjustment();
+            relationSearchControls.forEach(({ input }) => {
+                input.addEventListener('focus', () => {
+                    input.classList.remove('is-mobile-focus-hidden');
+                    relationSearchFocusPending = false;
+                    updateRelationKeyboardViewport();
+                });
+                input.addEventListener('keydown', event => {
+                    input.classList.remove('is-mobile-focus-hidden');
+                    if (event.key !== 'Enter' || event.isComposing || !relationSearchTouchMedia.matches) return;
+                    event.preventDefault();
+                    input.blur();
+                });
+                input.addEventListener('blur', () => {
+                    relationKeyboardClosing = relationKeyboardVisible;
+                    relationSearchFocusPending = false;
+                    clearRelationKeyboardAdjustment();
+                });
             });
             ['pointerdown', 'touchstart'].forEach(type => {
                 document.addEventListener(type, event => {
                     const isTouch = type === 'touchstart' || event.pointerType === 'touch' || event.pointerType === 'pen';
-                    if (isTouch && document.activeElement === relationSearchInput && !relationKeyboardVisible && !relationSearch?.contains(event.target)) {
-                        relationSearchInput.classList.add('is-mobile-focus-hidden');
+                    const focusedSearchInput = relationSearchInputs.find(input => input === document.activeElement);
+                    const focusedSearch = focusedSearchInput?.closest('.main-project-relation-search');
+                    if (isTouch && focusedSearchInput && !relationKeyboardVisible && !focusedSearch?.contains(event.target)) {
+                        focusedSearchInput.classList.add('is-mobile-focus-hidden');
                     }
                 }, { capture: true, passive: true });
             });
