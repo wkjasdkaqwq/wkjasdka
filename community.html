@@ -647,6 +647,7 @@
         .community-comment-post:focus-visible, .community-comment-action:focus-visible { outline: 2px solid #64b5f6; outline-offset: 2px; }
         .community-comment-list { display: flex; flex-direction: column; gap: 0; }
         .community-comment-card { display: flex; align-items: flex-start; gap: 13px; padding: 18px 2px; border-top: 1px solid var(--comment-border); }
+        .community-comment-list > .community-comment-card:first-child { border-top: 0; }
         .community-comment-list > .community-comment-card { box-sizing: border-box; max-width: calc(100% + 16px); margin-right: -16px; overflow-x: hidden; overflow-y: hidden; overscroll-behavior-x: contain; scrollbar-width: none; -ms-overflow-style: none; -webkit-overflow-scrolling: touch; container-type: inline-size; }
         .community-comment-list > .community-comment-card.is-comment-thread-scrollable { overflow-x: auto; }
         .community-comment-list > .community-comment-card.is-comment-thread-returning { position: relative; }
@@ -1657,17 +1658,6 @@
                         <div class="community-comment-title-row"><h2 class="main-project-description-section-title">Semi-rounded Corner</h2></div>
                     </header>
                     <div class="main-project-description-section-divider community-comment-divider" aria-hidden="true"></div>
-                    <form class="community-comment-composer" aria-label="Write a comment">
-                        <div class="community-comment-avatar" aria-hidden="true">Y</div>
-                        <div class="community-comment-composer-body">
-                            <label class="community-sr-only" for="community-comment-input">Write a comment</label>
-                            <textarea class="community-comment-input" id="community-comment-input" rows="3" placeholder="Share a thought or ask a question…"></textarea>
-                            <div class="community-comment-composer-footer">
-                                <span class="community-comment-guidance">Commenting will be enabled when the discussion service is connected.</span>
-                                <button class="community-comment-post" type="button" disabled title="Comment posting is not connected yet">Post comment</button>
-                            </div>
-                        </div>
-                    </form>
                     <div class="community-comment-list" role="feed" aria-label="Project discussion">
                         <article class="community-comment-card">
                             <div class="community-comment-avatar" aria-hidden="true">MC</div>
