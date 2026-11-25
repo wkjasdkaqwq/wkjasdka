@@ -634,22 +634,24 @@
         .community-comment-composer-controls { position: absolute; top: -7px; right: 4px; left: 4px; display: flex; align-items: center; box-sizing: border-box; height: calc(1.8rem + 14px); gap: .65rem; }
         .community-comment-composer-controls > .main-project-relation-search { flex: 1 1 auto; width: auto; min-height: 0; height: 100%; padding: 5px 16px; }
         .community-comment-send { display: grid; flex: 0 0 calc(1.8rem + 14px); place-items: center; box-sizing: border-box; width: calc(1.8rem + 14px); height: calc(1.8rem + 14px); margin: 0; padding: 0; border: 2px solid #FFB380; border-radius: 50%; background: #FFDAB9; color: #E67E22; box-shadow: 0 4px 12px rgba(255, 218, 185, .5); cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation; transition: transform .2s ease, background-color .2s ease, border-color .2s ease, box-shadow .2s ease; }
+        .community-comment-send:disabled { transform: none; border-color: #d7d7d7; background: #e8e8e8; color: #828282; box-shadow: none; cursor: not-allowed; opacity: 1; }
         .community-comment-send-icon { display: block; width: 17px; height: 17px; background: currentColor; -webkit-mask: url("resource/icon/bootstrap-icons/send.svg") center / contain no-repeat; mask: url("resource/icon/bootstrap-icons/send.svg") center / contain no-repeat; pointer-events: none; }
         .community-comment-send:focus-visible { outline: 2px solid #64b5f6; outline-offset: 2px; }
         @media (hover: hover) and (pointer: fine) {
-            .community-comment-send:hover { transform: scale(1.08); border-color: #FF9966; background: #FFE4C4; box-shadow: 0 8px 20px rgba(255, 218, 185, .8); }
-            .community-comment-send:active { transform: scale(.96); border-color: #FF9C5A; background: #FFC38D; box-shadow: 0 6px 16px rgba(255, 218, 185, .6); }
+            .community-comment-send:hover:not(:disabled) { transform: scale(1.08); border-color: #FF9966; background: #FFE4C4; box-shadow: 0 8px 20px rgba(255, 218, 185, .8); }
+            .community-comment-send:active:not(:disabled) { transform: scale(.96); border-color: #FF9C5A; background: #FFC38D; box-shadow: 0 6px 16px rgba(255, 218, 185, .6); }
         }
         @media (hover: none), (pointer: coarse) {
-            .community-comment-send:active { transform: translateY(1px) scale(.96); border-color: #FF9C5A; background: #FFC38D; box-shadow: 0 2px 6px rgba(255, 218, 185, .5); }
+            .community-comment-send:active:not(:disabled) { transform: translateY(1px) scale(.96); border-color: #FF9C5A; background: #FFC38D; box-shadow: 0 2px 6px rgba(255, 218, 185, .5); }
         }
         html.dark-mode .community-comment-send { border-color: #a66a3d; background: #3b3028; color: #ffc08a; box-shadow: 0 4px 12px rgba(0, 0, 0, .25); }
+        html.dark-mode .community-comment-send:disabled { border-color: #4a5966; background: #303c47; color: #8996a1; box-shadow: none; }
         @media (hover: hover) and (pointer: fine) {
-            html.dark-mode .community-comment-send:hover { border-color: #d18a58; background: #4a382b; box-shadow: 0 8px 20px rgba(0, 0, 0, .35); }
-            html.dark-mode .community-comment-send:active { border-color: #FF9C5A; background: #FFC38D; color: #E67E22; box-shadow: 0 6px 16px rgba(255, 218, 185, .6); }
+            html.dark-mode .community-comment-send:hover:not(:disabled) { border-color: #d18a58; background: #4a382b; box-shadow: 0 8px 20px rgba(0, 0, 0, .35); }
+            html.dark-mode .community-comment-send:active:not(:disabled) { border-color: #FF9C5A; background: #FFC38D; color: #E67E22; box-shadow: 0 6px 16px rgba(255, 218, 185, .6); }
         }
         @media (hover: none), (pointer: coarse) {
-            html.dark-mode .community-comment-send:active { border-color: #FF9C5A; background: #FFC38D; color: #E67E22; box-shadow: 0 2px 6px rgba(255, 218, 185, .5); }
+            html.dark-mode .community-comment-send:active:not(:disabled) { border-color: #FF9C5A; background: #FFC38D; color: #E67E22; box-shadow: 0 2px 6px rgba(255, 218, 185, .5); }
         }
         .community-comment-divider { margin-bottom: 14px; }
         .community-comment-composer { display: flex; align-items: flex-start; gap: 13px; box-sizing: border-box; margin-bottom: 20px; padding: 15px; border: 1px solid var(--comment-border); border-radius: 16px; background: var(--comment-surface); box-shadow: 0 4px 14px rgba(0, 0, 0, .045); }
@@ -1679,7 +1681,7 @@
                             <div class="main-project-relation-search">
                                 <input class="main-project-relation-search-input" type="text" aria-label="Post a comment" placeholder="Post a comment" autocomplete="off" enterkeyhint="done">
                             </div>
-                            <button class="community-comment-send" type="button" aria-label="Post comment" title="Post comment">
+                            <button class="community-comment-send" type="button" aria-label="Post comment" title="Post comment" disabled>
                                 <span class="community-comment-send-icon" aria-hidden="true"></span>
                             </button>
                         </div>
@@ -4269,6 +4271,12 @@
             const relationSearchInput = relationSearch?.querySelector('.main-project-relation-search-input');
             const commentSearch = document.querySelector('#panel-comment .main-project-relation-search');
             const commentSearchInput = commentSearch?.querySelector('.main-project-relation-search-input');
+            const commentSendButton = document.querySelector('.community-comment-send');
+            const updateCommentSendAvailability = () => {
+                if (commentSendButton) commentSendButton.disabled = !commentSearchInput?.value.trim();
+            };
+            commentSearchInput?.addEventListener('input', updateCommentSendAvailability);
+            updateCommentSendAvailability();
             const relationSearchInputs = [relationSearchInput, commentSearchInput].filter(Boolean);
             const relationSearchControls = relationSearchInputs.map(input => ({ input, wrapper: input.closest('.main-project-relation-search') }));
             const relationSearchStates = {
