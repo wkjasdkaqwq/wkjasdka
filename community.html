@@ -645,11 +645,11 @@
         .community-comment-post:active { transform: translateY(2px) scale(.98); }
         .community-comment-post:disabled { border-color: #d7d7d7; background: #e8e8e8; color: #828282; box-shadow: none; cursor: not-allowed; }
         .community-comment-post:focus-visible, .community-comment-action:focus-visible { outline: 2px solid #64b5f6; outline-offset: 2px; }
-        .community-comment-inline-composer { align-items: center; gap: 16px; }
+        .community-comment-header.community-comment-inline-composer { align-items: center; gap: 16px; margin-bottom: 2px; }
+        .community-comment-inline-composer + .community-comment-divider { margin-top: 2px; }
         .community-comment-inline-input { display: block; box-sizing: border-box; flex: 0 0 calc((100% - 16px) / 2); width: calc((100% - 16px) / 2); min-width: 0; height: calc(1.8rem + 12px); min-height: calc(1.8rem + 12px); resize: none; padding: 0 16px; border: 2px solid #FFB380; border-radius: 999px; outline: none; background: #FFDAB9; color: #E67E22; font: inherit; font-size: .92rem; font-weight: 600; line-height: 1.1; }
         .community-comment-inline-input::placeholder { color: #888; opacity: 1; }
         .community-comment-inline-input:focus { border-color: #e67e22; background: #fff4ea; box-shadow: 0 0 0 3px rgba(230, 126, 34, .14); }
-        .community-comment-inline-publish { box-sizing: border-box; flex: 0 0 calc((100% - 16px) / 2); width: calc((100% - 16px) / 2); height: calc(1.8rem + 12px); min-height: calc(1.8rem + 12px); padding: 0 16px; font-size: .92rem; font-weight: 600; }
         .community-comment-list { display: flex; flex-direction: column; gap: 0; }
         .community-comment-card { display: flex; align-items: flex-start; gap: 13px; padding: 18px 2px; border-top: 1px solid var(--comment-border); }
         .community-comment-list > .community-comment-card:first-child { border-top: 0; }
@@ -1665,7 +1665,6 @@
                     <form class="community-comment-header community-comment-inline-composer" aria-label="Write a comment">
                         <label class="community-sr-only" for="community-comment-input">Comment text</label>
                         <textarea class="community-comment-inline-input" id="community-comment-input" rows="1" placeholder="发布评论" enterkeyhint="done"></textarea>
-                        <button class="community-comment-post community-comment-inline-publish" type="button" disabled title="Comment posting is not connected yet">发布评论</button>
                     </form>
                     <div class="main-project-description-section-divider community-comment-divider" aria-hidden="true"></div>
                     <div class="community-comment-list" role="feed" aria-label="Project discussion">
