@@ -706,7 +706,9 @@
         .community-comment-hidden-placeholder { display: flex; flex: 1 1 auto; min-width: 0; align-items: center; gap: 10px; padding: 2px 0; color: var(--comment-muted); font-size: .82rem; }
         .community-comment-hidden-placeholder[hidden] { display: none; }
         .community-comment-hidden-placeholder > span { flex: 0 1 auto; min-width: 0; }
-        .community-comment-reply-form { display: flex; flex-direction: column; box-sizing: border-box; width: max(100%, min(280px, calc(100vw - 48px)), calc(100vw - 110px)); gap: 8px; margin: 10px 0 12px; padding: 10px; border: 1px solid var(--comment-border); border-radius: 12px; background: var(--comment-soft); }
+        .community-comment-reply-form { display: flex; flex-direction: column; box-sizing: border-box; width: max(100%, min(280px, calc(100vw - 48px)), calc(100vw - 110px)); gap: 8px; margin: 10px 0 12px; padding: 10px; border: 1px solid var(--comment-border); border-radius: 12px; background: var(--comment-soft); opacity: 1; transform: translateX(0); transform-origin: left center; transition: opacity .18s ease, transform .2s cubic-bezier(.22, .61, .36, 1); will-change: opacity, transform; }
+        .community-comment-reply-form.is-opening, .community-comment-reply-form.is-closing { opacity: 0; transform: translateX(-18px); }
+        .community-comment-reply-form.is-closing { pointer-events: none; }
         @supports (width: 1cqi) { .community-comment-reply-form { width: max(100%, min(280px, calc(100vw - 48px)), calc(100cqi - 77px)); } }
         .community-comment-reply-input { display: block; box-sizing: border-box; width: 100%; min-height: 64px; resize: vertical; padding: 9px 11px; border: 1px solid var(--comment-border); border-radius: 9px; outline: none; background: var(--comment-surface); color: inherit; font: inherit; font-size: .9rem; line-height: 1.5; }
         .community-comment-reply-input:focus { border-color: #e67e22; box-shadow: 0 0 0 3px rgba(230, 126, 34, .14); }
@@ -733,6 +735,7 @@
             html.dark-mode .community-comment-reply-submit:not(.is-touch-pressed):not(:active) { transition-duration: .4s, .4s, 0s, 0s; }
         }
         .community-comment-reply-form button:focus-visible { outline: 2px solid #64b5f6; outline-offset: 2px; }
+        @media (prefers-reduced-motion: reduce) { .community-comment-reply-form { transition: none; } }
         html.dark-mode .community-comment-panel { --comment-border: #385066; --comment-muted: #a0aeb8; --comment-surface: #162636; --comment-soft: #10202d; }
         html.dark-mode .community-comment-title, html.dark-mode .community-comment-author { color: #f3f5f7; }
         html.dark-mode .community-comment-count, html.dark-mode .community-comment-owner { border-color: #805634; background: #33261d; color: #ffc08a; }
@@ -3706,15 +3709,51 @@
                 syncCommentVisibility();
                 syncCommentReplyDisclosure();
                 syncAllCommentThreadOverflow();
-                const closeCommentReplyForm = form => {
-                    if (!form) return;
+                const closeCommentReplyForm = (form, afterClose) => {
+                    if (!form?.isConnected || form.classList.contains('is-closing')) return;
                     const parentCard = form.closest('.community-comment-card');
                     const thread = parentCard?.closest('.community-comment-list > .community-comment-card');
                     parentCard?.querySelectorAll('[data-comment-reply]').forEach(button => button.setAttribute('aria-expanded', 'false'));
-                    form.remove();
-                    syncCommentReplyDisclosure();
+                    const finishClose = () => {
+                        if (!form.isConnected) return;
+                        form.remove();
+                        syncCommentReplyDisclosure();
+                        if (thread) syncCommentThreadOverflow(thread);
+                        syncLowerDividerHeight();
+                        afterClose?.();
+                    };
+                    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                        finishClose();
+                        return;
+                    }
+                    form.style.transitionDelay = '0ms';
+                    form.classList.add('is-closing');
+                    window.setTimeout(finishClose, 210);
+                };
+                const openCommentReplyForm = replyButton => {
+                    if (!replyButton?.isConnected || !communityCommentList.contains(replyButton)) return;
+                    const commentCard = replyButton.closest('.community-comment-card');
+                    if (!commentCard) return;
+                    const replies = getCommentReplies(commentCard);
+                    const replyItems = getCommentReplyItems(commentCard);
+                    if (!replies || !replyItems) return;
+                    const opensReplyLine = replies.classList.contains('is-collapsed');
+                    const authorName = commentCard.querySelector('.community-comment-author')?.textContent.trim() || 'this comment';
+                    const replyForm = makeReplyForm(authorName);
+                    replyForm.classList.add('is-opening');
+                    const openDelay = opensReplyLine && !window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 150 : 0;
+                    if (openDelay) replyForm.style.transitionDelay = `${openDelay}ms`;
+                    replyItems.prepend(replyForm);
+                    expandCommentReplies(commentCard);
+                    replyButton.setAttribute('aria-expanded', 'true');
+                    const thread = commentCard.closest('.community-comment-list > .community-comment-card');
                     if (thread) syncCommentThreadOverflow(thread);
                     syncLowerDividerHeight();
+                    requestAnimationFrame(() => {
+                        if (!replyForm.isConnected) return;
+                        replyForm.classList.remove('is-opening');
+                        if (openDelay) window.setTimeout(() => replyForm.style.removeProperty('transition-delay'), openDelay + 220);
+                    });
                 };
                 communityCommentList.addEventListener('click', event => {
                     if (!(event.target instanceof Element)) return;
@@ -3773,24 +3812,15 @@
                     const existingForm = communityCommentList.querySelector('[data-comment-reply-form]');
                     if (existingForm) {
                         const wasSameCard = existingForm.closest('.community-comment-card') === commentCard;
-                        const previousParent = existingForm.closest('.community-comment-card');
-                        const previousThread = previousParent?.closest('.community-comment-list > .community-comment-card');
-                        previousParent?.querySelectorAll('[data-comment-reply]').forEach(button => button.setAttribute('aria-expanded', 'false'));
-                        existingForm.remove();
-                        if (previousThread) syncCommentThreadOverflow(previousThread);
-                        if (wasSameCard) return;
+                        if (existingForm.classList.contains('is-closing')) return;
+                        if (wasSameCard) {
+                            closeCommentReplyForm(existingForm);
+                            return;
+                        }
+                        closeCommentReplyForm(existingForm, () => openCommentReplyForm(replyButton));
+                        return;
                     }
-                    const replies = getCommentReplyItems(commentCard);
-                    if (!replies) return;
-                    expandCommentReplies(commentCard);
-                    const authorName = commentCard.querySelector('.community-comment-author')?.textContent.trim() || 'this comment';
-                    const replyForm = makeReplyForm(authorName);
-                    replies.prepend(replyForm);
-                    syncCommentReplyDisclosure();
-                    replyButton.setAttribute('aria-expanded', 'true');
-                    const thread = commentCard.closest('.community-comment-list > .community-comment-card');
-                    if (thread) syncCommentThreadOverflow(thread);
-                    syncLowerDividerHeight();
+                    openCommentReplyForm(replyButton);
                 });
                 communityCommentList.addEventListener('submit', event => {
                     const form = event.target.closest('[data-comment-reply-form]');
@@ -3806,14 +3836,15 @@
                     if (!parentCard) return;
                     const replies = parentCard && getCommentReplyItems(parentCard);
                     if (!replies) return;
-                    parentCard.querySelectorAll('[data-comment-reply]').forEach(button => button.setAttribute('aria-expanded', 'false'));
-                    form.remove();
-                    replies.append(makeCommentReply(text));
-                    syncCommentReplyDisclosure();
-                    expandCommentReplies(parentCard);
-                    const thread = parentCard.closest('.community-comment-list > .community-comment-card');
-                    if (thread) syncCommentThreadOverflow(thread);
-                    syncLowerDividerHeight();
+                    closeCommentReplyForm(form, () => {
+                        if (!parentCard.isConnected) return;
+                        replies.append(makeCommentReply(text));
+                        syncCommentReplyDisclosure();
+                        expandCommentReplies(parentCard);
+                        const thread = parentCard.closest('.community-comment-list > .community-comment-card');
+                        if (thread) syncCommentThreadOverflow(thread);
+                        syncLowerDividerHeight();
+                    });
                 });
             }
             function syncDescriptionEndDivider() {
