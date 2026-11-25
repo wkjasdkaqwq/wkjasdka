@@ -624,13 +624,14 @@
         .main-project-tab-panel[hidden] { display: none; }
         .main-project-tab-empty { margin: 14px 0 0; color: #666; font-size: 1rem; line-height: 1.5; }
         html.dark-mode .main-project-tab-empty { color: #a0aeb8; }
-        .community-comment-panel { --comment-border: #d5d5d5; --comment-muted: #727272; --comment-surface: #fff; --comment-soft: #f6f6f6; padding-top: calc(1.65rem * 1.2); padding-bottom: 24px; }
+        .community-comment-panel { --comment-border: #d5d5d5; --comment-muted: #727272; --comment-surface: #fff; --comment-soft: #f6f6f6; padding-bottom: 24px; }
         .community-comment-header { display: flex; align-items: flex-end; justify-content: space-between; gap: 18px; margin: 0 0 14px; }
         .community-comment-title-row { display: flex; align-items: center; gap: 10px; }
         .community-comment-title { margin: 0; color: #333; font-size: 1.65rem; font-weight: 735; line-height: 1.2; }
         .community-comment-count { display: inline-grid; min-width: 28px; height: 28px; place-items: center; box-sizing: border-box; padding: 0 8px; border: 1px solid #e1b58e; border-radius: 999px; background: #fff2e7; color: #9a5b2d; font-size: .82rem; font-weight: 650; font-variant-numeric: tabular-nums; }
         .community-comment-subtitle { margin: 7px 0 0; color: var(--comment-muted); font-size: .94rem; line-height: 1.45; }
-        .community-comment-search-row { display: flex; min-width: 0; margin: 0 3px 14px; }
+        .community-comment-search-row { position: relative; height: calc(1.65rem * 1.2); min-width: 0; }
+        .community-comment-search-row > .main-project-relation-search { position: absolute; top: -7px; right: 3px; left: 3px; }
         .community-comment-divider { margin-bottom: 14px; }
         .community-comment-composer { display: flex; align-items: flex-start; gap: 13px; box-sizing: border-box; margin-bottom: 20px; padding: 15px; border: 1px solid var(--comment-border); border-radius: 16px; background: var(--comment-surface); box-shadow: 0 4px 14px rgba(0, 0, 0, .045); }
         .community-comment-avatar { display: grid; flex: 0 0 40px; width: 40px; height: 40px; place-items: center; border: 1px solid #e5b58b; border-radius: 50%; background: linear-gradient(145deg, #ffe3c8, #ffc38d); color: #94511f; font-size: .88rem; font-weight: 750; user-select: none; }
@@ -1652,7 +1653,7 @@
                 <section class="main-project-tab-panel community-comment-panel" id="panel-comment" role="tabpanel" aria-labelledby="tab-comment" hidden>
                     <div class="community-comment-search-row">
                         <div class="main-project-relation-search">
-                            <input class="main-project-relation-search-input" type="search" aria-label="Search comments" placeholder="Search comments" autocomplete="off" enterkeyhint="done">
+                            <input class="main-project-relation-search-input" type="text" aria-label="Post a comment" placeholder="Post a comment" autocomplete="off" enterkeyhint="done">
                             <svg class="main-project-relation-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="m16 16 4.5 4.5"></path></svg>
                         </div>
                     </div>
@@ -4982,12 +4983,6 @@
                 if (relationSearchTouchMedia.matches && !relationSearch?.contains(event.target)) {
                     relationSearch?.classList.remove('is-touch-highlighted');
                 }
-            });
-            relationSearchInput?.addEventListener('input', () => {
-                const query = relationSearchInput.value.trim().toLocaleLowerCase();
-                communityCommentList?.querySelectorAll(':scope > .community-comment-card').forEach(comment => {
-                    comment.hidden = query !== '' && !comment.textContent.toLocaleLowerCase().includes(query);
-                });
             });
             relationSwitchButtons.forEach(button => {
                 button.addEventListener('click', () => {
