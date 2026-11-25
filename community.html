@@ -645,6 +645,11 @@
         .community-comment-post:active { transform: translateY(2px) scale(.98); }
         .community-comment-post:disabled { border-color: #d7d7d7; background: #e8e8e8; color: #828282; box-shadow: none; cursor: not-allowed; }
         .community-comment-post:focus-visible, .community-comment-action:focus-visible { outline: 2px solid #64b5f6; outline-offset: 2px; }
+        .community-comment-inline-composer { align-items: center; gap: 16px; }
+        .community-comment-inline-input { display: block; box-sizing: border-box; flex: 0 0 calc((100% - 16px) / 2); width: calc((100% - 16px) / 2); min-width: 0; height: calc(1.8rem + 12px); min-height: calc(1.8rem + 12px); resize: none; padding: 0 16px; border: 2px solid #FFB380; border-radius: 999px; outline: none; background: #FFDAB9; color: #E67E22; font: inherit; font-size: .92rem; font-weight: 600; line-height: 1.1; }
+        .community-comment-inline-input::placeholder { color: #888; opacity: 1; }
+        .community-comment-inline-input:focus { border-color: #e67e22; background: #fff4ea; box-shadow: 0 0 0 3px rgba(230, 126, 34, .14); }
+        .community-comment-inline-publish { box-sizing: border-box; flex: 0 0 calc((100% - 16px) / 2); width: calc((100% - 16px) / 2); height: calc(1.8rem + 12px); min-height: calc(1.8rem + 12px); padding: 0 16px; font-size: .92rem; font-weight: 600; }
         .community-comment-list { display: flex; flex-direction: column; gap: 0; }
         .community-comment-card { display: flex; align-items: flex-start; gap: 13px; padding: 18px 2px; border-top: 1px solid var(--comment-border); }
         .community-comment-list > .community-comment-card:first-child { border-top: 0; }
@@ -740,6 +745,9 @@
         html.dark-mode .community-comment-avatar { border-color: #805634; background: linear-gradient(145deg, #59402e, #3b2d23); color: #ffd0a7; }
         html.dark-mode .community-comment-input { border-color: var(--comment-border); }
         html.dark-mode .community-comment-input::placeholder { color: #91a0ac; }
+        html.dark-mode .community-comment-inline-input { border-color: #9A623D; background: #30251E; color: #F2B27F; }
+        html.dark-mode .community-comment-inline-input::placeholder { color: #a8a8a8; }
+        html.dark-mode .community-comment-inline-input:focus { border-color: #d18a58; background: #30251E; }
         html.dark-mode .community-comment-body { color: #c5cdd4; }
         html.dark-mode .community-comment-replies { border-left-color: #9b6841; }
         @media (max-width: 600px) {
@@ -1654,9 +1662,11 @@
                     <div class="main-project-relation-card-grid" data-relation-card-list="dependents" role="list" aria-label="Dependents cards" hidden></div>
                 </section>
                 <section class="main-project-tab-panel community-comment-panel" id="panel-comment" role="tabpanel" aria-labelledby="tab-comment" hidden>
-                    <header class="community-comment-header">
-                        <div class="community-comment-title-row"><h2 class="main-project-description-section-title">Semi-rounded Corner</h2></div>
-                    </header>
+                    <form class="community-comment-header community-comment-inline-composer" aria-label="Write a comment">
+                        <label class="community-sr-only" for="community-comment-input">Comment text</label>
+                        <textarea class="community-comment-inline-input" id="community-comment-input" rows="1" placeholder="发布评论" enterkeyhint="done"></textarea>
+                        <button class="community-comment-post community-comment-inline-publish" type="button" disabled title="Comment posting is not connected yet">发布评论</button>
+                    </form>
                     <div class="main-project-description-section-divider community-comment-divider" aria-hidden="true"></div>
                     <div class="community-comment-list" role="feed" aria-label="Project discussion">
                         <article class="community-comment-card">
