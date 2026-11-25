@@ -631,9 +631,6 @@
         .community-comment-title { margin: 0; color: #333; font-size: 1.65rem; font-weight: 735; line-height: 1.2; }
         .community-comment-count { display: inline-grid; min-width: 28px; height: 28px; place-items: center; box-sizing: border-box; padding: 0 8px; border: 1px solid #e1b58e; border-radius: 999px; background: #fff2e7; color: #9a5b2d; font-size: .82rem; font-weight: 650; font-variant-numeric: tabular-nums; }
         .community-comment-subtitle { margin: 7px 0 0; color: var(--comment-muted); font-size: .94rem; line-height: 1.45; }
-        .community-comment-sort { display: flex; align-items: center; gap: 8px; color: var(--comment-muted); font-size: .86rem; white-space: nowrap; }
-        .community-comment-sort select { min-height: 38px; padding: 0 32px 0 13px; border: 1px solid var(--comment-border); border-radius: 999px; outline: none; background: var(--comment-surface); color: inherit; font: inherit; cursor: pointer; }
-        .community-comment-sort select:focus-visible { border-color: #e67e22; box-shadow: 0 0 0 3px rgba(230, 126, 34, .16); }
         .community-comment-divider { margin-bottom: 14px; }
         .community-comment-composer { display: flex; align-items: flex-start; gap: 13px; box-sizing: border-box; margin-bottom: 20px; padding: 15px; border: 1px solid var(--comment-border); border-radius: 16px; background: var(--comment-surface); box-shadow: 0 4px 14px rgba(0, 0, 0, .045); }
         .community-comment-avatar { display: grid; flex: 0 0 40px; width: 40px; height: 40px; place-items: center; border: 1px solid #e5b58b; border-radius: 50%; background: linear-gradient(145deg, #ffe3c8, #ffc38d); color: #94511f; font-size: .88rem; font-weight: 750; user-select: none; }
@@ -746,8 +743,6 @@
         html.dark-mode .community-comment-replies { border-left-color: #9b6841; }
         @media (max-width: 600px) {
             .community-comment-header { align-items: flex-start; flex-direction: row; gap: 8px; }
-            .community-comment-sort { align-self: flex-start; }
-            .community-comment-sort select { max-width: 136px; padding-right: 24px; padding-left: 10px; }
             .community-comment-composer { gap: 10px; padding: 12px; }
             .community-comment-avatar { flex-basis: 34px; width: 34px; height: 34px; }
             .community-comment-composer-footer { align-items: flex-end; }
@@ -1659,13 +1654,6 @@
                 <section class="main-project-tab-panel community-comment-panel" id="panel-comment" role="tabpanel" aria-labelledby="tab-comment" hidden>
                     <header class="community-comment-header">
                         <div class="community-comment-title-row"><h2 class="main-project-description-section-title">Semi-rounded Corner</h2></div>
-                        <label class="community-comment-sort">Sort by
-                            <select aria-label="Sort comments">
-                                <option>Newest first</option>
-                                <option>Oldest first</option>
-                                <option>Most helpful</option>
-                            </select>
-                        </label>
                     </header>
                     <div class="main-project-description-section-divider community-comment-divider" aria-hidden="true"></div>
                     <form class="community-comment-composer" aria-label="Write a comment">
