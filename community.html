@@ -630,6 +630,7 @@
         .community-comment-title { margin: 0; color: #333; font-size: 1.65rem; font-weight: 735; line-height: 1.2; }
         .community-comment-count { display: inline-grid; min-width: 28px; height: 28px; place-items: center; box-sizing: border-box; padding: 0 8px; border: 1px solid #e1b58e; border-radius: 999px; background: #fff2e7; color: #9a5b2d; font-size: .82rem; font-weight: 650; font-variant-numeric: tabular-nums; }
         .community-comment-subtitle { margin: 7px 0 0; color: var(--comment-muted); font-size: .94rem; line-height: 1.45; }
+        .community-comment-search-row { display: flex; min-width: 0; margin: 0 3px 14px; }
         .community-comment-divider { margin-bottom: 14px; }
         .community-comment-composer { display: flex; align-items: flex-start; gap: 13px; box-sizing: border-box; margin-bottom: 20px; padding: 15px; border: 1px solid var(--comment-border); border-radius: 16px; background: var(--comment-surface); box-shadow: 0 4px 14px rgba(0, 0, 0, .045); }
         .community-comment-avatar { display: grid; flex: 0 0 40px; width: 40px; height: 40px; place-items: center; border: 1px solid #e5b58b; border-radius: 50%; background: linear-gradient(145deg, #ffe3c8, #ffc38d); color: #94511f; font-size: .88rem; font-weight: 750; user-select: none; }
@@ -1606,10 +1607,6 @@
                             <button class="main-project-relation-filter-button" type="button" aria-label="Filter related projects" title="Filter related projects" aria-controls="main-project-relation-filter-layer" aria-expanded="false">
                                 <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .4.8L10 8v4a.5.5 0 0 1-.2.4l-3 2A.5.5 0 0 1 6 14V8L1.6 1.8a.5.5 0 0 1-.1-.3z"/></svg>
                             </button>
-                            <div class="main-project-relation-search">
-                                <input class="main-project-relation-search-input" type="search" aria-label="Search related projects" placeholder="Search projects" autocomplete="off" enterkeyhint="done">
-                                <svg class="main-project-relation-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="m16 16 4.5 4.5"></path></svg>
-                            </div>
                         </div>
                         <nav class="main-project-relation-pagination" aria-label="Relation pages" data-total-pages="8" data-current-page="1">
                             <button class="main-project-relation-pagination-arrow" type="button" data-page-step="-1" aria-label="Previous page" title="Previous page" disabled>
@@ -1653,6 +1650,12 @@
                     <div class="main-project-relation-card-grid" data-relation-card-list="dependents" role="list" aria-label="Dependents cards" hidden></div>
                 </section>
                 <section class="main-project-tab-panel community-comment-panel" id="panel-comment" role="tabpanel" aria-labelledby="tab-comment" hidden>
+                    <div class="community-comment-search-row">
+                        <div class="main-project-relation-search">
+                            <input class="main-project-relation-search-input" type="search" aria-label="Search comments" placeholder="Search comments" autocomplete="off" enterkeyhint="done">
+                            <svg class="main-project-relation-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="m16 16 4.5 4.5"></path></svg>
+                        </div>
+                    </div>
                     <div class="main-project-description-section-divider community-comment-divider" aria-hidden="true"></div>
                     <div class="community-comment-list" role="feed" aria-label="Project discussion">
                         <article class="community-comment-card">
@@ -4236,10 +4239,6 @@
             };
             const relationSearch = document.querySelector('.main-project-relation-search');
             const relationSearchInput = relationSearch?.querySelector('.main-project-relation-search-input');
-            const relationSearchStates = {
-                dependencies: relationSearchInput?.value || '',
-                dependents: ''
-            };
             const relationSortState = {
                 alphabetic: document.querySelector('[data-relation-sort="alphabetic"]:checked')?.value || 'asc',
                 numeric: document.querySelector('[data-relation-sort="numeric"]:checked')?.value || 'asc',
@@ -4280,11 +4279,7 @@
                 return left.id.localeCompare(right.id);
             };
             const getRelationFilteredRecords = relationKey => {
-                const query = (relationSearchStates[relationKey] || '').trim().toLocaleLowerCase();
-                const records = query
-                    ? relationCardRecords[relationKey].filter(record => record.label.toLocaleLowerCase().includes(query))
-                    : relationCardRecords[relationKey].slice();
-                return records.sort((left, right) => {
+                return relationCardRecords[relationKey].slice().sort((left, right) => {
                     if (relationSortState.primary === 'downloads') {
                         const comparison = left.downloads - right.downloads;
                         if (comparison) return relationSortState.downloads === 'desc' ? -comparison : comparison;
@@ -4989,25 +4984,21 @@
                 }
             });
             relationSearchInput?.addEventListener('input', () => {
-                relationSearchStates[activeRelationKey] = relationSearchInput.value;
-                const relationState = relationPaginationStates[activeRelationKey];
-                relationState.totalPages = getRelationTotalPages(activeRelationKey, relationState.pageSize);
-                relationState.currentPage = 1;
-                renderRelationPagination(1);
-                renderRelationCards();
+                const query = relationSearchInput.value.trim().toLocaleLowerCase();
+                communityCommentList?.querySelectorAll(':scope > .community-comment-card').forEach(comment => {
+                    comment.hidden = query !== '' && !comment.textContent.toLocaleLowerCase().includes(query);
+                });
             });
             relationSwitchButtons.forEach(button => {
                 button.addEventListener('click', () => {
                     const nextRelationKey = button.dataset.relation === 'dependents' ? 'dependents' : 'dependencies';
                     if (nextRelationKey === activeRelationKey) return;
                     relationPaginationStates[activeRelationKey].currentPage = Number(relationPagination?.dataset.currentPage) || 1;
-                    relationSearchStates[activeRelationKey] = relationSearchInput?.value || '';
                     activeRelationKey = nextRelationKey;
                     const nextRelationState = relationPaginationStates[activeRelationKey];
                     nextRelationState.totalPages = getRelationTotalPages(activeRelationKey, nextRelationState.pageSize);
                     nextRelationState.currentPage = Math.min(nextRelationState.currentPage, nextRelationState.totalPages);
                     if (relationPagination) relationPagination.dataset.totalPages = String(nextRelationState.totalPages);
-                    if (relationSearchInput) relationSearchInput.value = relationSearchStates[activeRelationKey];
                     if (relationPageSizeControl) relationPageSizeControl.dataset.expanded = 'false';
                     renderRelationPageSizeControl();
                     renderRelationPagination(nextRelationState.currentPage);
