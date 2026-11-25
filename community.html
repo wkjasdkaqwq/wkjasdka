@@ -2008,7 +2008,9 @@
             let galleryPreviewSuppressMouseClickTimer = 0;
             const galleryPreviewPointers = new Map();
             const galleryPreviewActiveTouchPointers = new Set();
+            const galleryPreviewIgnoredTouchPointers = new Set();
             let galleryPreviewTouchGestureBlocked = false;
+            let galleryPreviewLockedSwipePointerId = null;
             let galleryPreviewGesture = null;
             let galleryPreviewLastTap = null;
             let galleryPreviewHadMultiplePointers = false;
@@ -2576,7 +2578,9 @@
                 galleryPreviewActiveTouchPointers.clear();
                 galleryPreviewPointers.clear();
                 galleryPreviewTouchGestureBlocked = false;
+                galleryPreviewIgnoredTouchPointers.clear();
                 galleryPreviewHadMultiplePointers = false;
+                galleryPreviewLockedSwipePointerId = null;
                 galleryPreviewGesture = null;
                 galleryPreviewDialog.classList.remove('is-closing');
                 galleryPreviewClose?.classList.remove('is-open-focus');
@@ -2819,6 +2823,13 @@
             });
             galleryPreviewDialog?.addEventListener('pointerdown', event => {
                 if (!galleryPreviewDialog.open || event.pointerType !== 'touch') return;
+                if (galleryPreviewLockedSwipePointerId !== null && event.pointerId !== galleryPreviewLockedSwipePointerId) {
+                    galleryPreviewIgnoredTouchPointers.add(event.pointerId);
+                    galleryPreviewLastTap = null;
+                    galleryPreviewSuppressBackdropClickUntil = Date.now() + 750;
+                    event.preventDefault();
+                    return;
+                }
                 cancelGalleryPreviewWheel();
                 rebaseGalleryPreviewMouseDrag();
                 galleryPreviewActiveTouchPointers.add(event.pointerId);
@@ -2906,12 +2917,21 @@
                     if (!galleryPreviewGesture.axis && Math.max(Math.abs(deltaX), Math.abs(deltaY)) >= 6) {
                         if (Math.abs(deltaX) > Math.abs(deltaY) * 1.25) galleryPreviewGesture.axis = 'horizontal';
                         else if (Math.abs(deltaY) > Math.abs(deltaX) * 1.5) galleryPreviewGesture.axis = 'vertical';
+                        if (galleryPreviewGesture.axis === 'horizontal') galleryPreviewLockedSwipePointerId = galleryPreviewGesture.pointerId;
                     }
                     if (galleryPreviewGesture.axis === 'horizontal') updateGalleryPreviewSwipe(deltaX);
                     else if (galleryPreviewGesture.axis === 'vertical') updateGalleryPreviewDismiss(deltaY);
                 }
             });
             const finishGalleryPreviewPointer = event => {
+                if (event.pointerType === 'touch' && galleryPreviewIgnoredTouchPointers.delete(event.pointerId)) {
+                    if (galleryPreviewIgnoredTouchPointers.size === 0 && galleryPreviewLockedSwipePointerId !== null &&
+                        !galleryPreviewActiveTouchPointers.has(galleryPreviewLockedSwipePointerId)) galleryPreviewLockedSwipePointerId = null;
+                    return;
+                }
+                if (event.pointerId === galleryPreviewLockedSwipePointerId && galleryPreviewIgnoredTouchPointers.size === 0) {
+                    galleryPreviewLockedSwipePointerId = null;
+                }
                 if (event.pointerType === 'touch') galleryPreviewActiveTouchPointers.delete(event.pointerId);
                 if (galleryPreviewTouchGestureBlocked) {
                     galleryPreviewPointers.delete(event.pointerId);
