@@ -694,7 +694,7 @@
         .community-comment-card > .community-comment-content > .community-comment-actions > .community-comment-action:not(.community-comment-visibility) { opacity: 1; transition: color .16s ease, transform .16s ease, opacity .18s ease .28s; }
         .community-comment-card.is-comment-hidden > .community-comment-content > .community-comment-actions > .community-comment-action:not(.community-comment-visibility) { opacity: 0; pointer-events: none; transition-delay: 0s, 0s, .25s; }
         .community-comment-card > .community-comment-content > .community-comment-actions > .community-comment-visibility { transition: color .16s ease, transform .28s cubic-bezier(.22, .61, .36, 1); }
-        .community-comment-card.is-comment-hidden > .community-comment-content > .community-comment-actions > .community-comment-visibility { transform: translateX(var(--comment-visibility-shift, 0px)); transition-delay: 0s, .43s; }
+        .community-comment-card.is-comment-hidden > .community-comment-content > .community-comment-actions > .community-comment-visibility { transform: translateX(var(--comment-visibility-shift, 0px)); transition-delay: 0s, 0s; }
         .community-comment-card.is-comment-hidden > .community-comment-content > .community-comment-actions > .community-comment-visibility:active { transform: translate(var(--comment-visibility-shift, 0px), 1px); }
         .community-comment-action svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
         .community-comment-helpful-icon { display: inline-block; flex: 0 0 15px; width: 15px; height: 15px; background-color: currentColor; -webkit-mask: url("resource/icon/bootstrap-icons/hand-thumbs-up.svg") center / contain no-repeat; mask: url("resource/icon/bootstrap-icons/hand-thumbs-up.svg") center / contain no-repeat; transition: opacity .15s ease, -webkit-mask-image .15s ease, mask-image .15s ease; }
@@ -3762,6 +3762,13 @@
                     });
                 };
                 const commentVisibilityVersions = new WeakMap();
+                const getCommentIdentity = commentCard => commentCard.dataset.commentId || commentCard.id || '';
+                const getCommentsWithSameIdentity = commentCard => {
+                    const identity = getCommentIdentity(commentCard);
+                    if (!identity) return [commentCard];
+                    return Array.from(communityCommentList.querySelectorAll('.community-comment-card'))
+                        .filter(candidate => getCommentIdentity(candidate) === identity);
+                };
                 const restoreCommentControls = (commentCard, elements, property, version) => {
                     if (!elements.length) return;
                     const release = () => {
@@ -3808,38 +3815,43 @@
                     const visibilityButton = event.target.closest('[data-comment-visibility]');
                     if (visibilityButton && communityCommentList.contains(visibilityButton)) {
                         const commentCard = visibilityButton.closest('.community-comment-card');
-                        const content = commentCard?.querySelector(':scope > .community-comment-content');
-                        const actions = content?.querySelector(':scope > .community-comment-actions');
-                        if (!commentCard || !content || !actions) return;
+                        if (!commentCard) return;
                         const isHidden = !commentCard.classList.contains('is-comment-hidden');
-                        const version = (commentVisibilityVersions.get(commentCard) || 0) + 1;
-                        commentVisibilityVersions.set(commentCard, version);
-                        if (isHidden) {
-                            const helpful = actions.querySelector(':scope > .community-comment-helpful');
-                            if (helpful) visibilityButton.style.setProperty('--comment-visibility-shift', `${helpful.offsetLeft - visibilityButton.offsetLeft}px`);
-                        }
-                        commentCard.classList.toggle('is-comment-hidden', isHidden);
-                        const authorName = getCommentAuthorName(commentCard);
-                        const label = `${isHidden ? 'Show' : 'Hide'} comment by ${authorName}`;
-                        visibilityButton.setAttribute('aria-pressed', String(isHidden));
-                        visibilityButton.setAttribute('aria-label', label);
-                        visibilityButton.title = label;
-                        const replyForm = content.querySelector(':scope > .community-comment-replies > .community-comment-replies-inner > .community-comment-reply-slot > .community-comment-reply-slot-inner > [data-comment-reply-form]');
-                        const focusedElement = document.activeElement;
-                        if (isHidden && ((actions.contains(focusedElement) && focusedElement !== visibilityButton) || replyForm?.contains(focusedElement))) {
-                            try { visibilityButton.focus({ preventScroll: true }); } catch (_) { visibilityButton.focus(); }
-                        }
-                        const otherActions = Array.from(actions.querySelectorAll(':scope > .community-comment-action:not([data-comment-visibility])'));
-                        if (isHidden) otherActions.forEach(button => button.inert = true);
-                        else restoreCommentControls(commentCard, otherActions, 'opacity', version);
-                        content.querySelectorAll(':scope > .community-comment-meta, :scope > .community-comment-body').forEach(element => {
-                            if (isHidden) element.setAttribute('aria-hidden', 'true');
-                            else element.removeAttribute('aria-hidden');
+                        getCommentsWithSameIdentity(commentCard).forEach(matchedCard => {
+                            const content = matchedCard.querySelector(':scope > .community-comment-content');
+                            const actions = content?.querySelector(':scope > .community-comment-actions');
+                            if (!content || !actions) return;
+                            const matchedVisibilityButton = actions.querySelector(':scope > [data-comment-visibility]');
+                            if (!matchedVisibilityButton) return;
+                            const version = (commentVisibilityVersions.get(matchedCard) || 0) + 1;
+                            commentVisibilityVersions.set(matchedCard, version);
+                            if (isHidden) {
+                                const helpful = actions.querySelector(':scope > .community-comment-helpful');
+                                if (helpful) matchedVisibilityButton.style.setProperty('--comment-visibility-shift', `${helpful.offsetLeft - matchedVisibilityButton.offsetLeft}px`);
+                            }
+                            matchedCard.classList.toggle('is-comment-hidden', isHidden);
+                            const authorName = getCommentAuthorName(matchedCard);
+                            const label = `${isHidden ? 'Show' : 'Hide'} comment by ${authorName}`;
+                            matchedVisibilityButton.setAttribute('aria-pressed', String(isHidden));
+                            matchedVisibilityButton.setAttribute('aria-label', label);
+                            matchedVisibilityButton.title = label;
+                            const replyForm = content.querySelector(':scope > .community-comment-replies > .community-comment-replies-inner > .community-comment-reply-slot > .community-comment-reply-slot-inner > [data-comment-reply-form]');
+                            const focusedElement = document.activeElement;
+                            if (isHidden && ((actions.contains(focusedElement) && focusedElement !== matchedVisibilityButton) || replyForm?.contains(focusedElement))) {
+                                try { matchedVisibilityButton.focus({ preventScroll: true }); } catch (_) { matchedVisibilityButton.focus(); }
+                            }
+                            const otherActions = Array.from(actions.querySelectorAll(':scope > .community-comment-action:not([data-comment-visibility])'));
+                            if (isHidden) otherActions.forEach(button => button.inert = true);
+                            else restoreCommentControls(matchedCard, otherActions, 'opacity', version);
+                            content.querySelectorAll(':scope > .community-comment-meta, :scope > .community-comment-body').forEach(element => {
+                                if (isHidden) element.setAttribute('aria-hidden', 'true');
+                                else element.removeAttribute('aria-hidden');
+                            });
+                            if (replyForm) {
+                                if (isHidden) replyForm.inert = true;
+                                else restoreCommentControls(matchedCard, [replyForm], 'filter', version);
+                            }
                         });
-                        if (replyForm) {
-                            if (isHidden) replyForm.inert = true;
-                            else restoreCommentControls(commentCard, [replyForm], 'filter', version);
-                        }
                         return;
                     }
                     const helpfulButton = event.target.closest('.community-comment-helpful');
