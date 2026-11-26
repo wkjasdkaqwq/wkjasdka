@@ -685,10 +685,17 @@
         .community-comment-owner { padding: 2px 7px; border: 1px solid #e7bb98; border-radius: 999px; background: #fff3e9; color: #a35d2b; font-size: .68rem; font-weight: 650; line-height: 1.25; }
         .community-comment-time { color: var(--comment-muted); font-size: .78rem; }
         .community-comment-body { margin: 7px 0 9px; color: #505050; font-size: .93rem; line-height: 1.6; overflow-wrap: anywhere; }
-        .community-comment-actions { display: flex; align-items: center; gap: 14px; }
+        .community-comment-actions { position: relative; display: flex; align-items: center; gap: 14px; }
         .community-comment-action { display: inline-flex; align-items: center; gap: 5px; padding: 2px 0; border: 0; background: transparent; color: var(--comment-muted); cursor: pointer; font: inherit; font-size: .8rem; transition: color .16s ease, transform .16s ease; }
         .community-comment-action:active { transform: translateY(1px); }
         .community-comment-helpful.is-pressed { transform: translateY(1px); }
+        .community-comment-card > .community-comment-avatar, .community-comment-card > .community-comment-content > .community-comment-meta, .community-comment-card > .community-comment-content > .community-comment-body { filter: blur(0); transition: filter .25s ease .46s; }
+        .community-comment-card.is-comment-hidden > .community-comment-avatar, .community-comment-card.is-comment-hidden > .community-comment-content > .community-comment-meta, .community-comment-card.is-comment-hidden > .community-comment-content > .community-comment-body { filter: blur(4px); transition-delay: 0s; user-select: none; }
+        .community-comment-card > .community-comment-content > .community-comment-actions > .community-comment-action:not(.community-comment-visibility) { opacity: 1; transition: color .16s ease, transform .16s ease, opacity .18s ease .28s; }
+        .community-comment-card.is-comment-hidden > .community-comment-content > .community-comment-actions > .community-comment-action:not(.community-comment-visibility) { opacity: 0; pointer-events: none; transition-delay: 0s, 0s, .25s; }
+        .community-comment-card > .community-comment-content > .community-comment-actions > .community-comment-visibility { transition: color .16s ease, transform .28s cubic-bezier(.22, .61, .36, 1); }
+        .community-comment-card.is-comment-hidden > .community-comment-content > .community-comment-actions > .community-comment-visibility { transform: translateX(var(--comment-visibility-shift, 0px)); transition-delay: 0s, .43s; }
+        .community-comment-card.is-comment-hidden > .community-comment-content > .community-comment-actions > .community-comment-visibility:active { transform: translate(var(--comment-visibility-shift, 0px), 1px); }
         .community-comment-action svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
         .community-comment-helpful-icon { display: inline-block; flex: 0 0 15px; width: 15px; height: 15px; background-color: currentColor; -webkit-mask: url("resource/icon/bootstrap-icons/hand-thumbs-up.svg") center / contain no-repeat; mask: url("resource/icon/bootstrap-icons/hand-thumbs-up.svg") center / contain no-repeat; transition: opacity .15s ease, -webkit-mask-image .15s ease, mask-image .15s ease; }
         .community-comment-helpful-count[hidden] { display: none; }
@@ -726,16 +733,13 @@
         .community-comment-replies .community-comment-avatar { flex-basis: 32px !important; width: 32px !important; height: 32px !important; font-size: .74rem; }
         .community-comment-replies .community-comment-replies { padding-left: 8px; }
         .community-comment-replies .community-comment-content { flex: 0 0 240px; width: 240px; min-width: 240px; }
-        .community-comment-card.is-author-hidden > .community-comment-avatar, .community-comment-card.is-author-hidden > .community-comment-content { display: none; }
-        .community-comment-hidden-placeholder { display: flex; flex: 1 1 auto; min-width: 0; align-items: center; gap: 10px; padding: 2px 0; color: var(--comment-muted); font-size: .82rem; }
-        .community-comment-hidden-placeholder[hidden] { display: none; }
-        .community-comment-hidden-placeholder > span { flex: 0 1 auto; min-width: 0; }
         .community-comment-reply-slot { display: grid; grid-template-rows: 1fr; min-width: 0; transition: grid-template-rows .2s cubic-bezier(.22, .61, .36, 1); }
         .community-comment-reply-slot.is-opening, .community-comment-reply-slot.is-closing { grid-template-rows: 0fr; }
         .community-comment-reply-slot-inner { min-width: 0; min-height: 0; overflow-x: visible; overflow-y: clip; }
-        .community-comment-reply-form { display: flex; flex-direction: column; box-sizing: border-box; width: max(100%, min(280px, calc(100vw - 48px)), calc(100vw - 110px)); gap: 8px; margin: 10px 0 12px; padding: 10px; border: 1px solid var(--comment-border); border-radius: 12px; background: var(--comment-soft); opacity: 1; transform: translateX(0); transform-origin: left center; transition: opacity .18s ease, transform .2s cubic-bezier(.22, .61, .36, 1); will-change: opacity, transform; }
+        .community-comment-reply-form { display: flex; flex-direction: column; box-sizing: border-box; width: max(100%, min(280px, calc(100vw - 48px)), calc(100vw - 110px)); gap: 8px; margin: 10px 0 12px; padding: 10px; border: 1px solid var(--comment-border); border-radius: 12px; background: var(--comment-soft); opacity: 1; filter: blur(0); transform: translateX(0); transform-origin: left center; transition: opacity .18s ease, transform .2s cubic-bezier(.22, .61, .36, 1), filter .25s ease .46s; will-change: opacity, transform; }
         .community-comment-reply-form.is-opening, .community-comment-reply-form.is-closing { opacity: 0; transform: translateX(-18px); }
         .community-comment-reply-form.is-closing { pointer-events: none; }
+        .community-comment-card.is-comment-hidden > .community-comment-content > .community-comment-replies > .community-comment-replies-inner > .community-comment-reply-slot > .community-comment-reply-slot-inner > .community-comment-reply-form { filter: blur(4px); transition-delay: 0s, 0s, 0s; }
         @supports (width: 1cqi) { .community-comment-reply-form { width: max(100%, min(280px, calc(100vw - 48px)), calc(100cqi - 77px)); } }
         .community-comment-reply-input { display: block; box-sizing: border-box; width: 100%; min-height: 64px; resize: vertical; padding: 9px 11px; border: 1px solid var(--comment-border); border-radius: 9px; outline: none; background: var(--comment-surface); color: inherit; font: inherit; font-size: .9rem; line-height: 1.5; }
         .community-comment-reply-input:focus { border-color: #e67e22; box-shadow: 0 0 0 3px rgba(230, 126, 34, .14); }
@@ -782,6 +786,7 @@
             .community-comment-replies { margin-left: 0; padding-left: 11px; }
         }
         @media (prefers-reduced-motion: reduce) { .community-comment-input, .community-comment-post, .community-comment-action, .community-comment-replies, .community-comment-replies.is-closing-empty, .community-comment-replies-inner { transition: none; } }
+        @media (prefers-reduced-motion: reduce) { .community-comment-card > .community-comment-avatar, .community-comment-card > .community-comment-content > .community-comment-meta, .community-comment-card > .community-comment-content > .community-comment-body, .community-comment-card > .community-comment-content > .community-comment-actions > .community-comment-action, .community-comment-reply-form { transition: none !important; } }
         .community-gallery-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 16px; margin-top: 14px; }
         .community-gallery-item { display: flex; min-width: 0; flex-direction: column; overflow: hidden; margin: 0; border: 1px solid #c2c2c2; border-radius: 12px; background: #fff; box-shadow: 0 4px 12px rgba(0, 0, 0, .06); }
         .community-gallery-frame { display: grid; place-items: center; overflow: hidden; box-sizing: border-box; width: 100%; aspect-ratio: 16 / 9; border-radius: 11px 11px 0 0; background: #f1f1f1; transition: background-color .16s ease; }
@@ -3478,6 +3483,7 @@
                             toggle.setAttribute('aria-label', 'Show nested replies');
                             actions.append(toggle);
                         }
+                        if (commentCard.classList.contains('is-comment-hidden')) toggle.inert = true;
                         const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
                         replies.classList.toggle('is-collapsed', !isExpanded);
                         replies.inert = !isExpanded;
@@ -3494,7 +3500,6 @@
                     if (toggle) toggle.setAttribute('aria-expanded', 'true');
                     syncCommentReplyDisclosure();
                 };
-                const hiddenCommentAuthors = new Set();
                 const seededCommentAuthors = [
                     'Mira Chen', 'W.K.Jasdka', 'northdesign', 'Olivia Park', 'Noah Williams',
                     'Sofia Patel', 'Luca Martin', 'Yuki Tanaka', 'Ethan Brooks', 'Ava Thompson',
@@ -3541,8 +3546,8 @@
                     button.dataset.commentVisibility = '';
                     button.dataset.commentAuthor = authorName;
                     button.setAttribute('aria-pressed', 'false');
-                    button.setAttribute('aria-label', `Hide comments by ${authorName}`);
-                    button.title = `Hide comments by ${authorName}`;
+                    button.setAttribute('aria-label', `Hide comment by ${authorName}`);
+                    button.title = `Hide comment by ${authorName}`;
                     const icon = document.createElement('span');
                     icon.className = 'community-comment-visibility-icon';
                     icon.setAttribute('aria-hidden', 'true');
@@ -3582,43 +3587,6 @@
                     }
                     if (!actions.querySelector(':scope > [data-comment-visibility]')) actions.append(makeCommentVisibilityButton(authorName));
                     if (!actions.querySelector(':scope > [data-comment-report]')) actions.append(makeCommentReportButton());
-                    let placeholder = commentCard.querySelector(':scope > .community-comment-hidden-placeholder');
-                    if (!placeholder) {
-                        placeholder = document.createElement('div');
-                        placeholder.className = 'community-comment-hidden-placeholder';
-                        placeholder.hidden = true;
-                        const message = document.createElement('span');
-                        message.textContent = `Comments by ${authorName} are hidden.`;
-                        placeholder.append(message, makeCommentVisibilityButton(authorName));
-                        commentCard.append(placeholder);
-                    }
-                };
-                const syncCommentVisibility = () => {
-                    communityCommentList.querySelectorAll('.community-comment-card').forEach(commentCard => {
-                        ensureCommentVisibilityControls(commentCard);
-                        const authorName = getCommentAuthorName(commentCard);
-                        const isHidden = hiddenCommentAuthors.has(authorName);
-                        commentCard.classList.toggle('is-author-hidden', isHidden);
-                        const placeholder = commentCard.querySelector(':scope > .community-comment-hidden-placeholder');
-                        if (placeholder) {
-                            placeholder.hidden = !isHidden;
-                            const message = placeholder.querySelector(':scope > span');
-                            if (message) message.textContent = `Comments by ${authorName} are hidden.`;
-                        }
-                        if (isHidden) {
-                            const content = commentCard.querySelector(':scope > .community-comment-content');
-                            content?.querySelector(':scope > [data-comment-reply-form]')?.remove();
-                            content?.querySelectorAll(':scope > .community-comment-actions [data-comment-reply]').forEach(button => button.setAttribute('aria-expanded', 'false'));
-                        }
-                    });
-                    communityCommentList.querySelectorAll('[data-comment-visibility]').forEach(button => {
-                        const authorName = button.dataset.commentAuthor || 'Unknown author';
-                        const isHidden = hiddenCommentAuthors.has(authorName);
-                        const label = `${isHidden ? 'Show' : 'Hide'} comments by ${authorName}`;
-                        button.setAttribute('aria-pressed', String(isHidden));
-                        button.setAttribute('aria-label', label);
-                        button.title = label;
-                    });
                 };
                 const makeCommentReply = (text, authorName = 'You') => {
                     const comment = document.createElement('article');
@@ -3725,7 +3693,6 @@
                         parentComment = childComment;
                     }
                 });
-                syncCommentVisibility();
                 syncCommentReplyDisclosure();
                 syncAllCommentThreadOverflow();
                 const closeCommentReplyForm = (form, afterClose) => {
@@ -3794,6 +3761,28 @@
                         if (openDelay) window.setTimeout(() => replyForm.style.removeProperty('transition-delay'), openDelay + 220);
                     });
                 };
+                const commentVisibilityVersions = new WeakMap();
+                const restoreCommentControls = (commentCard, elements, property, version) => {
+                    if (!elements.length) return;
+                    const release = () => {
+                        if (!commentCard.isConnected || commentCard.classList.contains('is-comment-hidden') || commentVisibilityVersions.get(commentCard) !== version) return;
+                        elements.forEach(element => { if (element.isConnected) element.inert = false; });
+                    };
+                    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                        release();
+                        return;
+                    }
+                    requestAnimationFrame(() => {
+                        if (!commentCard.isConnected || commentVisibilityVersions.get(commentCard) !== version) return;
+                        elements.forEach(element => void getComputedStyle(element)[property]);
+                        if (elements.some(element => typeof element.getAnimations !== 'function')) {
+                            window.setTimeout(release, property === 'filter' ? 750 : 500);
+                            return;
+                        }
+                        const transitions = elements.flatMap(element => element.getAnimations().filter(animation => animation.transitionProperty === property));
+                        Promise.allSettled(transitions.map(animation => animation.finished)).then(release);
+                    });
+                };
                 communityCommentList.addEventListener('click', event => {
                     if (!(event.target instanceof Element)) return;
                     const threadToggle = event.target.closest('[data-comment-thread-toggle]');
@@ -3818,12 +3807,39 @@
                     }
                     const visibilityButton = event.target.closest('[data-comment-visibility]');
                     if (visibilityButton && communityCommentList.contains(visibilityButton)) {
-                        const authorName = visibilityButton.dataset.commentAuthor || 'Unknown author';
-                        if (hiddenCommentAuthors.has(authorName)) hiddenCommentAuthors.delete(authorName);
-                        else hiddenCommentAuthors.add(authorName);
-                        syncCommentVisibility();
-                        syncAllCommentThreadOverflow();
-                        syncLowerDividerHeight();
+                        const commentCard = visibilityButton.closest('.community-comment-card');
+                        const content = commentCard?.querySelector(':scope > .community-comment-content');
+                        const actions = content?.querySelector(':scope > .community-comment-actions');
+                        if (!commentCard || !content || !actions) return;
+                        const isHidden = !commentCard.classList.contains('is-comment-hidden');
+                        const version = (commentVisibilityVersions.get(commentCard) || 0) + 1;
+                        commentVisibilityVersions.set(commentCard, version);
+                        if (isHidden) {
+                            const helpful = actions.querySelector(':scope > .community-comment-helpful');
+                            if (helpful) visibilityButton.style.setProperty('--comment-visibility-shift', `${helpful.offsetLeft - visibilityButton.offsetLeft}px`);
+                        }
+                        commentCard.classList.toggle('is-comment-hidden', isHidden);
+                        const authorName = getCommentAuthorName(commentCard);
+                        const label = `${isHidden ? 'Show' : 'Hide'} comment by ${authorName}`;
+                        visibilityButton.setAttribute('aria-pressed', String(isHidden));
+                        visibilityButton.setAttribute('aria-label', label);
+                        visibilityButton.title = label;
+                        const replyForm = content.querySelector(':scope > .community-comment-replies > .community-comment-replies-inner > .community-comment-reply-slot > .community-comment-reply-slot-inner > [data-comment-reply-form]');
+                        const focusedElement = document.activeElement;
+                        if (isHidden && ((actions.contains(focusedElement) && focusedElement !== visibilityButton) || replyForm?.contains(focusedElement))) {
+                            try { visibilityButton.focus({ preventScroll: true }); } catch (_) { visibilityButton.focus(); }
+                        }
+                        const otherActions = Array.from(actions.querySelectorAll(':scope > .community-comment-action:not([data-comment-visibility])'));
+                        if (isHidden) otherActions.forEach(button => button.inert = true);
+                        else restoreCommentControls(commentCard, otherActions, 'opacity', version);
+                        content.querySelectorAll(':scope > .community-comment-meta, :scope > .community-comment-body').forEach(element => {
+                            if (isHidden) element.setAttribute('aria-hidden', 'true');
+                            else element.removeAttribute('aria-hidden');
+                        });
+                        if (replyForm) {
+                            if (isHidden) replyForm.inert = true;
+                            else restoreCommentControls(commentCard, [replyForm], 'filter', version);
+                        }
                         return;
                     }
                     const helpfulButton = event.target.closest('.community-comment-helpful');
