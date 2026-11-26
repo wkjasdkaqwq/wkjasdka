@@ -691,6 +691,7 @@
         .community-comment-helpful.is-pressed { transform: translateY(1px); }
         .community-comment-card > .community-comment-avatar, .community-comment-card > .community-comment-content > .community-comment-meta, .community-comment-card > .community-comment-content > .community-comment-body { filter: blur(0); transition: filter .25s ease .46s; }
         .community-comment-card.is-comment-hidden > .community-comment-avatar, .community-comment-card.is-comment-hidden > .community-comment-content > .community-comment-meta, .community-comment-card.is-comment-hidden > .community-comment-content > .community-comment-body { filter: blur(4px); transition-delay: 0s; user-select: none; }
+        .community-comment-card.is-comment-hidden .community-comment-replies .community-comment-card > .community-comment-avatar, .community-comment-card.is-comment-hidden .community-comment-replies .community-comment-card > .community-comment-content > .community-comment-meta, .community-comment-card.is-comment-hidden .community-comment-replies .community-comment-card > .community-comment-content > .community-comment-body { filter: blur(4px); transition-delay: 0s; user-select: none; }
         .community-comment-card > .community-comment-content > .community-comment-actions > .community-comment-action:not(.community-comment-visibility) { opacity: 1; transition: color .16s ease, transform .16s ease, opacity .12s ease .28s; }
         .community-comment-card.is-comment-hidden > .community-comment-content > .community-comment-actions > .community-comment-action:not(.community-comment-visibility) { opacity: 0; pointer-events: none; transition-delay: 0s, 0s, 0s; }
         .community-comment-card > .community-comment-content > .community-comment-actions > .community-comment-visibility { transition: color .16s ease, transform .28s cubic-bezier(.22, .61, .36, 1); }
@@ -740,6 +741,7 @@
         .community-comment-reply-form.is-opening, .community-comment-reply-form.is-closing { opacity: 0; transform: translateX(-18px); }
         .community-comment-reply-form.is-closing { pointer-events: none; }
         .community-comment-card.is-comment-hidden > .community-comment-content > .community-comment-replies > .community-comment-replies-inner > .community-comment-reply-slot > .community-comment-reply-slot-inner > .community-comment-reply-form { filter: blur(4px); transition-delay: 0s, 0s, 0s; }
+        .community-comment-card.is-comment-hidden .community-comment-replies .community-comment-card .community-comment-reply-form { filter: blur(4px); transition-delay: 0s, 0s, 0s; }
         @supports (width: 1cqi) { .community-comment-reply-form { width: max(100%, min(280px, calc(100vw - 48px)), calc(100cqi - 77px)); } }
         .community-comment-reply-input { display: block; box-sizing: border-box; width: 100%; min-height: 64px; resize: vertical; padding: 9px 11px; border: 1px solid var(--comment-border); border-radius: 9px; outline: none; background: var(--comment-surface); color: inherit; font: inherit; font-size: .9rem; line-height: 1.5; }
         .community-comment-reply-input:focus { border-color: #e67e22; box-shadow: 0 0 0 3px rgba(230, 126, 34, .14); }
@@ -3483,7 +3485,7 @@
                             toggle.setAttribute('aria-label', 'Show nested replies');
                             actions.append(toggle);
                         }
-                        if (commentCard.classList.contains('is-comment-hidden')) toggle.inert = true;
+                        toggle.inert = commentCard.classList.contains('is-comment-hidden');
                         const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
                         replies.classList.toggle('is-collapsed', !isExpanded);
                         replies.inert = !isExpanded;
@@ -3762,19 +3764,8 @@
                     });
                 };
                 const commentVisibilityVersions = new WeakMap();
-                const getCommentIdentities = commentCard => {
-                    const author = commentCard.querySelector(':scope > .community-comment-content > .community-comment-meta > .community-comment-author');
-                    return new Set([
-                        commentCard.dataset.commentId, commentCard.dataset.id, commentCard.id,
-                        author?.dataset.commentId, author?.dataset.userId, author?.dataset.authorId, author?.dataset.id, author?.id
-                    ].map(value => value?.trim()).filter(Boolean));
-                };
-                const getCommentsWithSameIdentity = commentCard => {
-                    const identities = getCommentIdentities(commentCard);
-                    if (!identities.size) return [commentCard];
-                    return Array.from(communityCommentList.querySelectorAll('.community-comment-card'))
-                        .filter(candidate => [...getCommentIdentities(candidate)].some(identity => identities.has(identity)));
-                };
+                const hiddenCommentAuthors = new Set();
+                const normalizeCommentAuthor = value => value.trim().replace(/\s+/g, ' ').toLocaleLowerCase();
                 const restoreCommentControls = (commentCard, elements, property, version) => {
                     if (!elements.length) return;
                     const release = () => {
@@ -3794,6 +3785,57 @@
                         }
                         const transitions = elements.flatMap(element => element.getAnimations().filter(animation => animation.transitionProperty === property));
                         Promise.allSettled(transitions.map(animation => animation.finished)).then(release);
+                    });
+                };
+                const syncCommentVisibility = () => {
+                    communityCommentList.querySelectorAll('.community-comment-card').forEach(commentCard => {
+                        const authorName = getCommentAuthorName(commentCard);
+                        const authorKey = normalizeCommentAuthor(authorName);
+                        const isHidden = hiddenCommentAuthors.has(authorKey);
+                        const wasHidden = commentCard.classList.contains('is-comment-hidden');
+                        const content = commentCard.querySelector(':scope > .community-comment-content');
+                        const actions = content?.querySelector(':scope > .community-comment-actions');
+                        if (!content || !actions) return;
+                        const visibilityButton = actions.querySelector(':scope > [data-comment-visibility]');
+                        if (!visibilityButton) return;
+                        if (isHidden && !wasHidden) {
+                            const helpful = actions.querySelector(':scope > .community-comment-helpful');
+                            if (helpful) visibilityButton.style.setProperty('--comment-visibility-shift', `${helpful.offsetLeft - visibilityButton.offsetLeft}px`);
+                        }
+                        commentCard.classList.toggle('is-comment-hidden', isHidden);
+                        visibilityButton.setAttribute('aria-pressed', String(isHidden));
+                        visibilityButton.setAttribute('aria-label', `${isHidden ? 'Show' : 'Hide'} comment by ${authorName}`);
+                        visibilityButton.title = `${isHidden ? 'Show' : 'Hide'} comment by ${authorName}`;
+                        const otherActions = Array.from(actions.querySelectorAll(':scope > .community-comment-action:not([data-comment-visibility])'));
+                        const replyForm = content.querySelector(':scope > .community-comment-replies > .community-comment-replies-inner > .community-comment-reply-slot > .community-comment-reply-slot-inner > [data-comment-reply-form]');
+                        const focusedElement = document.activeElement;
+                        if (isHidden && !wasHidden && ((actions.contains(focusedElement) && focusedElement !== visibilityButton) || replyForm?.contains(focusedElement))) {
+                            try { visibilityButton.focus({ preventScroll: true }); } catch (_) { visibilityButton.focus(); }
+                        }
+                        const version = (commentVisibilityVersions.get(commentCard) || 0) + 1;
+                        commentVisibilityVersions.set(commentCard, version);
+                        if (isHidden) otherActions.forEach(button => button.inert = true);
+                        else if (wasHidden) restoreCommentControls(commentCard, otherActions, 'opacity', version);
+                        if (replyForm) {
+                            if (isHidden) replyForm.inert = true;
+                            else if (wasHidden) restoreCommentControls(commentCard, [replyForm], 'filter', version);
+                        }
+                    });
+                    communityCommentList.querySelectorAll('.community-comment-card').forEach(commentCard => {
+                        let ancestor = commentCard.parentElement?.closest('.community-comment-card');
+                        let inheritedHidden = false;
+                        while (ancestor) {
+                            if (hiddenCommentAuthors.has(normalizeCommentAuthor(getCommentAuthorName(ancestor)))) {
+                                inheritedHidden = true;
+                                break;
+                            }
+                            ancestor = ancestor.parentElement?.closest('.community-comment-card');
+                        }
+                        const content = commentCard.querySelector(':scope > .community-comment-content');
+                        content?.querySelectorAll(':scope > .community-comment-meta, :scope > .community-comment-body').forEach(element => {
+                            if (hiddenCommentAuthors.has(normalizeCommentAuthor(getCommentAuthorName(commentCard))) || inheritedHidden) element.setAttribute('aria-hidden', 'true');
+                            else element.removeAttribute('aria-hidden');
+                        });
                     });
                 };
                 communityCommentList.addEventListener('click', event => {
@@ -3822,42 +3864,10 @@
                     if (visibilityButton && communityCommentList.contains(visibilityButton)) {
                         const commentCard = visibilityButton.closest('.community-comment-card');
                         if (!commentCard) return;
-                        const isHidden = !commentCard.classList.contains('is-comment-hidden');
-                        getCommentsWithSameIdentity(commentCard).forEach(matchedCard => {
-                            const content = matchedCard.querySelector(':scope > .community-comment-content');
-                            const actions = content?.querySelector(':scope > .community-comment-actions');
-                            if (!content || !actions) return;
-                            const matchedVisibilityButton = actions.querySelector(':scope > [data-comment-visibility]');
-                            if (!matchedVisibilityButton) return;
-                            const version = (commentVisibilityVersions.get(matchedCard) || 0) + 1;
-                            commentVisibilityVersions.set(matchedCard, version);
-                            if (isHidden) {
-                                const helpful = actions.querySelector(':scope > .community-comment-helpful');
-                                if (helpful) matchedVisibilityButton.style.setProperty('--comment-visibility-shift', `${helpful.offsetLeft - matchedVisibilityButton.offsetLeft}px`);
-                            }
-                            matchedCard.classList.toggle('is-comment-hidden', isHidden);
-                            const authorName = getCommentAuthorName(matchedCard);
-                            const label = `${isHidden ? 'Show' : 'Hide'} comment by ${authorName}`;
-                            matchedVisibilityButton.setAttribute('aria-pressed', String(isHidden));
-                            matchedVisibilityButton.setAttribute('aria-label', label);
-                            matchedVisibilityButton.title = label;
-                            const replyForm = content.querySelector(':scope > .community-comment-replies > .community-comment-replies-inner > .community-comment-reply-slot > .community-comment-reply-slot-inner > [data-comment-reply-form]');
-                            const focusedElement = document.activeElement;
-                            if (isHidden && ((actions.contains(focusedElement) && focusedElement !== matchedVisibilityButton) || replyForm?.contains(focusedElement))) {
-                                try { matchedVisibilityButton.focus({ preventScroll: true }); } catch (_) { matchedVisibilityButton.focus(); }
-                            }
-                            const otherActions = Array.from(actions.querySelectorAll(':scope > .community-comment-action:not([data-comment-visibility])'));
-                            if (isHidden) otherActions.forEach(button => button.inert = true);
-                            else restoreCommentControls(matchedCard, otherActions, 'opacity', version);
-                            content.querySelectorAll(':scope > .community-comment-meta, :scope > .community-comment-body').forEach(element => {
-                                if (isHidden) element.setAttribute('aria-hidden', 'true');
-                                else element.removeAttribute('aria-hidden');
-                            });
-                            if (replyForm) {
-                                if (isHidden) replyForm.inert = true;
-                                else restoreCommentControls(matchedCard, [replyForm], 'filter', version);
-                            }
-                        });
+                        const authorKey = normalizeCommentAuthor(getCommentAuthorName(commentCard));
+                        if (hiddenCommentAuthors.has(authorKey)) hiddenCommentAuthors.delete(authorKey);
+                        else hiddenCommentAuthors.add(authorKey);
+                        syncCommentVisibility();
                         return;
                     }
                     const helpfulButton = event.target.closest('.community-comment-helpful');
