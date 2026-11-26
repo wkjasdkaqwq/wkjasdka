@@ -726,6 +726,9 @@
         .community-comment-hidden-placeholder { display: flex; flex: 1 1 auto; min-width: 0; align-items: center; gap: 10px; padding: 2px 0; color: var(--comment-muted); font-size: .82rem; }
         .community-comment-hidden-placeholder[hidden] { display: none; }
         .community-comment-hidden-placeholder > span { flex: 0 1 auto; min-width: 0; }
+        .community-comment-reply-slot { display: grid; grid-template-rows: 1fr; min-width: 0; transition: grid-template-rows .2s cubic-bezier(.22, .61, .36, 1); }
+        .community-comment-reply-slot.is-opening, .community-comment-reply-slot.is-closing { grid-template-rows: 0fr; }
+        .community-comment-reply-slot-inner { min-width: 0; min-height: 0; overflow-x: visible; overflow-y: clip; }
         .community-comment-reply-form { display: flex; flex-direction: column; box-sizing: border-box; width: max(100%, min(280px, calc(100vw - 48px)), calc(100vw - 110px)); gap: 8px; margin: 10px 0 12px; padding: 10px; border: 1px solid var(--comment-border); border-radius: 12px; background: var(--comment-soft); opacity: 1; transform: translateX(0); transform-origin: left center; transition: opacity .18s ease, transform .2s cubic-bezier(.22, .61, .36, 1); will-change: opacity, transform; }
         .community-comment-reply-form.is-opening, .community-comment-reply-form.is-closing { opacity: 0; transform: translateX(-18px); }
         .community-comment-reply-form.is-closing { pointer-events: none; }
@@ -755,7 +758,7 @@
             html.dark-mode .community-comment-reply-submit:not(.is-touch-pressed):not(:active) { transition-duration: .4s, .4s, 0s, 0s; }
         }
         .community-comment-reply-form button:focus-visible { outline: 2px solid #64b5f6; outline-offset: 2px; }
-        @media (prefers-reduced-motion: reduce) { .community-comment-reply-form { transition: none; } }
+        @media (prefers-reduced-motion: reduce) { .community-comment-reply-slot, .community-comment-reply-form { transition: none; } }
         html.dark-mode .community-comment-panel { --comment-border: #385066; --comment-muted: #a0aeb8; --comment-surface: #162636; --comment-soft: #10202d; }
         html.dark-mode .community-comment-title, html.dark-mode .community-comment-author { color: #f3f5f7; }
         html.dark-mode .community-comment-count, html.dark-mode .community-comment-owner { border-color: #805634; background: #33261d; color: #ffc08a; }
@@ -3447,7 +3450,7 @@
                         const actions = content?.querySelector(':scope > .community-comment-actions');
                         if (!content || !replies || !replyItems || !actions) return;
                         const childCount = Array.from(replyItems.children).filter(child => child.classList.contains('community-comment-card')).length;
-                        const hasReplyForm = Boolean(replyItems.querySelector(':scope > [data-comment-reply-form]'));
+                        const hasReplyForm = Boolean(replyItems.querySelector(':scope > .community-comment-reply-slot > .community-comment-reply-slot-inner > [data-comment-reply-form]'));
                         let toggle = actions.querySelector(':scope > [data-comment-thread-toggle]');
                         if (getCommentDepth(commentCard) === 0 || childCount === 0) {
                             toggle?.remove();
@@ -3721,10 +3724,12 @@
                     if (!form?.isConnected || form.classList.contains('is-closing')) return;
                     const parentCard = form.closest('.community-comment-card');
                     const thread = parentCard?.closest('.community-comment-list > .community-comment-card');
+                    const replySlot = form.closest('.community-comment-reply-slot');
                     parentCard?.querySelectorAll('[data-comment-reply]').forEach(button => button.setAttribute('aria-expanded', 'false'));
                     const finishClose = () => {
                         if (!form.isConnected) return;
-                        form.remove();
+                        if (replySlot) replySlot.remove();
+                        else form.remove();
                         syncCommentReplyDisclosure();
                         if (thread) syncCommentThreadOverflow(thread);
                         syncLowerDividerHeight();
@@ -3736,6 +3741,7 @@
                     }
                     form.style.transitionDelay = '0ms';
                     form.classList.add('is-closing');
+                    replySlot?.classList.add('is-closing');
                     window.setTimeout(finishClose, 210);
                 };
                 const openCommentReplyForm = replyButton => {
@@ -3751,14 +3757,22 @@
                     replyForm.classList.add('is-opening');
                     const openDelay = opensReplyLine && !window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 150 : 0;
                     if (openDelay) replyForm.style.transitionDelay = `${openDelay}ms`;
-                    replyItems.prepend(replyForm);
+                    const replySlot = document.createElement('div');
+                    replySlot.className = 'community-comment-reply-slot is-opening';
+                    const replySlotInner = document.createElement('div');
+                    replySlotInner.className = 'community-comment-reply-slot-inner';
+                    replySlotInner.append(replyForm);
+                    replySlot.append(replySlotInner);
+                    replyItems.prepend(replySlot);
                     expandCommentReplies(commentCard);
                     replyButton.setAttribute('aria-expanded', 'true');
                     const thread = commentCard.closest('.community-comment-list > .community-comment-card');
                     if (thread) syncCommentThreadOverflow(thread);
                     syncLowerDividerHeight();
+                    void replySlot.offsetHeight;
                     requestAnimationFrame(() => {
                         if (!replyForm.isConnected) return;
+                        replySlot.classList.remove('is-opening');
                         replyForm.classList.remove('is-opening');
                         if (openDelay) window.setTimeout(() => replyForm.style.removeProperty('transition-delay'), openDelay + 220);
                     });
