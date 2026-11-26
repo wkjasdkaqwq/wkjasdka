@@ -691,8 +691,8 @@
         .community-comment-helpful.is-pressed { transform: translateY(1px); }
         .community-comment-card > .community-comment-avatar, .community-comment-card > .community-comment-content > .community-comment-meta, .community-comment-card > .community-comment-content > .community-comment-body { filter: blur(0); transition: filter .25s ease .46s; }
         .community-comment-card.is-comment-hidden > .community-comment-avatar, .community-comment-card.is-comment-hidden > .community-comment-content > .community-comment-meta, .community-comment-card.is-comment-hidden > .community-comment-content > .community-comment-body { filter: blur(4px); transition-delay: 0s; user-select: none; }
-        .community-comment-card > .community-comment-content > .community-comment-actions > .community-comment-action:not(.community-comment-visibility) { opacity: 1; transition: color .16s ease, transform .16s ease, opacity .18s ease .28s; }
-        .community-comment-card.is-comment-hidden > .community-comment-content > .community-comment-actions > .community-comment-action:not(.community-comment-visibility) { opacity: 0; pointer-events: none; transition-delay: 0s, 0s, .25s; }
+        .community-comment-card > .community-comment-content > .community-comment-actions > .community-comment-action:not(.community-comment-visibility) { opacity: 1; transition: color .16s ease, transform .16s ease, opacity .12s ease .28s; }
+        .community-comment-card.is-comment-hidden > .community-comment-content > .community-comment-actions > .community-comment-action:not(.community-comment-visibility) { opacity: 0; pointer-events: none; transition-delay: 0s, 0s, 0s; }
         .community-comment-card > .community-comment-content > .community-comment-actions > .community-comment-visibility { transition: color .16s ease, transform .28s cubic-bezier(.22, .61, .36, 1); }
         .community-comment-card.is-comment-hidden > .community-comment-content > .community-comment-actions > .community-comment-visibility { transform: translateX(var(--comment-visibility-shift, 0px)); transition-delay: 0s, 0s; }
         .community-comment-card.is-comment-hidden > .community-comment-content > .community-comment-actions > .community-comment-visibility:active { transform: translate(var(--comment-visibility-shift, 0px), 1px); }
@@ -3762,12 +3762,18 @@
                     });
                 };
                 const commentVisibilityVersions = new WeakMap();
-                const getCommentIdentity = commentCard => commentCard.dataset.commentId || commentCard.id || '';
+                const getCommentIdentities = commentCard => {
+                    const author = commentCard.querySelector(':scope > .community-comment-content > .community-comment-meta > .community-comment-author');
+                    return new Set([
+                        commentCard.dataset.commentId, commentCard.dataset.id, commentCard.id,
+                        author?.dataset.commentId, author?.dataset.userId, author?.dataset.authorId, author?.dataset.id, author?.id
+                    ].map(value => value?.trim()).filter(Boolean));
+                };
                 const getCommentsWithSameIdentity = commentCard => {
-                    const identity = getCommentIdentity(commentCard);
-                    if (!identity) return [commentCard];
+                    const identities = getCommentIdentities(commentCard);
+                    if (!identities.size) return [commentCard];
                     return Array.from(communityCommentList.querySelectorAll('.community-comment-card'))
-                        .filter(candidate => getCommentIdentity(candidate) === identity);
+                        .filter(candidate => [...getCommentIdentities(candidate)].some(identity => identities.has(identity)));
                 };
                 const restoreCommentControls = (commentCard, elements, property, version) => {
                     if (!elements.length) return;
