@@ -295,7 +295,8 @@
         .main-project-switcher-button:active > span { transform: translateY(1px); }
         .main-project-switcher-button:focus-visible { outline: 2px solid #64b5f6; outline-offset: -2px; }
         .main-project-relation-header { position: relative; }
-        .main-project-relation-title-placeholder { visibility: hidden; }
+        .main-project-relation-title-placeholder,
+        .community-comment-title-placeholder { visibility: hidden; }
         .main-project-relation-switcher { --relation-border-color: #FFB380; position: absolute; top: -7px; right: auto; bottom: auto; left: 50%; display: flex; align-items: stretch; box-sizing: border-box; width: calc(100% - 8px); height: calc(1.8rem + 14px); gap: 6px; margin: 0; padding: 0; border: 2px solid var(--relation-border-color); border-radius: 999px; background: #fff4ea; box-shadow: 0 4px 12px rgba(255, 218, 185, .35); transform: translateX(-50%); }
         .main-project-relation-switcher::before { content: ""; position: absolute; top: 5px; bottom: 5px; left: 5px; z-index: 0; box-sizing: border-box; width: calc(50% - 8px); border: 1px solid #FFB380; border-radius: 999px 0 0 999px; background: #FFDAB9; box-shadow: 0 3px 9px rgba(255, 218, 185, .55); transform: translateX(0); transition: transform .24s cubic-bezier(.2, .8, .2, 1), border-radius .24s ease, background-color .18s ease, border-color .18s ease, box-shadow .18s ease; pointer-events: none; }
         .main-project-relation-switcher[data-active-relation="dependents"]::before { border-radius: 0 999px 999px 0; transform: translateX(calc(100% + 6px)); }
@@ -633,7 +634,7 @@
         .community-comment-title { margin: 0; color: #333; font-size: 1.65rem; font-weight: 735; line-height: 1.2; }
         .community-comment-count { display: inline-grid; min-width: 28px; height: 28px; place-items: center; box-sizing: border-box; padding: 0 8px; border: 1px solid #e1b58e; border-radius: 999px; background: #fff2e7; color: #9a5b2d; font-size: .82rem; font-weight: 650; font-variant-numeric: tabular-nums; }
         .community-comment-subtitle { margin: 7px 0 0; color: var(--comment-muted); font-size: .94rem; line-height: 1.45; }
-        .community-comment-search-row { position: relative; height: calc(1.65rem * 1.2); min-width: 0; }
+        .community-comment-search-row { position: relative; min-width: 0; }
         .community-comment-composer-controls { position: absolute; top: -7px; right: 4px; left: 4px; display: flex; align-items: center; box-sizing: border-box; height: calc(1.8rem + 14px); gap: .65rem; }
         .community-comment-composer-controls > .main-project-relation-search { flex: 1 1 auto; width: auto; min-height: 0; height: 100%; padding: 5px 16px; }
         .community-comment-send { display: grid; flex: 0 0 calc(1.8rem + 14px); place-items: center; box-sizing: border-box; width: calc(1.8rem + 14px); height: calc(1.8rem + 14px); margin: 0; padding: 0; border: 2px solid #FFB380; border-radius: 50%; background: #FFDAB9; color: #E67E22; box-shadow: 0 4px 12px rgba(255, 218, 185, .5); cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation; transition: transform .2s ease, background-color .2s ease, border-color .2s ease, box-shadow .2s ease; }
@@ -899,7 +900,8 @@
         .main-project-tab-panel > .main-project-description-section-title { font-size: 1.65rem; font-weight: 735; }
         .main-project-tab-panel:not(.main-project-description-section) .main-project-tab-empty { line-height: 1.65; }
         .main-project-description-section-divider { height: 1px; margin-top: 8px; margin-right: -2px; margin-left: -2px; background: #c2c2c2; }
-        .main-project-tab-panel > .main-project-description-section-divider { margin-top: calc(14px - .18rem); }
+        .main-project-tab-panel > .main-project-description-section-divider,
+        .main-project-main-column > .main-project-description-section-title + .main-project-description-section-divider { margin-top: calc(14px - .18rem); }
         .main-project-description-section .main-project-description-end-divider { position: absolute; right: 0; left: 0; margin-top: 0; }
         .main-project-description-body { max-width: 72ch; margin: 14px 0 0; color: #666; font-size: 1rem; line-height: 1.65; }
         .main-project-compatibility-section { position: absolute; top: 0; right: 0; left: 0; z-index: 1; }
@@ -1432,10 +1434,11 @@
             #detail-section > .main-project-description-section-divider:last-of-type { margin-bottom: 24px; }
             .main-project-description-body { max-width: 82ch; margin-top: 18px; font-size: 1.03rem; line-height: 1.75; }
             .main-project-description-section-divider { margin-top: 12px; }
-            .main-project-main-column > .main-project-description-section-title + .main-project-description-section-divider { margin-top: calc(14px - .18rem); }
             .main-project-description-end-divider { position: relative !important; top: auto !important; }
             #panel-description .main-project-main-column > .main-project-description-title { font-size: 1.8rem; }
             .main-project-tab-panel > .main-project-description-section-title { font-size: 1.8rem; }
+            .main-project-relation-title-placeholder,
+            .community-comment-title-placeholder { font-size: 1.8rem; }
             .community-comment-panel::before { display: none; }
             html.dark-mode .main-project-module,
             html.dark-mode .main-project-tab-panel,
@@ -1704,6 +1707,7 @@
                 </section>
                 <section class="main-project-tab-panel community-comment-panel" id="panel-comment" role="tabpanel" aria-labelledby="tab-comment" hidden>
                     <div class="community-comment-search-row">
+                        <div class="main-project-description-section-title main-project-description-title community-comment-title-placeholder" aria-hidden="true">Semi-rounded Corner</div>
                         <div class="community-comment-composer-controls">
                             <div class="main-project-relation-search">
                                 <input class="main-project-relation-search-input" type="text" aria-label="Post a comment" placeholder="Post a comment" autocomplete="off" enterkeyhint="done">
