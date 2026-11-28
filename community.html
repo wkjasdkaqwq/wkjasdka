@@ -961,6 +961,8 @@
         .main-project-description-section-divider { height: 1px; margin-top: 8px; margin-right: -2px; margin-left: -2px; background: #c2c2c2; }
         .main-project-tab-panel > .main-project-description-section-divider,
         .main-project-main-column > .main-project-description-section-title + .main-project-description-section-divider { margin-top: calc(14px - .18rem); }
+        #panel-gallery { --gallery-heading-line-height: calc(1.65rem * 1.2); }
+        #panel-gallery > .main-project-description-section-divider { margin-top: calc(14px - .18rem + var(--gallery-heading-line-height)); }
         .main-project-description-section .main-project-description-end-divider { position: absolute; right: 0; left: 0; margin-top: 0; }
         .main-project-description-body { max-width: 72ch; margin: 14px 0 0; color: #666; font-size: 1rem; line-height: 1.65; }
         .main-project-compatibility-section { position: absolute; top: 0; right: 0; left: 0; z-index: 1; }
@@ -1496,6 +1498,7 @@
             .main-project-description-end-divider { position: relative !important; top: auto !important; }
             #panel-description .main-project-main-column > .main-project-description-title { font-size: 1.8rem; }
             .main-project-tab-panel > .main-project-description-section-title { font-size: 1.8rem; }
+            #panel-gallery { --gallery-heading-line-height: calc(1.8rem * 1.2); }
             .main-project-relation-title-placeholder,
             .community-comment-title-placeholder { font-size: 1.8rem; }
             .community-comment-panel::before { display: none; }
@@ -1632,7 +1635,6 @@
                     <p class="main-project-tab-empty" data-i18n="updatesEmpty">There are no updates yet.</p>
                 </section>
                 <section class="main-project-tab-panel" id="panel-gallery" role="tabpanel" aria-labelledby="tab-gallery" hidden>
-                    <h2 class="main-project-description-section-title">Semi-rounded Corner</h2>
                     <div class="main-project-description-section-divider" aria-hidden="true"></div>
                     <div class="community-gallery-grid" aria-label="Project gallery" data-i18n-aria-label="projectGallery">
                         <figure class="community-gallery-item">
