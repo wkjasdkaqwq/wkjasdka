@@ -3628,26 +3628,44 @@
                     ...thread.querySelectorAll('.community-comment-replies .community-comment-card'),
                     ...thread.querySelectorAll('[data-comment-reply-form]')
                 ];
-                const threadExceedsScreen = thread => threadOverflowCandidates(thread)
-                    .some(reply => reply.getBoundingClientRect().right + thread.scrollLeft > window.innerWidth + 0.5);
+                const getCommentPanelRight = () => {
+                    const bounds = communityCommentList.getBoundingClientRect();
+                    return bounds.width > 0 ? bounds.right : window.innerWidth;
+                };
+                const getThreadContentRight = thread => threadOverflowCandidates(thread).reduce((right, item) => {
+                    return Math.max(right, item.getBoundingClientRect().right + thread.scrollLeft);
+                }, getCommentPanelRight());
+                const threadExceedsScreen = thread => getThreadContentRight(thread) > getCommentPanelRight() + 0.5;
+                const getThreadReturnTarget = thread => Math.min(
+                    Math.max(0, thread.scrollWidth - thread.clientWidth),
+                    Math.max(0, getThreadContentRight(thread) - getCommentPanelRight())
+                );
                 const clearThreadScrollReturn = (thread, returnState) => {
                     if (threadScrollReturns.get(thread) !== returnState) return;
                     threadScrollReturns.delete(thread);
                     thread.classList.remove('is-comment-thread-returning');
                     thread.style.removeProperty('--comment-thread-return-space');
                 };
-                const startThreadScrollReturn = thread => {
-                    if (thread.scrollLeft <= 0.5 || threadScrollReturns.has(thread)) return;
+                const startThreadScrollReturn = (thread, targetLeft = 0) => {
+                    const maxScrollLeft = Math.max(0, thread.scrollWidth - thread.clientWidth);
+                    const safeTargetLeft = Math.max(0, Math.min(maxScrollLeft, targetLeft));
+                    if (thread.scrollLeft <= safeTargetLeft + 0.5) return;
+                    const pendingReturn = threadScrollReturns.get(thread);
+                    if (pendingReturn) {
+                        if (Math.abs(pendingReturn.targetLeft - safeTargetLeft) <= 0.5) return;
+                        clearThreadScrollReturn(thread, pendingReturn);
+                    }
                     if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
-                        thread.scrollLeft = 0;
+                        thread.scrollLeft = safeTargetLeft;
+                        thread.classList.toggle('is-comment-thread-scrollable', threadExceedsScreen(thread));
                         return;
                     }
-                    const returnState = { startedAt: performance.now() };
+                    const returnState = { startedAt: performance.now(), startLeft: thread.scrollLeft, targetLeft: safeTargetLeft };
                     threadScrollReturns.set(thread, returnState);
                     thread.classList.add('is-comment-thread-scrollable', 'is-comment-thread-returning');
-                    thread.style.setProperty('--comment-thread-return-space', `${Math.ceil(thread.scrollLeft)}px`);
+                    thread.style.setProperty('--comment-thread-return-space', `${Math.ceil(returnState.startLeft - safeTargetLeft)}px`);
                     void thread.scrollWidth;
-                    const startLeft = thread.scrollLeft;
+                    const startLeft = returnState.startLeft;
                     const duration = 280;
                     const animateScrollReturn = timestamp => {
                         if (threadScrollReturns.get(thread) !== returnState) return;
@@ -3657,12 +3675,12 @@
                         }
                         const progress = Math.min(1, (timestamp - returnState.startedAt) / duration);
                         const easedProgress = 1 - Math.pow(1 - progress, 3);
-                        thread.scrollLeft = startLeft * (1 - easedProgress);
+                        thread.scrollLeft = startLeft + (safeTargetLeft - startLeft) * easedProgress;
                         if (progress < 1) {
                             requestAnimationFrame(animateScrollReturn);
                             return;
                         }
-                        thread.scrollLeft = 0;
+                        thread.scrollLeft = safeTargetLeft;
                         clearThreadScrollReturn(thread, returnState);
                         thread.classList.toggle('is-comment-thread-scrollable', threadExceedsScreen(thread));
                     };
@@ -3683,6 +3701,32 @@
                     if (pendingReturn) clearThreadScrollReturn(thread, pendingReturn);
                     thread.classList.remove('is-comment-thread-scrollable');
                 };
+                const revealCommentReplyForm = (form, thread) => {
+                    if (!form?.isConnected || !thread?.isConnected || form.classList.contains('is-closing')) return;
+                    syncCommentThreadOverflow(thread);
+                    const overflow = form.getBoundingClientRect().right - getCommentPanelRight();
+                    if (overflow <= 0.5) return;
+                    const maxScrollLeft = Math.max(0, thread.scrollWidth - thread.clientWidth);
+                    const targetLeft = Math.min(maxScrollLeft, thread.scrollLeft + overflow + 10);
+                    if (targetLeft <= thread.scrollLeft + 0.5) return;
+                    const pendingReturn = threadScrollReturns.get(thread);
+                    if (pendingReturn) clearThreadScrollReturn(thread, pendingReturn);
+                    thread.classList.add('is-comment-thread-scrollable');
+                    const behavior = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
+                    if (typeof thread.scrollTo === 'function') thread.scrollTo({ left: targetLeft, behavior });
+                    else thread.scrollLeft = targetLeft;
+                };
+                const reconcileThreadAfterReplyClose = thread => {
+                    if (!thread?.isConnected || thread.querySelector('[data-comment-reply-form]:not(.is-closing)')) return;
+                    const targetLeft = getThreadReturnTarget(thread);
+                    const pendingReturn = threadScrollReturns.get(thread);
+                    if (pendingReturn && Math.abs(pendingReturn.targetLeft - targetLeft) <= 0.5) return;
+                    if (pendingReturn) clearThreadScrollReturn(thread, pendingReturn);
+                    if (thread.scrollLeft > targetLeft + 0.5) {
+                        if (typeof thread.scrollTo === 'function') thread.scrollTo({ left: thread.scrollLeft, behavior: 'auto' });
+                        startThreadScrollReturn(thread, targetLeft);
+                    }
+                };
                 const syncAllCommentThreadOverflow = () => getCommentThreads().forEach(syncCommentThreadOverflow);
                 const scheduleCommentThreadOverflowSync = () => requestAnimationFrame(syncAllCommentThreadOverflow);
                 window.addEventListener('resize', scheduleCommentThreadOverflowSync);
@@ -3691,6 +3735,18 @@
                     commentListResizeObserver.observe(communityCommentList);
                 }
                 scheduleCommentThreadOverflowSync();
+                communityCommentList.addEventListener('wheel', event => {
+                    if (!event.shiftKey || !(event.target instanceof Element)) return;
+                    const thread = event.target.closest('.community-comment-list > .community-comment-card');
+                    if (!thread?.classList.contains('is-comment-thread-scrollable')) return;
+                    const delta = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY;
+                    const maxScrollLeft = Math.max(0, thread.scrollWidth - thread.clientWidth);
+                    if (!delta || maxScrollLeft <= 0.5) return;
+                    event.preventDefault();
+                    const pendingReturn = threadScrollReturns.get(thread);
+                    if (pendingReturn) clearThreadScrollReturn(thread, pendingReturn);
+                    thread.scrollLeft = Math.max(0, Math.min(maxScrollLeft, thread.scrollLeft + delta));
+                }, { passive: false });
                 const commentReplyButtonSelector = '.community-comment-reply-form button';
                 const commentReplyPressedPointers = new Map();
                 communityCommentList.addEventListener('pointerdown', event => {
@@ -3952,14 +4008,9 @@
                         event.stopPropagation();
                         // Let IME use Enter to confirm its current candidate; don't publish mid-composition.
                         if (event.isComposing || event.keyCode === 229) return;
+                        // Shift+Enter is a textarea-native line break; only plain Enter submits.
+                        if (event.shiftKey) return;
                         event.preventDefault();
-                        if (event.shiftKey) {
-                            const start = input.selectionStart ?? input.value.length;
-                            const end = input.selectionEnd ?? start;
-                            input.setRangeText('\n', start, end, 'end');
-                            input.dispatchEvent(new Event('input', { bubbles: true }));
-                            return;
-                        }
                         submitCommentReply(form);
                     });
                     const footer = document.createElement('div');
@@ -4041,6 +4092,11 @@
                         if (thread) syncCommentThreadOverflow(thread);
                         syncLowerDividerHeight();
                         afterClose?.();
+                        if (thread) requestAnimationFrame(() => {
+                            if (!thread.isConnected) return;
+                            syncCommentThreadOverflow(thread);
+                            reconcileThreadAfterReplyClose(thread);
+                        });
                     };
                     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
                         finishClose();
@@ -4084,6 +4140,10 @@
                         if (!replyForm.isConnected) return;
                         replySlot.classList.remove('is-opening');
                         replyForm.classList.remove('is-opening');
+                        if (thread) {
+                            revealCommentReplyForm(replyForm, thread);
+                            window.setTimeout(() => revealCommentReplyForm(replyForm, thread), openDelay + 220);
+                        }
                         if (openDelay) window.setTimeout(() => replyForm.style.removeProperty('transition-delay'), openDelay + 220);
                     });
                 };
