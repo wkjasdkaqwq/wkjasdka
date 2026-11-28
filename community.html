@@ -1399,10 +1399,11 @@
                 display: grid;
                 grid-template-columns: minmax(0, 1fr) minmax(250px, 330px);
                 column-gap: clamp(28px, 4vw, 58px);
+                row-gap: 22px;
                 align-items: start;
             }
             .main-project-main-column { grid-column: 1; grid-row: 1; display: block; min-width: 0; }
-            .main-project-sidebar { grid-column: 2; grid-row: 1; display: flex; flex-direction: column; min-width: 0; gap: 22px; }
+            .main-project-sidebar { display: contents; }
             .main-project-compatibility-section,
             .main-project-tag-section,
             .main-project-developer-section,
@@ -1415,6 +1416,11 @@
                 left: auto;
                 margin-top: 0;
             }
+            #compatibility-section { grid-column: 2; grid-row: 1; }
+            #tag-section { grid-column: 1; grid-row: 2; }
+            #developer-section { grid-column: 2; grid-row: 2; }
+            #link-section { grid-column: 1; grid-row: 3; }
+            #detail-section { grid-column: 2; grid-row: 3; }
             #panel-description .main-project-description-end-divider { margin-top: 28px !important; }
             .main-project-compatibility-content { height: auto !important; }
             .main-project-description-body { max-width: 82ch; margin-top: 18px; font-size: 1.03rem; line-height: 1.75; }
