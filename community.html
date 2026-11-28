@@ -1366,12 +1366,13 @@
                 --switcher-button-width: 9.5rem;
                 --switcher-button-height: 2.25rem;
                 --switcher-gap: .45rem;
+                --switcher-group-width: 678px;
             }
-            .main-project-switcher-track { justify-content: flex-start; }
+            .main-project-switcher-track { justify-content: center; }
             .main-project-switcher-track::before {
                 top: 50%;
                 bottom: auto;
-                left: .2rem;
+                left: calc((100% - var(--switcher-group-width)) / 2);
                 width: calc(var(--switcher-button-width) - 4px);
                 height: calc(var(--switcher-button-height) - 4px);
                 transform: translateX(calc(var(--switcher-index) * (var(--switcher-button-width) + var(--switcher-gap)) + 2px)) translateY(-50%);
@@ -4203,7 +4204,11 @@
                 context.font = style.font;
                 const horizontalPadding = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
                 const longest = Math.max(...projectSwitcherButtons.map(button => context.measureText(button.textContent.trim()).width));
-                projectSwitcher.style.setProperty('--switcher-button-width', `${Math.ceil(longest + horizontalPadding + 12)}px`);
+                const buttonWidth = Math.ceil(longest + horizontalPadding + 12);
+                const gap = parseFloat(window.getComputedStyle(projectSwitcherTrack).columnGap) || 0;
+                const groupWidth = buttonWidth * projectSwitcherButtons.length + gap * (projectSwitcherButtons.length - 1);
+                projectSwitcher.style.setProperty('--switcher-button-width', `${buttonWidth}px`);
+                projectSwitcher.style.setProperty('--switcher-group-width', `${groupWidth}px`);
             }
             function selectProjectSection(index) {
                 if (!projectSwitcherButtons.length) return;
