@@ -1390,10 +1390,10 @@
                 box-sizing: border-box;
                 margin: 0;
                 padding: 38px clamp(28px, 4vw, 52px) 38px;
-                border: 1px solid #dedede;
-                border-radius: 20px;
-                background: #fff;
-                box-shadow: 0 5px 20px rgba(30, 40, 50, .045);
+                border: 1px solid transparent;
+                border-radius: 0;
+                background: transparent;
+                box-shadow: none;
             }
             .main-project-tab-panel[hidden] { display: none; }
             .main-project-content-layout {
@@ -1402,6 +1402,11 @@
                 grid-template-columns: minmax(0, 1fr) minmax(250px, 330px);
                 column-gap: clamp(28px, 4vw, 58px);
                 align-items: start;
+                box-sizing: border-box;
+                border: 1px solid #dedede;
+                border-radius: 20px;
+                background: #fff;
+                box-shadow: 0 5px 20px rgba(30, 40, 50, .045);
             }
             .main-project-tab-panel { grid-column: 1; grid-row: 1; min-width: 0; width: 100%; }
             .main-project-description-section { display: block; }
@@ -1434,6 +1439,17 @@
                 border-color: #385066;
                 background: #13283a;
                 box-shadow: 0 8px 24px rgba(0, 0, 0, .18);
+            }
+            html.dark-mode .main-project-content-layout {
+                border-color: #385066;
+                background: #13283a;
+                box-shadow: 0 8px 24px rgba(0, 0, 0, .18);
+            }
+            html.dark-mode .main-project-tab-panel,
+            html.dark-mode .main-project-description-section {
+                border-color: transparent;
+                background: transparent;
+                box-shadow: none;
             }
         }
     </style>
