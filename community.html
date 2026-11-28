@@ -5541,8 +5541,13 @@
             }
             function updateDescriptionArrowOverlaps(description, toggle) {
                 if (!description) return;
-                clearDescriptionArrowWrap(description);
+                const desktopLayout = window.matchMedia('(min-width: 960px)').matches;
+                if (desktopLayout) {
+                    clearDescriptionArrowWrap(description);
+                    return;
+                }
                 if (description.classList.contains('is-expanded')) return;
+                clearDescriptionArrowWrap(description);
                 if (!toggle || !toggle.classList.contains('is-visible')) return;
                 const toggleRect = toggle.getBoundingClientRect();
                 const arrowLeft = toggleRect.left;
@@ -5614,6 +5619,7 @@
                 animateDescriptionHeight(description, fullHeight, collapsedHeight, () => {
                     description.style.height = '';
                     description.style.removeProperty('max-height');
+                    if (desktopLayout) description.style.removeProperty('width');
                     delete description.dataset.collapsedHeight;
                     if (desktopLayout) toggle.style.removeProperty('--description-toggle-offset-y');
                     updateDescriptionArrowOverlaps(description, toggle);
@@ -5642,12 +5648,13 @@
                 const info = description.parentElement;
                 if (!expanded) {
                     const currentHeight = description.getBoundingClientRect().height;
-                    clearDescriptionArrowWrap(description);
+                    const desktopLayout = window.matchMedia('(min-width: 960px)').matches;
+                    if (desktopLayout) clearDescriptionArrowWrap(description);
                     const probe = description.cloneNode(true);
                     probe.classList.add('is-expanded');
                     probe.style.position = 'absolute';
                     probe.style.visibility = 'hidden';
-                    probe.style.width = `${description.clientWidth + 5}px`;
+                    probe.style.width = `${desktopLayout ? description.getBoundingClientRect().width : description.clientWidth + 5}px`;
                     probe.style.height = 'auto';
                     probe.style.maxHeight = 'none';
                     probe.style.display = 'block';
@@ -5655,8 +5662,9 @@
                     const fullHeight = probe.scrollHeight;
                     probe.remove();
                     description.dataset.collapsedHeight = String(currentHeight);
-                    if (window.matchMedia('(min-width: 960px)').matches) {
+                    if (desktopLayout) {
                         toggle.style.setProperty('--description-toggle-offset-y', `${Math.max(0, fullHeight - currentHeight)}px`);
+                        description.style.width = `${description.getBoundingClientRect().width}px`;
                     }
                     description.classList.add('is-expanded');
                     info.classList.add('is-expanded');
