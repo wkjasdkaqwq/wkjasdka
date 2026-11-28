@@ -5541,11 +5541,7 @@
             }
             function updateDescriptionArrowOverlaps(description, toggle) {
                 if (!description) return;
-                const desktopLayout = window.matchMedia('(min-width: 960px)').matches;
-                if (description.classList.contains('is-expanded')) {
-                    if (desktopLayout) clearDescriptionArrowWrap(description);
-                    return;
-                }
+                if (description.classList.contains('is-expanded')) return;
                 clearDescriptionArrowWrap(description);
                 if (!toggle || !toggle.classList.contains('is-visible')) return;
                 const toggleRect = toggle.getBoundingClientRect();
@@ -5648,7 +5644,6 @@
                 if (!expanded) {
                     const currentHeight = description.getBoundingClientRect().height;
                     const desktopLayout = window.matchMedia('(min-width: 960px)').matches;
-                    if (desktopLayout) clearDescriptionArrowWrap(description);
                     const probe = description.cloneNode(true);
                     probe.classList.add('is-expanded');
                     probe.style.position = 'absolute';
