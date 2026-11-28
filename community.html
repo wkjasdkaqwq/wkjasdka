@@ -1282,6 +1282,121 @@
         html.dark-mode .placeholder-item {
             background: #0f1f2e;
         }
+
+        /* Desktop project-page layout: bounded canvas, clear project masthead, readable tab panels. */
+        .main-project-main-column,
+        .main-project-sidebar { display: contents; }
+        @media (min-width: 960px) {
+            #mainContent {
+                justify-content: center;
+                padding: calc(var(--community-navbar-height) + 30px) clamp(28px, 4.2vw, 68px) 72px;
+            }
+            .content-box {
+                width: min(100%, 1320px);
+                margin: 0 auto;
+            }
+            .main-project-module {
+                display: grid;
+                grid-template-columns: 96px minmax(0, 1fr);
+                align-items: center;
+                column-gap: 26px;
+                row-gap: 0;
+                margin: 8px 0 28px;
+                padding: 30px 34px 26px;
+                border: 1px solid #dedede;
+                border-radius: 20px;
+                background: #fff;
+                box-shadow: 0 5px 20px rgba(30, 40, 50, .045);
+            }
+            .main-project-module::after { display: none; }
+            .main-image-module {
+                grid-column: 1;
+                grid-row: 1;
+                width: 88px;
+                height: 88px;
+                transform: none;
+                border-radius: 16px;
+            }
+            .main-project-info {
+                grid-column: 2;
+                grid-row: 1;
+                max-width: none;
+                margin: 0;
+                padding-right: 8px;
+            }
+            .main-project-title { font-size: clamp(1.8rem, 2.4vw, 2.35rem); letter-spacing: -.025em; }
+            .main-project-description { max-width: 78ch; max-height: 3.6em; margin-top: 9px; font-size: 1.02rem; line-height: 1.55; }
+            .main-project-description.is-expanded { width: 100%; margin-left: 0; }
+            .main-project-switcher {
+                position: relative;
+                top: auto;
+                right: auto;
+                left: auto;
+                grid-column: 1 / -1;
+                grid-row: 2;
+                width: min(100%, 900px);
+                height: 3rem;
+                margin: 26px auto 0;
+                --switcher-button-width: 9.5rem;
+                --switcher-gap: .45rem;
+            }
+            .main-project-switcher-track { justify-content: center; }
+            .main-project-switcher-button { height: 2.25rem; font-size: .92rem; }
+            .main-project-lower-divider { display: none; }
+            .main-project-tab-panel,
+            .main-project-description-section {
+                grid-column: 1 / -1;
+                position: relative;
+                top: auto;
+                right: auto;
+                bottom: auto;
+                left: auto;
+                width: 100%;
+                box-sizing: border-box;
+                margin: 0;
+                padding: 30px clamp(28px, 4vw, 52px) 38px;
+                border: 1px solid #dedede;
+                border-radius: 20px;
+                background: #fff;
+                box-shadow: 0 5px 20px rgba(30, 40, 50, .045);
+            }
+            .main-project-tab-panel[hidden] { display: none; }
+            .main-project-description-section { display: block; }
+            #panel-description {
+                display: grid;
+                grid-template-columns: minmax(0, 1fr) minmax(250px, 330px);
+                column-gap: clamp(28px, 4vw, 58px);
+                align-items: start;
+            }
+            .main-project-main-column { grid-column: 1; grid-row: 1; display: block; min-width: 0; }
+            .main-project-sidebar { grid-column: 2; grid-row: 1; display: flex; flex-direction: column; min-width: 0; gap: 22px; }
+            .main-project-compatibility-section,
+            .main-project-tag-section,
+            .main-project-developer-section,
+            .main-project-link-section,
+            .main-project-detail-section {
+                position: relative;
+                top: auto !important;
+                right: auto;
+                bottom: auto;
+                left: auto;
+                margin-top: 0;
+            }
+            #panel-description .main-project-description-end-divider { margin-top: 28px !important; }
+            .main-project-compatibility-content { height: auto !important; }
+            .main-project-description-body { max-width: 82ch; margin-top: 18px; font-size: 1.03rem; line-height: 1.75; }
+            .main-project-description-section-divider { margin-top: 12px; }
+            .main-project-description-end-divider { position: relative !important; top: auto !important; }
+            .main-project-tab-panel > .main-project-description-section-title { font-size: 1.8rem; }
+            .community-comment-panel::before { display: none; }
+            html.dark-mode .main-project-module,
+            html.dark-mode .main-project-tab-panel,
+            html.dark-mode .main-project-description-section {
+                border-color: #385066;
+                background: #13283a;
+                box-shadow: 0 8px 24px rgba(0, 0, 0, .18);
+            }
+        }
     </style>
 </head>
 <body>
@@ -1346,10 +1461,13 @@
                 </div>
                 <div class="main-project-lower-divider" aria-hidden="true"></div>
                 <section class="main-project-tab-panel main-project-description-section" id="panel-description" role="tabpanel" aria-labelledby="tab-description">
+                    <div class="main-project-main-column">
                     <h2 class="main-project-description-section-title main-project-description-title" id="description-section-title">Semi-rounded Corner</h2>
                     <div class="main-project-description-section-divider" aria-hidden="true"></div>
                     <p class="main-project-description-body">Semi-rounded Corner is a small visual study focused on balanced spacing, soft edges, and a clear structure. More details, project notes, and future updates will be added here as the design continues to develop. Additional notes will follow. <span id="description-end-anchor">The next iteration will document the final direction.</span></p>
                     <div class="main-project-description-section-divider main-project-description-end-divider" aria-hidden="true"></div>
+                    </div>
+                    <aside class="main-project-sidebar" aria-label="Project information">
                     <section class="main-project-compatibility-section" id="compatibility-section" aria-labelledby="compatibility-title">
                         <h2 class="main-project-description-section-title main-project-description-title" id="compatibility-title">Compatibility</h2>
                         <div class="main-project-description-section-divider" aria-hidden="true"></div>
@@ -1767,6 +1885,7 @@
                             <label class="main-project-relation-filter-option"><input type="radio" name="relation-zero-placement" value="end" data-relation-sort="zero"><span data-i18n="relationSortEnd">End</span></label>
                         </div>
                     </section>
+                    </aside>
                 </section>
                 <section class="main-project-relation-filter-category-panel" id="relation-filter-panel-downloads" role="tabpanel" aria-labelledby="relation-filter-tab-downloads" tabindex="0" data-relation-filter-panel="downloads" hidden>
                     <div class="main-project-relation-filter-options" role="radiogroup" aria-label="Downloads">
