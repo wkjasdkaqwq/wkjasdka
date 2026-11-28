@@ -38,7 +38,66 @@
       }
     })();
   </script>
-    <title>Liuyanlin Community 上的 Semi-rounded Corner</title>
+  <script>
+    (function () {
+      const titles = {
+        en: 'Semi-rounded Corner on Liuyanlin Community',
+        'zh-CN': 'Liuyanlin Community 上的 Semi-rounded Corner',
+        ru: 'Semi-rounded Corner в Liuyanlin Community',
+        de: 'Semi-rounded Corner auf Liuyanlin Community',
+        fr: 'Semi-rounded Corner sur Liuyanlin Community',
+        'zh-HK': 'Liuyanlin Community 上的 Semi-rounded Corner',
+        'zh-TW': 'Liuyanlin Community 上的 Semi-rounded Corner',
+        'zh-MO': 'Liuyanlin Community 上的 Semi-rounded Corner'
+      };
+      const supported = Object.keys(titles);
+      const normalize = value => {
+        const tag = String(value || '').trim().replace(/_/g, '-').toLowerCase();
+        const parts = tag.split('-');
+        if (parts[0] === 'zh') {
+          if (parts.includes('hans')) return 'zh-CN';
+          for (const region of ['hk', 'tw', 'mo']) {
+            if (parts.includes(region)) return `zh-${region.toUpperCase()}`;
+          }
+          return 'zh-CN';
+        }
+        return ['en', 'ru', 'de', 'fr'].includes(parts[0]) ? parts[0] : null;
+      };
+      const storedLocale = key => {
+        try {
+          for (const value of [localStorage.getItem(key), sessionStorage.getItem(`${key}-session`)]) {
+            if (supported.includes(value)) return value;
+          }
+          return null;
+        } catch (_) {
+          return null;
+        }
+      };
+      let initialLocale = storedLocale('wkjasdka-language');
+      if (!initialLocale) {
+        const preferences = [...(navigator.languages || []), navigator.language];
+        for (const preference of preferences) {
+          initialLocale = normalize(preference);
+          if (initialLocale) break;
+        }
+      }
+      initialLocale = initialLocale || 'en';
+
+      const title = document.createElement('title');
+      title.textContent = titles[initialLocale];
+      document.head.appendChild(title);
+
+      let initialLanguageApplied = false;
+      window.addEventListener('site:languagechange', event => {
+        if (!initialLanguageApplied) {
+          initialLanguageApplied = true;
+          return;
+        }
+        const nextTitle = titles[event.detail && event.detail.locale];
+        if (nextTitle) title.textContent = nextTitle;
+      });
+    })();
+  </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/fontawesome.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/solid.min.css">
     <style>
