@@ -5634,16 +5634,19 @@
             }, { passive: true });
             let detailTouchStartX = 0;
             let detailTouchStartY = 0;
+            let detailTouchStartTarget = null;
             let detailDismissedBySwipe = false;
             document.addEventListener('touchstart', event => {
                 if (event.touches.length !== 1) return;
                 detailTouchStartX = event.touches[0].clientX;
                 detailTouchStartY = event.touches[0].clientY;
+                detailTouchStartTarget = event.target;
                 detailDismissedBySwipe = false;
             }, { passive: true });
             document.addEventListener('touchmove', event => {
                 const description = document.querySelector('.main-project-description.is-expanded');
                 if (!description || detailDismissedBySwipe || event.touches.length !== 1) return;
+                if (window.matchMedia('(max-width: 600px)').matches && description.contains(detailTouchStartTarget)) return;
                 const touch = event.touches[0];
                 const distance = Math.hypot(touch.clientX - detailTouchStartX, touch.clientY - detailTouchStartY);
                 if (distance < 4) return;
@@ -5652,6 +5655,20 @@
                     detailDismissedBySwipe = true;
                     collapseDescription(description, toggle);
                 }
+            }, { passive: true });
+            let descriptionScrollCheckFrame = 0;
+            window.addEventListener('scroll', () => {
+                if (descriptionScrollCheckFrame) return;
+                descriptionScrollCheckFrame = window.requestAnimationFrame(() => {
+                    descriptionScrollCheckFrame = 0;
+                    if (!window.matchMedia('(min-width: 960px)').matches) return;
+                    const description = document.querySelector('.main-project-description.is-expanded');
+                    if (!description) return;
+                    const rect = description.getBoundingClientRect();
+                    if (rect.bottom > 0 && rect.top < window.innerHeight) return;
+                    const toggle = description.parentElement.querySelector('.main-project-description-toggle');
+                    if (toggle) collapseDescription(description, toggle);
+                });
             }, { passive: true });
             document.addEventListener('pointerdown', event => {
                 const image = event.target.closest(projectImageSelector);
