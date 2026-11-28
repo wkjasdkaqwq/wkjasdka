@@ -804,8 +804,8 @@
         .community-comment-card.is-comment-hidden > .community-comment-content > .community-comment-replies > .community-comment-replies-inner > .community-comment-reply-slot > .community-comment-reply-slot-inner > .community-comment-reply-form { filter: blur(4px); transition-delay: 0s, 0s, 0s; }
         .community-comment-card.is-comment-hidden .community-comment-replies .community-comment-card .community-comment-reply-form { filter: blur(4px); transition-delay: 0s, 0s, 0s; }
         @supports (width: 1cqi) { .community-comment-reply-form { width: max(100%, min(280px, calc(100vw - 48px)), calc(100cqi - 77px)); } }
-        @media (min-width: 601px) { .community-comment-reply-form { width: max(100%, min(280px, calc(100vw - 48px)), calc(66.667vw - 73.33px)); } }
-        @supports (width: 1cqi) { @media (min-width: 601px) { .community-comment-reply-form { width: max(100%, min(280px, calc(100vw - 48px)), calc(66.667cqi - 51.33px)); } } }
+        @media (min-width: 601px) { .community-comment-reply-form { width: max(min(280px, calc(100vw - 48px)), calc(66.667vw - 73.33px)); } }
+        @supports (width: 1cqi) { @media (min-width: 601px) { .community-comment-reply-form { width: max(min(280px, calc(100vw - 48px)), calc(66.667cqi - 51.33px)); } } }
         .community-comment-reply-input { display: block; box-sizing: border-box; width: 100%; min-height: 64px; resize: vertical; padding: 9px 11px; border: 1px solid var(--comment-border); border-radius: 9px; outline: none; background: var(--comment-surface); color: inherit; font: inherit; font-size: .9rem; line-height: 1.5; }
         .community-comment-reply-input:focus { border-color: #e67e22; box-shadow: 0 0 0 3px rgba(230, 126, 34, .14); }
         .community-comment-reply-form-footer { display: flex; justify-content: flex-end; gap: 8px; }
