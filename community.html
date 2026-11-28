@@ -807,6 +807,8 @@
         @media (min-width: 601px) { .community-comment-reply-form { width: max(min(280px, calc(100vw - 48px)), calc(66.667vw - 73.33px)); } }
         @supports (width: 1cqi) { @media (min-width: 601px) { .community-comment-reply-form { width: max(min(280px, calc(100vw - 48px)), calc(66.667cqi - 51.33px)); } } }
         .community-comment-reply-input { display: block; box-sizing: border-box; width: 100%; min-height: 64px; resize: vertical; padding: 9px 11px; border: 1px solid var(--comment-border); border-radius: 9px; outline: none; background: var(--comment-surface); color: inherit; font: inherit; font-size: .9rem; line-height: 1.5; }
+        .community-comment-reply-input { overflow-x: hidden; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none; }
+        .community-comment-reply-input::-webkit-scrollbar { display: none; width: 0; height: 0; }
         .community-comment-reply-input:focus { border-color: #e67e22; box-shadow: 0 0 0 3px rgba(230, 126, 34, .14); }
         .community-comment-reply-form-footer { display: flex; justify-content: flex-end; gap: 8px; }
         .community-comment-reply-form button { flex: 0 0 auto; min-height: 32px; padding: 0 12px; border: 1px solid transparent; border-radius: 999px; cursor: pointer; font: inherit; font-size: .8rem; font-weight: 620; white-space: nowrap; -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none; touch-action: manipulation; transition: transform .4s cubic-bezier(.34, 1.56, .64, 1), box-shadow .4s cubic-bezier(.34, 1.56, .64, 1), background-color .4s cubic-bezier(.34, 1.56, .64, 1), border-color .4s cubic-bezier(.34, 1.56, .64, 1); }
@@ -3939,7 +3941,6 @@
                     form.dataset.commentReplyForm = '';
                     form.dataset.commentReplyAuthor = authorName;
                     form.setAttribute('aria-label', window.communityI18nText('replyToAuthor', 'Reply to {author}', { author: authorName }));
-                    let lastReplyEnterAt = null;
                     let explicitReplySubmit = false;
                     const input = document.createElement('textarea');
                     input.className = 'community-comment-reply-input';
@@ -3947,10 +3948,10 @@
                     input.setAttribute('enterkeyhint', 'enter');
                     input.placeholder = window.communityI18nText('replyPlaceholder', 'Reply to {author}…', { author: authorName });
                     input.setAttribute('aria-label', window.communityI18nText('replyToAuthor', 'Reply to {author}', { author: authorName }));
+                    input.addEventListener('focus', () => { explicitReplySubmit = false; });
                     input.addEventListener('keydown', event => {
-                        if (event.key !== 'Enter') return;
-                        lastReplyEnterAt = performance.now();
                         explicitReplySubmit = false;
+                        if (event.key !== 'Enter') return;
                         if (event.isComposing || event.keyCode === 229) return;
                         event.preventDefault();
                         event.stopPropagation();
@@ -3970,24 +3971,16 @@
                     submit.className = 'community-comment-reply-submit';
                     submit.type = 'submit';
                     submit.textContent = window.communityI18nText('reply', 'Reply');
-                    submit.addEventListener('pointerdown', () => {
-                        explicitReplySubmit = true;
-                        lastReplyEnterAt = null;
+                    submit.addEventListener('pointerdown', () => { explicitReplySubmit = true; });
+                    submit.addEventListener('click', event => { if (event.detail > 0) explicitReplySubmit = true; });
+                    submit.addEventListener('keydown', event => {
+                        if (event.key === 'Enter' || event.key === ' ') explicitReplySubmit = true;
                     });
-                    submit.addEventListener('click', event => {
-                        if (event.detail > 0 || document.activeElement === submit) {
-                            explicitReplySubmit = true;
-                            lastReplyEnterAt = null;
-                        }
-                    });
-                    submit.addEventListener('focus', () => { lastReplyEnterAt = null; });
                     form.addEventListener('submit', event => {
-                        const enterWasRecent = lastReplyEnterAt !== null && performance.now() - lastReplyEnterAt < 1500;
-                        const editorStillFocused = document.activeElement === input;
                         const explicitlyActivated = explicitReplySubmit;
                         explicitReplySubmit = false;
-                        // Some virtual keyboards submit forms even when Enter was handled on the textarea.
-                        if ((enterWasRecent || editorStillFocused) && !explicitlyActivated) {
+                        // Only an explicit Reply-button activation may submit this form; soft keyboards can submit implicitly.
+                        if (!explicitlyActivated) {
                             event.preventDefault();
                             event.stopImmediatePropagation();
                         }
