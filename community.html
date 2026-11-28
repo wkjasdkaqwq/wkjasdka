@@ -3949,8 +3949,18 @@
                     input.setAttribute('aria-label', window.communityI18nText('replyToAuthor', 'Reply to {author}', { author: authorName }));
                     input.addEventListener('keydown', event => {
                         if (event.key !== 'Enter') return;
-                        // Keep textarea's native newline behavior and block page-level shortcuts only.
                         event.stopPropagation();
+                        // Let IME use Enter to confirm its current candidate; don't publish mid-composition.
+                        if (event.isComposing || event.keyCode === 229) return;
+                        event.preventDefault();
+                        if (event.shiftKey) {
+                            const start = input.selectionStart ?? input.value.length;
+                            const end = input.selectionEnd ?? start;
+                            input.setRangeText('\n', start, end, 'end');
+                            input.dispatchEvent(new Event('input', { bubbles: true }));
+                            return;
+                        }
+                        submitCommentReply(form);
                     });
                     const footer = document.createElement('div');
                     footer.className = 'community-comment-reply-form-footer';
