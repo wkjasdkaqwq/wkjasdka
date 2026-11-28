@@ -3939,6 +3939,8 @@
                     form.dataset.commentReplyForm = '';
                     form.dataset.commentReplyAuthor = authorName;
                     form.setAttribute('aria-label', window.communityI18nText('replyToAuthor', 'Reply to {author}', { author: authorName }));
+                    let lastReplyEnterAt = null;
+                    let explicitReplySubmit = false;
                     const input = document.createElement('textarea');
                     input.className = 'community-comment-reply-input';
                     input.rows = 2;
@@ -3946,8 +3948,12 @@
                     input.placeholder = window.communityI18nText('replyPlaceholder', 'Reply to {author}…', { author: authorName });
                     input.setAttribute('aria-label', window.communityI18nText('replyToAuthor', 'Reply to {author}', { author: authorName }));
                     input.addEventListener('keydown', event => {
-                        if (event.key !== 'Enter' || event.isComposing || event.keyCode === 229) return;
+                        if (event.key !== 'Enter') return;
+                        lastReplyEnterAt = performance.now();
+                        explicitReplySubmit = false;
+                        if (event.isComposing || event.keyCode === 229) return;
                         event.preventDefault();
+                        event.stopPropagation();
                         const start = input.selectionStart ?? input.value.length;
                         const end = input.selectionEnd ?? start;
                         input.setRangeText('\n', start, end, 'end');
@@ -3964,6 +3970,28 @@
                     submit.className = 'community-comment-reply-submit';
                     submit.type = 'submit';
                     submit.textContent = window.communityI18nText('reply', 'Reply');
+                    submit.addEventListener('pointerdown', () => {
+                        explicitReplySubmit = true;
+                        lastReplyEnterAt = null;
+                    });
+                    submit.addEventListener('click', event => {
+                        if (event.detail > 0 || document.activeElement === submit) {
+                            explicitReplySubmit = true;
+                            lastReplyEnterAt = null;
+                        }
+                    });
+                    submit.addEventListener('focus', () => { lastReplyEnterAt = null; });
+                    form.addEventListener('submit', event => {
+                        const enterWasRecent = lastReplyEnterAt !== null && performance.now() - lastReplyEnterAt < 1500;
+                        const editorStillFocused = document.activeElement === input;
+                        const explicitlyActivated = explicitReplySubmit;
+                        explicitReplySubmit = false;
+                        // Some virtual keyboards submit forms even when Enter was handled on the textarea.
+                        if ((enterWasRecent || editorStillFocused) && !explicitlyActivated) {
+                            event.preventDefault();
+                            event.stopImmediatePropagation();
+                        }
+                    });
                     footer.append(cancel, submit);
                     form.append(input, footer);
                     return form;
