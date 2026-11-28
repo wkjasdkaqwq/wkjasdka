@@ -1462,6 +1462,41 @@
     </style>
 </head>
 <body>
+    <script>
+        window.communityI18nText = function (key, fallback, values = {}) {
+            const probe = document.createElement('span');
+            probe.dataset.i18n = key;
+            probe.textContent = fallback;
+            if (window.SiteI18n) window.SiteI18n.apply(probe, { namespace: 'community' });
+            return probe.textContent.replace(/\{([^{}]+)\}/g, (match, name) => Object.prototype.hasOwnProperty.call(values, name) ? String(values[name]) : match);
+        };
+        window.communityI18nApply = function (root = document) {
+            return window.SiteI18n ? window.SiteI18n.apply(root, { namespace: 'community' }) : 0;
+        };
+        window.addEventListener('site:languagechange', function () {
+            document.querySelectorAll('[data-developer-number]').forEach(button => {
+                button.setAttribute('aria-label', window.communityI18nText('developerNumber', 'Developer {number}', { number: button.dataset.developerNumber }));
+            });
+        });
+        window.communityRelativeTime = function (dateTime) {
+            const elapsed = Math.max(0, (Date.now() - Date.parse(dateTime)) / 1000);
+            if (!Number.isFinite(elapsed) || elapsed <= 30) return window.communityI18nText('justNow', 'just now');
+            let value;
+            let unit;
+            if (elapsed <= 100) { value = Math.floor(elapsed); unit = 'second'; }
+            else if (elapsed <= 100 * 60) { value = Math.floor(elapsed / 60); unit = 'minute'; }
+            else if (elapsed <= 50 * 60 * 60) { value = Math.floor(elapsed / 3600); unit = 'hour'; }
+            else if (elapsed <= 10 * 86400) { value = Math.floor(elapsed / 86400); unit = 'day'; }
+            else if (elapsed <= 5 * 7 * 86400) { value = Math.floor(elapsed / (7 * 86400)); unit = 'week'; }
+            else if (elapsed <= 20 * 30 * 86400) { value = Math.floor(elapsed / (30 * 86400)); unit = 'month'; }
+            else { value = Math.floor(elapsed / (365 * 86400)); unit = 'year'; }
+            try {
+                return new Intl.RelativeTimeFormat(document.documentElement.lang || 'en-GB', { numeric: 'auto' }).format(-value, unit);
+            } catch (_) {
+                return `${value} ${unit}${value === 1 ? '' : 's'} ago`;
+            }
+        };
+    </script>
     <nav class="navbar" id="navbar" aria-label="Site header" inert>
         <div class="menu-anchor">
             <button class="menu-btn" id="menuBtn" type="button" aria-label="Open menu" data-i18n-aria-label="menuToggle" aria-controls="menuPanel" aria-expanded="false">
@@ -1513,12 +1548,12 @@
                 </div>
                 <div class="main-project-switcher" role="tablist" aria-label="Project sections">
                     <div class="main-project-switcher-track">
-                        <button class="main-project-switcher-button" id="tab-update" type="button" role="tab" aria-controls="panel-update" aria-selected="false" tabindex="-1"><span>Update</span></button>
-                        <button class="main-project-switcher-button" id="tab-description" type="button" role="tab" aria-controls="panel-description" aria-selected="true" tabindex="0"><span>Description</span></button>
-                        <button class="main-project-switcher-button" id="tab-gallery" type="button" role="tab" aria-controls="panel-gallery" aria-selected="false" tabindex="-1"><span>Gallery</span></button>
-                        <button class="main-project-switcher-button" id="tab-changelog" type="button" role="tab" aria-controls="panel-changelog" aria-selected="false" tabindex="-1"><span>Changelog</span></button>
-                        <button class="main-project-switcher-button" id="tab-relation" type="button" role="tab" aria-controls="panel-relation" aria-selected="false" tabindex="-1"><span>Relation</span></button>
-                        <button class="main-project-switcher-button" id="tab-comment" type="button" role="tab" aria-controls="panel-comment" aria-selected="false" tabindex="-1"><span>Comment</span></button>
+                        <button class="main-project-switcher-button" id="tab-update" type="button" role="tab" aria-controls="panel-update" aria-selected="false" tabindex="-1"><span data-i18n="tabUpdate">Update</span></button>
+                        <button class="main-project-switcher-button" id="tab-description" type="button" role="tab" aria-controls="panel-description" aria-selected="true" tabindex="0"><span data-i18n="tabDescription">Description</span></button>
+                        <button class="main-project-switcher-button" id="tab-gallery" type="button" role="tab" aria-controls="panel-gallery" aria-selected="false" tabindex="-1"><span data-i18n="tabGallery">Gallery</span></button>
+                        <button class="main-project-switcher-button" id="tab-changelog" type="button" role="tab" aria-controls="panel-changelog" aria-selected="false" tabindex="-1"><span data-i18n="tabChangelog">Changelog</span></button>
+                        <button class="main-project-switcher-button" id="tab-relation" type="button" role="tab" aria-controls="panel-relation" aria-selected="false" tabindex="-1"><span data-i18n="tabRelation">Relation</span></button>
+                        <button class="main-project-switcher-button" id="tab-comment" type="button" role="tab" aria-controls="panel-comment" aria-selected="false" tabindex="-1"><span data-i18n="tabComment">Comment</span></button>
                     </div>
                 </div>
                 <div class="main-project-lower-divider" aria-hidden="true"></div>
@@ -1535,23 +1570,23 @@
                 <section class="main-project-tab-panel" id="panel-update" role="tabpanel" aria-labelledby="tab-update" hidden>
                     <h2 class="main-project-description-section-title">Semi-rounded Corner</h2>
                     <div class="main-project-description-section-divider" aria-hidden="true"></div>
-                    <p class="main-project-tab-empty">There are no updates yet.</p>
+                    <p class="main-project-tab-empty" data-i18n="updatesEmpty">There are no updates yet.</p>
                 </section>
                 <section class="main-project-tab-panel" id="panel-gallery" role="tabpanel" aria-labelledby="tab-gallery" hidden>
                     <h2 class="main-project-description-section-title">Semi-rounded Corner</h2>
                     <div class="main-project-description-section-divider" aria-hidden="true"></div>
-                    <div class="community-gallery-grid" aria-label="Project gallery">
+                    <div class="community-gallery-grid" aria-label="Project gallery" data-i18n-aria-label="projectGallery">
                         <figure class="community-gallery-item">
-                            <div class="community-gallery-frame"><button class="community-gallery-preview-trigger" type="button" aria-label="Preview transparent background image" aria-haspopup="dialog" aria-controls="community-gallery-preview-dialog"><img src="resource/test/tmp-alpha.png" alt="Blue TEST ALPHA lettering on a transparent background" width="450" height="200" loading="lazy" decoding="async" draggable="false"></button></div>
-                            <figcaption><span class="community-gallery-caption">Transparent background</span><span class="community-gallery-added-row" role="group" aria-label="Image added on 2026.11.20 19:40:26"><span class="community-gallery-added-icon-slot" aria-hidden="true"><svg class="community-gallery-added-icon" viewBox="0 0 16 16" focusable="false"><path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4z"/></svg></span><time class="community-gallery-added-time" datetime="2026-11-20T19:40:26+08:00">2026.11.20 19:40:26</time></span></figcaption>
+                            <div class="community-gallery-frame"><button class="community-gallery-preview-trigger" type="button" aria-label="Preview image" data-i18n-aria-label="previewGalleryImage" aria-haspopup="dialog" aria-controls="community-gallery-preview-dialog"><img src="resource/test/tmp-alpha.png" alt="Blue TEST ALPHA lettering on a transparent background" width="450" height="200" loading="lazy" decoding="async" draggable="false"></button></div>
+                            <figcaption><span class="community-gallery-caption">Transparent background</span><span class="community-gallery-added-row" role="group" aria-label="Image added on 2026.11.20 19:40:26" data-community-i18n-template="galleryImageAddedOn"><span class="community-gallery-added-icon-slot" aria-hidden="true"><svg class="community-gallery-added-icon" viewBox="0 0 16 16" focusable="false"><path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4z"/></svg></span><time class="community-gallery-added-time" datetime="2026-11-20T19:40:26+08:00">2026.11.20 19:40:26</time></span></figcaption>
                         </figure>
                         <figure class="community-gallery-item">
-                            <div class="community-gallery-frame"><button class="community-gallery-preview-trigger" type="button" aria-label="Preview black background image" aria-haspopup="dialog" aria-controls="community-gallery-preview-dialog"><img src="resource/test/tmp-black.png" alt="White TEST BLACK lettering on a black background" width="450" height="200" loading="lazy" decoding="async" draggable="false"></button></div>
-                            <figcaption><span class="community-gallery-caption">Black background</span><span class="community-gallery-added-row" role="group" aria-label="Image added on 2026.11.20 19:40:26"><span class="community-gallery-added-icon-slot" aria-hidden="true"><svg class="community-gallery-added-icon" viewBox="0 0 16 16" focusable="false"><path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4z"/></svg></span><time class="community-gallery-added-time" datetime="2026-11-20T19:40:26+08:00">2026.11.20 19:40:26</time></span></figcaption>
+                            <div class="community-gallery-frame"><button class="community-gallery-preview-trigger" type="button" aria-label="Preview image" data-i18n-aria-label="previewGalleryImage" aria-haspopup="dialog" aria-controls="community-gallery-preview-dialog"><img src="resource/test/tmp-black.png" alt="White TEST BLACK lettering on a black background" width="450" height="200" loading="lazy" decoding="async" draggable="false"></button></div>
+                            <figcaption><span class="community-gallery-caption">Black background</span><span class="community-gallery-added-row" role="group" aria-label="Image added on 2026.11.20 19:40:26" data-community-i18n-template="galleryImageAddedOn"><span class="community-gallery-added-icon-slot" aria-hidden="true"><svg class="community-gallery-added-icon" viewBox="0 0 16 16" focusable="false"><path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4z"/></svg></span><time class="community-gallery-added-time" datetime="2026-11-20T19:40:26+08:00">2026.11.20 19:40:26</time></span></figcaption>
                         </figure>
                         <figure class="community-gallery-item">
-                            <div class="community-gallery-frame"><button class="community-gallery-preview-trigger" type="button" aria-label="Preview white background image" aria-haspopup="dialog" aria-controls="community-gallery-preview-dialog"><img src="resource/test/tmp-whtie.png" alt="Black TEST WHITE lettering on a white background" width="450" height="200" loading="lazy" decoding="async" draggable="false"></button></div>
-                            <figcaption><span class="community-gallery-caption">White background</span><span class="community-gallery-added-row" role="group" aria-label="Image added on 2026.11.20 19:40:26"><span class="community-gallery-added-icon-slot" aria-hidden="true"><svg class="community-gallery-added-icon" viewBox="0 0 16 16" focusable="false"><path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4z"/></svg></span><time class="community-gallery-added-time" datetime="2026-11-20T19:40:26+08:00">2026.11.20 19:40:26</time></span></figcaption>
+                            <div class="community-gallery-frame"><button class="community-gallery-preview-trigger" type="button" aria-label="Preview image" data-i18n-aria-label="previewGalleryImage" aria-haspopup="dialog" aria-controls="community-gallery-preview-dialog"><img src="resource/test/tmp-whtie.png" alt="Black TEST WHITE lettering on a white background" width="450" height="200" loading="lazy" decoding="async" draggable="false"></button></div>
+                            <figcaption><span class="community-gallery-caption">White background</span><span class="community-gallery-added-row" role="group" aria-label="Image added on 2026.11.20 19:40:26" data-community-i18n-template="galleryImageAddedOn"><span class="community-gallery-added-icon-slot" aria-hidden="true"><svg class="community-gallery-added-icon" viewBox="0 0 16 16" focusable="false"><path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4z"/></svg></span><time class="community-gallery-added-time" datetime="2026-11-20T19:40:26+08:00">2026.11.20 19:40:26</time></span></figcaption>
                         </figure>
                     </div>
                 </section>
@@ -1560,13 +1595,13 @@
                     <div class="main-project-description-section-divider" aria-hidden="true"></div>
                     <div class="main-project-changelog-list">
                         <div class="main-project-changelog-content" data-changelog-type="release">
-                            <div class="main-project-changelog-avatars" role="group" aria-label="Repository avatar and creation time">
+                            <div class="main-project-changelog-avatars" role="group" aria-label="Repository avatar and creation time" data-i18n-aria-label="repositoryAvatarAndCreationTime">
                                 <div class="main-project-changelog-avatar-stack">
-                                    <button class="compatibility-version-button main-project-changelog-avatar" type="button" aria-label="GitHub profile avatar">
+                                    <button class="compatibility-version-button main-project-changelog-avatar" type="button" aria-label="GitHub profile avatar" data-i18n-aria-label="githubProfileAvatar">
                                     <img class="main-project-changelog-avatar-image" src="https://github.com/wkjasdkaqwq.png" alt="" width="26" height="26" loading="lazy" decoding="async" draggable="false">
                                     </button>
                                 </div>
-                                <time class="main-project-changelog-created-at" datetime="2025-10-23T10:04:15Z" aria-label="Repository created at 2025-10-23 10:04:15 UTC">2025.10.23 10:04:15 UTC</time>
+                                <time class="main-project-changelog-created-at" datetime="2025-10-23T10:04:15Z" aria-label="Repository created at 2025-10-23 10:04:15 UTC" data-community-i18n-template="repositoryCreatedAt">2025.10.23 10:04:15 UTC</time>
                             </div>
                             <div class="main-project-changelog-button-slot">
                                 <button class="compatibility-version-button main-project-changelog-button" type="button" aria-label="Collapse Release changelog" aria-expanded="true" aria-controls="main-project-changelog-frame-release">
@@ -1588,13 +1623,13 @@
                             </div>
                         </div>
                         <div class="main-project-changelog-content" data-changelog-type="beta">
-                            <div class="main-project-changelog-avatars" role="group" aria-label="Repository avatar and creation time">
+                            <div class="main-project-changelog-avatars" role="group" aria-label="Repository avatar and creation time" data-i18n-aria-label="repositoryAvatarAndCreationTime">
                                 <div class="main-project-changelog-avatar-stack">
-                                    <button class="compatibility-version-button main-project-changelog-avatar" type="button" aria-label="GitHub profile avatar">
+                                    <button class="compatibility-version-button main-project-changelog-avatar" type="button" aria-label="GitHub profile avatar" data-i18n-aria-label="githubProfileAvatar">
                                     <img class="main-project-changelog-avatar-image" src="https://github.com/wkjasdkaqwq.png" alt="" width="26" height="26" loading="lazy" decoding="async" draggable="false">
                                     </button>
                                 </div>
-                                <time class="main-project-changelog-created-at" datetime="2025-10-23T10:04:15Z" aria-label="Repository created at 2025-10-23 10:04:15 UTC">2025.10.23 10:04:15 UTC</time>
+                                <time class="main-project-changelog-created-at" datetime="2025-10-23T10:04:15Z" aria-label="Repository created at 2025-10-23 10:04:15 UTC" data-community-i18n-template="repositoryCreatedAt">2025.10.23 10:04:15 UTC</time>
                             </div>
                             <div class="main-project-changelog-button-slot">
                                 <button class="compatibility-version-button main-project-changelog-button" type="button" aria-label="Collapse Beta changelog" aria-expanded="true" aria-controls="main-project-changelog-frame-beta">
@@ -1616,13 +1651,13 @@
                             </div>
                         </div>
                         <div class="main-project-changelog-content" data-changelog-type="alpha">
-                            <div class="main-project-changelog-avatars" role="group" aria-label="Repository avatar and creation time">
+                            <div class="main-project-changelog-avatars" role="group" aria-label="Repository avatar and creation time" data-i18n-aria-label="repositoryAvatarAndCreationTime">
                                 <div class="main-project-changelog-avatar-stack">
-                                    <button class="compatibility-version-button main-project-changelog-avatar" type="button" aria-label="GitHub profile avatar">
+                                    <button class="compatibility-version-button main-project-changelog-avatar" type="button" aria-label="GitHub profile avatar" data-i18n-aria-label="githubProfileAvatar">
                                     <img class="main-project-changelog-avatar-image" src="https://github.com/wkjasdkaqwq.png" alt="" width="26" height="26" loading="lazy" decoding="async" draggable="false">
                                     </button>
                                 </div>
-                                <time class="main-project-changelog-created-at" datetime="2025-10-23T10:04:15Z" aria-label="Repository created at 2025-10-23 10:04:15 UTC">2025.10.23 10:04:15 UTC</time>
+                                <time class="main-project-changelog-created-at" datetime="2025-10-23T10:04:15Z" aria-label="Repository created at 2025-10-23 10:04:15 UTC" data-community-i18n-template="repositoryCreatedAt">2025.10.23 10:04:15 UTC</time>
                             </div>
                             <div class="main-project-changelog-button-slot">
                                 <button class="compatibility-version-button main-project-changelog-button" type="button" aria-label="Collapse Alpha changelog" aria-expanded="true" aria-controls="main-project-changelog-frame-alpha">
@@ -1648,24 +1683,24 @@
                 <section class="main-project-tab-panel" id="panel-relation" role="tabpanel" aria-labelledby="tab-relation" hidden>
                     <div class="main-project-relation-header">
                         <div class="main-project-description-section-title main-project-description-title main-project-relation-title-placeholder" aria-hidden="true">Semi-rounded Corner</div>
-                        <div class="main-project-relation-switcher" role="group" aria-label="Project relationship direction" data-active-relation="dependencies">
-                            <button class="main-project-relation-button" type="button" data-relation="dependencies" aria-pressed="true">Dependencies</button>
-                            <button class="main-project-relation-button" type="button" data-relation="dependents" aria-pressed="false">Dependents</button>
+                        <div class="main-project-relation-switcher" role="group" aria-label="Project relationship direction" data-i18n-aria-label="projectRelationshipDirection" data-active-relation="dependencies">
+                            <button class="main-project-relation-button" type="button" data-relation="dependencies" aria-pressed="true" data-i18n="dependencies">Dependencies</button>
+                            <button class="main-project-relation-button" type="button" data-relation="dependents" aria-pressed="false" data-i18n="dependents">Dependents</button>
                         </div>
                     </div>
                     <div class="main-project-description-section-divider" aria-hidden="true"></div>
                     <div class="main-project-relation-controls">
                         <div class="main-project-relation-search-row">
-                            <button class="main-project-relation-filter-button" type="button" aria-label="Filter related projects" title="Filter related projects" aria-controls="main-project-relation-filter-layer" aria-expanded="false">
+                            <button class="main-project-relation-filter-button" type="button" aria-label="Filter related projects" data-i18n-aria-label="filterRelatedProjects" title="Filter related projects" data-i18n-title="filterRelatedProjects" aria-controls="main-project-relation-filter-layer" aria-expanded="false">
                                 <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .4.8L10 8v4a.5.5 0 0 1-.2.4l-3 2A.5.5 0 0 1 6 14V8L1.6 1.8a.5.5 0 0 1-.1-.3z"/></svg>
                             </button>
                             <div class="main-project-relation-search">
-                                <input class="main-project-relation-search-input" type="search" aria-label="Search related projects" placeholder="Search projects" autocomplete="off" enterkeyhint="done">
+                                <input class="main-project-relation-search-input" type="search" aria-label="Search related projects" data-i18n-aria-label="searchRelatedProjects" placeholder="Search projects" data-i18n-placeholder="searchProjectsPlaceholder" autocomplete="off" enterkeyhint="done">
                                 <svg class="main-project-relation-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="m16 16 4.5 4.5"></path></svg>
                             </div>
                         </div>
-                        <nav class="main-project-relation-pagination" aria-label="Relation pages" data-total-pages="8" data-current-page="1">
-                            <button class="main-project-relation-pagination-arrow" type="button" data-page-step="-1" aria-label="Previous page" title="Previous page" disabled>
+                        <nav class="main-project-relation-pagination" aria-label="Relation pages" data-i18n-aria-label="relationPages" data-total-pages="8" data-current-page="1">
+                            <button class="main-project-relation-pagination-arrow" type="button" data-page-step="-1" aria-label="Previous page" data-i18n-aria-label="previousPage" title="Previous page" data-i18n-title="previousPage" disabled>
                                 <img src="resource/icon/bootstrap-icons/arrow-left.svg" alt="" aria-hidden="true">
                             </button>
                             <div class="main-project-relation-page-list" aria-live="polite">
@@ -1677,20 +1712,20 @@
                                 <span class="main-project-relation-page-ellipsis" aria-hidden="true">⋯</span>
                                 <button class="main-project-relation-page-button" type="button" data-page-number="8">8</button>
                             </div>
-                            <button class="main-project-relation-pagination-arrow" type="button" data-page-step="1" aria-label="Next page" title="Next page">
+                            <button class="main-project-relation-pagination-arrow" type="button" data-page-step="1" aria-label="Next page" data-i18n-aria-label="nextPage" title="Next page" data-i18n-title="nextPage">
                                 <img src="resource/icon/bootstrap-icons/arrow-right.svg" alt="" aria-hidden="true">
                             </button>
                             <div class="main-project-relation-page-size-control" data-page-size-control data-expanded="false">
                                 <div class="main-project-relation-page-size-pill">
                                     <div class="main-project-relation-page-size-header">
-                                        <button class="main-project-relation-page-size-current" type="button" data-page-size-toggle aria-expanded="false" aria-label="Cards per page: 20. Show options" title="Show cards per page options">20</button>
-                                        <button class="main-project-relation-page-size-toggle" type="button" data-page-size-toggle aria-expanded="false" aria-label="Expand cards per page options" title="Expand cards per page options">
+                                        <button class="main-project-relation-page-size-current" type="button" data-page-size-toggle aria-expanded="false" aria-label="Cards per page: 20. Show options" data-community-i18n-template="cardsPerPageSummary" title="Show cards per page options" data-i18n-title="expandCardsPerPageOptions">20</button>
+                                        <button class="main-project-relation-page-size-toggle" type="button" data-page-size-toggle aria-expanded="false" aria-label="Expand cards per page options" data-i18n-aria-label="expandCardsPerPageOptions" title="Expand cards per page options" data-i18n-title="expandCardsPerPageOptions">
                                             <span class="main-project-relation-page-size-icon" aria-hidden="true"></span>
                                         </button>
                                     </div>
                                     <div class="main-project-relation-page-size-reveal" aria-hidden="true" inert>
                                         <div class="main-project-relation-page-size-viewport">
-                                            <div class="main-project-relation-page-size-options" role="group" aria-label="Cards per page">
+                                            <div class="main-project-relation-page-size-options" role="group" aria-label="Cards per page" data-i18n-aria-label="cardsPerPage">
                                                 <button class="main-project-relation-page-size-option" type="button" data-page-size="10" aria-pressed="false">10</button>
                                                 <button class="main-project-relation-page-size-option" type="button" data-page-size="20" aria-pressed="true">20</button>
                                                 <button class="main-project-relation-page-size-option" type="button" data-page-size="50" aria-pressed="false">50</button>
@@ -1702,36 +1737,36 @@
                             </div>
                         </nav>
                     </div>
-                    <div class="main-project-relation-card-grid" data-relation-card-list="dependencies" role="list" aria-label="Dependencies cards"></div>
-                    <div class="main-project-relation-card-grid" data-relation-card-list="dependents" role="list" aria-label="Dependents cards" hidden></div>
+                    <div class="main-project-relation-card-grid" data-relation-card-list="dependencies" role="list" aria-label="Dependencies cards" data-i18n-aria-label="dependencyCards"></div>
+                    <div class="main-project-relation-card-grid" data-relation-card-list="dependents" role="list" aria-label="Dependents cards" data-i18n-aria-label="dependentCards" hidden></div>
                 </section>
                 <section class="main-project-tab-panel community-comment-panel" id="panel-comment" role="tabpanel" aria-labelledby="tab-comment" hidden>
                     <div class="community-comment-search-row">
                         <div class="main-project-description-section-title main-project-description-title community-comment-title-placeholder" aria-hidden="true">Semi-rounded Corner</div>
                         <div class="community-comment-composer-controls">
                             <div class="main-project-relation-search">
-                                <input class="main-project-relation-search-input" type="text" aria-label="Post a comment" placeholder="Post a comment" autocomplete="off" enterkeyhint="done">
+                                <input class="main-project-relation-search-input" type="text" aria-label="Post a comment" data-i18n-aria-label="postAComment" placeholder="Post a comment" data-i18n-placeholder="postAComment" autocomplete="off" enterkeyhint="done">
                             </div>
-                            <button class="community-comment-send" type="button" aria-label="Post comment" title="Post comment" disabled>
+                            <button class="community-comment-send" type="button" aria-label="Post comment" data-i18n-aria-label="postComment" title="Post comment" data-i18n-title="postComment" disabled>
                                 <span class="community-comment-send-icon" aria-hidden="true"></span>
                             </button>
                         </div>
                     </div>
                     <div class="main-project-description-section-divider community-comment-divider" aria-hidden="true"></div>
-                    <div class="community-comment-list" role="feed" aria-label="Project discussion">
+                    <div class="community-comment-list" role="feed" aria-label="Project discussion" data-i18n-aria-label="projectDiscussion">
                         <article class="community-comment-card">
                             <div class="community-comment-avatar" aria-hidden="true">MC</div>
                             <div class="community-comment-content">
                                 <div class="community-comment-meta"><span class="community-comment-author">Mira Chen</span><time class="community-comment-time" datetime="2026-11-22">2 days ago</time></div>
                                 <p class="community-comment-body">The softer corners make the layout feel much more balanced. I especially like how the spacing holds up on a narrow screen.</p>
-                                <div class="community-comment-actions"><button class="community-comment-action community-comment-helpful" type="button" aria-label="Mark Mira Chen's comment as helpful" aria-pressed="false"><span class="community-comment-helpful-icon" aria-hidden="true"></span><span>4</span></button><button class="community-comment-action community-comment-reply" type="button" aria-label="Reply" aria-expanded="false" data-comment-reply><span class="community-comment-reply-icon" aria-hidden="true"></span></button></div>
+                                <div class="community-comment-actions"><button class="community-comment-action community-comment-helpful" type="button" aria-label="Mark Mira Chen's comment as helpful" aria-pressed="false"><span class="community-comment-helpful-icon" aria-hidden="true"></span><span>4</span></button><button class="community-comment-action community-comment-reply" type="button" aria-label="Reply" data-i18n-aria-label="reply" aria-expanded="false" data-comment-reply><span class="community-comment-reply-icon" aria-hidden="true"></span></button></div>
                                 <div class="community-comment-replies" data-comment-replies>
                                     <article class="community-comment-card">
                                         <div class="community-comment-avatar" aria-hidden="true">WK</div>
                                         <div class="community-comment-content">
-                                            <div class="community-comment-meta"><span class="community-comment-author">W.K.Jasdka</span><span class="community-comment-owner">Author</span><time class="community-comment-time" datetime="2026-11-23">1 day ago</time></div>
+                                            <div class="community-comment-meta"><span class="community-comment-author">W.K.Jasdka</span><span class="community-comment-owner" data-i18n="author">Author</span><time class="community-comment-time" datetime="2026-11-23">1 day ago</time></div>
                                             <p class="community-comment-body">Thanks for checking it on mobile. I’m continuing to refine the spacing and will share the next pass here.</p>
-                                            <div class="community-comment-actions"><button class="community-comment-action community-comment-reply" type="button" aria-label="Reply" aria-expanded="false" data-comment-reply><span class="community-comment-reply-icon" aria-hidden="true"></span></button></div>
+                                            <div class="community-comment-actions"><button class="community-comment-action community-comment-reply" type="button" aria-label="Reply" data-i18n-aria-label="reply" aria-expanded="false" data-comment-reply><span class="community-comment-reply-icon" aria-hidden="true"></span></button></div>
                                             <div class="community-comment-replies" data-comment-replies></div>
                                         </div>
                                     </article>
@@ -1743,24 +1778,24 @@
                             <div class="community-comment-content">
                                 <div class="community-comment-meta"><span class="community-comment-author">northdesign</span><time class="community-comment-time" datetime="2026-11-20">4 days ago</time></div>
                                 <p class="community-comment-body">The orange accent feels clear without being too loud. Looking forward to seeing the rest of the community page come together.</p>
-                                <div class="community-comment-actions"><button class="community-comment-action community-comment-helpful" type="button" aria-label="Mark northdesign's comment as helpful" aria-pressed="false"><span class="community-comment-helpful-icon" aria-hidden="true"></span><span>2</span></button><button class="community-comment-action community-comment-reply" type="button" aria-label="Reply" aria-expanded="false" data-comment-reply><span class="community-comment-reply-icon" aria-hidden="true"></span></button></div>
+                                <div class="community-comment-actions"><button class="community-comment-action community-comment-helpful" type="button" aria-label="Mark northdesign's comment as helpful" aria-pressed="false"><span class="community-comment-helpful-icon" aria-hidden="true"></span><span>2</span></button><button class="community-comment-action community-comment-reply" type="button" aria-label="Reply" data-i18n-aria-label="reply" aria-expanded="false" data-comment-reply><span class="community-comment-reply-icon" aria-hidden="true"></span></button></div>
                                 <div class="community-comment-replies" data-comment-replies></div>
                             </div>
                         </article>
                     </div>
                 </section>
-<aside class="main-project-sidebar" aria-label="Project information">
+<aside class="main-project-sidebar" aria-label="Project information" data-i18n-aria-label="projectInformation">
                     <section class="main-project-compatibility-section" id="compatibility-section" aria-labelledby="compatibility-title">
-                        <h2 class="main-project-description-section-title main-project-description-title" id="compatibility-title">Compatibility</h2>
+                        <h2 class="main-project-description-section-title main-project-description-title" id="compatibility-title" data-i18n="compatibility">Compatibility</h2>
                         <div class="main-project-description-section-divider" aria-hidden="true"></div>
                         <div class="main-project-compatibility-content" id="compatibility-content">
                             <p class="compatibility-edition-label">Minecraft: Java Edition</p>
-                            <div class="compatibility-version-list" aria-label="Compatible Minecraft versions">
+                            <div class="compatibility-version-list" aria-label="Compatible Minecraft versions" data-i18n-aria-label="compatibleMinecraftVersions">
                                 <button class="compatibility-version-button" type="button" data-version="1.21.x">1.21.x</button>
                                 <button class="compatibility-version-button" type="button" data-version="1.20.x">1.20.x</button>
                             </div>
-                            <p class="compatibility-edition-label compatibility-loader-label">Loader</p>
-                            <div class="compatibility-version-list" aria-label="Compatible Minecraft loaders">
+                            <p class="compatibility-edition-label compatibility-loader-label" data-i18n="loader">Loader</p>
+                            <div class="compatibility-version-list" aria-label="Compatible Minecraft loaders" data-i18n-aria-label="compatibleMinecraftLoaders">
                                 <button class="compatibility-version-button compatibility-loader-button" type="button" aria-label="Fabric Loader">
                                     <img class="compatibility-loader-icon" src="resource/icon/mod-loader/fabric.png" alt="" aria-hidden="true">
                                     <span>Fabric</span>
@@ -1790,19 +1825,19 @@
                                     <span>Rift</span>
                                 </button>
                             </div>
-                            <p class="compatibility-edition-label compatibility-loader-label">Environments required</p>
-                            <div class="compatibility-version-list" aria-label="Required environments">
-                                <button class="compatibility-version-button compatibility-environment-button" type="button" data-environment="client"><span class="compatibility-environment-icon" aria-hidden="true"></span><span>Client</span></button>
-                                <button class="compatibility-version-button compatibility-environment-button" type="button" data-environment="server"><span class="compatibility-environment-icon" aria-hidden="true"></span><span>Server</span></button>
+                            <p class="compatibility-edition-label compatibility-loader-label" data-i18n="environmentsRequired">Environments required</p>
+                            <div class="compatibility-version-list" aria-label="Required environments" data-i18n-aria-label="requiredEnvironments">
+                                <button class="compatibility-version-button compatibility-environment-button" type="button" data-environment="client"><span class="compatibility-environment-icon" aria-hidden="true"></span><span data-i18n="client">Client</span></button>
+                                <button class="compatibility-version-button compatibility-environment-button" type="button" data-environment="server"><span class="compatibility-environment-icon" aria-hidden="true"></span><span data-i18n="server">Server</span></button>
                             </div>
                         </div>
                         <div class="main-project-description-section-divider" aria-hidden="true"></div>
                     </section>
                     <section class="main-project-tag-section" id="tag-section" aria-labelledby="tag-section-title">
-                        <h2 class="main-project-description-section-title main-project-description-title" id="tag-section-title">Tag</h2>
+                        <h2 class="main-project-description-section-title main-project-description-title" id="tag-section-title" data-i18n="tag">Tag</h2>
                         <div class="main-project-description-section-divider" aria-hidden="true"></div>
                         <div class="main-project-tag-content">
-                            <div class="compatibility-version-list" aria-label="Tag options">
+                            <div class="compatibility-version-list" aria-label="Tag options" data-i18n-aria-label="tagOptions">
                                 <button class="compatibility-version-button compatibility-environment-button" type="button" aria-label="Example">Example</button>
                                 <button class="compatibility-version-button compatibility-environment-button" type="button" aria-label="Example">Example</button>
                             </div>
@@ -1810,24 +1845,24 @@
                         <div class="main-project-description-section-divider" aria-hidden="true"></div>
                     </section>
                     <section class="main-project-developer-section" id="developer-section" aria-labelledby="developer-section-title">
-                        <h2 class="main-project-description-section-title main-project-description-title" id="developer-section-title">Developer</h2>
+                        <h2 class="main-project-description-section-title main-project-description-title" id="developer-section-title" data-i18n="developer">Developer</h2>
                         <div class="main-project-description-section-divider" aria-hidden="true"></div>
                         <div class="main-project-developer-content">
-                            <div class="compatibility-version-list" aria-label="Developer options">
+                            <div class="compatibility-version-list" aria-label="Developer options" data-i18n-aria-label="developerOptions">
                                 <div class="main-project-developer-button-slot">
-                                    <button class="compatibility-version-button compatibility-environment-button main-project-developer-button" type="button" aria-label="Developer 1">
+                                    <button class="compatibility-version-button compatibility-environment-button main-project-developer-button" type="button" aria-label="Developer 1" data-developer-number="1">
                                         <i class="main-project-developer-crown fa-solid fa-crown" aria-hidden="true"></i>
                                     </button>
                                 </div>
-                                <div class="main-project-developer-button-slot"><button class="compatibility-version-button compatibility-environment-button main-project-developer-button" type="button" aria-label="Developer 2"></button></div>
-                                <div class="main-project-developer-button-slot"><button class="compatibility-version-button compatibility-environment-button main-project-developer-button" type="button" aria-label="Developer 3"></button></div>
-                                <div class="main-project-developer-button-slot"><button class="compatibility-version-button compatibility-environment-button main-project-developer-button" type="button" aria-label="Developer 4"></button></div>
+                                <div class="main-project-developer-button-slot"><button class="compatibility-version-button compatibility-environment-button main-project-developer-button" type="button" aria-label="Developer 2" data-developer-number="2"></button></div>
+                                <div class="main-project-developer-button-slot"><button class="compatibility-version-button compatibility-environment-button main-project-developer-button" type="button" aria-label="Developer 3" data-developer-number="3"></button></div>
+                                <div class="main-project-developer-button-slot"><button class="compatibility-version-button compatibility-environment-button main-project-developer-button" type="button" aria-label="Developer 4" data-developer-number="4"></button></div>
                             </div>
                         </div>
                         <div class="main-project-description-section-divider" aria-hidden="true"></div>
                     </section>
                     <section class="main-project-link-section" id="link-section" aria-labelledby="link-section-title">
-                        <h2 class="main-project-description-section-title main-project-description-title" id="link-section-title">Link</h2>
+                        <h2 class="main-project-description-section-title main-project-description-title" id="link-section-title" data-i18n="link">Link</h2>
                         <div class="main-project-description-section-divider" aria-hidden="true"></div>
                         <div class="main-project-link-row">
                             <span class="detail-metadata-icon-slot" aria-hidden="true">
@@ -1835,8 +1870,8 @@
                                     <path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m7.5-6.923c-.67.204-1.335.82-1.887 1.855A8 8 0 0 0 5.145 4H7.5zM4.09 4a9.3 9.3 0 0 1 .64-1.539 7 7 0 0 1 .597-.933A7.03 7.03 0 0 0 2.255 4zm-.582 3.5c.03-.877.138-1.718.312-2.5H1.674a7 7 0 0 0-.656 2.5zM4.847 5a12.5 12.5 0 0 0-.338 2.5H7.5V5zM8.5 5v2.5h2.99a12.5 12.5 0 0 0-.337-2.5zM4.51 8.5a12.5 12.5 0 0 0 .337 2.5H7.5V8.5zm3.99 0V11h2.653c.187-.765.306-1.608.338-2.5zM5.145 12q.208.58.468 1.068c.552 1.035 1.218 1.65 1.887 1.855V12zm.182 2.472a7 7 0 0 1-.597-.933A9.3 9.3 0 0 1 4.09 12H2.255a7 7 0 0 0 3.072 2.472M3.82 11a13.7 13.7 0 0 1-.312-2.5h-2.49c.062.89.291 1.733.656 2.5zm6.853 3.472A7 7 0 0 0 13.745 12H11.91a9.3 9.3 0 0 1-.64 1.539 7 7 0 0 1-.597.933M8.5 12v2.923c.67-.204 1.335-.82 1.887-1.855q.26-.487.468-1.068zm3.68-1h2.146c.365-.767.594-1.61.656-2.5h-2.49a13.7 13.7 0 0 1-.312 2.5m2.802-3.5a7 7 0 0 0-.656-2.5H12.18c.174.782.282 1.623.312 2.5zM11.27 2.461c.247.464.462.98.64 1.539h1.835a7 7 0 0 0-3.072-2.472c.218.284.418.598.597.933M10.855 4a8 8 0 0 0-.468-1.068C9.835 1.897 9.17 1.282 8.5 1.077V4z" />
                                 </svg>
                             </span>
-                            <p class="detail-release-text"><span class="detail-metadata-label">Official site</span></p>
-                            <a class="main-project-link-action" href="https://wkjasdkaqwq.github.io/wkjasdka/" aria-label="Open Official site" title="Open Official site" draggable="false">
+                            <p class="detail-release-text"><span class="detail-metadata-label" data-i18n="officialSite">Official site</span></p>
+                            <a class="main-project-link-action" href="https://wkjasdkaqwq.github.io/wkjasdka/" aria-label="Open Official site" data-i18n-aria-label="openOfficialSite" title="Open Official site" data-i18n-title="openOfficialSite" draggable="false">
                                 <span class="main-project-link-action-icon" aria-hidden="true"></span>
                             </a>
                         </div>
@@ -1847,30 +1882,30 @@
                                 </svg>
                             </span>
                             <p class="detail-release-text"><span class="detail-metadata-label">GitHub</span></p>
-                            <a class="main-project-link-action" href="https://github.com/wkjasdkaqwq" aria-label="Open GitHub profile" title="Open GitHub profile" draggable="false">
+                            <a class="main-project-link-action" href="https://github.com/wkjasdkaqwq" aria-label="Open GitHub profile" data-i18n-aria-label="openGitHubProfile" title="Open GitHub profile" data-i18n-title="openGitHubProfile" draggable="false">
                                 <span class="main-project-link-action-icon" aria-hidden="true"></span>
                             </a>
                         </div>
                         <div class="main-project-description-section-divider" aria-hidden="true"></div>
                     </section>
                     <section class="main-project-detail-section" id="detail-section" aria-labelledby="detail-section-title">
-                        <h2 class="main-project-description-section-title main-project-description-title" id="detail-section-title">Detail</h2>
+                        <h2 class="main-project-description-section-title main-project-description-title" id="detail-section-title" data-i18n="detail">Detail</h2>
                         <div class="main-project-description-section-divider" aria-hidden="true"></div>
                         <div class="detail-license-row">
                             <span class="detail-license-scale" aria-hidden="true"><i class="fa-solid fa-scale-balanced"></i></span>
-                            <p class="detail-license-text"><span class="detail-metadata-label">Licensed</span> <button class="detail-license-trigger" id="mit-license-trigger" type="button" aria-haspopup="dialog" aria-controls="mit-license-dialog">MIT</button></p>
+                            <p class="detail-license-text"><span class="detail-metadata-label" data-i18n="licensed">Licensed</span> <button class="detail-license-trigger" id="mit-license-trigger" type="button" aria-haspopup="dialog" aria-controls="mit-license-dialog">MIT</button></p>
                         </div>
                         <div class="detail-downloads-row">
                             <span class="detail-metadata-icon-slot" aria-hidden="true"><span class="detail-metadata-icon detail-download-icon"></span></span>
-                            <p class="detail-downloads-text"><span class="detail-metadata-label">Downloads</span> 1,234,567</p>
+                            <p class="detail-downloads-text"><span class="detail-metadata-label" data-i18n="downloads">Downloads</span> 1,234,567</p>
                         </div>
                         <div class="detail-source-row">
                             <span class="detail-metadata-icon-slot" aria-hidden="true"><span class="detail-metadata-icon detail-source-icon"></span></span>
-                            <p class="detail-source-text"><span class="detail-metadata-label">Source</span><span class="detail-inline-github-icon" aria-hidden="true"></span></p>
+                            <p class="detail-source-text"><span class="detail-metadata-label" data-i18n="source">Source</span><span class="detail-inline-github-icon" aria-hidden="true"></span></p>
                         </div>
                         <div class="detail-bug-row">
                             <span class="detail-metadata-icon-slot" aria-hidden="true"><span class="detail-metadata-icon detail-bug-icon"></span></span>
-                            <p class="detail-bug-text"><span class="detail-metadata-label">Issues</span><span class="detail-inline-github-icon" aria-hidden="true"></span></p>
+                            <p class="detail-bug-text"><span class="detail-metadata-label" data-i18n="issues">Issues</span><span class="detail-inline-github-icon" aria-hidden="true"></span></p>
                         </div>
                         <div class="detail-release-row">
                             <span class="detail-metadata-icon-slot" aria-hidden="true">
@@ -1879,7 +1914,7 @@
                                     <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2M9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5z" />
                                 </svg>
                             </span>
-                            <p class="detail-release-text"><span class="detail-metadata-label">Release Date</span> <time datetime="2022-11-29T00:00:00">2022.11.29 00:00:00</time></p>
+                            <p class="detail-release-text"><span class="detail-metadata-label" data-i18n="releaseDate">Release Date</span> <time datetime="2022-11-29T00:00:00">2022.11.29 00:00:00</time></p>
                         </div>
                         <div class="detail-last-updated-row">
                             <span class="detail-metadata-icon-slot" aria-hidden="true">
@@ -1888,7 +1923,7 @@
                                     <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z" />
                                 </svg>
                             </span>
-                            <p class="detail-last-updated-text"><span class="detail-metadata-label">Last Updated</span> <time datetime="2025-05-08T07:30:04">2025.05.08 07:30:04</time></p>
+                            <p class="detail-last-updated-text"><span class="detail-metadata-label" data-i18n="lastUpdated">Last Updated</span> <time datetime="2025-05-08T07:30:04">2025.05.08 07:30:04</time></p>
                         </div>
                         <div class="main-project-description-section-divider" aria-hidden="true"></div>
                         <dialog class="mit-license-dialog" id="mit-license-dialog" aria-labelledby="mit-license-title" tabindex="-1">
@@ -1911,7 +1946,7 @@
                                 </div>
                                 <div class="mit-license-scrollbar" aria-hidden="true"><div class="mit-license-scrollbar-thumb"></div></div>
                             </div>
-                            <button class="mit-license-nav-close" id="mit-license-nav-close" type="button" aria-label="Close MIT license" aria-hidden="true" tabindex="-1" disabled>
+                            <button class="mit-license-nav-close" id="mit-license-nav-close" type="button" aria-label="Close MIT license" data-i18n-aria-label="closeMitLicense" aria-hidden="true" tabindex="-1" disabled>
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M5 5l14 14M19 5 5 19"></path></svg>
                             </button>
                         </dialog>
@@ -1923,26 +1958,26 @@
         </div>
     </main>
     <div class="main-project-relation-filter-layer" id="main-project-relation-filter-layer" role="dialog" aria-modal="true" aria-labelledby="main-project-relation-filter-title" tabindex="-1" aria-hidden="true" inert>
-        <button class="main-project-relation-filter-backdrop" type="button" data-relation-filter-dismiss aria-label="Close filters" tabindex="-1"></button>
-        <button class="main-project-relation-filter-close" type="button" data-relation-filter-dismiss aria-label="Close filters" title="Close filters" aria-controls="main-project-relation-filter-drawer">
+        <button class="main-project-relation-filter-backdrop" type="button" data-relation-filter-dismiss aria-label="Close filters" data-i18n-aria-label="closeFilters" tabindex="-1"></button>
+        <button class="main-project-relation-filter-close" type="button" data-relation-filter-dismiss aria-label="Close filters" data-i18n-aria-label="closeFilters" title="Close filters" data-i18n-title="closeFilters" aria-controls="main-project-relation-filter-drawer">
             <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m6 6 12 12M18 6 6 18"></path></svg>
         </button>
         <div class="main-project-relation-filter-drawer" id="main-project-relation-filter-drawer" inert>
             <div class="main-project-relation-filter-drawer-header">
-                <h2 class="main-project-relation-filter-drawer-title" id="main-project-relation-filter-title">Filters</h2>
+                <h2 class="main-project-relation-filter-drawer-title" id="main-project-relation-filter-title" data-i18n="filters">Filters</h2>
             </div>
             <div class="main-project-relation-filter-drawer-body">
-                <div class="main-project-relation-filter-category-tabs" role="tablist" aria-label="Filter category" aria-orientation="vertical">
+                <div class="main-project-relation-filter-category-tabs" role="tablist" aria-label="Filter category" data-i18n-aria-label="filterCategory" aria-orientation="vertical">
                     <button class="main-project-relation-filter-category-tab" id="relation-filter-tab-sort" type="button" role="tab" aria-controls="relation-filter-panel-sort" aria-selected="true" tabindex="0" data-relation-filter-category="sort" data-i18n="relationSortOrderTitle">Sort order</button>
-                    <button class="main-project-relation-filter-category-tab" id="relation-filter-tab-downloads" type="button" role="tab" aria-controls="relation-filter-panel-downloads" aria-selected="false" tabindex="-1" data-relation-filter-category="downloads">Downloads</button>
-                    <button class="main-project-relation-filter-category-tab" id="relation-filter-tab-last-update" type="button" role="tab" aria-controls="relation-filter-panel-last-update" aria-selected="false" tabindex="-1" data-relation-filter-category="lastUpdate">Last update</button>
+                    <button class="main-project-relation-filter-category-tab" id="relation-filter-tab-downloads" type="button" role="tab" aria-controls="relation-filter-panel-downloads" aria-selected="false" tabindex="-1" data-relation-filter-category="downloads" data-i18n="downloads">Downloads</button>
+                    <button class="main-project-relation-filter-category-tab" id="relation-filter-tab-last-update" type="button" role="tab" aria-controls="relation-filter-panel-last-update" aria-selected="false" tabindex="-1" data-relation-filter-category="lastUpdate" data-i18n="lastUpdate">Last update</button>
                 </div>
                 <section class="main-project-relation-filter-category-panel" id="relation-filter-panel-sort" role="tabpanel" aria-labelledby="relation-filter-tab-sort" tabindex="0" data-relation-filter-panel="sort">
-                    <div class="main-project-relation-filter-options" role="radiogroup" aria-label="Alphabetic order">
+                    <div class="main-project-relation-filter-options" role="radiogroup" aria-label="Alphabetic order" data-i18n-aria-label="relationAlphabeticOrder">
                         <label class="main-project-relation-filter-option"><input type="radio" name="relation-alpha-order" value="asc" data-relation-sort="alphabetic" checked><span>A-Z</span></label>
                         <label class="main-project-relation-filter-option"><input type="radio" name="relation-alpha-order" value="desc" data-relation-sort="alphabetic"><span>Z-A</span></label>
                     </div>
-                    <div class="main-project-relation-filter-options" role="radiogroup" aria-label="Number order">
+                    <div class="main-project-relation-filter-options" role="radiogroup" aria-label="Number order" data-i18n-aria-label="relationNumberOrderTitle">
                         <label class="main-project-relation-filter-option"><input type="radio" name="relation-number-order" value="asc" data-relation-sort="numeric" checked><span>1-9</span></label>
                         <label class="main-project-relation-filter-option"><input type="radio" name="relation-number-order" value="desc" data-relation-sort="numeric"><span>9-1</span></label>
                     </div>
@@ -1955,15 +1990,15 @@
                     </section>
                 </section>
                 <section class="main-project-relation-filter-category-panel" id="relation-filter-panel-downloads" role="tabpanel" aria-labelledby="relation-filter-tab-downloads" tabindex="0" data-relation-filter-panel="downloads" hidden>
-                    <div class="main-project-relation-filter-options" role="radiogroup" aria-label="Downloads">
-                        <label class="main-project-relation-filter-option"><input type="radio" name="relation-download-order" value="desc" data-relation-sort="downloads" checked><span>High to low</span></label>
-                        <label class="main-project-relation-filter-option"><input type="radio" name="relation-download-order" value="asc" data-relation-sort="downloads"><span>Low to high</span></label>
+                    <div class="main-project-relation-filter-options" role="radiogroup" aria-label="Downloads" data-i18n-aria-label="downloads">
+                        <label class="main-project-relation-filter-option"><input type="radio" name="relation-download-order" value="desc" data-relation-sort="downloads" checked><span data-i18n="highToLow">High to low</span></label>
+                        <label class="main-project-relation-filter-option"><input type="radio" name="relation-download-order" value="asc" data-relation-sort="downloads"><span data-i18n="lowToHigh">Low to high</span></label>
                     </div>
                 </section>
                 <section class="main-project-relation-filter-category-panel" id="relation-filter-panel-last-update" role="tabpanel" aria-labelledby="relation-filter-tab-last-update" tabindex="0" data-relation-filter-panel="lastUpdate" hidden>
-                    <div class="main-project-relation-filter-options" role="radiogroup" aria-label="Last update">
-                        <label class="main-project-relation-filter-option"><input type="radio" name="relation-last-update-order" value="desc" data-relation-sort="lastUpdate" checked><span>Newest first</span></label>
-                        <label class="main-project-relation-filter-option"><input type="radio" name="relation-last-update-order" value="asc" data-relation-sort="lastUpdate"><span>Oldest first</span></label>
+                    <div class="main-project-relation-filter-options" role="radiogroup" aria-label="Last update" data-i18n-aria-label="lastUpdate">
+                        <label class="main-project-relation-filter-option"><input type="radio" name="relation-last-update-order" value="desc" data-relation-sort="lastUpdate" checked><span data-i18n="newestFirst">Newest first</span></label>
+                        <label class="main-project-relation-filter-option"><input type="radio" name="relation-last-update-order" value="asc" data-relation-sort="lastUpdate"><span data-i18n="oldestFirst">Oldest first</span></label>
                     </div>
                 </section>
             </div>
@@ -1975,16 +2010,16 @@
         </div>
     </div>
     <div class="community-scrollbar community-page-scrollbar" aria-hidden="true"><div class="community-scrollbar-thumb"></div></div>
-    <dialog class="community-gallery-preview-dialog" id="community-gallery-preview-dialog" aria-label="Gallery image preview">
+    <dialog class="community-gallery-preview-dialog" id="community-gallery-preview-dialog" aria-label="Gallery image preview" data-i18n-aria-label="galleryImagePreview">
         <p class="community-gallery-preview-description"></p>
-        <div class="community-gallery-preview-toolbar" role="toolbar" aria-label="Image preview controls">
+        <div class="community-gallery-preview-toolbar" role="toolbar" aria-label="Image preview controls" data-i18n-aria-label="imagePreviewControls">
             <div class="community-gallery-preview-toolbar-track">
-                <div class="community-gallery-preview-nav" role="group" aria-label="Image navigation">
-                    <button class="community-gallery-preview-nav-button" type="button" data-gallery-preview-step="-1" aria-label="Previous image" title="Previous image"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
+                <div class="community-gallery-preview-nav" role="group" aria-label="Image navigation" data-i18n-aria-label="imageNavigation">
+                    <button class="community-gallery-preview-nav-button" type="button" data-gallery-preview-step="-1" aria-label="Previous image" data-i18n-aria-label="previousImage" title="Previous image" data-i18n-title="previousImage"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
                     <span class="community-gallery-preview-page" aria-live="polite" aria-atomic="true">1 / 3</span>
-                    <button class="community-gallery-preview-nav-button" type="button" data-gallery-preview-step="1" aria-label="Next image" title="Next image"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
+                    <button class="community-gallery-preview-nav-button" type="button" data-gallery-preview-step="1" aria-label="Next image" data-i18n-aria-label="nextImage" title="Next image" data-i18n-title="nextImage"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
                 </div>
-                <button class="community-gallery-preview-close" type="button" aria-label="Close image preview" title="Close preview">&times;</button>
+                <button class="community-gallery-preview-close" type="button" aria-label="Close image preview" data-i18n-aria-label="closeImagePreview" title="Close preview" data-i18n-title="closePreview">&times;</button>
             </div>
         </div>
         <div class="community-gallery-preview-stage">
@@ -2650,8 +2685,16 @@
                 }
                 if (!galleryPreviewPage) return;
                 galleryPreviewPage.textContent = `${index + 1} / ${galleryPreviewImages.length}`;
-                galleryPreviewPage.setAttribute('aria-label', `Image ${index + 1} of ${galleryPreviewImages.length}`);
+                galleryPreviewPage.setAttribute('aria-label', window.communityI18nText('imageNumberOfTotal', 'Image {current} of {total}', { current: index + 1, total: galleryPreviewImages.length }));
             };
+            const updateGalleryAddedDateLabels = () => {
+                document.querySelectorAll('.community-gallery-added-row[data-community-i18n-template="galleryImageAddedOn"]').forEach(row => {
+                    const datetime = row.querySelector('.community-gallery-added-time')?.textContent.trim() || '';
+                    row.setAttribute('aria-label', window.communityI18nText('galleryImageAddedOn', 'Image added on {datetime}', { datetime }));
+                });
+            };
+            window.addEventListener('site:languagechange', updateGalleryAddedDateLabels);
+            updateGalleryAddedDateLabels();
             const updateGalleryPreviewNavigationAvailability = index => {
                 galleryPreviewNavigationButtons.forEach(button => {
                     const step = Number(button.dataset.galleryPreviewStep);
@@ -3672,7 +3715,7 @@
                             toggle.type = 'button';
                             toggle.dataset.commentThreadToggle = '';
                             toggle.setAttribute('aria-expanded', 'false');
-                            toggle.setAttribute('aria-label', 'Show nested replies');
+                            toggle.setAttribute('aria-label', window.communityI18nText('showRepliesCount', 'Show replies ({count})', { count: childCount }));
                             actions.append(toggle);
                         }
                         toggle.inert = commentCard.classList.contains('is-comment-hidden');
@@ -3681,8 +3724,11 @@
                         replies.inert = !isExpanded;
                         if (isExpanded) replies.removeAttribute('aria-hidden');
                         else replies.setAttribute('aria-hidden', 'true');
-                        toggle.textContent = `${isExpanded ? 'Hide' : 'Show'} ${childCount} ${childCount === 1 ? 'reply' : 'replies'}`;
-                        toggle.setAttribute('aria-label', `${isExpanded ? 'Hide' : 'Show'} ${childCount} ${childCount === 1 ? 'reply' : 'replies'}`);
+                        const disclosureKey = isExpanded ? 'hideRepliesCount' : 'showRepliesCount';
+                        const disclosureFallback = `${isExpanded ? 'Hide' : 'Show'} replies (${childCount})`;
+                        const disclosureLabel = window.communityI18nText(disclosureKey, disclosureFallback, { count: childCount });
+                        toggle.textContent = disclosureLabel;
+                        toggle.setAttribute('aria-label', disclosureLabel);
                     });
                 };
                 const expandCommentReplies = commentCard => {
@@ -3714,12 +3760,12 @@
                 ];
                 let seededCommentTextIndex = 0;
                 const nextSeededCommentText = () => seededCommentTexts[seededCommentTextIndex++ % seededCommentTexts.length];
-                const getCommentAuthorName = commentCard => commentCard.querySelector(':scope > .community-comment-content .community-comment-author')?.textContent.trim() || 'Unknown author';
+                const getCommentAuthorName = commentCard => commentCard.querySelector(':scope > .community-comment-content .community-comment-author')?.textContent.trim() || window.communityI18nText('unknownAuthor', 'Unknown author');
                 const makeCommentHelpfulButton = authorName => {
                     const button = document.createElement('button');
                     button.className = 'community-comment-action community-comment-helpful';
                     button.type = 'button';
-                    button.setAttribute('aria-label', `Mark ${authorName}'s comment as helpful`);
+                    button.setAttribute('aria-label', window.communityI18nText('markCommentHelpful', "Mark {author}'s comment as helpful", { author: authorName }));
                     button.setAttribute('aria-pressed', 'false');
                     const icon = document.createElement('span');
                     icon.className = 'community-comment-helpful-icon';
@@ -3738,8 +3784,8 @@
                     button.dataset.commentVisibility = '';
                     button.dataset.commentAuthor = authorName;
                     button.setAttribute('aria-pressed', 'false');
-                    button.setAttribute('aria-label', `Hide comment by ${authorName}`);
-                    button.title = `Hide comment by ${authorName}`;
+                    button.setAttribute('aria-label', window.communityI18nText('hideCommentBy', 'Hide comment by {author}', { author: authorName }));
+                    button.title = window.communityI18nText('hideCommentBy', 'Hide comment by {author}', { author: authorName });
                     const icon = document.createElement('span');
                     icon.className = 'community-comment-visibility-icon';
                     icon.setAttribute('aria-hidden', 'true');
@@ -3751,8 +3797,8 @@
                     button.className = 'community-comment-action community-comment-report';
                     button.type = 'button';
                     button.dataset.commentReport = '';
-                    button.setAttribute('aria-label', 'Report comment');
-                    button.title = 'Report comment';
+                    button.setAttribute('aria-label', window.communityI18nText('reportComment', 'Report comment'));
+                    button.title = window.communityI18nText('reportComment', 'Report comment');
                     const icon = document.createElement('span');
                     icon.className = 'community-comment-report-icon';
                     icon.setAttribute('aria-hidden', 'true');
@@ -3780,7 +3826,7 @@
                     if (!actions.querySelector(':scope > [data-comment-visibility]')) actions.append(makeCommentVisibilityButton(authorName));
                     if (!actions.querySelector(':scope > [data-comment-report]')) actions.append(makeCommentReportButton());
                 };
-                const makeCommentReply = (text, authorName = 'You') => {
+                const makeCommentReply = (text, authorName = window.communityI18nText('you', 'You')) => {
                     const comment = document.createElement('article');
                     comment.className = 'community-comment-card';
                     const avatar = document.createElement('div');
@@ -3797,7 +3843,7 @@
                     const time = document.createElement('time');
                     time.className = 'community-comment-time';
                     time.dateTime = new Date().toISOString();
-                    time.textContent = 'just now';
+                    time.textContent = window.communityI18nText('justNow', 'just now');
                     meta.append(author, time);
                     const body = document.createElement('p');
                     body.className = 'community-comment-body';
@@ -3807,7 +3853,7 @@
                     const replyButton = document.createElement('button');
                     replyButton.className = 'community-comment-action community-comment-reply';
                     replyButton.type = 'button';
-                    replyButton.setAttribute('aria-label', 'Reply');
+                    replyButton.setAttribute('aria-label', window.communityI18nText('reply', 'Reply'));
                     replyButton.setAttribute('aria-expanded', 'false');
                     replyButton.dataset.commentReply = '';
                     const replyIcon = document.createElement('span');
@@ -3828,23 +3874,24 @@
                     const form = document.createElement('form');
                     form.className = 'community-comment-reply-form';
                     form.dataset.commentReplyForm = '';
-                    form.setAttribute('aria-label', `Reply to ${authorName}`);
+                    form.dataset.commentReplyAuthor = authorName;
+                    form.setAttribute('aria-label', window.communityI18nText('replyToAuthor', 'Reply to {author}', { author: authorName }));
                     const input = document.createElement('textarea');
                     input.className = 'community-comment-reply-input';
                     input.rows = 2;
-                    input.placeholder = `Reply to ${authorName}…`;
-                    input.setAttribute('aria-label', `Reply to ${authorName}`);
+                    input.placeholder = window.communityI18nText('replyPlaceholder', 'Reply to {author}…', { author: authorName });
+                    input.setAttribute('aria-label', window.communityI18nText('replyToAuthor', 'Reply to {author}', { author: authorName }));
                     const footer = document.createElement('div');
                     footer.className = 'community-comment-reply-form-footer';
                     const cancel = document.createElement('button');
                     cancel.className = 'community-comment-reply-cancel';
                     cancel.type = 'button';
                     cancel.dataset.commentReplyCancel = '';
-                    cancel.textContent = 'Cancel';
+                    cancel.textContent = window.communityI18nText('cancel', 'Cancel');
                     const submit = document.createElement('button');
                     submit.className = 'community-comment-reply-submit';
                     submit.type = 'submit';
-                    submit.textContent = 'Reply';
+                    submit.textContent = window.communityI18nText('reply', 'Reply');
                     footer.append(cancel, submit);
                     form.append(input, footer);
                     return form;
@@ -3866,7 +3913,7 @@
                         nextSeededAuthorIndex = (index + 1) % seededCommentAuthors.length;
                         return authorName;
                     }
-                    return 'Community member';
+                    return window.communityI18nText('communityMember', 'Community member');
                 };
                 const existingThreadCount = getCommentThreads().length;
                 while (getCommentThreads().length < existingThreadCount + 20) {
@@ -3928,7 +3975,7 @@
                     const replyItems = getCommentReplyItems(commentCard);
                     if (!replies || !replyItems) return;
                     const opensReplyLine = replies.classList.contains('is-collapsed');
-                    const authorName = commentCard.querySelector('.community-comment-author')?.textContent.trim() || 'this comment';
+                    const authorName = commentCard.querySelector('.community-comment-author')?.textContent.trim() || window.communityI18nText('thisComment', 'this comment');
                     const replyForm = makeReplyForm(authorName);
                     replyForm.classList.add('is-opening');
                     const openDelay = opensReplyLine && !window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 150 : 0;
@@ -3994,8 +4041,11 @@
                         }
                         commentCard.classList.toggle('is-comment-hidden', isHidden);
                         visibilityButton.setAttribute('aria-pressed', String(isHidden));
-                        visibilityButton.setAttribute('aria-label', `${isHidden ? 'Show' : 'Hide'} comment by ${authorName}`);
-                        visibilityButton.title = `${isHidden ? 'Show' : 'Hide'} comment by ${authorName}`;
+                        const visibilityKey = isHidden ? 'showCommentBy' : 'hideCommentBy';
+                        const visibilityFallback = `${isHidden ? 'Show' : 'Hide'} comment by {author}`;
+                        const visibilityLabel = window.communityI18nText(visibilityKey, visibilityFallback, { author: authorName });
+                        visibilityButton.setAttribute('aria-label', visibilityLabel);
+                        visibilityButton.title = visibilityLabel;
                         const otherActions = Array.from(actions.querySelectorAll(':scope > .community-comment-action:not([data-comment-visibility])'));
                         const replyForm = content.querySelector(':scope > .community-comment-replies > .community-comment-replies-inner > .community-comment-reply-slot > .community-comment-reply-slot-inner > [data-comment-reply-form]');
                         const focusedElement = document.activeElement;
@@ -4028,6 +4078,37 @@
                         });
                     });
                 };
+                const refreshCommentInterfaceText = () => {
+                    communityCommentList.querySelectorAll('.community-comment-helpful').forEach(button => {
+                        const authorName = getCommentAuthorName(button.closest('.community-comment-card'));
+                        button.setAttribute('aria-label', window.communityI18nText('markCommentHelpful', "Mark {author}'s comment as helpful", { author: authorName }));
+                    });
+                    communityCommentList.querySelectorAll('[data-comment-reply]').forEach(button => button.setAttribute('aria-label', window.communityI18nText('reply', 'Reply')));
+                    communityCommentList.querySelectorAll('[data-comment-report]').forEach(button => {
+                        button.setAttribute('aria-label', window.communityI18nText('reportComment', 'Report comment'));
+                        button.title = window.communityI18nText('reportComment', 'Report comment');
+                    });
+                    communityCommentList.querySelectorAll('[data-comment-reply-form]').forEach(form => {
+                        const input = form.querySelector('.community-comment-reply-input');
+                        const authorName = form.dataset.commentReplyAuthor || '';
+                        form.setAttribute('aria-label', window.communityI18nText('replyToAuthor', 'Reply to {author}', { author: authorName }));
+                        if (input) {
+                            input.placeholder = window.communityI18nText('replyPlaceholder', 'Reply to {author}…', { author: authorName });
+                            input.setAttribute('aria-label', window.communityI18nText('replyToAuthor', 'Reply to {author}', { author: authorName }));
+                        }
+                        const cancel = form.querySelector('[data-comment-reply-cancel]');
+                        const submit = form.querySelector('[type="submit"]');
+                        if (cancel) cancel.textContent = window.communityI18nText('cancel', 'Cancel');
+                        if (submit) submit.textContent = window.communityI18nText('reply', 'Reply');
+                    });
+                    communityCommentList.querySelectorAll('.community-comment-time[datetime]').forEach(time => {
+                        time.textContent = window.communityRelativeTime(time.getAttribute('datetime'));
+                    });
+                    syncCommentReplyDisclosure();
+                    syncCommentVisibility();
+                };
+                window.addEventListener('site:languagechange', refreshCommentInterfaceText);
+                refreshCommentInterfaceText();
                 communityCommentList.addEventListener('click', event => {
                     if (!(event.target instanceof Element)) return;
                     const threadToggle = event.target.closest('[data-comment-thread-toggle]');
@@ -4510,35 +4591,7 @@
                 if (downloads >= 10000) return `${(downloads / 1000).toFixed(1)}K`;
                 return String(downloads);
             };
-            const formatRelationTimeAgo = dateTime => {
-                const elapsedSeconds = Math.max(0, (Date.now() - Date.parse(dateTime)) / 1000);
-                if (elapsedSeconds <= 30) return 'just now';
-                let value;
-                let unit;
-                if (elapsedSeconds <= 100) {
-                    value = Math.floor(elapsedSeconds);
-                    unit = 'second';
-                } else if (elapsedSeconds <= 100 * 60) {
-                    value = Math.floor(elapsedSeconds / 60);
-                    unit = 'minute';
-                } else if (elapsedSeconds <= 50 * 60 * 60) {
-                    value = Math.floor(elapsedSeconds / 3600);
-                    unit = 'hour';
-                } else if (elapsedSeconds <= 10 * 86400) {
-                    value = Math.floor(elapsedSeconds / 86400);
-                    unit = 'day';
-                } else if (elapsedSeconds <= 5 * 7 * 86400) {
-                    value = Math.floor(elapsedSeconds / (7 * 86400));
-                    unit = 'week';
-                } else if (elapsedSeconds <= 20 * 30 * 86400) {
-                    value = Math.floor(elapsedSeconds / (30 * 86400));
-                    unit = 'month';
-                } else {
-                    value = Math.floor(elapsedSeconds / (365 * 86400));
-                    unit = 'year';
-                }
-                return `${value} ${unit}${value === 1 ? '' : 's'} ago`;
-            };
+            const formatRelationTimeAgo = dateTime => window.communityRelativeTime(dateTime);
             const relationCardRecords = {
                 dependencies: makeRelationCardRecords('dependency', [
                     ...relationWordPools.single,
@@ -4662,7 +4715,7 @@
                     button.type = 'button';
                     button.dataset.pageNumber = String(pageNumber);
                     button.textContent = String(pageNumber);
-                    button.setAttribute('aria-label', `Page ${pageNumber}`);
+                    button.setAttribute('aria-label', window.communityI18nText('pageNumber', 'Page {number}', { number: pageNumber }));
                     if (pageNumber === page) button.setAttribute('aria-current', 'page');
                     return button;
                 }));
@@ -4722,7 +4775,8 @@
                         downloads.type = 'button';
                         downloads.textContent = formatRelationDownloads(cardRecord.downloads);
                         downloads.prepend(downloadIcon);
-                        downloads.setAttribute('aria-label', `${cardRecord.downloads} downloads`);
+                        downloads.dataset.downloadCount = String(cardRecord.downloads);
+                        downloads.setAttribute('aria-label', window.communityI18nText('downloadCount', '{count} downloads', { count: new Intl.NumberFormat(document.documentElement.lang || 'en-GB').format(cardRecord.downloads) }));
                         downloads.setAttribute('aria-expanded', 'false');
                         const downloadTooltip = document.createElement('span');
                         downloadTooltip.className = 'main-project-relation-download-tooltip';
@@ -4775,6 +4829,17 @@
                 });
             }, 1000);
             const rerenderRelationPaginationForViewport = () => renderRelationPagination(relationPaginationStates[activeRelationKey].currentPage);
+            window.addEventListener('site:languagechange', () => {
+                rerenderRelationPaginationForViewport();
+                renderRelationPageSizeControl({ restoreFocus: false });
+                document.querySelectorAll('.main-project-relation-card-downloads[data-download-count]').forEach(button => {
+                    const count = Number(button.dataset.downloadCount) || 0;
+                    button.setAttribute('aria-label', window.communityI18nText('downloadCount', '{count} downloads', { count: new Intl.NumberFormat(document.documentElement.lang || 'en-GB').format(count) }));
+                });
+                document.querySelectorAll('.main-project-relation-card-time[datetime]').forEach(time => {
+                    time.textContent = window.communityRelativeTime(time.dateTime);
+                });
+            });
             if (relationPaginationCompactMedia.addEventListener) {
                 relationPaginationCompactMedia.addEventListener('change', rerenderRelationPaginationForViewport);
             } else {
@@ -4791,14 +4856,18 @@
                 const pageSize = relationPaginationStates[activeRelationKey].pageSize;
                 relationPageSizeCurrent.textContent = String(pageSize);
                 relationPageSizeCurrent.setAttribute('aria-expanded', String(expanded));
-                relationPageSizeCurrent.setAttribute('aria-label', `Cards per page: ${pageSize}. ${expanded ? 'Hide' : 'Show'} options`);
+                const pageSizeAction = window.communityI18nText(expanded ? 'hideOptions' : 'showOptions', expanded ? 'Hide' : 'Show');
+                relationPageSizeCurrent.setAttribute('aria-label', window.communityI18nText('cardsPerPageSummary', 'Cards per page: {count}. {action} options', { count: pageSize, action: pageSizeAction }));
                 if (restoreFocus && !expanded && relationPageSizeReveal?.contains(document.activeElement)) relationPageSizeCurrent.focus({ preventScroll: true });
                 relationPageSizeReveal?.toggleAttribute('inert', !expanded);
                 relationPageSizeReveal?.setAttribute('aria-hidden', String(!expanded));
                 relationPageSizeToggleButtons.forEach(button => {
                     button.setAttribute('aria-expanded', String(expanded));
-                    button.setAttribute('aria-label', `${expanded ? 'Collapse' : 'Expand'} cards per page options`);
-                    button.title = `${expanded ? 'Collapse' : 'Expand'} cards per page options`;
+                    const optionsKey = expanded ? 'collapseCardsPerPageOptions' : 'expandCardsPerPageOptions';
+                    const optionsFallback = `${expanded ? 'Collapse' : 'Expand'} cards per page options`;
+                    const optionsLabel = window.communityI18nText(optionsKey, optionsFallback);
+                    button.setAttribute('aria-label', optionsLabel);
+                    button.title = optionsLabel;
                 });
                 relationPageSizeOptions.forEach(button => {
                     button.setAttribute('aria-pressed', String(Number(button.dataset.pageSize) === pageSize));
@@ -5611,6 +5680,12 @@
                 window.requestAnimationFrame(() => updateDescriptionArrowOverlaps(description, toggle));
             }
             window.syncCommunityDescriptionToggle = syncDescriptionToggle;
+            window.addEventListener('site:languagechange', () => {
+                document.querySelectorAll('.main-project-description-toggle').forEach(toggle => {
+                    const expanded = toggle.getAttribute('aria-expanded') === 'true';
+                    toggle.setAttribute('aria-label', window.communityI18nText(expanded ? 'collapseProjectDescription' : 'showFullProjectDescription', expanded ? 'Collapse project description' : 'Show full project description'));
+                });
+            });
             function collapseDescription(description, toggle) {
                 const fullHeight = description.getBoundingClientRect().height;
                 const lineHeight = parseFloat(window.getComputedStyle(description).lineHeight) || 0;
@@ -5630,7 +5705,7 @@
                 });
                 toggle.setAttribute('aria-expanded', 'false');
                 toggle.textContent = '⌄';
-                toggle.setAttribute('aria-label', 'Show full project description');
+                toggle.setAttribute('aria-label', window.communityI18nText('showFullProjectDescription', 'Show full project description'));
             }
             document.addEventListener('click', event => {
                 const activeDescription = document.querySelector('.main-project-description.is-expanded');
@@ -5679,7 +5754,7 @@
                 } else collapseDescription(description, toggle);
                 toggle.setAttribute('aria-expanded', String(!expanded));
                 toggle.textContent = expanded ? '⌄' : '⌃';
-                toggle.setAttribute('aria-label', expanded ? 'Show full project description' : 'Collapse project description');
+                toggle.setAttribute('aria-label', window.communityI18nText(expanded ? 'showFullProjectDescription' : 'collapseProjectDescription', expanded ? 'Show full project description' : 'Collapse project description'));
             });
             document.addEventListener('keydown', event => {
                 if (event.key !== 'Escape' || event.defaultPrevented || document.querySelector('dialog[open]')) return;
@@ -6780,9 +6855,24 @@
             if (!content || !frame) return;
             const type = content.dataset.changelogType || 'entry';
             const label = type.charAt(0).toUpperCase() + type.slice(1);
+            const refreshChangelogDateLabel = () => {
+                document.querySelectorAll('.main-project-changelog-created-at[data-community-i18n-template="repositoryCreatedAt"]').forEach(time => {
+                    const datetime = time.textContent.trim();
+                    time.setAttribute('aria-label', window.communityI18nText('repositoryCreatedAt', 'Repository created at {datetime}', { datetime }));
+                });
+            };
+            window.addEventListener('site:languagechange', refreshChangelogDateLabel);
+            refreshChangelogDateLabel();
             button.setAttribute('aria-controls', frame.id);
             button.setAttribute('aria-expanded', String(!frame.hidden));
-            button.setAttribute('aria-label', `${frame.hidden ? 'Expand' : 'Collapse'} ${label} changelog`);
+            const setChangelogAriaLabel = () => {
+                const expanded = button.getAttribute('aria-expanded') === 'true';
+                const key = expanded ? 'collapseChangelog' : 'expandChangelog';
+                const fallback = `${expanded ? 'Collapse' : 'Expand'} {type} changelog`;
+                button.setAttribute('aria-label', window.communityI18nText(key, fallback, { type: label }));
+            };
+            setChangelogAriaLabel();
+            window.addEventListener('site:languagechange', setChangelogAriaLabel);
             const tooltip = button.nextElementSibling;
             if (!tooltip?.classList.contains('main-project-changelog-button-tooltip')) return;
             let longPressTimer = 0;
@@ -6911,7 +7001,7 @@
                 frame.toggleAttribute('inert', !expanded);
                 frame.setAttribute('aria-hidden', String(!expanded));
                 button.setAttribute('aria-expanded', String(expanded));
-                button.setAttribute('aria-label', `${expanded ? 'Collapse' : 'Expand'} ${label} changelog`);
+                setChangelogAriaLabel();
             });
         });
     </script>
