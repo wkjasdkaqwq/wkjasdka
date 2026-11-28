@@ -1338,10 +1338,19 @@
                 height: 3rem;
                 margin: 26px auto 0;
                 --switcher-button-width: 9.5rem;
+                --switcher-button-height: 2.25rem;
                 --switcher-gap: .45rem;
             }
             .main-project-switcher-track { justify-content: flex-start; }
-            .main-project-switcher-button { height: 2.25rem; font-size: .92rem; }
+            .main-project-switcher-track::before {
+                top: 50%;
+                bottom: auto;
+                left: .2rem;
+                width: calc(var(--switcher-button-width) - 4px);
+                height: calc(var(--switcher-button-height) - 4px);
+                transform: translateX(calc(var(--switcher-index) * (var(--switcher-button-width) + var(--switcher-gap)) + 2px)) translateY(-50%);
+            }
+            .main-project-switcher-button { height: var(--switcher-button-height); font-size: .92rem; }
             .main-project-lower-divider { display: none; }
             .main-project-tab-panel,
             .main-project-description-section {
