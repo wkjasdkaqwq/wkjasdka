@@ -1347,6 +1347,8 @@
                 align-self: end;
                 justify-self: end;
                 z-index: 13;
+                top: var(--description-toggle-offset-y, 0px);
+                transition: top .24s cubic-bezier(.2, .8, .2, 1), transform .15s ease;
             }
             .main-project-switcher {
                 position: relative;
@@ -5556,6 +5558,8 @@
                 const fullHeight = description.getBoundingClientRect().height;
                 const lineHeight = parseFloat(window.getComputedStyle(description).lineHeight) || 0;
                 const collapsedHeight = Number(description.dataset.collapsedHeight) || lineHeight * 3;
+                const desktopLayout = window.matchMedia('(min-width: 960px)').matches;
+                if (desktopLayout) toggle.style.setProperty('--description-toggle-offset-y', '0px');
                 description.style.maxHeight = 'none';
                 description.classList.remove('is-expanded');
                 description.parentElement.classList.remove('is-expanded');
@@ -5563,6 +5567,7 @@
                     description.style.height = '';
                     description.style.removeProperty('max-height');
                     delete description.dataset.collapsedHeight;
+                    if (desktopLayout) toggle.style.removeProperty('--description-toggle-offset-y');
                     updateDescriptionArrowOverlaps(description, toggle);
                 });
                 toggle.setAttribute('aria-expanded', 'false');
@@ -5601,6 +5606,9 @@
                     const fullHeight = probe.scrollHeight;
                     probe.remove();
                     description.dataset.collapsedHeight = String(currentHeight);
+                    if (window.matchMedia('(min-width: 960px)').matches) {
+                        toggle.style.setProperty('--description-toggle-offset-y', `${Math.max(0, fullHeight - currentHeight)}px`);
+                    }
                     description.classList.add('is-expanded');
                     info.classList.add('is-expanded');
                     window.requestAnimationFrame(() => updateDescriptionArrowOverlaps(description, toggle));
