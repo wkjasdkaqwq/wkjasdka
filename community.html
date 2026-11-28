@@ -1285,7 +1285,9 @@
 
         /* Desktop project-page layout: bounded canvas, clear project masthead, readable tab panels. */
         .main-project-main-column,
-        .main-project-sidebar { display: contents; }
+        .main-project-sidebar,
+        .main-project-content-layout { display: contents; }
+        .main-project-sidebar-placeholder { display: none !important; }
         @media (min-width: 960px) {
             #mainContent {
                 justify-content: center;
@@ -1394,15 +1396,18 @@
                 box-shadow: 0 5px 20px rgba(30, 40, 50, .045);
             }
             .main-project-tab-panel[hidden] { display: none; }
-            .main-project-description-section { display: block; }
-            #panel-description {
+            .main-project-content-layout {
+                grid-column: 1 / -1;
                 display: grid;
                 grid-template-columns: minmax(0, 1fr) minmax(250px, 330px);
                 column-gap: clamp(28px, 4vw, 58px);
                 align-items: start;
             }
-            .main-project-main-column { grid-column: 1; grid-row: 1; display: block; min-width: 0; }
-            .main-project-sidebar { grid-column: 2; grid-row: 1; display: flex; flex-direction: column; min-width: 0; gap: 22px; }
+            .main-project-tab-panel { grid-column: 1; grid-row: 1; min-width: 0; width: 100%; }
+            .main-project-description-section { display: block; }
+            #panel-description { display: block; }
+            .main-project-main-column { display: block; min-width: 0; }
+            .main-project-sidebar { grid-column: 2; grid-row: 1; display: flex; flex-direction: column; min-width: 0; gap: 22px; margin-top: 38px; }
             .main-project-compatibility-section,
             .main-project-tag-section,
             .main-project-developer-section,
@@ -1494,180 +1499,15 @@
                     </div>
                 </div>
                 <div class="main-project-lower-divider" aria-hidden="true"></div>
-                <section class="main-project-tab-panel main-project-description-section" id="panel-description" role="tabpanel" aria-labelledby="tab-description">
+                                <div class="main-project-content-layout">
+<section class="main-project-tab-panel main-project-description-section" id="panel-description" role="tabpanel" aria-labelledby="tab-description">
                     <div class="main-project-main-column">
                     <h2 class="main-project-description-section-title main-project-description-title" id="description-section-title">Semi-rounded Corner</h2>
                     <div class="main-project-description-section-divider" aria-hidden="true"></div>
                     <p class="main-project-description-body">Semi-rounded Corner is a small visual study focused on balanced spacing, soft edges, and a clear structure. More details, project notes, and future updates will be added here as the design continues to develop. Additional notes will follow. <span id="description-end-anchor">The next iteration will document the final direction.</span></p>
                     <div class="main-project-description-section-divider main-project-description-end-divider" aria-hidden="true"></div>
                     </div>
-                    <aside class="main-project-sidebar" aria-label="Project information">
-                    <section class="main-project-compatibility-section" id="compatibility-section" aria-labelledby="compatibility-title">
-                        <h2 class="main-project-description-section-title main-project-description-title" id="compatibility-title">Compatibility</h2>
-                        <div class="main-project-description-section-divider" aria-hidden="true"></div>
-                        <div class="main-project-compatibility-content" id="compatibility-content">
-                            <p class="compatibility-edition-label">Minecraft: Java Edition</p>
-                            <div class="compatibility-version-list" aria-label="Compatible Minecraft versions">
-                                <button class="compatibility-version-button" type="button" data-version="1.21.x">1.21.x</button>
-                                <button class="compatibility-version-button" type="button" data-version="1.20.x">1.20.x</button>
-                            </div>
-                            <p class="compatibility-edition-label compatibility-loader-label">Loader</p>
-                            <div class="compatibility-version-list" aria-label="Compatible Minecraft loaders">
-                                <button class="compatibility-version-button compatibility-loader-button" type="button" aria-label="Fabric Loader">
-                                    <img class="compatibility-loader-icon" src="resource/icon/mod-loader/fabric.png" alt="" aria-hidden="true">
-                                    <span>Fabric</span>
-                                </button>
-                                <button class="compatibility-version-button compatibility-loader-button" type="button" data-loader="forge">
-                                    <img class="compatibility-loader-icon" src="resource/icon/mod-loader/forge.png" alt="" aria-hidden="true">
-                                    <span>Forge</span>
-                                </button>
-                                <button class="compatibility-version-button compatibility-loader-button" type="button" data-loader="legacy-fabric">
-                                    <img class="compatibility-loader-icon" src="resource/icon/mod-loader/legacy-fabric.png" alt="" aria-hidden="true">
-                                    <span>Legacy Fabric</span>
-                                </button>
-                                <button class="compatibility-version-button compatibility-loader-button" type="button" data-loader="liteloader">
-                                    <img class="compatibility-loader-icon" src="resource/icon/mod-loader/liteloader.png" alt="" aria-hidden="true">
-                                    <span>LiteLoader</span>
-                                </button>
-                                <button class="compatibility-version-button compatibility-loader-button" type="button" data-loader="neoforge">
-                                    <img class="compatibility-loader-icon" src="resource/icon/mod-loader/neoforge.png" alt="" aria-hidden="true">
-                                    <span>NeoForge</span>
-                                </button>
-                                <button class="compatibility-version-button compatibility-loader-button" type="button" data-loader="quilt">
-                                    <img class="compatibility-loader-icon" src="resource/icon/mod-loader/quilt.png" alt="" aria-hidden="true">
-                                    <span>Quilt</span>
-                                </button>
-                                <button class="compatibility-version-button compatibility-loader-button" type="button" data-loader="rift">
-                                    <img class="compatibility-loader-icon" src="resource/icon/mod-loader/rift.png" alt="" aria-hidden="true">
-                                    <span>Rift</span>
-                                </button>
-                            </div>
-                            <p class="compatibility-edition-label compatibility-loader-label">Environments required</p>
-                            <div class="compatibility-version-list" aria-label="Required environments">
-                                <button class="compatibility-version-button compatibility-environment-button" type="button" data-environment="client"><span class="compatibility-environment-icon" aria-hidden="true"></span><span>Client</span></button>
-                                <button class="compatibility-version-button compatibility-environment-button" type="button" data-environment="server"><span class="compatibility-environment-icon" aria-hidden="true"></span><span>Server</span></button>
-                            </div>
-                        </div>
-                        <div class="main-project-description-section-divider" aria-hidden="true"></div>
-                    </section>
-                    <section class="main-project-tag-section" id="tag-section" aria-labelledby="tag-section-title">
-                        <h2 class="main-project-description-section-title main-project-description-title" id="tag-section-title">Tag</h2>
-                        <div class="main-project-description-section-divider" aria-hidden="true"></div>
-                        <div class="main-project-tag-content">
-                            <div class="compatibility-version-list" aria-label="Tag options">
-                                <button class="compatibility-version-button compatibility-environment-button" type="button" aria-label="Example">Example</button>
-                                <button class="compatibility-version-button compatibility-environment-button" type="button" aria-label="Example">Example</button>
-                            </div>
-                        </div>
-                        <div class="main-project-description-section-divider" aria-hidden="true"></div>
-                    </section>
-                    <section class="main-project-developer-section" id="developer-section" aria-labelledby="developer-section-title">
-                        <h2 class="main-project-description-section-title main-project-description-title" id="developer-section-title">Developer</h2>
-                        <div class="main-project-description-section-divider" aria-hidden="true"></div>
-                        <div class="main-project-developer-content">
-                            <div class="compatibility-version-list" aria-label="Developer options">
-                                <div class="main-project-developer-button-slot">
-                                    <button class="compatibility-version-button compatibility-environment-button main-project-developer-button" type="button" aria-label="Developer 1">
-                                        <i class="main-project-developer-crown fa-solid fa-crown" aria-hidden="true"></i>
-                                    </button>
-                                </div>
-                                <div class="main-project-developer-button-slot"><button class="compatibility-version-button compatibility-environment-button main-project-developer-button" type="button" aria-label="Developer 2"></button></div>
-                                <div class="main-project-developer-button-slot"><button class="compatibility-version-button compatibility-environment-button main-project-developer-button" type="button" aria-label="Developer 3"></button></div>
-                                <div class="main-project-developer-button-slot"><button class="compatibility-version-button compatibility-environment-button main-project-developer-button" type="button" aria-label="Developer 4"></button></div>
-                            </div>
-                        </div>
-                        <div class="main-project-description-section-divider" aria-hidden="true"></div>
-                    </section>
-                    <section class="main-project-link-section" id="link-section" aria-labelledby="link-section-title">
-                        <h2 class="main-project-description-section-title main-project-description-title" id="link-section-title">Link</h2>
-                        <div class="main-project-description-section-divider" aria-hidden="true"></div>
-                        <div class="main-project-link-row">
-                            <span class="detail-metadata-icon-slot" aria-hidden="true">
-                                <svg class="detail-metadata-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
-                                    <path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m7.5-6.923c-.67.204-1.335.82-1.887 1.855A8 8 0 0 0 5.145 4H7.5zM4.09 4a9.3 9.3 0 0 1 .64-1.539 7 7 0 0 1 .597-.933A7.03 7.03 0 0 0 2.255 4zm-.582 3.5c.03-.877.138-1.718.312-2.5H1.674a7 7 0 0 0-.656 2.5zM4.847 5a12.5 12.5 0 0 0-.338 2.5H7.5V5zM8.5 5v2.5h2.99a12.5 12.5 0 0 0-.337-2.5zM4.51 8.5a12.5 12.5 0 0 0 .337 2.5H7.5V8.5zm3.99 0V11h2.653c.187-.765.306-1.608.338-2.5zM5.145 12q.208.58.468 1.068c.552 1.035 1.218 1.65 1.887 1.855V12zm.182 2.472a7 7 0 0 1-.597-.933A9.3 9.3 0 0 1 4.09 12H2.255a7 7 0 0 0 3.072 2.472M3.82 11a13.7 13.7 0 0 1-.312-2.5h-2.49c.062.89.291 1.733.656 2.5zm6.853 3.472A7 7 0 0 0 13.745 12H11.91a9.3 9.3 0 0 1-.64 1.539 7 7 0 0 1-.597.933M8.5 12v2.923c.67-.204 1.335-.82 1.887-1.855q.26-.487.468-1.068zm3.68-1h2.146c.365-.767.594-1.61.656-2.5h-2.49a13.7 13.7 0 0 1-.312 2.5m2.802-3.5a7 7 0 0 0-.656-2.5H12.18c.174.782.282 1.623.312 2.5zM11.27 2.461c.247.464.462.98.64 1.539h1.835a7 7 0 0 0-3.072-2.472c.218.284.418.598.597.933M10.855 4a8 8 0 0 0-.468-1.068C9.835 1.897 9.17 1.282 8.5 1.077V4z" />
-                                </svg>
-                            </span>
-                            <p class="detail-release-text"><span class="detail-metadata-label">Official site</span></p>
-                            <a class="main-project-link-action" href="https://wkjasdkaqwq.github.io/wkjasdka/" aria-label="Open Official site" title="Open Official site" draggable="false">
-                                <span class="main-project-link-action-icon" aria-hidden="true"></span>
-                            </a>
-                        </div>
-                        <div class="main-project-link-row">
-                            <span class="detail-metadata-icon-slot" aria-hidden="true">
-                                <svg class="detail-metadata-icon" viewBox="0 0 16 16" focusable="false">
-                                    <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8" />
-                                </svg>
-                            </span>
-                            <p class="detail-release-text"><span class="detail-metadata-label">GitHub</span></p>
-                            <a class="main-project-link-action" href="https://github.com/wkjasdkaqwq" aria-label="Open GitHub profile" title="Open GitHub profile" draggable="false">
-                                <span class="main-project-link-action-icon" aria-hidden="true"></span>
-                            </a>
-                        </div>
-                        <div class="main-project-description-section-divider" aria-hidden="true"></div>
-                    </section>
-                    <section class="main-project-detail-section" id="detail-section" aria-labelledby="detail-section-title">
-                        <h2 class="main-project-description-section-title main-project-description-title" id="detail-section-title">Detail</h2>
-                        <div class="main-project-description-section-divider" aria-hidden="true"></div>
-                        <div class="detail-license-row">
-                            <span class="detail-license-scale" aria-hidden="true"><i class="fa-solid fa-scale-balanced"></i></span>
-                            <p class="detail-license-text"><span class="detail-metadata-label">Licensed</span> <button class="detail-license-trigger" id="mit-license-trigger" type="button" aria-haspopup="dialog" aria-controls="mit-license-dialog">MIT</button></p>
-                        </div>
-                        <div class="detail-downloads-row">
-                            <span class="detail-metadata-icon-slot" aria-hidden="true"><span class="detail-metadata-icon detail-download-icon"></span></span>
-                            <p class="detail-downloads-text"><span class="detail-metadata-label">Downloads</span> 1,234,567</p>
-                        </div>
-                        <div class="detail-source-row">
-                            <span class="detail-metadata-icon-slot" aria-hidden="true"><span class="detail-metadata-icon detail-source-icon"></span></span>
-                            <p class="detail-source-text"><span class="detail-metadata-label">Source</span><span class="detail-inline-github-icon" aria-hidden="true"></span></p>
-                        </div>
-                        <div class="detail-bug-row">
-                            <span class="detail-metadata-icon-slot" aria-hidden="true"><span class="detail-metadata-icon detail-bug-icon"></span></span>
-                            <p class="detail-bug-text"><span class="detail-metadata-label">Issues</span><span class="detail-inline-github-icon" aria-hidden="true"></span></p>
-                        </div>
-                        <div class="detail-release-row">
-                            <span class="detail-metadata-icon-slot" aria-hidden="true">
-                                <svg class="detail-metadata-icon detail-release-icon" viewBox="0 0 16 16" focusable="false">
-                                    <path d="M8.5 11.5a.5.5 0 0 1-1 0V7.707L6.354 8.854a.5.5 0 1 1-.708-.708l2-2a.5.5 0 0 1 .708 0l2 2a.5.5 0 0 1-.708.708L8.5 7.707z" />
-                                    <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2M9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5z" />
-                                </svg>
-                            </span>
-                            <p class="detail-release-text"><span class="detail-metadata-label">Release Date</span> <time datetime="2022-11-29T00:00:00">2022.11.29 00:00:00</time></p>
-                        </div>
-                        <div class="detail-last-updated-row">
-                            <span class="detail-metadata-icon-slot" aria-hidden="true">
-                                <svg class="detail-metadata-icon detail-last-updated-icon" viewBox="0 0 16 16" focusable="false">
-                                    <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
-                                    <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z" />
-                                </svg>
-                            </span>
-                            <p class="detail-last-updated-text"><span class="detail-metadata-label">Last Updated</span> <time datetime="2025-05-08T07:30:04">2025.05.08 07:30:04</time></p>
-                        </div>
-                        <div class="main-project-description-section-divider" aria-hidden="true"></div>
-                        <dialog class="mit-license-dialog" id="mit-license-dialog" aria-labelledby="mit-license-title" tabindex="-1">
-                            <div class="mit-license-surface">
-                                <div class="mit-license-card">
-                                    <div class="mit-license-project-header">
-                                        <div class="mit-license-project-row">
-                                            <img class="mit-license-project-image" src="index/untitled.png" alt="Semi-rounded Corner project image" width="64" height="64" draggable="false">
-                                            <h2 class="mit-license-project-title">Semi-rounded Corner</h2>
-                                        </div>
-                                        <div class="mit-license-project-divider" aria-hidden="true"></div>
-                                    </div>
-                                    <div class="mit-license-text">
-                                        <p id="mit-license-title">MIT License</p>
-                                        <p>Copyright (c) [year] [copyright holders]</p>
-                                        <p>Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:</p>
-                                        <p>The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.</p>
-                                        <p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
-                                    </div>
-                                </div>
-                                <div class="mit-license-scrollbar" aria-hidden="true"><div class="mit-license-scrollbar-thumb"></div></div>
-                            </div>
-                            <button class="mit-license-nav-close" id="mit-license-nav-close" type="button" aria-label="Close MIT license" aria-hidden="true" tabindex="-1" disabled>
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M5 5l14 14M19 5 5 19"></path></svg>
-                            </button>
-                        </dialog>
-                    </section>
+                                        <div class="main-project-sidebar-placeholder" aria-hidden="true"></div>
                 </section>
                 <section class="main-project-tab-panel" id="panel-update" role="tabpanel" aria-labelledby="tab-update" hidden>
                     <h2 class="main-project-description-section-title">Semi-rounded Corner</h2>
@@ -1885,6 +1725,176 @@
                         </article>
                     </div>
                 </section>
+<aside class="main-project-sidebar" aria-label="Project information">
+                    <section class="main-project-compatibility-section" id="compatibility-section" aria-labelledby="compatibility-title">
+                        <h2 class="main-project-description-section-title main-project-description-title" id="compatibility-title">Compatibility</h2>
+                        <div class="main-project-description-section-divider" aria-hidden="true"></div>
+                        <div class="main-project-compatibility-content" id="compatibility-content">
+                            <p class="compatibility-edition-label">Minecraft: Java Edition</p>
+                            <div class="compatibility-version-list" aria-label="Compatible Minecraft versions">
+                                <button class="compatibility-version-button" type="button" data-version="1.21.x">1.21.x</button>
+                                <button class="compatibility-version-button" type="button" data-version="1.20.x">1.20.x</button>
+                            </div>
+                            <p class="compatibility-edition-label compatibility-loader-label">Loader</p>
+                            <div class="compatibility-version-list" aria-label="Compatible Minecraft loaders">
+                                <button class="compatibility-version-button compatibility-loader-button" type="button" aria-label="Fabric Loader">
+                                    <img class="compatibility-loader-icon" src="resource/icon/mod-loader/fabric.png" alt="" aria-hidden="true">
+                                    <span>Fabric</span>
+                                </button>
+                                <button class="compatibility-version-button compatibility-loader-button" type="button" data-loader="forge">
+                                    <img class="compatibility-loader-icon" src="resource/icon/mod-loader/forge.png" alt="" aria-hidden="true">
+                                    <span>Forge</span>
+                                </button>
+                                <button class="compatibility-version-button compatibility-loader-button" type="button" data-loader="legacy-fabric">
+                                    <img class="compatibility-loader-icon" src="resource/icon/mod-loader/legacy-fabric.png" alt="" aria-hidden="true">
+                                    <span>Legacy Fabric</span>
+                                </button>
+                                <button class="compatibility-version-button compatibility-loader-button" type="button" data-loader="liteloader">
+                                    <img class="compatibility-loader-icon" src="resource/icon/mod-loader/liteloader.png" alt="" aria-hidden="true">
+                                    <span>LiteLoader</span>
+                                </button>
+                                <button class="compatibility-version-button compatibility-loader-button" type="button" data-loader="neoforge">
+                                    <img class="compatibility-loader-icon" src="resource/icon/mod-loader/neoforge.png" alt="" aria-hidden="true">
+                                    <span>NeoForge</span>
+                                </button>
+                                <button class="compatibility-version-button compatibility-loader-button" type="button" data-loader="quilt">
+                                    <img class="compatibility-loader-icon" src="resource/icon/mod-loader/quilt.png" alt="" aria-hidden="true">
+                                    <span>Quilt</span>
+                                </button>
+                                <button class="compatibility-version-button compatibility-loader-button" type="button" data-loader="rift">
+                                    <img class="compatibility-loader-icon" src="resource/icon/mod-loader/rift.png" alt="" aria-hidden="true">
+                                    <span>Rift</span>
+                                </button>
+                            </div>
+                            <p class="compatibility-edition-label compatibility-loader-label">Environments required</p>
+                            <div class="compatibility-version-list" aria-label="Required environments">
+                                <button class="compatibility-version-button compatibility-environment-button" type="button" data-environment="client"><span class="compatibility-environment-icon" aria-hidden="true"></span><span>Client</span></button>
+                                <button class="compatibility-version-button compatibility-environment-button" type="button" data-environment="server"><span class="compatibility-environment-icon" aria-hidden="true"></span><span>Server</span></button>
+                            </div>
+                        </div>
+                        <div class="main-project-description-section-divider" aria-hidden="true"></div>
+                    </section>
+                    <section class="main-project-tag-section" id="tag-section" aria-labelledby="tag-section-title">
+                        <h2 class="main-project-description-section-title main-project-description-title" id="tag-section-title">Tag</h2>
+                        <div class="main-project-description-section-divider" aria-hidden="true"></div>
+                        <div class="main-project-tag-content">
+                            <div class="compatibility-version-list" aria-label="Tag options">
+                                <button class="compatibility-version-button compatibility-environment-button" type="button" aria-label="Example">Example</button>
+                                <button class="compatibility-version-button compatibility-environment-button" type="button" aria-label="Example">Example</button>
+                            </div>
+                        </div>
+                        <div class="main-project-description-section-divider" aria-hidden="true"></div>
+                    </section>
+                    <section class="main-project-developer-section" id="developer-section" aria-labelledby="developer-section-title">
+                        <h2 class="main-project-description-section-title main-project-description-title" id="developer-section-title">Developer</h2>
+                        <div class="main-project-description-section-divider" aria-hidden="true"></div>
+                        <div class="main-project-developer-content">
+                            <div class="compatibility-version-list" aria-label="Developer options">
+                                <div class="main-project-developer-button-slot">
+                                    <button class="compatibility-version-button compatibility-environment-button main-project-developer-button" type="button" aria-label="Developer 1">
+                                        <i class="main-project-developer-crown fa-solid fa-crown" aria-hidden="true"></i>
+                                    </button>
+                                </div>
+                                <div class="main-project-developer-button-slot"><button class="compatibility-version-button compatibility-environment-button main-project-developer-button" type="button" aria-label="Developer 2"></button></div>
+                                <div class="main-project-developer-button-slot"><button class="compatibility-version-button compatibility-environment-button main-project-developer-button" type="button" aria-label="Developer 3"></button></div>
+                                <div class="main-project-developer-button-slot"><button class="compatibility-version-button compatibility-environment-button main-project-developer-button" type="button" aria-label="Developer 4"></button></div>
+                            </div>
+                        </div>
+                        <div class="main-project-description-section-divider" aria-hidden="true"></div>
+                    </section>
+                    <section class="main-project-link-section" id="link-section" aria-labelledby="link-section-title">
+                        <h2 class="main-project-description-section-title main-project-description-title" id="link-section-title">Link</h2>
+                        <div class="main-project-description-section-divider" aria-hidden="true"></div>
+                        <div class="main-project-link-row">
+                            <span class="detail-metadata-icon-slot" aria-hidden="true">
+                                <svg class="detail-metadata-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+                                    <path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m7.5-6.923c-.67.204-1.335.82-1.887 1.855A8 8 0 0 0 5.145 4H7.5zM4.09 4a9.3 9.3 0 0 1 .64-1.539 7 7 0 0 1 .597-.933A7.03 7.03 0 0 0 2.255 4zm-.582 3.5c.03-.877.138-1.718.312-2.5H1.674a7 7 0 0 0-.656 2.5zM4.847 5a12.5 12.5 0 0 0-.338 2.5H7.5V5zM8.5 5v2.5h2.99a12.5 12.5 0 0 0-.337-2.5zM4.51 8.5a12.5 12.5 0 0 0 .337 2.5H7.5V8.5zm3.99 0V11h2.653c.187-.765.306-1.608.338-2.5zM5.145 12q.208.58.468 1.068c.552 1.035 1.218 1.65 1.887 1.855V12zm.182 2.472a7 7 0 0 1-.597-.933A9.3 9.3 0 0 1 4.09 12H2.255a7 7 0 0 0 3.072 2.472M3.82 11a13.7 13.7 0 0 1-.312-2.5h-2.49c.062.89.291 1.733.656 2.5zm6.853 3.472A7 7 0 0 0 13.745 12H11.91a9.3 9.3 0 0 1-.64 1.539 7 7 0 0 1-.597.933M8.5 12v2.923c.67-.204 1.335-.82 1.887-1.855q.26-.487.468-1.068zm3.68-1h2.146c.365-.767.594-1.61.656-2.5h-2.49a13.7 13.7 0 0 1-.312 2.5m2.802-3.5a7 7 0 0 0-.656-2.5H12.18c.174.782.282 1.623.312 2.5zM11.27 2.461c.247.464.462.98.64 1.539h1.835a7 7 0 0 0-3.072-2.472c.218.284.418.598.597.933M10.855 4a8 8 0 0 0-.468-1.068C9.835 1.897 9.17 1.282 8.5 1.077V4z" />
+                                </svg>
+                            </span>
+                            <p class="detail-release-text"><span class="detail-metadata-label">Official site</span></p>
+                            <a class="main-project-link-action" href="https://wkjasdkaqwq.github.io/wkjasdka/" aria-label="Open Official site" title="Open Official site" draggable="false">
+                                <span class="main-project-link-action-icon" aria-hidden="true"></span>
+                            </a>
+                        </div>
+                        <div class="main-project-link-row">
+                            <span class="detail-metadata-icon-slot" aria-hidden="true">
+                                <svg class="detail-metadata-icon" viewBox="0 0 16 16" focusable="false">
+                                    <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8" />
+                                </svg>
+                            </span>
+                            <p class="detail-release-text"><span class="detail-metadata-label">GitHub</span></p>
+                            <a class="main-project-link-action" href="https://github.com/wkjasdkaqwq" aria-label="Open GitHub profile" title="Open GitHub profile" draggable="false">
+                                <span class="main-project-link-action-icon" aria-hidden="true"></span>
+                            </a>
+                        </div>
+                        <div class="main-project-description-section-divider" aria-hidden="true"></div>
+                    </section>
+                    <section class="main-project-detail-section" id="detail-section" aria-labelledby="detail-section-title">
+                        <h2 class="main-project-description-section-title main-project-description-title" id="detail-section-title">Detail</h2>
+                        <div class="main-project-description-section-divider" aria-hidden="true"></div>
+                        <div class="detail-license-row">
+                            <span class="detail-license-scale" aria-hidden="true"><i class="fa-solid fa-scale-balanced"></i></span>
+                            <p class="detail-license-text"><span class="detail-metadata-label">Licensed</span> <button class="detail-license-trigger" id="mit-license-trigger" type="button" aria-haspopup="dialog" aria-controls="mit-license-dialog">MIT</button></p>
+                        </div>
+                        <div class="detail-downloads-row">
+                            <span class="detail-metadata-icon-slot" aria-hidden="true"><span class="detail-metadata-icon detail-download-icon"></span></span>
+                            <p class="detail-downloads-text"><span class="detail-metadata-label">Downloads</span> 1,234,567</p>
+                        </div>
+                        <div class="detail-source-row">
+                            <span class="detail-metadata-icon-slot" aria-hidden="true"><span class="detail-metadata-icon detail-source-icon"></span></span>
+                            <p class="detail-source-text"><span class="detail-metadata-label">Source</span><span class="detail-inline-github-icon" aria-hidden="true"></span></p>
+                        </div>
+                        <div class="detail-bug-row">
+                            <span class="detail-metadata-icon-slot" aria-hidden="true"><span class="detail-metadata-icon detail-bug-icon"></span></span>
+                            <p class="detail-bug-text"><span class="detail-metadata-label">Issues</span><span class="detail-inline-github-icon" aria-hidden="true"></span></p>
+                        </div>
+                        <div class="detail-release-row">
+                            <span class="detail-metadata-icon-slot" aria-hidden="true">
+                                <svg class="detail-metadata-icon detail-release-icon" viewBox="0 0 16 16" focusable="false">
+                                    <path d="M8.5 11.5a.5.5 0 0 1-1 0V7.707L6.354 8.854a.5.5 0 1 1-.708-.708l2-2a.5.5 0 0 1 .708 0l2 2a.5.5 0 0 1-.708.708L8.5 7.707z" />
+                                    <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2M9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5z" />
+                                </svg>
+                            </span>
+                            <p class="detail-release-text"><span class="detail-metadata-label">Release Date</span> <time datetime="2022-11-29T00:00:00">2022.11.29 00:00:00</time></p>
+                        </div>
+                        <div class="detail-last-updated-row">
+                            <span class="detail-metadata-icon-slot" aria-hidden="true">
+                                <svg class="detail-metadata-icon detail-last-updated-icon" viewBox="0 0 16 16" focusable="false">
+                                    <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
+                                    <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z" />
+                                </svg>
+                            </span>
+                            <p class="detail-last-updated-text"><span class="detail-metadata-label">Last Updated</span> <time datetime="2025-05-08T07:30:04">2025.05.08 07:30:04</time></p>
+                        </div>
+                        <div class="main-project-description-section-divider" aria-hidden="true"></div>
+                        <dialog class="mit-license-dialog" id="mit-license-dialog" aria-labelledby="mit-license-title" tabindex="-1">
+                            <div class="mit-license-surface">
+                                <div class="mit-license-card">
+                                    <div class="mit-license-project-header">
+                                        <div class="mit-license-project-row">
+                                            <img class="mit-license-project-image" src="index/untitled.png" alt="Semi-rounded Corner project image" width="64" height="64" draggable="false">
+                                            <h2 class="mit-license-project-title">Semi-rounded Corner</h2>
+                                        </div>
+                                        <div class="mit-license-project-divider" aria-hidden="true"></div>
+                                    </div>
+                                    <div class="mit-license-text">
+                                        <p id="mit-license-title">MIT License</p>
+                                        <p>Copyright (c) [year] [copyright holders]</p>
+                                        <p>Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:</p>
+                                        <p>The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.</p>
+                                        <p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
+                                    </div>
+                                </div>
+                                <div class="mit-license-scrollbar" aria-hidden="true"><div class="mit-license-scrollbar-thumb"></div></div>
+                            </div>
+                            <button class="mit-license-nav-close" id="mit-license-nav-close" type="button" aria-label="Close MIT license" aria-hidden="true" tabindex="-1" disabled>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M5 5l14 14M19 5 5 19"></path></svg>
+                            </button>
+                        </dialog>
+                    </section>
+                    </aside>
+                </div>
+
             </div>
         </div>
     </main>
@@ -1919,7 +1929,6 @@
                             <label class="main-project-relation-filter-option"><input type="radio" name="relation-zero-placement" value="end" data-relation-sort="zero"><span data-i18n="relationSortEnd">End</span></label>
                         </div>
                     </section>
-                    </aside>
                 </section>
                 <section class="main-project-relation-filter-category-panel" id="relation-filter-panel-downloads" role="tabpanel" aria-labelledby="relation-filter-tab-downloads" tabindex="0" data-relation-filter-panel="downloads" hidden>
                     <div class="main-project-relation-filter-options" role="radiogroup" aria-label="Downloads">
@@ -2113,6 +2122,9 @@
                 : [];
             const relationSwitchButtons = Array.from(document.querySelectorAll('.main-project-relation-button'));
             const descriptionPanel = document.getElementById('panel-description');
+            const mainProjectContentLayout = document.querySelector('.main-project-content-layout');
+            const mainProjectSidebar = document.querySelector('.main-project-sidebar');
+            const mainProjectSidebarPlaceholder = document.querySelector('.main-project-sidebar-placeholder');
             const descriptionEndAnchor = document.getElementById('description-end-anchor');
             const descriptionEndDivider = descriptionPanel?.querySelector('.main-project-description-end-divider');
             const descriptionBody = descriptionPanel?.querySelector('.main-project-description-body');
@@ -4115,8 +4127,21 @@
                     syncLowerDividerHeight();
                 }
             }
+            function syncMainProjectSidebarPlacement() {
+                if (!mainProjectContentLayout || !mainProjectSidebar || !mainProjectSidebarPlaceholder || !descriptionPanel) return;
+                const isDesktop = window.matchMedia('(min-width: 960px)').matches;
+                if (isDesktop) {
+                    if (mainProjectSidebar.parentElement !== mainProjectContentLayout) mainProjectContentLayout.append(mainProjectSidebar);
+                    setCompatibilityVisible(true);
+                } else {
+                    if (mainProjectSidebar.parentElement !== descriptionPanel) mainProjectSidebarPlaceholder.before(mainProjectSidebar);
+                    const descriptionTab = document.querySelector('.main-project-switcher-button[aria-controls="panel-description"]');
+                    setCompatibilityVisible(descriptionTab?.getAttribute('aria-selected') === 'true');
+                }
+            }
             function setCompatibilityVisible(isVisible) {
                 if (!compatibilitySection) return;
+                if (window.matchMedia('(min-width: 960px)').matches) isVisible = true;
                 if (isVisible) {
                     if (!compatibilitySection.isConnected && compatibilityPlaceholder.parentNode) {
                         compatibilityPlaceholder.replaceWith(compatibilitySection);
@@ -4132,6 +4157,8 @@
                     compatibilitySection.remove();
                 }
             }
+            syncMainProjectSidebarPlacement();
+            window.addEventListener('resize', syncMainProjectSidebarPlacement, { passive: true });
             if (descriptionBody && 'ResizeObserver' in window) {
                 new ResizeObserver(syncDescriptionEndDivider).observe(descriptionBody);
             }
