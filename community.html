@@ -3941,24 +3941,16 @@
                     form.dataset.commentReplyForm = '';
                     form.dataset.commentReplyAuthor = authorName;
                     form.setAttribute('aria-label', window.communityI18nText('replyToAuthor', 'Reply to {author}', { author: authorName }));
-                    let explicitReplySubmit = false;
                     const input = document.createElement('textarea');
                     input.className = 'community-comment-reply-input';
                     input.rows = 2;
                     input.setAttribute('enterkeyhint', 'enter');
                     input.placeholder = window.communityI18nText('replyPlaceholder', 'Reply to {author}…', { author: authorName });
                     input.setAttribute('aria-label', window.communityI18nText('replyToAuthor', 'Reply to {author}', { author: authorName }));
-                    input.addEventListener('focus', () => { explicitReplySubmit = false; });
                     input.addEventListener('keydown', event => {
-                        explicitReplySubmit = false;
                         if (event.key !== 'Enter') return;
-                        if (event.isComposing || event.keyCode === 229) return;
-                        event.preventDefault();
+                        // Keep textarea's native newline behavior and block page-level shortcuts only.
                         event.stopPropagation();
-                        const start = input.selectionStart ?? input.value.length;
-                        const end = input.selectionEnd ?? start;
-                        input.setRangeText('\n', start, end, 'end');
-                        input.dispatchEvent(new Event('input', { bubbles: true }));
                     });
                     const footer = document.createElement('div');
                     footer.className = 'community-comment-reply-form-footer';
@@ -3969,22 +3961,14 @@
                     cancel.textContent = window.communityI18nText('cancel', 'Cancel');
                     const submit = document.createElement('button');
                     submit.className = 'community-comment-reply-submit';
-                    submit.type = 'submit';
+                    submit.type = 'button';
                     submit.textContent = window.communityI18nText('reply', 'Reply');
-                    submit.addEventListener('pointerdown', () => { explicitReplySubmit = true; });
-                    submit.addEventListener('click', event => { if (event.detail > 0) explicitReplySubmit = true; });
-                    submit.addEventListener('keydown', event => {
-                        if (event.key === 'Enter' || event.key === ' ') explicitReplySubmit = true;
-                    });
                     form.addEventListener('submit', event => {
-                        const explicitlyActivated = explicitReplySubmit;
-                        explicitReplySubmit = false;
-                        // Only an explicit Reply-button activation may submit this form; soft keyboards can submit implicitly.
-                        if (!explicitlyActivated) {
-                            event.preventDefault();
-                            event.stopImmediatePropagation();
-                        }
+                        // Never allow native or implicit submission from an Enter key / soft keyboard.
+                        event.preventDefault();
+                        event.stopImmediatePropagation();
                     });
+                    submit.addEventListener('click', () => submitCommentReply(form));
                     footer.append(cancel, submit);
                     form.append(input, footer);
                     return form;
@@ -4269,10 +4253,8 @@
                     }
                     openCommentReplyForm(replyButton);
                 });
-                communityCommentList.addEventListener('submit', event => {
-                    const form = event.target.closest('[data-comment-reply-form]');
-                    if (!form || !communityCommentList.contains(form)) return;
-                    event.preventDefault();
+                const submitCommentReply = form => {
+                    if (!form?.isConnected || form.classList.contains('is-closing')) return;
                     const input = form.querySelector('textarea');
                     const text = input?.value.trim();
                     if (!text) {
@@ -4292,7 +4274,7 @@
                         if (thread) syncCommentThreadOverflow(thread);
                         syncLowerDividerHeight();
                     });
-                });
+                };
             }
             function syncDescriptionEndDivider() {
                 if (!descriptionPanel || descriptionPanel.hidden || !descriptionEndAnchor || !descriptionEndDivider) return;
