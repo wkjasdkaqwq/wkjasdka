@@ -5623,6 +5623,15 @@
                 toggle.textContent = expanded ? '⌄' : '⌃';
                 toggle.setAttribute('aria-label', expanded ? 'Show full project description' : 'Collapse project description');
             });
+            document.addEventListener('keydown', event => {
+                if (event.key !== 'Escape' || event.defaultPrevented || document.querySelector('dialog[open]')) return;
+                const description = document.querySelector('.main-project-description.is-expanded');
+                if (!description) return;
+                const toggle = description.parentElement.querySelector('.main-project-description-toggle');
+                if (!toggle) return;
+                event.preventDefault();
+                collapseDescription(description, toggle);
+            });
             const projectImageSelector = '.main-image-module, .mit-license-project-image';
             document.addEventListener('click', event => {
                 const image = event.target.closest(projectImageSelector);
